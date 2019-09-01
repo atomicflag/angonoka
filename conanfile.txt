@@ -1,0 +1,11 @@
+[requires]
+fmt/[^6.0.0]@signal9/stable
+yaml-cpp/[^0.6.2]@bincrafters/stable
+clipp/[^1.2.3]@signal9/stable 
+type_safe/[^0.2.1]@signal9/stable 
+
+[generators]
+pkg_config
+
+[options]
+*:shared=True
