@@ -1,8 +1,14 @@
+# Remotes
+# conan-center: https://api.bintray.com/conan/conan/conan-center
+# bincrafters: https://api.bintray.com/conan/bincrafters/public-conan
+# signal9: https://api.bintray.com/conan/signal9/conan
+
 [requires]
 fmt/[^6.0.0]@signal9/stable
 yaml-cpp/[^0.6.2]@bincrafters/stable
 clipp/[^1.2.3]@signal9/stable 
 type_safe/[^0.2.1]@signal9/stable 
+Catch2/[^2.9.2]@catchorg/stable 
 
 [generators]
 pkg_config
