@@ -8,6 +8,8 @@ build/conaninfo.txt:
 build/build.ninja: build/conaninfo.txt
 	@cd build && \
 	export PKG_CONFIG_PATH=$$(pwd) && \
+	export BOOST_ROOT=$$(pkg-config --variable=prefix boost) && \
+	sed -i -e 's/\([^a-zA-Z]-\)I/\1isystem/g' **.pc; \
 	meson $(MESON_ARGS) ..
 
 .PHONY: ninja

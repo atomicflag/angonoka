@@ -3,15 +3,22 @@ project('angonoka', 'cpp',
   default_options : ['warning_level=3',
                      'cpp_std=c++2a'])
 
-sources = [
-	'src/angonoka.cpp'
-]
+compiler = meson.get_compiler('cpp')
+
+if compiler.has_argument('-Wconversion')
+	add_global_arguments(['-Wconversion'], language : 'cpp')
+endif
 
 dependencies = [
 	dependency('fmt'),
 	dependency('yaml-cpp'),
 	dependency('clipp'),
-	dependency('type_safe')
+	dependency('range-v3'),
+	dependency('boost')
+]
+
+sources = [
+	'src/angonoka.cpp'
 ]
 
 exe = executable(meson.project_name(),

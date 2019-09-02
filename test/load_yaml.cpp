@@ -1,9 +1,13 @@
 #include <catch2/catch.hpp>
+
 #include <yaml-cpp/yaml.h>
 #include <unordered_set>
 #include <vector>
 #include <string>
 #include <string_view>
+#include <range/v3/algorithm/find.hpp>
+#include <fmt/format.h>
+#include <boost/safe_numerics/safe_integer.hpp>
 
 #include <fmt/printf.h>
 
@@ -43,17 +47,48 @@ namespace angonoka {
 		using std::runtime_error::runtime_error;
 	};
 
-	System load_text(std::string_view text) {
-		// text is a null-terminated string literal
-		const auto node = YAML::Load(text.data());
+	using Int = boost::safe_numerics::safe<int>;
+
+	namespace detail {
+		Int find_or_insert_group(System& sys, const YAML::Node& g) {
+			if(const auto& f = ranges::find(sys.groups, g.Scalar());
+				f != sys.groups.end()) {
+				return std::distance(sys.groups.begin(), f);
+			}
+			sys.groups.emplace_back(g.Scalar());
+			return sys.groups.size()-1;
+		}
+	} // namespace detail
+
+	System load_text(const char* text) {
+		const auto node = YAML::Load(text);
 		const auto agents = node["agents"];
 		if(!agents)
-			throw InvalidTasksDefinition{"Missing 'agents' section"};
+			throw InvalidTasksDefinition{
+				"Missing 'agents' section"};
 		if(!agents.IsMap())
-			throw InvalidTasksDefinition{"Section 'agents' has invalid type"};
+			throw InvalidTasksDefinition{
+				"Section 'agents' has an invalid type"};
 		System system;
 		for(auto&& agent: agents) {
-			// fmt::print("{}\n", agent.first.Scalar());
+			if(!agent.second.IsMap())
+				throw InvalidTasksDefinition{
+					fmt::format("Invalid agent specification for '{}'", agent.first)};
+			auto& a = system.agents.emplace_back();
+
+			// Parse agent.name
+			a.name = agent.first.Scalar();
+
+			// Parse agent.groups
+			if(const auto groups = agent.second["groups"]; groups) {
+				if(!groups.IsSequence())
+					throw InvalidTasksDefinition{
+						fmt::format("Invalid groups specification for '{}'", a.name)};
+				for(auto&& g : groups) {
+					const auto gid = detail::find_or_insert_group(system, g);
+					a.group_ids.emplace(gid);
+				}
+			}
 		}
 		return system;
 	}
@@ -64,11 +99,44 @@ TEST_CASE("Loading yaml") {
 		REQUIRE_THROWS_AS(angonoka::load_text(""), angonoka::InvalidTasksDefinition);
 	}
 
-	SECTION("Invalid agent specification") {
-	constexpr auto text = R"_(
-agents: 123
-)_";
+	SECTION("Section 'agents' has an invalid type") {
+		constexpr auto text = "agents: 123";
 		REQUIRE_THROWS_AS(angonoka::load_text(text), angonoka::InvalidTasksDefinition);
+	}
+
+	SECTION("Invalid agent spec") {
+		constexpr auto text =
+			"agents:\n"
+			"  agent 1: 123";
+		REQUIRE_THROWS_AS(angonoka::load_text(text), angonoka::InvalidTasksDefinition);
+	}
+
+	SECTION("Invalid group spec") {
+		constexpr auto text =
+			"agents:\n"
+			"  agent 1:\n"
+			"    groups: 123";
+		REQUIRE_THROWS_AS(angonoka::load_text(text), angonoka::InvalidTasksDefinition);
+	}
+
+	SECTION("Parse groups") {
+		constexpr auto text =
+			"agents:\n"
+			"  agent 1:\n"
+			"    groups:\n"
+			"      - A\n"
+			"      - B\n"
+			"  agent 2:\n"
+			"    groups:\n"
+			"      - A\n"
+			"      - C\n";
+		const auto system = angonoka::load_text(text);
+		REQUIRE(system.groups == angonoka::Groups{"A", "B", "C"});
+		REQUIRE(system.agents.size() == 2);
+		// Agent 1 has A(0) and B(1)
+		REQUIRE(system.agents[0].group_ids == angonoka::GroupIds{0,1});
+		// Agent 2 has A(0) and C(2)
+		REQUIRE(system.agents[1].group_ids == angonoka::GroupIds{0,2});
 	}
 
 	auto system = angonoka::load_text(tasks_text);
