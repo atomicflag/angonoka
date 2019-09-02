@@ -20,7 +20,8 @@ exe = executable(meson.project_name(),
 	install : true)
 
 test_sources = [
-	'test/catch.cpp'
+	'test/catch.cpp',
+	'test/load_yaml.cpp',
 ]
 
 test_exe = executable(meson.project_name()+'_test',

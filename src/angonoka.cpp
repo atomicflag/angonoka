@@ -12,7 +12,7 @@ struct Options {
 
 void foo(const Options& options) {
 	const auto yaml = YAML::LoadFile(options.filename);
-	fmt::print("{}\n", yaml["var"].Scalar());
+	fmt::print("{}\n", yaml["agents"].Scalar());
 }
 }
 
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 	Options options;
 
 	group cli{
-        value("input file", options.filename)
+	    value("input file", options.filename)
 	};
 
 	if(!parse(argc, argv, cli)) {
@@ -34,5 +34,5 @@ int main(int argc, char** argv) {
 
 	foo(options);
 
-    return 0;
+	return 0;
 }

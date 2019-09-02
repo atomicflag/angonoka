@@ -1,0 +1,11 @@
+agents:
+  agent 1:
+    groups:
+      - A
+      - B
+  agent 2:
+    multiplier: 0.8
+  agent 3:
+    multiplier: 0.5
+    groups:
+      - C
