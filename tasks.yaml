@@ -1,11 +1,15 @@
 agents:
   agent 1:
+    perf:
+      min: 0.5
+      max: 1.0
     groups:
       - A
       - B
   agent 2:
-    multiplier: 0.8
+    perf:
+      min: 0.5
+      max: 1.0
   agent 3:
-    multiplier: 0.5
     groups:
       - C
