@@ -14,26 +14,6 @@
 
 #include <fmt/printf.h>
 
-namespace  {
-	constexpr auto tasks_text = R"_(
-agents:
-  agent 1:
-    perf:
-      min: 0.5
-      max: 1.0
-    groups:
-      - A
-      - B
-  agent 2:
-    perf:
-      min: 0.5
-      max: 1.0
-  agent 3:
-    groups:
-      - C
-)_";
-} // namespace 
-
 namespace angonoka {
 	using GroupIds = std::unordered_set<int>;
 	using Normal = std::normal_distribution<float>;
@@ -431,6 +411,4 @@ TEST_CASE("Loading yaml") {
 		REQUIRE(system.agents[1].perf.mean() == Approx(1.f));
 		REQUIRE(system.agents[1].perf.stddev() == Approx(1.5f));
 	}
-
-	auto system = angonoka::load_text(tasks_text);
 }
