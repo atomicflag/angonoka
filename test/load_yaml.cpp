@@ -51,10 +51,11 @@ namespace angonoka {
 
 			stddev = (max-mean)*stdnum
 
-			\param min Lower bound
-			\param max Upper bound
-			\param stdnum Size of stddev (1 by default)
-			\return A tuple with mean and stddev
+			@param min 		Lower bound
+			@param max 		Upper bound
+			@param stdnum 	Size of stddev (1 by default)
+
+			@return A tuple with mean and stddev
 		*/
 		std::tuple<float, float> make_normal_params(
 			float min,
@@ -67,9 +68,10 @@ namespace angonoka {
 		/**
 			Finds or inserts a group into System.groups.
 
-			\param sys System instance
-			\param group Group name
-			\return Index of the group in System.groups
+			@param sys		System instance
+			@param group	Group name
+
+			@return Index of the group in System.groups
 		*/
 		Int find_or_insert_group(System& sys, std::string_view group) {
 			if(const auto& f = ranges::find(sys.groups, group);
@@ -111,9 +113,9 @@ namespace angonoka {
 			and inserts "A", "B", "C" into System.groups.
 			Then places group ids into agent.groups_ids.
 
-			\param groups Sequence with group names
-			\param agent An instance of Agent
-			\param sys An instance of System
+			@param groups	Sequence with group names
+			@param agent	An instance of Agent
+			@param sys		An instance of System
 		*/
 		void parse_agent_groups(
 			const YAML::Node& groups,
@@ -155,8 +157,8 @@ namespace angonoka {
 				min: 1.0
 				max: 2.0
 
-			\param perf Map with perf data
-			\param agent An instance of Agent
+			@param perf		Map with perf data
+			@param agent	An instance of Agent
 		*/
 		void parse_agent_perf(
 			const YAML::Node& perf,
@@ -173,7 +175,7 @@ namespace angonoka {
 
 			Currently the default is Normal(1, 1.5)
 
-			\param agent An instance of Agent
+			@param agent An instance of Agent
 		*/
 		void assign_default_perf(Agent& agent) {
 			agent.perf = Normal{1.f, 1.5f};
@@ -192,9 +194,9 @@ namespace angonoka {
 					- A
 					- B
 
-			\param agent_node Scalar holding the name of the agent
-			\param agent_data Map with agent data
-			\param sys An instance of System
+			@param agent_node	Scalar holding the name of the agent
+			@param agent_data	Map with agent data
+			@param sys			An instance of System
 		*/
 		void parse_agent(
 			const YAML::Node& agent_node,
@@ -237,7 +239,7 @@ namespace angonoka {
 
 			"agent 2" will implicitly have groups "A" and "B"
 
-			\param sys An instance of System
+			@param sys An instance of System
 		*/
 		void fill_empty_groups(System& sys) {
 			using ranges::to;
@@ -258,8 +260,8 @@ namespace angonoka {
 				agent 1:
 				agent 2:
 
-			\param node "agents" node
-			\param sys An instance of System
+			@param node "agents" node
+			@param sys An instance of System
 		*/
 		void parse_agents(const YAML::Node& node, System& sys) {
 			for(auto&& agent: node) {
@@ -271,8 +273,9 @@ namespace angonoka {
 	/**
 		Load System from a YAML string.
 
-		\param text Null-terminated string
-		\return An instance of System
+		@param text Null-terminated string
+
+		@return An instance of System
 	*/
 	System load_text(const char* text) {
 		const auto node = YAML::Load(text);
