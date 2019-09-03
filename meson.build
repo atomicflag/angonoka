@@ -6,7 +6,7 @@ project('angonoka', 'cpp',
 compiler = meson.get_compiler('cpp')
 
 if compiler.has_argument('-Wconversion')
-	add_global_arguments(['-Wconversion'], language : 'cpp')
+	add_project_arguments(['-Wconversion'], language : 'cpp')
 endif
 
 dependencies = [
@@ -21,17 +21,18 @@ sources = [
 	'src/angonoka.cpp'
 ]
 
-exe = executable(meson.project_name(),
+exe = executable(
+	meson.project_name()+'-'+target_machine.cpu_family(),
 	sources,
 	dependencies: dependencies,
 	install : true)
 
 test_sources = [
 	'test/catch.cpp',
-	'test/load_yaml.cpp',
+	'test/parse_agents.cpp',
 ]
 
 test_exe = executable(meson.project_name()+'_test',
 	test_sources,
-	dependencies: dependencies+[dependency('Catch2')])
+	dependencies: dependencies+[ dependency('Catch2') ])
 test('catch', test_exe)
