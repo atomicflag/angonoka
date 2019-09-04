@@ -18,7 +18,9 @@ dependencies = [
 ]
 
 sources = [
-	'src/angonoka.cpp'
+	'src/angonoka.cpp',
+	'src/config/load.cpp',
+	'src/config/agents.cpp'
 ]
 
 exe = executable(
@@ -29,10 +31,13 @@ exe = executable(
 
 test_sources = [
 	'test/catch.cpp',
-	'test/parse_agents.cpp',
+	'test/load_agents.cpp',
+	'src/config/load.cpp',
+	'src/config/agents.cpp'
 ]
 
 test_exe = executable(meson.project_name()+'_test',
 	test_sources,
+	include_directories: include_directories('src'),
 	dependencies: dependencies+[ dependency('Catch2') ])
 test('catch', test_exe)
