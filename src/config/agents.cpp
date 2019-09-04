@@ -181,8 +181,6 @@ namespace angonoka::detail {
 		// Parse agent.name
 		agent.name = agent_node.Scalar();
 
-		validate_agent(agent_node, agent_data);
-
 		// Parse agent.groups
 		if(const auto groups = agent_data["groups"]) {
 			validate_agent_groups(groups, agent);
@@ -210,6 +208,7 @@ namespace angonoka::detail {
 
 	void parse_agents(const YAML::Node& node, System& sys) {
 		for(auto&& agent: node) {
+			validate_agent(agent.first, agent.second);
 			parse_agent(agent.first, agent.second, sys);
 		}
 	}

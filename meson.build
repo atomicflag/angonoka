@@ -19,8 +19,6 @@ dependencies = [
 
 sources = [
 	'src/angonoka.cpp',
-	'src/config/load.cpp',
-	'src/config/agents.cpp'
 ]
 
 exe = executable(
