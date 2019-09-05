@@ -4,7 +4,6 @@
 #include <memory>
 
 namespace {
-
 struct Options {
 	std::string filename;
 };
