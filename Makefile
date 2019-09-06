@@ -3,7 +3,7 @@ define RELEASE_CXXFLAGS =
 -pipe \
 -O3 \
 -march=x86-64 \
--mtune=x86-64 \
+-mtune=intel \
 -fomit-frame-pointer \
 -ffunction-sections \
 -fdata-sections \
