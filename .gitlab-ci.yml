@@ -1,24 +1,16 @@
 test:
-  image: debian:sid-slim
+  image: registry.gitlab.com/signal9/cpp-env:squashed
   stage: test
   cache:
-    key: "cpp-$CI_COMMIT_REF_SLUG"
+    key: "$CI_COMMIT_REF_SLUG"
     paths:
       - .conan
       - .ccache
-      - .pip_cache
+  variables:
+    CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
   before_script:
-    - apt-get update
-    - apt-get dist-upgrade -y
-    - apt-get install -y --no-install-recommends python3.7 python3-pip build-essential cmake pkg-config ninja-build ccache python3-setuptools
-    - mkdir -p .pip_cache
-    - chown -R $USER:$USER .pip_cache
-    - python3.7 -m pip --cache-dir .pip_cache install wheel
-    - python3.7 -m pip --cache-dir .pip_cache install conan meson
-    - export CONAN_USER_HOME=$(pwd)
-    - '[[ -e .conan ]] || (conan remote add signal9 https://api.bintray.com/conan/signal9/conan && conan profile new --detect default && conan profile update "options.*:shared=True" default && conan profile update "settings.compiler.libcxx=libstdc++11" default)'
+    - conan remote add signal9 https://api.bintray.com/conan/signal9/conan
+    - conan config set storage.path="$CI_PROJECT_DIR/.conan"
   script:
-    - export CONAN_USER_HOME=$(pwd)
-    - export CCACHE_DIR=$(pwd)/.ccache
     - make release
     - build/angonoka_test
