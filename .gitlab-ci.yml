@@ -1,11 +1,15 @@
-test:
+build:
   image: registry.gitlab.com/signal9/cpp-env:squashed
-  stage: test
+  stage: build
   cache:
     key: "$CI_COMMIT_REF_SLUG"
     paths:
       - .conan
       - .ccache
+  artifacts:
+    paths:
+    - dist
+    expire_in: 1 day
   variables:
     CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
   before_script:
@@ -14,3 +18,4 @@ test:
   script:
     - make release
     - build/angonoka_test
+    - make install

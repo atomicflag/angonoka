@@ -8,6 +8,7 @@ define RELEASE_CXXFLAGS =
 -ffunction-sections \
 -fdata-sections \
 -falign-functions=32 \
+-mllvm -polly -mllvm -polly-vectorizer=stripmine \
 -fno-stack-protector
 endef
 RELEASE_LDFLAGS := -Wl,--gc-sections
@@ -40,7 +41,11 @@ debug: ninja
 
 .PHONY: install
 install: release
-	@cd build && ninja install
+	@cd build && ninja install && cd .. && \
+	LIBS=$$(ldd build/angonoka-x86_64 | sed -n '/\(\.conan\|\/usr\/local\|\/opt\/llvm\)/s/.*=> \(.*\) (.*/\1/gp') && \
+	mkdir -p dist/lib64 && \
+	cp $$LIBS dist/lib64 && \
+	patchelf --set-rpath '$$ORIGIN/../lib64' dist/bin/angonoka-x86_64
 
 .PHONY: release
 release: MESON_ARGS=--prefix $$(readlink -m ../dist) --buildtype release -Db_lto=true -Db_ndebug=true -Dstrip=true
