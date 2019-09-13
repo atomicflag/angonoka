@@ -1,23 +1,34 @@
-build:
+stages:
+  - test
+  - build
+
+default:
   image: registry.gitlab.com/signal9/cpp-env:squashed
-  stage: build
   cache:
     key: "$CI_COMMIT_REF_SLUG"
     paths:
       - .conan
       - .ccache
-  artifacts:
-    paths:
-    - dist
-    expire_in: 1 day
-  variables:
-    CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
   before_script:
     - conan remote add signal9 https://api.bintray.com/conan/signal9/conan
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
+
+test:
+  stage: test
   script:
+    - export CCACHE_DIR="$CI_PROJECT_DIR/.ccache"
     - make check-format
-    - make release
+    - make build-cov
     - make check-tidy
     - build/angonoka_test
+
+build:
+  stage: build
+  artifacts:
+    paths:
+      - dist
+    expire_in: 1 day
+  script:
+    - export CCACHE_DIR="$CI_PROJECT_DIR/.ccache"
+    - make release
     - make install

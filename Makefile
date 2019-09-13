@@ -58,9 +58,17 @@ release: ninja
 plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
+.PHONY: build-cov
+build-cov: MESON_ARGS=--buildtype release -Db_ndebug=true -Db_coverage=true -Db_lundef=false -Db_sanitize=address,undefined
+build-cov: ninja
+
+.PHONY: check-cov
+check-cov: build-cov
+	@cd build && gcovr --gcov-executable 'llvm-cov gcov' -e ../test
+
 .PHONY: format
 format:
-	@clang-format -i $$(find src test -name '*.cpp' -o -name '*.h')
+	@cd build && ninja clang-format
 
 .PHONY: check-format
 check-format:
