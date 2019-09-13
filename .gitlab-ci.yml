@@ -16,6 +16,8 @@ build:
     - conan remote add signal9 https://api.bintray.com/conan/signal9/conan
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
   script:
+    - make check-format
     - make release
+    - make check-tidy
     - build/angonoka_test
     - make install

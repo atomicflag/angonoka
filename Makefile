@@ -12,6 +12,7 @@ define RELEASE_CXXFLAGS =
 -fno-stack-protector
 endef
 RELEASE_LDFLAGS := -Wl,--gc-sections
+LLVM_ROOT := $(shell readlink -m $$(which clang-tidy)/../..)
 
 build/conaninfo.txt:
 	@mkdir -p build && \
@@ -56,6 +57,21 @@ release: ninja
 .PHONY: plain
 plain: MESON_ARGS=--buildtype plain
 plain: ninja
+
+.PHONY: format
+format:
+	@clang-format -i $$(find src test -name '*.cpp' -o -name '*.h')
+
+.PHONY: check-format
+check-format:
+	@! clang-format -output-replacements-xml $$(find src test -name '*.h' -o -name '*.cpp') | grep -q '<replacement '
+
+.PHONY: check-tidy
+check-tidy:
+	@cd build && ! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py -extra-arg=-isystem$(LLVM_ROOT)/include/c++/v1/ -header-filter=../src | grep -E '(note:|warning:)'
+
+.PHONY: check
+check: check-format check-tidy
 
 .PHONY: clean
 clean:
