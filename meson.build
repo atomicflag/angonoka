@@ -30,8 +30,10 @@ exe = executable(
 test_sources = [
 	'test/catch.cpp',
 	'test/load_agents.cpp',
+	'test/load_tasks.cpp',
 	'src/config/load.cpp',
-	'src/config/agents.cpp'
+	'src/config/agents.cpp',
+	'src/config/tasks.cpp'
 ]
 
 test_exe = executable(meson.project_name()+'_test',

@@ -3,9 +3,11 @@
 #include "config/errors.h"
 #include "config/load.h"
 
-#define ANGONOKA_COMMON_YAML ""
+#define ANGONOKA_COMMON_YAML                                         \
+	"tasks:\n"                                                       \
+	"  task1:\n"
 
-TEST_CASE("Loading yaml")
+TEST_CASE("Loading agents")
 {
 	SECTION("No 'agents' section")
 	{
