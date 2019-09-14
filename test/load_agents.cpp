@@ -3,49 +3,68 @@
 #include "config/errors.h"
 #include "config/load.h"
 
+#define ANGONOKA_COMMON_YAML ""
+
 TEST_CASE("Loading yaml")
 {
 	SECTION("No 'agents' section")
 	{
-		REQUIRE_THROWS_AS(
-			angonoka::load_text(""), angonoka::InvalidTasksDefError);
+		constexpr auto text = ANGONOKA_COMMON_YAML;
+		REQUIRE_THROWS_AS(angonoka::load_text(text),
+			angonoka::InvalidTasksDefError);
 	}
 
 	SECTION("Section 'agents' has an invalid type")
 	{
-		constexpr auto text = "agents: 123";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents: 123";
+		// clang-format on
 		REQUIRE_THROWS_AS(angonoka::load_text(text),
 			angonoka::InvalidTasksDefError);
 	}
 
 	SECTION("Invalid agent spec")
 	{
-		constexpr auto text = "agents:\n"
-							  "  agent 1: 123";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1: 123";
+		// clang-format on
 		REQUIRE_THROWS_AS(angonoka::load_text(text),
 			angonoka::InvalidTasksDefError);
 	}
 
 	SECTION("Invalid group spec")
 	{
-		constexpr auto text = "agents:\n"
-							  "  agent 1:\n"
-							  "    groups: 123";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"    groups: 123";
+		// clang-format on
 		REQUIRE_THROWS_AS(angonoka::load_text(text),
 			angonoka::InvalidTasksDefError);
 	}
 
 	SECTION("Parse groups")
 	{
-		constexpr auto text = "agents:\n"
-							  "  agent 1:\n"
-							  "    groups:\n"
-							  "      - A\n"
-							  "      - B\n"
-							  "  agent 2:\n"
-							  "    groups:\n"
-							  "      - A\n"
-							  "      - C\n";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"    groups:\n"
+			"      - A\n"
+			"      - B\n"
+			"  agent 2:\n"
+			"    groups:\n"
+			"      - A\n"
+			"      - C\n";
+		// clang-format on
 		const auto system = angonoka::load_text(text);
 		REQUIRE(system.groups == angonoka::Groups {"A", "B", "C"});
 		REQUIRE(system.agents.size() == 2);
@@ -59,12 +78,16 @@ TEST_CASE("Loading yaml")
 
 	SECTION("Fill empty groups")
 	{
-		constexpr auto text = "agents:\n"
-							  "  agent 1:\n"
-							  "    groups:\n"
-							  "      - A\n"
-							  "      - B\n"
-							  "  agent 2:";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"    groups:\n"
+			"      - A\n"
+			"      - B\n"
+			"  agent 2:";
+		// clang-format on
 		const auto system = angonoka::load_text(text);
 		// Agent 1 has A(0) and B(1)
 		REQUIRE(
@@ -76,9 +99,13 @@ TEST_CASE("Loading yaml")
 
 	SECTION("No groups")
 	{
-		constexpr auto text = "agents:\n"
-							  "  agent 1:\n"
-							  "  agent 2:";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"  agent 2:";
+		// clang-format on
 		const auto system = angonoka::load_text(text);
 		REQUIRE(system.agents[0].group_ids.empty());
 		REQUIRE(system.agents[1].group_ids.empty());
@@ -86,30 +113,42 @@ TEST_CASE("Loading yaml")
 
 	SECTION("Invalid perf section")
 	{
-		constexpr auto text = "agents:\n"
-							  "  agent 1:\n"
-							  "    perf:\n";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"    perf:\n";
+		// clang-format on
 		REQUIRE_THROWS_AS(angonoka::load_text(text),
 			angonoka::InvalidTasksDefError);
 	}
 
 	SECTION("Missing perf value")
 	{
-		constexpr auto text = "agents:\n"
-							  "  agent 1:\n"
-							  "    perf:\n"
-							  "      min: 1.0\n";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"    perf:\n"
+			"      min: 1.0\n";
+		// clang-format on
 		REQUIRE_THROWS_AS(angonoka::load_text(text),
 			angonoka::InvalidTasksDefError);
 	}
 
 	SECTION("Invalid perf type")
 	{
-		constexpr auto text = "agents:\n"
-							  "  agent 1:\n"
-							  "    perf:\n"
-							  "      min: text\n"
-							  "      max: text\n";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"    perf:\n"
+			"      min: text\n"
+			"      max: text\n";
+		// clang-format on
 		const auto system = angonoka::load_text(text);
 		REQUIRE(system.agents[0].perf.mean() == Approx(1.f));
 		REQUIRE(system.agents[0].perf.stddev() == Approx(1.5f));
@@ -117,12 +156,16 @@ TEST_CASE("Loading yaml")
 
 	SECTION("Parse performance")
 	{
-		constexpr auto text = "agents:\n"
-							  "  agent 1:\n"
-							  "    perf:\n"
-							  "      min: 0.5\n"
-							  "      max: 1.5\n"
-							  "  agent 2:\n";
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"    perf:\n"
+			"      min: 0.5\n"
+			"      max: 1.5\n"
+			"  agent 2:\n";
+		// clang-format on
 		const auto system = angonoka::load_text(text);
 		REQUIRE(system.agents[0].perf.mean() == Approx(1.f));
 		REQUIRE(system.agents[0].perf.stddev() == Approx(1.5f));
@@ -130,3 +173,5 @@ TEST_CASE("Loading yaml")
 		REQUIRE(system.agents[1].perf.stddev() == Approx(1.5f));
 	}
 }
+
+#undef ANGONOKA_COMMON_YAML

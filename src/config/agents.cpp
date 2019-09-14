@@ -57,21 +57,24 @@ Int find_or_insert_group(System& sys, std::string_view group)
 
 void validate_agents(const YAML::Node& node)
 {
-	if (!node)
-		throw InvalidTasksDefError {"Missing \"agents\" section"};
+	if (!node) {
+		constexpr auto err_text = "Missing \"agents\" section";
+		throw InvalidTasksDefError {err_text};
+	}
 	if (!node.IsMap()) {
-		throw InvalidTasksDefError {
-			"Section \"agents\" has an invalid type"};
+		constexpr auto err_text = "Section \"agents\" has an invalid "
+								  "type";
+		throw InvalidTasksDefError {err_text};
 	}
 }
 
 void validate_agent_groups(const YAML::Node& groups, Agent& agent)
 {
 	if (!groups.IsSequence()) {
+		constexpr auto err_text
+			= "Invalid groups specification for \"{}\"";
 		throw InvalidTasksDefError {
-			fmt::format("Invalid groups specification"
-						" for \"{}\"",
-				agent.name)};
+			fmt::format(err_text, agent.name)};
 	}
 }
 
@@ -107,20 +110,19 @@ void validate_agent(
 {
 	if (agent_data.IsSequence() || agent_data.IsScalar()
 		|| !agent_data.IsDefined()) {
-		throw InvalidTasksDefError {
-			fmt::format("Invalid agent"
-						" specification for \"{}\"",
-				agent)};
+		constexpr auto err_text
+			= "Invalid agent specification for \"{}\"";
+		throw InvalidTasksDefError {fmt::format(err_text, agent)};
 	}
 }
 
 void validate_agent_perf(const YAML::Node& perf, Agent& agent)
 {
 	if (!perf.IsMap() || !perf["min"] || !perf["max"]) {
+		constexpr auto err_text
+			= "Invalid perf specification for \"{}\"";
 		throw InvalidTasksDefError {
-			fmt::format("Invalid perf specification"
-						" for \"{}\"",
-				agent.name)};
+			fmt::format(err_text, agent.name)};
 	}
 }
 
