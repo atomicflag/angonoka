@@ -83,7 +83,7 @@ check-tidy:
 		-e 's/-fno-omit-frame-pointer//g' \
 		-e 's/--coverage//g' \
 		compile_commands.json && \
-	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py -extra-arg=-isystem$(LLVM_ROOT)/include/c++/v1/ -header-filter=../src | grep -E '(note:|warning:)'
+	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py -extra-arg=-isystem$(LLVM_ROOT)/include/c++/v1/ -quiet 2>/dev/null | grep -E '(note:|warning:)'
 
 .PHONY: check
 check: check-format check-tidy

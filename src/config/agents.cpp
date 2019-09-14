@@ -32,9 +32,9 @@ namespace angonoka::detail {
 	@return A tuple with mean and stddev
 */
 std::tuple<float, float> make_normal_params(
-	float min, float max, float stdnum = 1.f)
+	float min, float max, float stdnum = 1.F)
 {
-	const float mean = (min + max) / 2.f;
+	const float mean = (min + max) / 2.F;
 	return {mean, (max - mean) * stdnum};
 }
 
@@ -49,9 +49,8 @@ std::tuple<float, float> make_normal_params(
 Int find_or_insert_group(System& sys, std::string_view group)
 {
 	if (const auto& f = ranges::find(sys.groups, group);
-		f != sys.groups.end()) {
+		f != sys.groups.end())
 		return std::distance(sys.groups.begin(), f);
-	}
 	sys.groups.emplace_back(group);
 	return sys.groups.size() - 1;
 }
@@ -60,18 +59,20 @@ void validate_agents(const YAML::Node& node)
 {
 	if (!node)
 		throw InvalidTasksDefError {"Missing \"agents\" section"};
-	if (!node.IsMap())
+	if (!node.IsMap()) {
 		throw InvalidTasksDefError {
 			"Section \"agents\" has an invalid type"};
+	}
 }
 
 void validate_agent_groups(const YAML::Node& groups, Agent& agent)
 {
-	if (!groups.IsSequence())
+	if (!groups.IsSequence()) {
 		throw InvalidTasksDefError {
 			fmt::format("Invalid groups specification"
 						" for \"{}\"",
 				agent.name)};
+	}
 }
 
 /**
@@ -105,20 +106,22 @@ void validate_agent(
 	const YAML::Node& agent, const YAML::Node& agent_data)
 {
 	if (agent_data.IsSequence() || agent_data.IsScalar()
-		|| !agent_data.IsDefined())
+		|| !agent_data.IsDefined()) {
 		throw InvalidTasksDefError {
 			fmt::format("Invalid agent"
 						" specification for \"{}\"",
 				agent)};
+	}
 }
 
 void validate_agent_perf(const YAML::Node& perf, Agent& agent)
 {
-	if (!perf.IsMap() || !perf["min"] || !perf["max"])
+	if (!perf.IsMap() || !perf["min"] || !perf["max"]) {
 		throw InvalidTasksDefError {
 			fmt::format("Invalid perf specification"
 						" for \"{}\"",
 				agent.name)};
+	}
 }
 
 /**
@@ -136,7 +139,7 @@ void validate_agent_perf(const YAML::Node& perf, Agent& agent)
 void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 {
 	const auto [mean, stddev] = make_normal_params(
-		perf["min"].as<float>(.5f), perf["max"].as<float>(1.5f), 3.f);
+		perf["min"].as<float>(.5F), perf["max"].as<float>(1.5F), 3.F);
 	agent.perf = Normal {mean, stddev};
 }
 
@@ -149,7 +152,9 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 */
 void assign_default_perf(Agent& agent)
 {
-	agent.perf = Normal {1.f, 1.5f};
+	constexpr auto stddev = 1.5F;
+	constexpr auto mean = 1.F;
+	agent.perf = Normal {mean, stddev};
 }
 
 /**
