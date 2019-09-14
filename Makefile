@@ -59,7 +59,7 @@ plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
 .PHONY: build-cov
-build-cov: MESON_ARGS=--buildtype release -Db_ndebug=true -Db_coverage=true -Db_lundef=false -Db_sanitize=address,undefined
+build-cov: MESON_ARGS=--buildtype release -Db_ndebug=true -Db_coverage=true
 build-cov: ninja
 
 .PHONY: check-cov

@@ -2,6 +2,9 @@ stages:
   - test
   - build
 
+variables:
+  CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
+
 default:
   image: registry.gitlab.com/signal9/cpp-env:squashed
   cache:
@@ -16,7 +19,6 @@ default:
 test:
   stage: test
   script:
-    - export CCACHE_DIR="$CI_PROJECT_DIR/.ccache"
     - make check-format
     - make build-cov
     - make check-tidy
@@ -29,6 +31,5 @@ build:
       - dist
     expire_in: 1 day
   script:
-    - export CCACHE_DIR="$CI_PROJECT_DIR/.ccache"
     - make release
     - make install
