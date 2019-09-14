@@ -23,6 +23,7 @@ test:
     - make build-cov
     - make check-tidy
     - build/angonoka_test
+    - make check-cov
 
 build:
   stage: build

@@ -76,7 +76,14 @@ check-format:
 
 .PHONY: check-tidy
 check-tidy:
-	@cd build && ! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py -extra-arg=-isystem$(LLVM_ROOT)/include/c++/v1/ -header-filter=../src | grep -E '(note:|warning:)'
+	@cd build && \
+	sed -i \
+		-e 's/-fsanitize=[a-z,]*//g' \
+		-e 's/-pipe//g' \
+		-e 's/-fno-omit-frame-pointer//g' \
+		-e 's/--coverage//g' \
+		compile_commands.json && \
+	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py -extra-arg=-isystem$(LLVM_ROOT)/include/c++/v1/ -header-filter=../src | grep -E '(note:|warning:)'
 
 .PHONY: check
 check: check-format check-tidy
