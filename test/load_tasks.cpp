@@ -47,5 +47,6 @@ TEST_CASE("Loading tasks")
 			"  task 1:";
 		// clang-format on
 		const auto system = angonoka::load_text(text);
+		REQUIRE(system.tasks.size() == 1);
 	}
 }
