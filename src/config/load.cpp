@@ -24,10 +24,10 @@ void load_agents(const YAML::Node& agents, System& system)
 	@param tasks	A YAML node containing tasks
 	@param system	An instance of System
 */
-void load_tasks(const YAML::Node& tasks, System& /* system */)
+void load_tasks(const YAML::Node& tasks, System& system)
 {
 	detail::validate_tasks(tasks);
-	// TODO: WIP
+	detail::parse_tasks(tasks, system);
 }
 
 System load_text(const char* text)

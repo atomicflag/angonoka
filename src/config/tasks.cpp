@@ -19,4 +19,9 @@ void validate_tasks(const YAML::Node& node)
 		throw InvalidTasksDefError {err_text};
 	}
 }
+
+void parse_tasks(const YAML::Node& /* node */, System& /* sys */)
+{
+	// TODO: WIP
+}
 } // namespace angonoka::detail

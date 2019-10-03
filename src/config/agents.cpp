@@ -18,12 +18,12 @@ namespace angonoka::detail {
 
 	Mean is an average of min and max.
 
-	mean = (min+max) / 2
+	mean = (min + max) / 2
 
 	Stddev is the difference between the mean and min/max
-	multiplied by stdnum.
+	divided by stdnum.
 
-	stddev = (max-mean)*stdnum
+	stddev = (max - mean) / stdnum
 
 	@param min 		Lower bound
 	@param max 		Upper bound
@@ -35,7 +35,7 @@ std::tuple<float, float> make_normal_params(
 	float min, float max, float stdnum = 1.F)
 {
 	const float mean = (min + max) / 2.F;
-	return {mean, (max - mean) * stdnum};
+	return {mean, (max - mean) / stdnum};
 }
 
 /**
@@ -154,7 +154,7 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 */
 void assign_default_perf(Agent& agent)
 {
-	constexpr auto stddev = 1.5F;
+	constexpr auto stddev = 0.5F / 3.F;
 	constexpr auto mean = 1.F;
 	agent.perf = Normal {mean, stddev};
 }

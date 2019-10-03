@@ -153,7 +153,7 @@ TEST_CASE("Loading agents")
 		// clang-format on
 		const auto system = angonoka::load_text(text);
 		REQUIRE(system.agents[0].perf.mean() == Approx(1.f));
-		REQUIRE(system.agents[0].perf.stddev() == Approx(1.5f));
+		REQUIRE(system.agents[0].perf.stddev() == Approx(0.5f / 3.f));
 	}
 
 	SECTION("Parse performance")
@@ -170,9 +170,9 @@ TEST_CASE("Loading agents")
 		// clang-format on
 		const auto system = angonoka::load_text(text);
 		REQUIRE(system.agents[0].perf.mean() == Approx(1.f));
-		REQUIRE(system.agents[0].perf.stddev() == Approx(1.5f));
+		REQUIRE(system.agents[0].perf.stddev() == Approx(0.5f / 3.f));
 		REQUIRE(system.agents[1].perf.mean() == Approx(1.f));
-		REQUIRE(system.agents[1].perf.stddev() == Approx(1.5f));
+		REQUIRE(system.agents[1].perf.stddev() == Approx(0.5f / 3.f));
 	}
 }
 
