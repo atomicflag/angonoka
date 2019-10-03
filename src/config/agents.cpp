@@ -1,6 +1,5 @@
 #include "agents.h"
 
-#include "../agent.h"
 #include "../common.h"
 #include "../system.h"
 #include "errors.h"
