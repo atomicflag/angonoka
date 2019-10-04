@@ -20,8 +20,8 @@ namespace angonoka::detail {
 	@param task_data	Map with task data
 	@param sys			An instance of System
 */
-void parse_task(const YAML::Node& task_node,
-	const YAML::Node& task_data, System& sys)
+void parse_task(const YAML::Node& /* task_node */,
+	const YAML::Node& /* task_data */, System& /* sys */)
 {
 	// TODO: WIP
 }

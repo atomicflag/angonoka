@@ -14,10 +14,11 @@ template <typename T> struct Required {
 	constexpr void operator()(
 		const YAML::Node& node, std::string_view scope) const
 	{
-		const auto n = node[name];
+		// false positive
+		const auto n = node[name]; // NOLINT
 		if (!n) {
 			constexpr auto err_text
-				= "\"{}\" is missing a \"{}\" attribute";
+				= R"_("{}" is missing a "{}" attribute)_";
 			throw InvalidTasksDefError{
 				fmt::format(err_text, scope, name)};
 		}
@@ -36,9 +37,10 @@ template <typename T> struct Optional {
 	T check;
 
 	constexpr void operator()(
-		const YAML::Node& node, std::string_view) const
+		const YAML::Node& node, std::string_view /* scope */) const
 	{
-		const auto n = node[name];
+		// false positive
+		const auto n = node[name]; // NOLINT
 		if (n) check(n, name);
 	}
 };
@@ -54,7 +56,7 @@ template <typename T> constexpr auto sequence(T check)
 	return [=](const YAML::Node& node, std::string_view scope) {
 		if (!node || !node.IsSequence()) {
 			constexpr auto err_text
-				= "\"{}\" is expected to be a sequence";
+				= R"_("{}" is expected to be a sequence)_";
 			throw InvalidTasksDefError{err_text};
 		}
 		const auto s = fmt::format("Element of {}", scope);
@@ -67,7 +69,7 @@ constexpr auto scalar()
 	return [](const YAML::Node& node, std::string_view scope) {
 		if (!node || !node.IsScalar()) {
 			constexpr auto err_text
-				= "\"{}\" is expected to be a string";
+				= R"_("{}" is expected to be a string)_";
 			throw InvalidTasksDefError{fmt::format(err_text, scope)};
 		}
 	};
@@ -79,14 +81,14 @@ template <typename... T> constexpr auto attributes(T... attrs)
 			   std::string_view scope = "Document") {
 		if (!node || node.IsScalar() || node.IsSequence()) {
 			constexpr auto err_text
-				= "\"{}\" is expected to be a map";
+				= R"_("{}" is expected to be a map)_";
 			throw InvalidTasksDefError{fmt::format(err_text, scope)};
 		}
 		for (auto&& n : node) {
 			const auto attr_name = n.first.Scalar();
 			if (!((attr_name == attrs.name) || ...)) {
 				constexpr auto err_text
-					= "Unexpected attribute \"{}\" in \"{}\"";
+					= R"_(Unexpected attribute "{}" in "{}")_";
 				throw InvalidTasksDefError{
 					fmt::format(err_text, attr_name, scope)};
 			}
@@ -100,7 +102,7 @@ template <typename T> constexpr auto map(T check)
 	return [=](const YAML::Node& node, std::string_view scope) {
 		if (!node || !node.IsMap()) {
 			constexpr auto err_text
-				= "\"{}\" is expected to be a map";
+				= R"_("{}" is expected to be a map)_";
 			throw InvalidTasksDefError{fmt::format(err_text, scope)};
 		}
 		for (auto&& n : node) check(n.second, n.first.Scalar());
