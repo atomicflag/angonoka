@@ -1,10 +1,9 @@
 #pragma once
 
+#include "errors.h"
 #include <fmt/format.h>
 #include <string_view>
 #include <yaml-cpp/yaml.h>
-
-#include "errors.h"
 
 namespace angonoka::validation {
 template <typename T> struct Required {

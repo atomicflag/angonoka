@@ -1,15 +1,9 @@
 #include "agents.h"
-
 #include "../common.h"
-#include "../system.h"
-#include "errors.h"
-
-#include <fmt/format.h>
 #include <range/v3/algorithm/find.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/iota.hpp>
 #include <string_view>
-#include <yaml-cpp/yaml.h>
 
 namespace angonoka::detail {
 /**

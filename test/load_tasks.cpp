@@ -1,7 +1,6 @@
-#include <catch2/catch.hpp>
-
 #include "config/errors.h"
 #include "config/load.h"
+#include <catch2/catch.hpp>
 
 #define ANGONOKA_COMMON_YAML                                         \
 	"agents:\n"                                                      \

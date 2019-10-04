@@ -1,9 +1,8 @@
-#include <yaml-cpp/yaml.h>
-
-#include "agents.h"
 #include "load.h"
+#include "agents.h"
 #include "tasks.h"
 #include "validation.h"
+#include <yaml-cpp/yaml.h>
 
 namespace angonoka {
 void validate_configuration(const YAML::Node& node)
