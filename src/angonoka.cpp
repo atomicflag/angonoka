@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 
 	Options options;
 
-	group cli {value("input file", options.filename)};
+	group cli{value("input file", options.filename)};
 
 	if (!parse(argc, argv, cli)) {
 		fmt::print("{}", make_man_page(cli, *argv));

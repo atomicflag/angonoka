@@ -30,8 +30,6 @@ namespace angonoka::detail {
 */
 void fill_empty_groups(System& sys);
 
-void validate_agents(const YAML::Node& node);
-
 /**
 	Parses agents blocks.
 

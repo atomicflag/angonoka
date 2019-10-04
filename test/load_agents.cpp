@@ -52,6 +52,19 @@ TEST_CASE("Loading agents")
 			angonoka::InvalidTasksDefError);
 	}
 
+	SECTION("Extra attributes")
+	{
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"    asdf: 123";
+		// clang-format on
+		REQUIRE_THROWS_AS(angonoka::load_text(text),
+			angonoka::InvalidTasksDefError);
+	}
+
 	SECTION("Parse groups")
 	{
 		// clang-format off
@@ -68,14 +81,14 @@ TEST_CASE("Loading agents")
 			"      - C\n";
 		// clang-format on
 		const auto system = angonoka::load_text(text);
-		REQUIRE(system.groups == angonoka::Groups {"A", "B", "C"});
+		REQUIRE(system.groups == angonoka::Groups{"A", "B", "C"});
 		REQUIRE(system.agents.size() == 2);
 		// Agent 1 has A(0) and B(1)
 		REQUIRE(
-			system.agents[0].group_ids == angonoka::GroupIds {0, 1});
+			system.agents[0].group_ids == angonoka::GroupIds{0, 1});
 		// Agent 2 has A(0) and C(2)
 		REQUIRE(
-			system.agents[1].group_ids == angonoka::GroupIds {0, 2});
+			system.agents[1].group_ids == angonoka::GroupIds{0, 2});
 	}
 
 	SECTION("Fill empty groups")
@@ -93,10 +106,10 @@ TEST_CASE("Loading agents")
 		const auto system = angonoka::load_text(text);
 		// Agent 1 has A(0) and B(1)
 		REQUIRE(
-			system.agents[0].group_ids == angonoka::GroupIds {0, 1});
+			system.agents[0].group_ids == angonoka::GroupIds{0, 1});
 		// Agent 2 should have all groups
 		REQUIRE(
-			system.agents[1].group_ids == angonoka::GroupIds {0, 1});
+			system.agents[1].group_ids == angonoka::GroupIds{0, 1});
 	}
 
 	SECTION("No groups")

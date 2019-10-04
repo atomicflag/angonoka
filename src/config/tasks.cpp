@@ -8,30 +8,6 @@
 #include <yaml-cpp/yaml.h>
 
 namespace angonoka::detail {
-void validate_tasks(const YAML::Node& node)
-{
-	if (!node) {
-		constexpr auto err_text = "Missing \"tasks\" section";
-		throw InvalidTasksDefError {err_text};
-	}
-	if (!node.IsMap()) {
-		constexpr auto err_text = "Section \"tasks\" has an invalid "
-								  "type";
-		throw InvalidTasksDefError {err_text};
-	}
-}
-
-void validate_task(
-	const YAML::Node& task_node, const YAML::Node& task_data)
-{
-	if (task_data.IsSequence() || task_data.IsScalar()
-		|| !task_data.IsDefined()) {
-		constexpr auto err_text
-			= "Invalid task specification for \"{}\"";
-		throw InvalidTasksDefError {fmt::format(err_text, task)};
-	}
-}
-
 /**
 	Parses task blocks.
 
@@ -53,7 +29,6 @@ void parse_task(const YAML::Node& task_node,
 void parse_tasks(const YAML::Node& node, System& sys)
 {
 	for (auto&& task : node) {
-		validate_task(task.first, task.second);
 		parse_task(task.first, task.second, sys);
 	}
 }

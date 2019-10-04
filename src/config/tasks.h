@@ -11,8 +11,6 @@ class Node;
 } // namespace YAML
 
 namespace angonoka::detail {
-void validate_tasks(const YAML::Node& node);
-
 /**
 	Parses tasks blocks.
 

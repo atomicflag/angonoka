@@ -54,29 +54,6 @@ Int find_or_insert_group(System& sys, std::string_view group)
 	return sys.groups.size() - 1;
 }
 
-void validate_agents(const YAML::Node& node)
-{
-	if (!node) {
-		constexpr auto err_text = "Missing \"agents\" section";
-		throw InvalidTasksDefError {err_text};
-	}
-	if (!node.IsMap()) {
-		constexpr auto err_text = "Section \"agents\" has an invalid "
-								  "type";
-		throw InvalidTasksDefError {err_text};
-	}
-}
-
-void validate_agent_groups(const YAML::Node& groups, Agent& agent)
-{
-	if (!groups.IsSequence()) {
-		constexpr auto err_text
-			= "Invalid groups specification for \"{}\"";
-		throw InvalidTasksDefError {
-			fmt::format(err_text, agent.name)};
-	}
-}
-
 /**
 	Parses agent groups section.
 
@@ -104,27 +81,6 @@ void parse_agent_groups(
 	}
 }
 
-void validate_agent(
-	const YAML::Node& agent, const YAML::Node& agent_data)
-{
-	if (agent_data.IsSequence() || agent_data.IsScalar()
-		|| !agent_data.IsDefined()) {
-		constexpr auto err_text
-			= "Invalid agent specification for \"{}\"";
-		throw InvalidTasksDefError {fmt::format(err_text, agent)};
-	}
-}
-
-void validate_agent_perf(const YAML::Node& perf, Agent& agent)
-{
-	if (!perf.IsMap() || !perf["min"] || !perf["max"]) {
-		constexpr auto err_text
-			= "Invalid perf specification for \"{}\"";
-		throw InvalidTasksDefError {
-			fmt::format(err_text, agent.name)};
-	}
-}
-
 /**
 	Parses agent perf.
 
@@ -141,7 +97,7 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 {
 	const auto [mean, stddev] = make_normal_params(
 		perf["min"].as<float>(.5F), perf["max"].as<float>(1.5F), 3.F);
-	agent.perf = Normal {mean, stddev};
+	agent.perf = Normal{mean, stddev};
 }
 
 /**
@@ -155,7 +111,7 @@ void assign_default_perf(Agent& agent)
 {
 	constexpr auto stddev = 0.5F / 3.F;
 	constexpr auto mean = 1.F;
-	agent.perf = Normal {mean, stddev};
+	agent.perf = Normal{mean, stddev};
 }
 
 /**
@@ -185,13 +141,11 @@ void parse_agent(const YAML::Node& agent_node,
 
 	// Parse agent.groups
 	if (const auto groups = agent_data["groups"]) {
-		validate_agent_groups(groups, agent);
 		parse_agent_groups(groups, agent, sys);
 	}
 
 	// Parse agent.perf
 	if (const auto perf = agent_data["perf"]) {
-		validate_agent_perf(perf, agent);
 		parse_agent_perf(perf, agent);
 	} else {
 		assign_default_perf(agent);
@@ -212,7 +166,6 @@ void fill_empty_groups(System& sys)
 void parse_agents(const YAML::Node& node, System& sys)
 {
 	for (auto&& agent : node) {
-		validate_agent(agent.first, agent.second);
 		parse_agent(agent.first, agent.second, sys);
 	}
 }
