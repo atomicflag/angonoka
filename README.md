@@ -1,9 +1,17 @@
 ## Angonoka
 
-[![pipeline status](http://gitlab.cod.sz.rt.ru/dronx/angonoka/badges/master/pipeline.svg)](http://gitlab.cod.sz.rt.ru/dronx/angonoka/commits/master)
-[![coverage report](http://gitlab.cod.sz.rt.ru/dronx/angonoka/badges/master/coverage.svg)](http://gitlab.cod.sz.rt.ru/dronx/angonoka/commits/master)
+[![pipeline status](https://gitlab.com/signal9/angonoka/badges/master/pipeline.svg)](https://gitlab.com/signal9/angonoka/commits/master)
+[![coverage report](https://gitlab.com/signal9/angonoka/badges/master/coverage.svg)](https://gitlab.com/signal9/angonoka/commits/master)
 
-Minimum makespan task scheduling solver using the genetic algorithm.
+Find the makespan distribution of a set of tasks using the genetic algorithm.
+
+### Usage
+
+TODO
+
+```bash
+# TODO
+```
 
 ### Development
 
