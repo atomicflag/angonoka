@@ -1,6 +1,5 @@
 # Remotes
 
-# conan-center: https://api.bintray.com/conan/conan/conan-center
 # signal9: https://api.bintray.com/conan/signal9/conan
 
 [requires]

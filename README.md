@@ -18,10 +18,10 @@ TODO
 Requirements:
 
 * C++17
-* Python 3
-* Ninja
+* Conan
+* Meson
 
-#### Building from source
+#### Installing dependencies
 
 ```bash
 # Install Meson & Conan
@@ -29,7 +29,11 @@ python3 -m pip install --user meson conan
 
 # Add "meson" and "conan" to the search path
 export PATH="$HOME/.local/bin:$PATH"
+```
 
+#### Building from source
+
+```bash
 # Add Conan remotes
 conan remote add signal9 https://api.bintray.com/conan/signal9/conan
 
