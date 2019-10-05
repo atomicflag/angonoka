@@ -5,6 +5,11 @@
 #include <yaml-cpp/yaml.h>
 
 namespace angonoka {
+/**
+	Matches YAML configuration against the schema.
+
+	@param node Root YAML node
+*/
 void validate_configuration(const YAML::Node& node)
 {
 	using namespace validation;

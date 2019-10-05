@@ -6,6 +6,9 @@
 #include <yaml-cpp/yaml.h>
 
 namespace angonoka::validation {
+/**
+	Helper class for required YAML parameters.
+*/
 template <typename T> struct Required {
 	const char* name;
 	T check;
@@ -25,12 +28,23 @@ template <typename T> struct Required {
 	}
 };
 
+/**
+	Requred YAML parameter.
+
+	@param name		Parameter's name
+	@param check	Function to apply to the parameter
+
+	@return A function-like object of type Required
+*/
 template <typename T>
 constexpr auto required(const char* name, T check)
 {
 	return Required<T>{name, check};
 }
 
+/**
+	Helper class for optional YAML parameters.
+*/
 template <typename T> struct Optional {
 	const char* name;
 	T check;
@@ -44,12 +58,23 @@ template <typename T> struct Optional {
 	}
 };
 
+/**
+	Optional YAML parameter.
+
+	@param name		Parameter's name
+	@param check	Function to apply to the parameter
+*/
 template <typename T>
 constexpr auto optional(const char* name, T check)
 {
 	return Optional<T>{name, check};
 }
 
+/**
+	YAML array.
+
+	@param check Function to apply to each item
+*/
 template <typename T> constexpr auto sequence(T check)
 {
 	return [=](const YAML::Node& node, std::string_view scope) {
@@ -63,6 +88,9 @@ template <typename T> constexpr auto sequence(T check)
 	};
 }
 
+/**
+	YAML scalar.
+*/
 constexpr auto scalar()
 {
 	return [](const YAML::Node& node, std::string_view scope) {
@@ -74,6 +102,13 @@ constexpr auto scalar()
 	};
 }
 
+/**
+	YAML map.
+
+	Checks parameters and throws on unexpected attributes.
+
+	@param attrs Sequence of optional or required parameters
+*/
 template <typename... T> constexpr auto attributes(T... attrs)
 {
 	return [=](const YAML::Node& node,
@@ -96,6 +131,11 @@ template <typename... T> constexpr auto attributes(T... attrs)
 	};
 }
 
+/**
+	YAML map.
+
+	@param check Function to apply to each value
+*/
 template <typename T> constexpr auto map(T check)
 {
 	return [=](const YAML::Node& node, std::string_view scope) {

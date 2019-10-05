@@ -97,7 +97,7 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 /**
 	Assigns a default performance values.
 
-	Currently the default is Normal(1, 1.5)
+	Currently the default is Normal(1, 1/6)
 
 	@param agent An instance of Agent
 */
