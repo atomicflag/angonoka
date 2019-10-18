@@ -4,9 +4,9 @@
 
 #define ANGONOKA_COMMON_YAML                                         \
 	"tasks:\n"                                                       \
-	"  task1:\n" \
-	"    days:\n" \
-	"      min: 1\n" \
+	"  task1:\n"                                                     \
+	"    days:\n"                                                    \
+	"      min: 1\n"                                                 \
 	"      max: 3\n"
 
 TEST_CASE("Loading agents")

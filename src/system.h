@@ -1,13 +1,17 @@
 #pragma once
 
+#include <boost/container/flat_set.hpp>
+#include <boost/container/small_vector.hpp>
 #include <optional>
 #include <random>
 #include <string>
-#include <unordered_set>
-#include <vector>
 
 namespace angonoka {
-using GroupIds = std::unordered_set<int>;
+template <typename T, auto N>
+using Vector = boost::container::small_vector<T, N>;
+template <typename T, auto N>
+using Set = boost::container::flat_set<T, std::less<T>, Vector<T, N>>;
+using GroupIds = Set<int, 5>; // NOLINT
 using Normal = std::normal_distribution<float>;
 
 /**
@@ -22,6 +26,7 @@ using Normal = std::normal_distribution<float>;
 	@var group_ids	Set of Group ids
 	@var perf		Agent's performance distribution
 */
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Agent {
 	std::string name;
 	GroupIds group_ids;
@@ -43,9 +48,9 @@ struct Task {
 	std::optional<int> group_id;
 };
 
-using Groups = std::vector<std::string>;
-using Agents = std::vector<Agent>;
-using Tasks = std::vector<Task>;
+using Groups = Vector<std::string, 5>; // NOLINT
+using Agents = Vector<Agent, 5>; // NOLINT
+using Tasks = Vector<Task, 7>; // NOLINT
 
 /**
 	System that represents Tasks and Agents.

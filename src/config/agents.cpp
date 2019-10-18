@@ -41,7 +41,7 @@ std::tuple<float, float> make_normal_params(
 */
 Int find_or_insert_group(System& sys, std::string_view group)
 {
-	if (const auto& f = ranges::find(sys.groups, group);
+	if (const auto f = ranges::find(sys.groups, group);
 		f != sys.groups.end())
 		return std::distance(sys.groups.begin(), f);
 	sys.groups.emplace_back(group);
