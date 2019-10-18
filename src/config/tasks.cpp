@@ -10,6 +10,9 @@ namespace angonoka::detail {
 
 	task 1:
 		group: A
+		days:
+			min: 2
+			max: 2
 
 	@param task_node	Scalar holding the name of the task
 	@param task_data	Map with task data

@@ -45,7 +45,10 @@ TEST_CASE("Loading tasks")
 	// 	constexpr auto text =
 	// 		ANGONOKA_COMMON_YAML
 	// 		"tasks:\n"
-	// 		"  task 1:";
+	// 		"  task 1:\n"
+	// 		"    days:\n"
+	// 		"      min: 1\n"
+	// 		"      max: 3";
 	// 	// clang-format on
 	// 	const auto system = angonoka::load_text(text);
 	// 	REQUIRE(system.tasks.size() == 1);

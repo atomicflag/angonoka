@@ -11,7 +11,13 @@ namespace angonoka::detail {
 
 	tasks:
 		task 1:
+			days:
+				min: 1
+				max: 3
 		task 2:
+			days:
+				min: 2
+				max: 2
 
 	@param node "tasks" node
 	@param sys An instance of System

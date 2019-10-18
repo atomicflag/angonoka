@@ -26,7 +26,11 @@ void validate_configuration(const YAML::Node& node)
 		),
 		required("tasks",
 			map(attributes(
-				optional("group", scalar())
+				optional("group", scalar()),
+				required("days", attributes(
+					required("min", scalar()),
+					required("max", scalar())
+				))
 			))
 		)
 	);
