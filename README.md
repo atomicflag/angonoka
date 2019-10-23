@@ -1,9 +1,10 @@
 # Angonoka
 
-Find the makespan distribution of a set of tasks using the genetic algorithm.
+Angonoka is an estimation software based on predictive modeling.
 
 [![pipeline status](https://gitlab.com/signal9/angonoka/badges/master/pipeline.svg)](https://gitlab.com/signal9/angonoka/commits/master)
 [![coverage report](https://gitlab.com/signal9/angonoka/badges/master/coverage.svg)](https://gitlab.com/signal9/angonoka/commits/master)
+[![license](https://img.shields.io/badge/license-MIT-green)](/LICENSE)
 
 
 ```bash
@@ -38,7 +39,7 @@ WIP
 
 ## License
 
-Paddington is licensed under the [MIT](/LICENSE) license.  
+Angonoka is licensed under the [MIT](/LICENSE) license.  
 Copyright &copy; 2019, Andrew
 
 [conan]: https://conan.io/
