@@ -1,56 +1,49 @@
-## Angonoka
+# Angonoka
+
+Find the makespan distribution of a set of tasks using the genetic algorithm.
 
 [![pipeline status](https://gitlab.com/signal9/angonoka/badges/master/pipeline.svg)](https://gitlab.com/signal9/angonoka/commits/master)
 [![coverage report](https://gitlab.com/signal9/angonoka/badges/master/coverage.svg)](https://gitlab.com/signal9/angonoka/commits/master)
 
-Find the makespan distribution of a set of tasks using the genetic algorithm.
-
-### Usage
-
-TODO
 
 ```bash
-# TODO
+angonoka -c tasks.yaml
 ```
 
-### Development
+## Table of Contents
 
-Requirements:
+  * [Requirements](#requirements)
+  * [Usage](#usage)
+  * [Contributing](#contributing)
+  * [License](#license)
+
+## Requirements
+
+Angonoka requires the following to build:
 
 * C++17
-* Conan
-* Meson
+* [Conan][conan]
+* [Meson][meson]
 
-#### Installing dependencies
 
-```bash
-# Install Meson & Conan
-python3 -m pip install --user meson conan
+## Usage
 
-# Add "meson" and "conan" to the search path
-export PATH="$HOME/.local/bin:$PATH"
-```
+Angonoka is easiest to use when built with [Conan](https://conan.io/):
 
-#### Building from source
+WIP
 
-```bash
-# Add Conan remotes
-conan remote add signal9 https://api.bintray.com/conan/signal9/conan
+## Contributing
 
-mkdir build
-cd build
+WIP
 
-# Install Conan dependencies
-conan install -b missing ..
+## License
 
-# Set pkg-config search path for Meson
-export PKG_CONFIG_PATH=$(pwd)
-# Set Boost root for Meson
-export BOOST_ROOT=$(pkg-config --variable=prefix boost)
+Paddington is licensed under the [MIT](/LICENSE) license.  
+Copyright &copy; 2019, Andrew
 
-# Configure Meson
-meson ..
+[conan]: https://conan.io/
+[meson]: https://mesonbuild.com/
 
-# Build
-ninja
-```
+<!--
+https://gist.github.com/rowanmanning/77f31b2392dda1b58674#file-readme-md
+-->
