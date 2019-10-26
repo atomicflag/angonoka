@@ -1,4 +1,5 @@
 #include "../common.h"
+#include "../exceptions.h"
 #include "load.h"
 #include <range/v3/algorithm/find.hpp>
 #include <range/v3/range/conversion.hpp>
@@ -7,31 +8,6 @@
 
 namespace {
 using namespace angonoka;
-/**
-	Create mean and stddev from min and max values.
-
-	Mean is an average of min and max.
-
-	mean = (min + max) / 2
-
-	Stddev is the difference between the mean and min/max
-	divided by stdnum.
-
-	stddev = (max - mean) / stdnum
-
-	@param min 		Lower bound
-	@param max 		Upper bound
-	@param stdnum 	Size of stddev (1 by default)
-
-	@return A tuple with mean and stddev
-*/
-std::tuple<float, float> make_normal_params(
-	float min, float max, float stdnum = 1.F)
-{
-	const float mean = (min + max) / 2.F;
-	return {mean, (max - mean) / stdnum};
-}
-
 /**
 	Finds or inserts a group into System.groups.
 
@@ -89,23 +65,17 @@ void parse_agent_groups(
 */
 void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 {
-	const auto [mean, stddev] = make_normal_params(
-		perf["min"].as<float>(.5F), perf["max"].as<float>(1.5F), 3.F);
-	agent.perf = Normal{mean, stddev};
-}
-
-/**
-	Assigns a default performance values.
-
-	Currently the default is Normal(1, 1/6)
-
-	@param agent An instance of Agent
-*/
-void assign_default_perf(Agent& agent)
-{
-	constexpr auto stddev = 0.5F / 3.F;
-	constexpr auto mean = 1.F;
-	agent.perf = Normal{mean, stddev};
+	try {
+		agent.perf.min = perf["min"].as<float>();
+		agent.perf.max = perf["max"].as<float>();
+	} catch (const YAML::Exception&) {
+		throw InvalidTasksDef{"Invalid agent performance."};
+	}
+	if (agent.perf.min > agent.perf.max) {
+		constexpr auto text = "Agent's performance minimum can't be "
+							  "greater than maximum.";
+		throw InvalidTasksDef{text};
+	}
 }
 
 /**
@@ -141,8 +111,6 @@ void parse_agent(const YAML::Node& agent_node,
 	// Parse agent.perf
 	if (const auto perf = agent_data["perf"]) {
 		parse_agent_perf(perf, agent);
-	} else {
-		assign_default_perf(agent);
 	}
 }
 } // namespace

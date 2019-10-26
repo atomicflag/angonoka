@@ -3,7 +3,6 @@
 #include <boost/container/flat_set.hpp>
 #include <boost/container/small_vector.hpp>
 #include <optional>
-#include <random>
 #include <string>
 
 namespace angonoka {
@@ -12,7 +11,6 @@ using Vector = boost::container::small_vector<T, N>;
 template <typename T, auto N>
 using Set = boost::container::flat_set<T, std::less<T>, Vector<T, N>>;
 using GroupIds = Set<int, 5>; // NOLINT
-using Normal = std::normal_distribution<float>;
 
 /**
 	Agent that performs Tasks.
@@ -24,13 +22,19 @@ using Normal = std::normal_distribution<float>;
 
 	@var name		Agent's name
 	@var group_ids	Set of Group ids
-	@var perf		Agent's performance distribution
+	@var perf		Performance min/max
 */
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Agent {
 	std::string name;
 	GroupIds group_ids;
-	Normal perf;
+	struct Performance {
+		static constexpr float default_min = .5F;
+		static constexpr float default_max = 1.5F;
+		float min = default_min;
+		float max = default_max;
+	};
+	Performance perf;
 };
 
 /**
@@ -41,11 +45,16 @@ struct Agent {
 	any Agent.
 
 	@var name		Task's name
-	@var group_id	Task's Group id, if any
+	@var group_id	Group id, if any
+	@var dur		Duration min/max in seconds
 */
 struct Task {
 	std::string name;
 	std::optional<int> group_id;
+	struct Duration {
+		int min, max;
+	};
+	Duration dur{-1, -1};
 };
 
 using Groups = Vector<std::string, 5>; // NOLINT

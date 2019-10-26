@@ -1,5 +1,5 @@
-#include "config/errors.h"
 #include "config/load.h"
+#include "exceptions.h"
 #include <catch2/catch.hpp>
 
 #define ANGONOKA_COMMON_YAML                                         \
@@ -14,8 +14,8 @@ TEST_CASE("Loading agents")
 	SECTION("No 'agents' section")
 	{
 		constexpr auto text = ANGONOKA_COMMON_YAML;
-		REQUIRE_THROWS_AS(angonoka::load_text(text),
-			angonoka::InvalidTasksDefError);
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
 	}
 
 	SECTION("Section 'agents' has an invalid type")
@@ -25,8 +25,8 @@ TEST_CASE("Loading agents")
 			ANGONOKA_COMMON_YAML
 			"agents: 123";
 		// clang-format on
-		REQUIRE_THROWS_AS(angonoka::load_text(text),
-			angonoka::InvalidTasksDefError);
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
 	}
 
 	SECTION("Invalid agent spec")
@@ -37,8 +37,8 @@ TEST_CASE("Loading agents")
 			"agents:\n"
 			"  agent 1: 123";
 		// clang-format on
-		REQUIRE_THROWS_AS(angonoka::load_text(text),
-			angonoka::InvalidTasksDefError);
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
 	}
 
 	SECTION("Invalid group spec")
@@ -50,8 +50,8 @@ TEST_CASE("Loading agents")
 			"  agent 1:\n"
 			"    groups: 123";
 		// clang-format on
-		REQUIRE_THROWS_AS(angonoka::load_text(text),
-			angonoka::InvalidTasksDefError);
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
 	}
 
 	SECTION("Extra attributes")
@@ -63,8 +63,8 @@ TEST_CASE("Loading agents")
 			"  agent 1:\n"
 			"    asdf: 123";
 		// clang-format on
-		REQUIRE_THROWS_AS(angonoka::load_text(text),
-			angonoka::InvalidTasksDefError);
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
 	}
 
 	SECTION("Parse groups")
@@ -135,10 +135,10 @@ TEST_CASE("Loading agents")
 			ANGONOKA_COMMON_YAML
 			"agents:\n"
 			"  agent 1:\n"
-			"    perf:\n";
+			"    perf:";
 		// clang-format on
-		REQUIRE_THROWS_AS(angonoka::load_text(text),
-			angonoka::InvalidTasksDefError);
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
 	}
 
 	SECTION("Missing perf value")
@@ -149,10 +149,10 @@ TEST_CASE("Loading agents")
 			"agents:\n"
 			"  agent 1:\n"
 			"    perf:\n"
-			"      min: 1.0\n";
+			"      min: 1.0";
 		// clang-format on
-		REQUIRE_THROWS_AS(angonoka::load_text(text),
-			angonoka::InvalidTasksDefError);
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
 	}
 
 	SECTION("Invalid perf type")
@@ -164,11 +164,25 @@ TEST_CASE("Loading agents")
 			"  agent 1:\n"
 			"    perf:\n"
 			"      min: text\n"
-			"      max: text\n";
+			"      max: text";
 		// clang-format on
-		const auto system = angonoka::load_text(text);
-		REQUIRE(system.agents[0].perf.mean() == Approx(1.f));
-		REQUIRE(system.agents[0].perf.stddev() == Approx(0.5f / 3.f));
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
+	}
+
+	SECTION("Invalid perf values")
+	{
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"    perf:\n"
+			"      min: 2.0\n"
+			"      max: 1.0";
+		// clang-format on
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
 	}
 
 	SECTION("Parse performance")
@@ -179,16 +193,21 @@ TEST_CASE("Loading agents")
 			"agents:\n"
 			"  agent 1:\n"
 			"    perf:\n"
-			"      min: 0.5\n"
-			"      max: 1.5\n"
-			"  agent 2:\n";
+			"      min: 0.8\n"
+			"      max: 1.8\n"
+			"  agent 2:";
 		// clang-format on
 		const auto system = angonoka::load_text(text);
-		REQUIRE(system.agents[0].perf.mean() == Approx(1.f));
-		REQUIRE(system.agents[0].perf.stddev() == Approx(0.5f / 3.f));
-		REQUIRE(system.agents[1].perf.mean() == Approx(1.f));
-		REQUIRE(system.agents[1].perf.stddev() == Approx(0.5f / 3.f));
+		const auto& agent1_perf = system.agents[0].perf;
+		REQUIRE(agent1_perf.min == Approx(.8f));
+		REQUIRE(agent1_perf.max == Approx(1.8f));
+		const auto& agent2_perf = system.agents[1].perf;
+		REQUIRE(agent2_perf.min == Approx(.5f));
+		REQUIRE(agent2_perf.max == Approx(1.5f));
 	}
+
+	// TODO: WIP
+	// Check duplicate agent definitions
 }
 
 #undef ANGONOKA_COMMON_YAML
