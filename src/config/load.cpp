@@ -1,10 +1,7 @@
 #include "load.h"
-#include "agents.h"
-#include "tasks.h"
 #include "validation.h"
-#include <yaml-cpp/yaml.h>
 
-namespace angonoka {
+namespace {
 /**
 	Matches YAML configuration against the schema.
 
@@ -12,7 +9,7 @@ namespace angonoka {
 */
 void validate_configuration(const YAML::Node& node)
 {
-	using namespace validation;
+	using namespace angonoka::validation;
 	// clang-format off
 	constexpr auto schema = attributes(
 		required("agents",
@@ -37,7 +34,9 @@ void validate_configuration(const YAML::Node& node)
 	// clang-format on
 	schema(node);
 }
+} // namespace
 
+namespace angonoka {
 System load_text(const char* text)
 {
 	const auto node = YAML::Load(text);

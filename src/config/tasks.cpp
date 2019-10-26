@@ -1,8 +1,8 @@
-#include "tasks.h"
-
 #include "../common.h"
+#include "load.h"
 
-namespace angonoka::detail {
+namespace {
+using namespace angonoka;
 /**
 	Parses task blocks.
 
@@ -23,6 +23,9 @@ void parse_task(const YAML::Node& /* task_node */,
 {
 	// TODO: WIP
 }
+} // namespace
+
+namespace angonoka::detail {
 
 void parse_tasks(const YAML::Node& node, System& sys)
 {

@@ -1,11 +1,12 @@
-#include "agents.h"
 #include "../common.h"
+#include "load.h"
 #include <range/v3/algorithm/find.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/iota.hpp>
 #include <string_view>
 
-namespace angonoka::detail {
+namespace {
+using namespace angonoka;
 /**
 	Create mean and stddev from min and max values.
 
@@ -68,7 +69,6 @@ Int find_or_insert_group(System& sys, std::string_view group)
 void parse_agent_groups(
 	const YAML::Node& groups, Agent& agent, System& sys)
 {
-	using detail::find_or_insert_group;
 	for (auto&& g : groups) {
 		const auto gid = find_or_insert_group(sys, g.Scalar());
 		agent.group_ids.emplace(gid);
@@ -145,7 +145,9 @@ void parse_agent(const YAML::Node& agent_node,
 		assign_default_perf(agent);
 	}
 }
+} // namespace
 
+namespace angonoka::detail {
 void fill_empty_groups(System& sys)
 {
 	using ranges::to;
