@@ -25,7 +25,8 @@ exe = executable(
 	meson.project_name()+'-'+target_machine.cpu_family(),
 	sources,
 	dependencies: dependencies,
-	install : true)
+	install : true,
+	install_rpath : '$ORIGIN/../lib64')
 
 test_sources = [
 	'test/catch.cpp',
