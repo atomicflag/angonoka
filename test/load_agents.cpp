@@ -206,8 +206,18 @@ TEST_CASE("Loading agents")
 		REQUIRE(agent2_perf.max == Approx(1.5f));
 	}
 
-	// TODO: WIP
-	// Check duplicate agent definitions
+	SECTION("Duplicate agents")
+	{
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"  agent 1:";
+		// clang-format on
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
+	}
 }
 
 #undef ANGONOKA_COMMON_YAML

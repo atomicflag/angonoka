@@ -12,17 +12,16 @@ using namespace angonoka;
 	Finds or inserts a group into System.groups.
 
 	@param sys		System instance
-	@param group	Group name
+	@param groups	An array of Groups
 
 	@return Index of the group in System.groups
 */
-Int find_or_insert_group(System& sys, std::string_view group)
+Int find_or_insert_group(Groups& groups, std::string_view group)
 {
-	if (const auto f = ranges::find(sys.groups, group);
-		f != sys.groups.end())
-		return std::distance(sys.groups.begin(), f);
-	sys.groups.emplace_back(group);
-	return sys.groups.size() - 1;
+	if (const auto f = ranges::find(groups, group); f != groups.end())
+		return std::distance(groups.begin(), f);
+	groups.emplace_back(group);
+	return groups.size() - 1;
 }
 
 /**
@@ -38,15 +37,15 @@ Int find_or_insert_group(System& sys, std::string_view group)
 	and inserts "A", "B", "C" into System.groups.
 	Then places group ids into agent.groups_ids.
 
-	@param groups	Sequence with group names
-	@param agent	An instance of Agent
-	@param sys		An instance of System
+	@param group_nodes	Sequence with group names
+	@param agent		An instance of Agent
+	@param groups		An array of Groups
 */
 void parse_agent_groups(
-	const YAML::Node& groups, Agent& agent, System& sys)
+	const YAML::Node& group_nodes, Agent& agent, Groups& groups)
 {
-	for (auto&& g : groups) {
-		const auto gid = find_or_insert_group(sys, g.Scalar());
+	for (auto&& g : group_nodes) {
+		const auto gid = find_or_insert_group(groups, g.Scalar());
 		agent.group_ids.emplace(gid);
 	}
 }
@@ -79,6 +78,21 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 }
 
 /**
+	Check for duplicate agents.
+
+	@param agents	An array of Agents
+	@param name		Agent's name
+*/
+void check_for_duplicates(const Agents& agents, std::string_view name)
+{
+	if (const auto a = ranges::find(agents, name, &Agent::name);
+		a != agents.end()) {
+		constexpr auto text = "Duplicate agent definition";
+		throw InvalidTasksDef{text};
+	}
+}
+
+/**
 	Parses agent blocks.
 
 	Parses blocks such as these:
@@ -98,6 +112,7 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 void parse_agent(const YAML::Node& agent_node,
 	const YAML::Node& agent_data, System& sys)
 {
+	check_for_duplicates(sys.agents, agent_node.Scalar());
 	auto& agent = sys.agents.emplace_back();
 
 	// Parse agent.name
@@ -105,7 +120,7 @@ void parse_agent(const YAML::Node& agent_node,
 
 	// Parse agent.groups
 	if (const auto groups = agent_data["groups"]) {
-		parse_agent_groups(groups, agent, sys);
+		parse_agent_groups(groups, agent, sys.groups);
 	}
 
 	// Parse agent.perf

@@ -37,18 +37,27 @@ ninja: build/build.ninja
 	@cd build && ninja
 
 .PHONY: debug
-debug: MESON_ARGS=--buildtype debug -Db_sanitize=address,undefined -Db_lundef=false
+debug: MESON_ARGS=--buildtype debug \
+	-Db_sanitize=address,undefined \
+	-Db_lundef=false
 debug: ninja
 
 .PHONY: install
 install: release
 	@cd build && ninja install && cd .. && \
-	LIBS=$$(ldd build/angonoka-x86_64 | sed -n '/\(\.conan\|\/usr\/local\|\/opt\/llvm\)/s/.*=> \(.*\) (.*/\1/gp') && \
+	LIBS=$$(ldd build/angonoka-x86_64 | sed -n \
+		'/\(\.conan\|\/usr\/local\|\/opt\/llvm\)/s/.*=> \(.*\) (.*/\1/gp' \
+	) && \
 	mkdir -p dist/lib64 && \
 	cp $$LIBS dist/lib64
 
 .PHONY: release
-release: MESON_ARGS=--prefix $$(readlink -m ../dist) --buildtype release -Db_lto=true -Db_ndebug=true -Dstrip=true
+release: MESON_ARGS=--prefix \
+	$$(readlink -m ../dist) \
+	--buildtype release \
+	-Db_lto=true \
+	-Db_ndebug=true \
+	-Dstrip=true
 release: CXXFLAGS=$(RELEASE_CXXFLAGS)
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
@@ -58,7 +67,9 @@ plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
 .PHONY: build-cov
-build-cov: MESON_ARGS=--buildtype release -Db_ndebug=true -Db_coverage=true
+build-cov: MESON_ARGS=--buildtype release \
+	-Db_ndebug=true \
+	-Db_coverage=true
 build-cov: ninja
 
 .PHONY: check-cov
@@ -71,18 +82,24 @@ format:
 
 .PHONY: check-format
 check-format:
-	@! clang-format -output-replacements-xml $$(find src test -name '*.h' -o -name '*.cpp') | grep -q '<replacement '
+	@echo Running clang-format; \
+	! clang-format -output-replacements-xml \
+		$$(find src test -name '*.h' -o -name '*.cpp') \
+	| grep -q '<replacement '
 
 .PHONY: check-tidy
 check-tidy:
-	@cd build && \
+	@echo Running clang-tidy; \
+	cd build && \
 	sed -i \
 		-e 's/-fsanitize=[a-z,]*//g' \
 		-e 's/-pipe//g' \
 		-e 's/-fno-omit-frame-pointer//g' \
 		-e 's/--coverage//g' \
 		compile_commands.json && \
-	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py -extra-arg=-isystem$(LLVM_ROOT)/include/c++/v1/ -quiet 2>/dev/null | grep -E '(note:|warning:)'
+	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
+		-extra-arg=-isystem$(LLVM_ROOT)/include/c++/v1/ \
+		-quiet 2>/dev/null | grep -E '(note:|warning:)'
 
 .PHONY: check
 check: check-format check-tidy
