@@ -93,4 +93,22 @@ TEST_CASE("Loading tasks")
 	// 	- Invalid group
 	// 	- Type
 	// Check duplicate task definitions
+
+	// SECTION("Valid group id")
+	// {
+	// 	// clang-format off
+	// 	constexpr auto text =
+	// 		ANGONOKA_COMMON_YAML
+	// 		"tasks:\n"
+	// 		"  task 1:\n"
+	// 		"    group: A\n"
+	// 		"    days:\n"
+	// 		"      min: 1\n"
+	// 		"      max: 2";
+	// 	// clang-format on
+	// 	const auto system = angonoka::load_text(text);
+	// 	REQUIRE(system.tasks.size() == 1);
+	// 	const auto& task = system.tasks[0];
+	// 	REQUIRE(task.group_id);
+	// }
 }

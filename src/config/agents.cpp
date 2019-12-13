@@ -1,4 +1,3 @@
-#include "../common.h"
 #include "../exceptions.h"
 #include "load.h"
 #include <range/v3/algorithm/find.hpp>
@@ -8,22 +7,6 @@
 
 namespace {
 using namespace angonoka;
-/**
-	Finds or inserts a group into System.groups.
-
-	@param sys		System instance
-	@param groups	An array of Groups
-
-	@return Index of the group in System.groups
-*/
-Int find_or_insert_group(Groups& groups, std::string_view group)
-{
-	if (const auto f = ranges::find(groups, group); f != groups.end())
-		return std::distance(groups.begin(), f);
-	groups.emplace_back(group);
-	return groups.size() - 1;
-}
-
 /**
 	Parses agent groups section.
 
@@ -45,7 +28,8 @@ void parse_agent_groups(
 	const YAML::Node& group_nodes, Agent& agent, Groups& groups)
 {
 	for (auto&& g : group_nodes) {
-		const auto gid = find_or_insert_group(groups, g.Scalar());
+		const auto gid
+			= detail::find_or_insert_group(groups, g.Scalar());
 		agent.group_ids.emplace(gid);
 	}
 }

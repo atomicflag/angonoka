@@ -1,5 +1,7 @@
 #include "load.h"
+#include "../common.h"
 #include "validation.h"
+#include <range/v3/algorithm/find.hpp>
 
 namespace {
 /**
@@ -48,3 +50,13 @@ System load_text(const char* text)
 	return system;
 }
 } // namespace angonoka
+
+namespace angonoka::detail {
+int find_or_insert_group(Groups& groups, std::string_view group)
+{
+	if (const auto f = ranges::find(groups, group); f != groups.end())
+		return Int{std::distance(groups.begin(), f)};
+	groups.emplace_back(group);
+	return Int{groups.size() - 1};
+}
+} // namespace angonoka::detail

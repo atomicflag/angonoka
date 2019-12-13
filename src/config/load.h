@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../system.h"
+#include <string_view>
 #include <yaml-cpp/yaml.h>
 
 namespace angonoka {
@@ -16,8 +17,7 @@ System load_text(const char* text);
 
 namespace angonoka::detail {
 /**
-	Fills agent.group_ids with all available group ids
-	when it wasn't specified in YAML.
+	Fills empty agent.group_ids with all group ids.
 
 	E.g.
 
@@ -33,6 +33,16 @@ namespace angonoka::detail {
 	@param sys An instance of System
 */
 void fill_empty_groups(System& sys);
+
+/**
+	Finds or inserts a group into System.groups.
+
+	@param sys		System instance
+	@param groups	An array of Groups
+
+	@return Index of the group in System.groups
+*/
+int find_or_insert_group(Groups& groups, std::string_view group);
 
 /**
 	Parses agents blocks.
