@@ -67,6 +67,7 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 	@param agents	An array of Agents
 	@param name		Agent's name
 */
+// NOLINTNEXTLINE(misc-unused-parameters)
 void check_for_duplicates(const Agents& agents, std::string_view name)
 {
 	if (const auto a = ranges::find(agents, name, &Agent::name);
