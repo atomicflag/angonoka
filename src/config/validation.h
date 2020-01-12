@@ -13,10 +13,10 @@ template <typename T> struct Required {
 	const char* name;
 	T check;
 
-	constexpr void operator()(
+	void operator()(
 		const YAML::Node& node, std::string_view scope) const
 	{
-		// false positive
+		// False positive
 		const auto n = node[name]; // NOLINT
 		if (!n) {
 			constexpr auto err_text
@@ -48,10 +48,10 @@ template <typename T> struct Optional {
 	const char* name;
 	T check;
 
-	constexpr void operator()(
+	void operator()(
 		const YAML::Node& node, std::string_view /* scope */) const
 	{
-		// false positive
+		// False positive
 		const auto n = node[name]; // NOLINT
 		if (n) check(n, name);
 	}

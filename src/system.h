@@ -10,7 +10,7 @@ template <typename T, auto N>
 using Vector = boost::container::small_vector<T, N>;
 template <typename T, auto N>
 using Set = boost::container::flat_set<T, std::less<T>, Vector<T, N>>;
-using GroupIds = Set<int, 5>; // NOLINT
+using GroupIds = Set<int, 5>;
 
 /**
 	Agent that performs Tasks.
@@ -24,7 +24,6 @@ using GroupIds = Set<int, 5>; // NOLINT
 	@var group_ids	Set of Group ids
 	@var perf		Performance min/max
 */
-// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Agent {
 	std::string name;
 	GroupIds group_ids;
@@ -57,9 +56,9 @@ struct Task {
 	Duration dur{-1, -1};
 };
 
-using Groups = Vector<std::string, 5>; // NOLINT
-using Agents = Vector<Agent, 5>; // NOLINT
-using Tasks = Vector<Task, 7>; // NOLINT
+using Groups = Vector<std::string, 5>;
+using Agents = Vector<Agent, 5>;
+using Tasks = Vector<Task, 7>;
 
 /**
 	System that represents Tasks and Agents.

@@ -32,6 +32,10 @@ build/build.ninja: build/conaninfo.txt
 	sed -i -e 's/\([^a-zA-Z]-\)I/\1isystem/g' **.pc; \
 	meson $(MESON_ARGS) ..
 
+.PHONY: test
+test:
+	@build/angonoka_test
+
 .PHONY: ninja
 ninja: build/build.ninja
 	@cd build && ninja
@@ -99,7 +103,9 @@ check-tidy:
 		compile_commands.json && \
 	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
 		-extra-arg=-isystem$(LLVM_ROOT)/include/c++/v1/ \
-		-quiet 2>/dev/null | grep -E '(note:|warning:)'
+		-quiet 2>/dev/null | \
+		grep -v clang-diagnostic-error | \
+		grep -E '(error:|warning:)'
 
 .PHONY: check
 check: check-format check-tidy

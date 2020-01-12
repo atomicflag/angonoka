@@ -22,7 +22,7 @@ test:
     - make check-format
     - make build-cov
     - make check-tidy
-    - build/angonoka_test
+    - make test
     - make check-cov
 
 build:
