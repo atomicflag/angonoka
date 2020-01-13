@@ -102,10 +102,11 @@ check-tidy:
 		-e 's/--coverage//g' \
 		compile_commands.json && \
 	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
-		-extra-arg=-isystem$(LLVM_ROOT)/include/c++/v1/ \
+		$$(echo | clang -v -E -x c++ - 2>&1 | \
+			sed -n 's/^ \(\/[^ ]*\)/-extra-arg=-isystem\1/p' | \
+			tr '\n' ' ') \
 		-quiet 2>/dev/null | \
-		grep -v clang-diagnostic-error | \
-		grep -E '(error:|warning:)'
+		grep -E '(note:|error:|warning:)'
 
 .PHONY: check
 check: check-format check-tidy

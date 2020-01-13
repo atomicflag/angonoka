@@ -10,7 +10,8 @@ template <typename T, auto N>
 using Vector = boost::container::small_vector<T, N>;
 template <typename T, auto N>
 using Set = boost::container::flat_set<T, std::less<T>, Vector<T, N>>;
-using GroupIds = Set<int, 5>;
+constexpr auto static_alloc_group_ids = 5;
+using GroupIds = Set<int, static_alloc_group_ids>;
 
 /**
 	Agent that performs Tasks.
@@ -24,6 +25,7 @@ using GroupIds = Set<int, 5>;
 	@var group_ids	Set of Group ids
 	@var perf		Performance min/max
 */
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Agent {
 	std::string name;
 	GroupIds group_ids;
@@ -56,9 +58,12 @@ struct Task {
 	Duration dur{-1, -1};
 };
 
-using Groups = Vector<std::string, 5>;
-using Agents = Vector<Agent, 5>;
-using Tasks = Vector<Task, 7>;
+constexpr auto static_alloc_groups = 5;
+using Groups = Vector<std::string, static_alloc_groups>;
+constexpr auto static_alloc_agents = 5;
+using Agents = Vector<Agent, static_alloc_agents>;
+constexpr auto static_alloc_tasks = 7;
+using Tasks = Vector<Task, static_alloc_tasks>;
 
 /**
 	System that represents Tasks and Agents.
