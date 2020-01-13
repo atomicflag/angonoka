@@ -40,5 +40,5 @@ test_sources = [
 test_exe = executable(meson.project_name()+'_test',
 	test_sources,
 	include_directories: include_directories('src'),
-	dependencies: dependencies+[ dependency('Catch2') ])
+	dependencies: dependencies+[ dependency('catch2') ])
 test('catch', test_exe)

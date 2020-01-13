@@ -3,12 +3,12 @@
 # signal9: https://api.bintray.com/conan/signal9/conan
 
 [requires]
-fmt/[^6.0.0]@signal9/stable
-yaml-cpp/[^0.6.2]@bincrafters/stable
+fmt/[^6.0.0]
+yaml-cpp/[^0.6.2]
 clipp/[^1.2.3]@signal9/stable 
-boost/[^1.71.0]@conan/stable 
-Catch2/[^2.9.2]@catchorg/stable 
-range-v3/[^0.9.1]@ericniebler/stable 
+boost/[^1.71.0]
+catch2/[^2.9.2]
+range-v3/[^0.9.1]
 
 [generators]
 pkg_config
