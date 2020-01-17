@@ -78,7 +78,7 @@ build-cov: ninja
 
 .PHONY: check-cov
 check-cov: build-cov
-	@cd build && gcovr --gcov-executable 'llvm-cov gcov' -e ../test
+	@cd build && gcovr --gcov-executable 'llvm-cov gcov' -e ../test -r ../
 
 .PHONY: format
 format:
