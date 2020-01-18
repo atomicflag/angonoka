@@ -33,6 +33,25 @@ void parse_days(const YAML::Node& days, Task& task)
 }
 
 /**
+	Parses task group.
+
+	Parses blocks such as these:
+
+	group: A
+
+	@param group_node	Scalar holding the name of the group
+	@param task			An instance of Task
+	@param groups		An array of Groups
+*/
+void parse_task_group(
+	const YAML::Node& group_node, Task& task, Groups& groups)
+{
+	const auto gid
+		= detail::find_or_insert_group(groups, group_node.Scalar());
+	task.group_id = gid;
+}
+
+/**
 	Parses task blocks.
 
 	Parses blocks such as these:
@@ -53,6 +72,11 @@ void parse_task(const YAML::Node& task_node,
 	auto& task = sys.tasks.emplace_back();
 	task.name = task_node.Scalar();
 	parse_days(task_data["days"], task);
+
+	// Parse task.group
+	if (const auto group = task_data["group"]) {
+		parse_task_group(group, task, sys.groups);
+	}
 }
 } // namespace
 
