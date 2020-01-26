@@ -139,12 +139,28 @@ TEST_CASE("Loading tasks")
 		REQUIRE(task2.group_id == 0);
 	}
 
+	SECTION("Duplicate tasks")
+	{
+		// clang-format off
+		constexpr auto text =
+			ANGONOKA_COMMON_YAML
+			"tasks:\n"
+			"  task 1:\n"
+			"    days:\n"
+			"      min: 1\n"
+			"      max: 2\n"
+			"  task 1:\n"
+			"    days:\n"
+			"      min: 1\n"
+			"      max: 2";
+		// clang-format on
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
+	}
+
 	// TODO: WIP
 	// Check group_id
 	// 	- Invalid group
 	// 		If a task has a group that wasn't defined in any of the
 	// 		agent definitions, it should produce an error
-	// 	- Type
-	// 		group: 123
-	// Check duplicate task definitions
 }

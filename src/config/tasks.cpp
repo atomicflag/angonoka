@@ -1,6 +1,7 @@
 #include "../common.h"
 #include "../exceptions.h"
 #include "load.h"
+#include <range/v3/algorithm/find.hpp>
 
 namespace {
 using namespace angonoka;
@@ -52,6 +53,21 @@ void parse_task_group(
 }
 
 /**
+	Check for duplicate tasks.
+
+	@param agents	An array of Tasks
+	@param name		Agent's name
+*/
+void check_for_duplicates(const Tasks& tasks, std::string_view name)
+{
+	if (const auto a = ranges::find(tasks, name, &Task::name);
+		a != tasks.end()) {
+		constexpr auto text = "Duplicate task definition";
+		throw InvalidTasksDef{text};
+	}
+}
+
+/**
 	Parses task blocks.
 
 	Parses blocks such as these:
@@ -69,6 +85,7 @@ void parse_task_group(
 void parse_task(const YAML::Node& task_node,
 	const YAML::Node& task_data, System& sys)
 {
+	check_for_duplicates(sys.tasks, task_node.Scalar());
 	auto& task = sys.tasks.emplace_back();
 	task.name = task_node.Scalar();
 	parse_days(task_data["days"], task);
