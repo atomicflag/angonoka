@@ -218,6 +218,38 @@ TEST_CASE("Loading agents")
 		REQUIRE_THROWS_AS(
 			angonoka::load_text(text), angonoka::InvalidTasksDef);
 	}
+
+	SECTION("Duplicate agent sections")
+	{
+		// clang-format off
+		constexpr auto text = 
+			ANGONOKA_COMMON_YAML
+			"agents:\n"
+			"  agent 1:\n"
+			"agents:\n"
+			"  agent 2:";
+		// clang-format on
+		REQUIRE_THROWS_AS(
+			angonoka::load_text(text), angonoka::InvalidTasksDef);
+	}
+
+	SECTION("Groups defined in tasks")
+	{
+		// clang-format off
+		constexpr auto text = 
+			"tasks:\n"
+			"  task1:\n"
+			"    group: A\n"
+			"    days:\n"
+			"      min: 1\n"
+			"      max: 3\n"
+			"agents:\n"
+			"  agent 1:";
+		// clang-format on
+		const auto system = angonoka::load_text(text);
+		REQUIRE(system.groups == angonoka::Groups{"A"});
+		REQUIRE(system.agents[0].group_ids == angonoka::GroupIds{0});
+	}
 }
 
 #undef ANGONOKA_COMMON_YAML

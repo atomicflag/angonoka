@@ -45,8 +45,8 @@ System load_text(const char* text)
 	validate_configuration(node);
 	System system;
 	detail::parse_agents(node["agents"], system);
-	if (!system.groups.empty()) detail::fill_empty_groups(system);
 	detail::parse_tasks(node["tasks"], system);
+	if (!system.groups.empty()) detail::fill_empty_groups(system);
 	return system;
 }
 } // namespace angonoka

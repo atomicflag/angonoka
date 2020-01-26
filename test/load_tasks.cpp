@@ -159,8 +159,7 @@ TEST_CASE("Loading tasks")
 	}
 
 	// TODO: WIP
-	// Check group_id
-	// 	- Invalid group
-	// 		If a task has a group that wasn't defined in any of the
-	// 		agent definitions, it should produce an error
+	// Tasks that can't be completed by any agent should emit an error
 }
+
+#undef ANGONOKA_COMMON_YAML

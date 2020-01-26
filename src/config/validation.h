@@ -2,10 +2,13 @@
 
 #include "../exceptions.h"
 #include <fmt/format.h>
+#include <range/v3/algorithm/count_if.hpp>
 #include <string_view>
 #include <yaml-cpp/yaml.h>
 
 namespace angonoka::validation {
+using ranges::count_if;
+
 /**
 	Helper class for required YAML parameters.
 */
@@ -21,6 +24,13 @@ template <typename T> struct Required {
 		if (!n) {
 			constexpr auto err_text
 				= R"_("{}" is missing a "{}" attribute)_";
+			throw InvalidTasksDef{fmt::format(err_text, scope, name)};
+		}
+		auto same_name
+			= [&](auto&& a) { return a.first.Scalar() == name; };
+		if (count_if(node, same_name) > 1) {
+			constexpr auto err_text
+				= R"_("{}" has duplicate "{}" attributes)_";
 			throw InvalidTasksDef{fmt::format(err_text, scope, name)};
 		}
 		check(n, name);

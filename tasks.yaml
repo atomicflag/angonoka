@@ -13,3 +13,8 @@ agents:
   agent 3:
     groups:
       - C
+tasks:
+  task1:
+    days:
+      min: 1
+      min: 2
