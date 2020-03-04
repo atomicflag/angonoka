@@ -163,9 +163,6 @@ TEST_CASE("Loading tasks")
             angonoka::load_text(text),
             angonoka::InvalidTasksDef);
     }
-
-    // TODO: WIP
-    // Tasks that can't be completed by any agent should emit an error
 }
 
 #undef ANGONOKA_COMMON_YAML
