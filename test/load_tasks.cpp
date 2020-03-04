@@ -165,4 +165,31 @@ TEST_CASE("Loading tasks")
     }
 }
 
+TEST_CASE("Loading tasks WIP", "[.]")
+{
+    SECTION("Duplicate attributes")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "  agent2:\n"
+            "    groups:\n"
+            "      - B\n"
+            "tasks:\n"
+            "  task 1:\n"
+            "    group: A\n"
+            "    group: B\n"
+            "    days:\n"
+            "      min: 1\n"
+            "      max: 3";
+        // clang-format on
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::InvalidTasksDef);
+    }
+}
+
 #undef ANGONOKA_COMMON_YAML
