@@ -163,10 +163,7 @@ TEST_CASE("Loading tasks")
             angonoka::load_text(text),
             angonoka::InvalidTasksDef);
     }
-}
 
-TEST_CASE("Loading tasks WIP", "[.]")
-{
     SECTION("Duplicate attributes")
     {
         // clang-format off

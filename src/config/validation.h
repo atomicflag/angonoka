@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common.h"
 #include "../exceptions.h"
 #include <fmt/format.h>
 #include <range/v3/algorithm/count_if.hpp>
@@ -128,8 +129,16 @@ template <typename... T> constexpr auto attributes(T... attrs)
                 = R"_("{}" is expected to be a map)_";
             throw InvalidTasksDef{fmt::format(err_text, scope)};
         }
+        constexpr auto static_alloc_size = 5;
+        Set<std::string_view, static_alloc_size> unique_fields;
         for (auto&& n : node) {
-            const auto attr_name = n.first.Scalar();
+            const auto& attr_name = n.first.Scalar();
+            if (!unique_fields.emplace(attr_name).second) {
+                constexpr auto err_text
+                    = R"_(Duplicate attribute "{}" in "{}")_";
+                throw InvalidTasksDef{
+                    fmt::format(err_text, attr_name, scope)};
+            }
             if (!((attr_name == attrs.name) || ...)) {
                 constexpr auto err_text
                     = R"_(Unexpected attribute "{}" in "{}")_";

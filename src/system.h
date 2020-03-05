@@ -1,15 +1,10 @@
 #pragma once
 
-#include <boost/container/flat_set.hpp>
-#include <boost/container/small_vector.hpp>
+#include "common.h"
 #include <optional>
 #include <string>
 
 namespace angonoka {
-template <typename T, auto N>
-using Vector = boost::container::small_vector<T, N>;
-template <typename T, auto N>
-using Set = boost::container::flat_set<T, std::less<T>, Vector<T, N>>;
 constexpr auto static_alloc_group_ids = 5;
 using GroupIds = Set<int, static_alloc_group_ids>;
 
