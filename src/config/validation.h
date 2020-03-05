@@ -27,13 +27,6 @@ template <typename T> struct Required {
                 = R"_("{}" is missing a "{}" attribute)_";
             throw InvalidTasksDef{fmt::format(err_text, scope, name)};
         }
-        auto same_name
-            = [&](auto&& a) { return a.first.Scalar() == name; };
-        if (count_if(node, same_name) > 1) {
-            constexpr auto err_text
-                = R"_("{}" has duplicate "{}" attributes)_";
-            throw InvalidTasksDef{fmt::format(err_text, scope, name)};
-        }
         check(n, name);
     }
 };

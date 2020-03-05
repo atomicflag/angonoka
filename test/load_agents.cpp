@@ -162,7 +162,7 @@ TEST_CASE("Loading agents")
             angonoka::InvalidTasksDef);
     }
 
-    SECTION("Invalid perf type")
+    SECTION("Invalid perf type, text")
     {
         // clang-format off
         constexpr auto text = 
@@ -172,6 +172,23 @@ TEST_CASE("Loading agents")
             "    perf:\n"
             "      min: text\n"
             "      max: text";
+        // clang-format on
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::InvalidTasksDef);
+    }
+
+    SECTION("Invalid perf type, dict")
+    {
+        // clang-format off
+        constexpr auto text =
+            ANGONOKA_COMMON_YAML
+            "agents:\n"
+            "  agent 1:\n"
+            "    perf:\n"
+            "      min: 1\n"
+            "      max:\n"
+            "        - 2";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),

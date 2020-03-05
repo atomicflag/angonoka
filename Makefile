@@ -71,8 +71,7 @@ plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
 .PHONY: build-cov
-build-cov: MESON_ARGS=--buildtype release \
-	-Db_ndebug=true \
+build-cov: MESON_ARGS=--buildtype debug \
 	-Db_coverage=true
 build-cov: ninja
 
