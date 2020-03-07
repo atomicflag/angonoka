@@ -1,6 +1,8 @@
 #include "../common.h"
 #include "../exceptions.h"
 #include "load.h"
+#include <fmt/format.h>
+#include <range/v3/algorithm/any_of.hpp>
 #include <range/v3/algorithm/find.hpp>
 
 namespace {
@@ -42,15 +44,21 @@ void parse_days(const YAML::Node& days, Task& task)
 
   @param group_node Scalar holding the name of the group
   @param task       An instance of Task
-  @param groups     An array of Groups
+  @param system     An instance of System
 */
 void parse_task_group(
     const YAML::Node& group_node,
     Task& task,
-    Groups& groups)
+    System& system)
 {
-    const auto gid
-        = detail::find_or_insert_group(groups, group_node.Scalar());
+    const auto& group_name = group_node.Scalar();
+    const auto [gid, is_inserted]
+        = detail::find_or_insert_group(system.groups, group_name);
+    if (is_inserted
+        && !ranges::any_of(system.agents, &Agent::is_universal)) {
+        constexpr auto text = R"_(No suitable agent for task {}")_";
+        throw InvalidTasksDef{fmt::format(text, group_name)};
+    }
     task.group_id = gid;
 }
 
@@ -96,7 +104,7 @@ void parse_task(
 
     // Parse task.group
     if (const auto group = task_data["group"]) {
-        parse_task_group(group, task, sys.groups);
+        parse_task_group(group, task, sys);
     }
 }
 } // namespace

@@ -46,17 +46,17 @@ System load_text(const char* text)
     System system;
     detail::parse_agents(node["agents"], system);
     detail::parse_tasks(node["tasks"], system);
-    if (!system.groups.empty()) detail::fill_empty_groups(system);
     return system;
 }
 } // namespace angonoka
 
 namespace angonoka::detail {
-int find_or_insert_group(Groups& groups, std::string_view group)
+std::pair<int, bool>
+find_or_insert_group(Groups& groups, std::string_view group)
 {
     if (const auto f = ranges::find(groups, group); f != groups.end())
-        return Int{std::distance(groups.begin(), f)};
+        return {Int{std::distance(groups.begin(), f)}, false};
     groups.emplace_back(group);
-    return Int{groups.size() - 1};
+    return {Int{groups.size() - 1}, true};
 }
 } // namespace angonoka::detail

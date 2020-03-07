@@ -5,8 +5,9 @@
 #include <string>
 
 namespace angonoka {
+using GroupId = int;
 constexpr auto static_alloc_group_ids = 5;
-using GroupIds = Set<int, static_alloc_group_ids>;
+using GroupIds = Set<GroupId, static_alloc_group_ids>;
 
 /**
   Agent that performs Tasks.
@@ -31,6 +32,22 @@ struct Agent {
         float max = default_max;
     };
     Performance perf;
+
+    /**
+      Tells if the agent can work on any task.
+
+      @return True if the agent can perform any task.
+    */
+    [[nodiscard]] bool is_universal() const;
+
+    /**
+      Checks if the agent can work on tasks from a given group.
+
+      @param id Group id
+
+      @return True if the agent can work with a givern group.
+    */
+    [[nodiscard]] bool can_work_on(GroupId id) const;
 };
 
 /**

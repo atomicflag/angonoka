@@ -98,7 +98,7 @@ TEST_CASE("Loading agents")
             system.agents[1].group_ids == angonoka::GroupIds{0, 2});
     }
 
-    SECTION("Fill empty groups")
+    SECTION("Universal agents")
     {
         // clang-format off
         constexpr auto text = 
@@ -114,9 +114,10 @@ TEST_CASE("Loading agents")
         // Agent 1 has A(0) and B(1)
         REQUIRE(
             system.agents[0].group_ids == angonoka::GroupIds{0, 1});
-        // Agent 2 should have all groups
-        REQUIRE(
-            system.agents[1].group_ids == angonoka::GroupIds{0, 1});
+        // Agent 2 should be universal
+        REQUIRE(system.agents[1].is_universal());
+        REQUIRE(system.agents[1].can_work_on(0));
+        REQUIRE(system.agents[1].can_work_on(1));
     }
 
     SECTION("No groups")
@@ -259,24 +260,6 @@ TEST_CASE("Loading agents")
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
             angonoka::InvalidTasksDef);
-    }
-
-    SECTION("Groups defined in tasks")
-    {
-        // clang-format off
-        constexpr auto text = 
-            "tasks:\n"
-            "  task1:\n"
-            "    group: A\n"
-            "    days:\n"
-            "      min: 1\n"
-            "      max: 3\n"
-            "agents:\n"
-            "  agent 1:";
-        // clang-format on
-        const auto system = angonoka::load_text(text);
-        REQUIRE(system.groups == angonoka::Groups{"A"});
-        REQUIRE(system.agents[0].group_ids == angonoka::GroupIds{0});
     }
 }
 

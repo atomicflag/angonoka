@@ -187,6 +187,29 @@ TEST_CASE("Loading tasks")
             angonoka::load_text(text),
             angonoka::InvalidTasksDef);
     }
+
+    SECTION("No suitable agents")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "tasks:\n"
+            "  task 1:\n"
+            "    group: B\n"
+            "    days:\n"
+            "      min: 1\n"
+            "      max: 3";
+        // clang-format on
+
+        // "task 1" has a group "B" and the only agent can
+        // only work on tasks from group "A".
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::InvalidTasksDef);
+    }
 }
 
 #undef ANGONOKA_COMMON_YAML

@@ -2,6 +2,7 @@
 
 #include "../system.h"
 #include <string_view>
+#include <utility>
 #include <yaml-cpp/yaml.h>
 
 namespace angonoka {
@@ -17,32 +18,16 @@ System load_text(const char* text);
 
 namespace angonoka::detail {
 /**
-  Fills empty agent.group_ids with all group ids.
-
-  E.g.
-
-  agents:
-    agent 1:
-      groups:
-        - A
-        - B
-    agent 2:
-
-  "agent 2" will implicitly have groups "A" and "B"
-
-  @param sys An instance of System
-*/
-void fill_empty_groups(System& sys);
-
-/**
   Finds or inserts a group into System.groups.
 
   @param sys    System instance
   @param groups An array of Groups
 
-  @return Index of the group in System.groups
+  @return A pair of the index of the group in System.groups
+  and whether the insert took place.
 */
-int find_or_insert_group(Groups& groups, std::string_view group);
+std::pair<int, bool>
+find_or_insert_group(Groups& groups, std::string_view group);
 
 /**
   Parses agents blocks.

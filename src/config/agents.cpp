@@ -1,8 +1,6 @@
 #include "../exceptions.h"
 #include "load.h"
 #include <range/v3/algorithm/find.hpp>
-#include <range/v3/range/conversion.hpp>
-#include <range/v3/view/iota.hpp>
 #include <string_view>
 
 namespace {
@@ -32,7 +30,7 @@ void parse_agent_groups(
     for (auto&& g : group_nodes) {
         const auto gid
             = detail::find_or_insert_group(groups, g.Scalar());
-        agent.group_ids.emplace(gid);
+        agent.group_ids.emplace(gid.first);
     }
 }
 
@@ -120,17 +118,6 @@ void parse_agent(
 } // namespace
 
 namespace angonoka::detail {
-void fill_empty_groups(System& sys)
-{
-    using ranges::to;
-    using namespace ranges::views;
-    for (auto&& a : sys.agents) {
-        if (!a.group_ids.empty()) continue;
-        a.group_ids = to<GroupIds>(
-            iota(0, static_cast<int>(sys.groups.size())));
-    }
-}
-
 void parse_agents(const YAML::Node& node, System& sys)
 {
     for (auto&& agent : node) {
