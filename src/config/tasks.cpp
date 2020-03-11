@@ -56,7 +56,7 @@ void parse_task_group(
         = detail::find_or_insert_group(system.groups, group_name);
     if (is_inserted
         && !ranges::any_of(system.agents, &Agent::is_universal)) {
-        constexpr auto text = R"_(No suitable agent for task {}")_";
+        constexpr auto text = R"_(No suitable agent for task "{}")_";
         throw InvalidTasksDef{fmt::format(text, group_name)};
     }
     task.group_id = gid;
