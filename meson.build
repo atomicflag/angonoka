@@ -14,7 +14,7 @@ dependencies = [
 	dependency('yaml-cpp'),
 	dependency('clipp'),
 	dependency('range-v3'),
-	dependency('boost')
+	dependency('boost', include_type: 'system')
 ]
 
 sources = [

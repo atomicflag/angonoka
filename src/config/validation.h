@@ -3,12 +3,10 @@
 #include "../common.h"
 #include "../exceptions.h"
 #include <fmt/format.h>
-#include <range/v3/algorithm/count_if.hpp>
 #include <string_view>
 #include <yaml-cpp/yaml.h>
 
 namespace angonoka::validation {
-using ranges::count_if;
 
 /**
   Helper class for required YAML parameters.
@@ -56,9 +54,7 @@ template <typename T> struct Optional {
         const YAML::Node& node,
         std::string_view /* scope */) const
     {
-        // False positive
-        const auto n = node[name]; // NOLINT
-        if (n) check(n, name);
+        if (const auto n = node[name]; n) check(n, name);
     }
 };
 
