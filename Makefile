@@ -14,6 +14,7 @@ define RELEASE_CXXFLAGS =
 -fno-stack-protector
 endef
 RELEASE_LDFLAGS := -Wl,--gc-sections
+LLVM_ROOT := $(shell readlink -m $$(which clang-tidy)/../..)
 
 build/conaninfo.txt:
 	mkdir -p build
@@ -100,8 +101,18 @@ check-format:
 check-tidy:
 	echo Running clang-tidy
 	cd build
-	! ninja clang-tidy 2>&1 | grep -E '(note:|warning:|error:)'
-		
+	sed -i \
+		-e 's/-fsanitize=[a-z,]*//g' \
+		-e 's/-pipe//g' \
+		-e 's/-fno-omit-frame-pointer//g' \
+		-e 's/--coverage//g' \
+		compile_commands.json
+	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
+		$$(echo | clang -v -E -x c++ - 2>&1 | \
+			sed -n 's/^ \(\/[^ ]*\)/-extra-arg=-isystem\1/p' | \
+			tr '\n' ' ') \
+		-quiet 2>/dev/null | \
+		grep -E '(note:|error:|warning:)'	
 
 .PHONY: check
 check: check-format check-tidy
