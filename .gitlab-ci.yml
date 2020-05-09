@@ -13,7 +13,7 @@ default:
       - .conan
       - .ccache
   before_script:
-    - conan remote add signal9 https://api.bintray.com/conan/signal9/conan
+    - conan remote add signal9 https://api.bintray.com/conan/signal9/conan --insert
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
 
 test:
