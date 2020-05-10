@@ -10,5 +10,9 @@ boost/[^1.71.0]
 catch2/[^2.9.2]
 range-v3/[^0.10.0]
 
+[build_requires]
+meson/[^0.54.1]
+
 [generators]
 pkg_config
+virtualenv

@@ -1,3 +1,8 @@
+#
+# This Makefile assumes you have a full LLVM toolchain including
+# clang and polly. A proper conanfile.py is WIP.
+#
+
 .ONESHELL:
 .SILENT:
 .DEFAULT_GOAL := debug
@@ -15,6 +20,10 @@ define RELEASE_CXXFLAGS =
 endef
 RELEASE_LDFLAGS := -Wl,--gc-sections
 LLVM_ROOT := $(shell readlink -m $$(which clang-tidy)/../..)
+define BUILD_ENV
+cd build
+. ./activate.sh
+endef
 
 build/conaninfo.txt:
 	mkdir -p build
@@ -25,9 +34,8 @@ build/conaninfo.txt:
 	conan install -b missing ..
 
 build/build.ninja: build/conaninfo.txt
-	cd build
+	$(BUILD_ENV)
 	export PKG_CONFIG_PATH=$$(pwd)
-	export BOOST_ROOT=$$(pkg-config --variable=prefix boost)
 	export CXXFLAGS="$$CXXFLAGS $(CXXFLAGS)"
 	export CFLAGS="$$CFLAGS $(CXXFLAGS)"
 	export LDFLAGS="$$LDFLAGS $(LDFLAGS)"
@@ -40,7 +48,7 @@ test:
 
 .PHONY: ninja
 ninja: build/build.ninja
-	cd build
+	$(BUILD_ENV)
 	ninja
 
 .PHONY: debug
@@ -51,7 +59,7 @@ debug: ninja
 
 .PHONY: install
 install: release
-	cd build
+	$(BUILD_ENV)
 	ninja install
 	cd ..
 	LIBS=$$(ldd build/angonoka-x86_64 | sed -n \
@@ -87,7 +95,7 @@ check-cov: build-cov
 
 .PHONY: format
 format:
-	cd build
+	$(BUILD_ENV)
 	ninja clang-format
 
 .PHONY: check-format
