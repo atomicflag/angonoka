@@ -1,5 +1,6 @@
 #include "load.h"
 #include "../common.h"
+#include "../exceptions.h"
 #include "validation.h"
 #include <range/v3/algorithm/find.hpp>
 
@@ -15,26 +16,28 @@ void validate_configuration(const YAML::Node& node)
     // clang-format off
     constexpr auto schema = attributes(
         required("agents",
-            map(attributes(
+            values(attributes(
                 optional("perf", attributes(
-                    required("min", scalar()),
-                    required("max", scalar())
+                    required("min"),
+                    required("max")
                 )),
-                optional("groups", sequence(scalar()))
+                optional("groups", sequence())
             ))
         ),
         required("tasks",
-            map(attributes(
-                optional("group", scalar()),
+            values(attributes(
+                optional("group"),
                 required("days", attributes(
-                    required("min", scalar()),
-                    required("max", scalar())
+                    required("min"),
+                    required("max")
                 ))
             ))
         )
     );
     // clang-format on
-    schema(node);
+    if (const auto r = schema(node); !r) {
+        throw angonoka::InvalidTasksDef{r.error()};
+    }
 }
 } // namespace
 

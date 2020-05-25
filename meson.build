@@ -32,6 +32,7 @@ test_sources = [
 	'test/catch.cpp',
 	'test/load_agents.cpp',
 	'test/load_tasks.cpp',
+	'test/validation.cpp',
 	'test/system.cpp',
 	'src/system.cpp',
 	'src/config/load.cpp',

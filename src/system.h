@@ -38,7 +38,7 @@ struct Agent {
 
       @return True if the agent can perform any task.
     */
-    [[nodiscard]] bool is_universal() const;
+    [[nodiscard]] bool is_universal() const noexcept;
 
     /**
       Checks if the agent can work on tasks from a given group.
@@ -47,7 +47,7 @@ struct Agent {
 
       @return True if the agent can work with a givern group.
     */
-    [[nodiscard]] bool can_work_on(GroupId id) const;
+    [[nodiscard]] bool can_work_on(GroupId id) const noexcept;
 };
 
 /**
