@@ -6,9 +6,9 @@
 
 namespace {
 /**
-  Matches YAML configuration against the schema.
+    Matches YAML configuration against the schema.
 
-  @param node Root YAML node
+    @param node Root YAML node
 */
 void validate_configuration(const YAML::Node& node)
 {

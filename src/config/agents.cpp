@@ -6,21 +6,21 @@
 namespace {
 using namespace angonoka;
 /**
-  Parses agent groups section.
+    Parses agent groups section.
 
-  Parses blocks such as these:
+    Parses blocks such as these:
 
-  groups:
-    - A
-    - B
-    - C
+    groups:
+      - A
+      - B
+      - C
 
-  and inserts "A", "B", "C" into System.groups.
-  Then places group ids into agent.groups_ids.
+    and inserts "A", "B", "C" into System.groups.
+    Then places group ids into agent.groups_ids.
 
-  @param group_nodes    Sequence with group names
-  @param agent          An instance of Agent
-  @param groups         An array of Groups
+    @param group_nodes    Sequence with group names
+    @param agent          An instance of Agent
+    @param groups         An array of Groups
 */
 void parse_agent_groups(
     const YAML::Node& group_nodes,
@@ -35,16 +35,16 @@ void parse_agent_groups(
 }
 
 /**
-  Parses agent perf.
+    Parses agent perf.
 
-  Parses blocks such as these:
+    Parses blocks such as these:
 
-  perf:
-    min: 1.0
-    max: 2.0
+    perf:
+      min: 1.0
+      max: 2.0
 
-  @param perf   Map with perf data
-  @param agent  An instance of Agent
+    @param perf   Map with perf data
+    @param agent  An instance of Agent
 */
 void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 {
@@ -62,10 +62,10 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 }
 
 /**
-  Check for duplicate agents.
+    Check for duplicate agents.
 
-  @param agents An array of Agents
-  @param name   Agent's name
+    @param agents An array of Agents
+    @param name   Agent's name
 */
 // NOLINTNEXTLINE(misc-unused-parameters)
 void check_for_duplicates(const Agents& agents, std::string_view name)
@@ -78,21 +78,21 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
 }
 
 /**
-  Parses agent blocks.
+    Parses agent blocks.
 
-  Parses blocks such as these:
+    Parses blocks such as these:
 
-  agent 1:
-    perf:
-      min: 0.5
-      max: 1.5
-    groups:
-      - A
-      - B
+    agent 1:
+      perf:
+        min: 0.5
+        max: 1.5
+      groups:
+        - A
+        - B
 
-  @param agent_node Scalar holding the name of the agent
-  @param agent_data Map with agent data
-  @param sys        An instance of System
+    @param agent_node Scalar holding the name of the agent
+    @param agent_data Map with agent data
+    @param sys        An instance of System
 */
 void parse_agent(
     const YAML::Node& agent_node,

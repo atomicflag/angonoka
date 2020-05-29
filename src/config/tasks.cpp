@@ -8,16 +8,16 @@
 namespace {
 using namespace angonoka;
 /**
-  Parses task duration.
+    Parses task duration.
 
-  Parses blocks such as these:
+    Parses blocks such as these:
 
-  days:
-    min: 1
-    min: 3
+    days:
+      min: 1
+      max: 3
 
-  @param days   Map with task duration
-  @param task   Task object
+    @param days   Map with task duration
+    @param task   Task object
 */
 void parse_days(const YAML::Node& days, Task& task)
 {
@@ -36,15 +36,15 @@ void parse_days(const YAML::Node& days, Task& task)
 }
 
 /**
-  Parses task group.
+    Parses task group.
 
-  Parses blocks such as these:
+    Parses blocks such as these:
 
-  group: A
+    group: A
 
-  @param group_node Scalar holding the name of the group
-  @param task       An instance of Task
-  @param system     An instance of System
+    @param group_node Scalar holding the name of the group
+    @param task       An instance of Task
+    @param system     An instance of System
 */
 void parse_task_group(
     const YAML::Node& group_node,
@@ -63,10 +63,10 @@ void parse_task_group(
 }
 
 /**
-  Check for duplicate tasks.
+    Check for duplicate tasks.
 
-  @param agents An array of Tasks
-  @param name   Agent's name
+    @param agents An array of Tasks
+    @param name   Agent's name
 */
 void check_for_duplicates(const Tasks& tasks, std::string_view name)
 {
@@ -78,19 +78,19 @@ void check_for_duplicates(const Tasks& tasks, std::string_view name)
 }
 
 /**
-  Parses task blocks.
+    Parses task blocks.
 
-  Parses blocks such as these:
+    Parses blocks such as these:
 
-  task 1:
-    group: A
-    days:
-      min: 2
-      max: 2
+    task 1:
+      group: A
+      days:
+        min: 2
+        max: 2
 
-  @param task_node  Scalar holding the name of the task
-  @param task_data  Map with task data
-  @param sys        An instance of System
+    @param task_node  Scalar holding the name of the task
+    @param task_data  Map with task data
+    @param sys        An instance of System
 */
 void parse_task(
     const YAML::Node& task_node,

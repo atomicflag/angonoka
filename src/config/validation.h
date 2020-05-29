@@ -15,7 +15,7 @@ using result = bo::result<void, std::string>;
 using namespace fmt::literals;
 
 /**
-  YAML scalar.
+    YAML scalar.
 */
 consteval auto scalar()
 {
@@ -29,10 +29,10 @@ consteval auto scalar()
 
 namespace detail {
     /**
-      Helper class for required and optional YAML fields.
+        Helper class for required and optional YAML fields.
 
-      @var name   Parameter's name
-      @var check  Function to apply to the field
+        @var name   Parameter's name
+        @var check  Function to apply to the field
     */
     template <typename T> struct functor {
         const char* name;
@@ -51,10 +51,10 @@ namespace detail {
 } // namespace detail
 
 /**
-  Requred YAML field.
+    Requred YAML field.
 
-  @var name   Parameter's name
-  @var check  Function to apply to the field
+    @var name   Parameter's name
+    @var check  Function to apply to the field
 */
 template <typename T> struct required : detail::functor<T> {
     using detail::functor<T>::functor;
@@ -75,10 +75,10 @@ template <typename T> required(const char*, T) -> required<T>;
 required(const char*)->required<decltype(scalar())>;
 
 /**
-  Optional YAML field.
+    Optional YAML field.
 
-  @var name  Parameter's name
-  @var check Function to apply to the field
+    @var name  Parameter's name
+    @var check Function to apply to the field
 */
 template <typename T> struct optional : detail::functor<T> {
     using detail::functor<T>::functor;
@@ -97,11 +97,11 @@ template <typename T> optional(const char*, T) -> optional<T>;
 optional(const char*)->optional<decltype(scalar())>;
 
 /**
-  YAML array.
+    YAML array.
 
-  Validates each value of the array with the provided function.
+    Validates each value of the array with the provided function.
 
-  @param check Function to apply to each item
+    @param check Function to apply to each item
 */
 consteval auto sequence(auto check)
 {
@@ -120,11 +120,11 @@ consteval auto sequence(auto check)
 consteval auto sequence() { return sequence(scalar()); }
 
 /**
-  YAML map.
+    YAML map.
 
-  Matches specified parameters exactly, no extra fields permitted.
+    Matches specified parameters exactly, no extra fields permitted.
 
-  @param attrs Sequence of optional or required parameters
+    @param attrs Sequence of optional or required parameters
 */
 consteval auto attributes(auto... attrs)
 {
@@ -154,20 +154,20 @@ consteval auto attributes(auto... attrs)
 }
 
 /**
-  YAML map.
+    YAML map.
 
-  Validates each value of the map with the provided function.
+    Validates each value of the map with the provided function.
 
-  For example:
+    For example:
 
-  foo:
-    bar1: 1
-    bar2: 2
-    bar3: 3
+    foo:
+      bar1: 1
+      bar2: 2
+      bar3: 3
 
-  values(scalar())
+    values(scalar())
 
-  @param check Function to apply to each value
+    @param check Function to apply to each value
 */
 consteval auto values(auto check)
 {
@@ -183,9 +183,9 @@ consteval auto values(auto check)
 }
 
 /**
-  Match at least one of the validators.
+    Match at least one of the validators.
 
-  @param check Functions to match
+    @param check Functions to match
 */
 consteval auto any_of(auto... checks)
 {
