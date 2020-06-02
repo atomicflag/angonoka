@@ -2,6 +2,7 @@
 #include "../exceptions.h"
 #include "load.h"
 #include <fmt/format.h>
+#include <gsl/gsl-lite.hpp>
 #include <range/v3/algorithm/any_of.hpp>
 #include <range/v3/algorithm/find.hpp>
 
@@ -52,6 +53,7 @@ void parse_task_group(
     System& system)
 {
     const auto& group_name = group_node.Scalar();
+    Expects(!group_name.empty());
     const auto [gid, is_inserted]
         = detail::find_or_insert_group(system.groups, group_name);
     if (is_inserted
@@ -70,6 +72,7 @@ void parse_task_group(
 */
 void check_for_duplicates(const Tasks& tasks, std::string_view name)
 {
+    Expects(!name.empty());
     if (const auto a = ranges::find(tasks, name, &Task::name);
         a != tasks.end()) {
         constexpr auto text = "Duplicate task definition";
@@ -97,9 +100,11 @@ void parse_task(
     const YAML::Node& task_data,
     System& sys)
 {
-    check_for_duplicates(sys.tasks, task_node.Scalar());
+    const auto& task_name = task_node.Scalar();
+    Expects(!task_name.empty());
+    check_for_duplicates(sys.tasks, task_name);
     auto& task = sys.tasks.emplace_back();
-    task.name = task_node.Scalar();
+    task.name = task_name;
     parse_days(task_data["days"], task);
 
     // Parse task.group

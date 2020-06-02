@@ -45,7 +45,7 @@ struct Agent {
 
         @param id Group id
 
-        @return True if the agent can work with a givern group.
+        @return True if the agent can work with a given group.
     */
     [[nodiscard]] bool can_work_on(GroupId id) const noexcept;
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../system.h"
+#include <gsl/gsl-lite.hpp>
 #include <string_view>
 #include <utility>
 #include <yaml-cpp/yaml.h>
@@ -13,7 +14,7 @@ namespace angonoka {
 
     @return An instance of System
 */
-System load_text(const char* text);
+System load_text(gsl::czstring text);
 } // namespace angonoka
 
 namespace angonoka::detail {

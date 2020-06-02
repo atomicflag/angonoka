@@ -4,6 +4,7 @@
 #include <boost/outcome/result.hpp>
 #include <boost/outcome/try.hpp>
 #include <fmt/format.h>
+#include <gsl/gsl-lite.hpp>
 #include <string>
 #include <string_view>
 #include <yaml-cpp/yaml.h>
@@ -35,15 +36,15 @@ namespace detail {
         @var check  Function to apply to the field
     */
     template <typename T> struct functor {
-        const char* name;
+        gsl::czstring name;
         T check;
 
-        consteval functor(const char* name, T check)
+        consteval functor(gsl::czstring name, T check)
             : name{name}
             , check{check}
         {
         }
-        explicit consteval functor(const char* name)
+        explicit consteval functor(gsl::czstring name)
             : functor{name, scalar()}
         {
         }
@@ -71,8 +72,8 @@ template <typename T> struct required : detail::functor<T> {
     }
 };
 
-template <typename T> required(const char*, T) -> required<T>;
-required(const char*)->required<decltype(scalar())>;
+template <typename T> required(gsl::czstring, T) -> required<T>;
+required(gsl::czstring)->required<decltype(scalar())>;
 
 /**
     Optional YAML field.
@@ -93,8 +94,8 @@ template <typename T> struct optional : detail::functor<T> {
     }
 };
 
-template <typename T> optional(const char*, T) -> optional<T>;
-optional(const char*)->optional<decltype(scalar())>;
+template <typename T> optional(gsl::czstring, T) -> optional<T>;
+optional(gsl::czstring)->optional<decltype(scalar())>;
 
 /**
     YAML array.
@@ -136,6 +137,8 @@ consteval auto attributes(auto... attrs)
         Set<std::string_view, static_alloc_size> unique_fields;
         for (auto&& n : node) {
             const auto& attr_name = n.first.Scalar();
+            if (attr_name.empty())
+                return R"(Empty attribute in "{}")"_format(scope);
             if (!unique_fields.emplace(attr_name).second) {
                 return R"(Duplicate attribute "{}" in "{}")"_format(
                     attr_name,

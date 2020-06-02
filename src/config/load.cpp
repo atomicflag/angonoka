@@ -42,8 +42,9 @@ void validate_configuration(const YAML::Node& node)
 } // namespace
 
 namespace angonoka {
-System load_text(const char* text)
+System load_text(gsl::czstring text)
 {
+    Expects(!std::string_view{text}.empty());
     const auto node = YAML::Load(text);
     validate_configuration(node);
     System system;
@@ -57,6 +58,7 @@ namespace angonoka::detail {
 std::pair<int, bool>
 find_or_insert_group(Groups& groups, std::string_view group)
 {
+    Expects(!group.empty());
     if (const auto f = ranges::find(groups, group); f != groups.end())
         return {Int{std::distance(groups.begin(), f)}, false};
     groups.emplace_back(group);

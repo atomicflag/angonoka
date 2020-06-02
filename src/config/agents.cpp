@@ -70,6 +70,7 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 // NOLINTNEXTLINE(misc-unused-parameters)
 void check_for_duplicates(const Agents& agents, std::string_view name)
 {
+    Expects(!name.empty());
     if (const auto a = ranges::find(agents, name, &Agent::name);
         a != agents.end()) {
         constexpr auto text = "Duplicate agent definition";
@@ -99,11 +100,13 @@ void parse_agent(
     const YAML::Node& agent_data,
     System& sys)
 {
-    check_for_duplicates(sys.agents, agent_node.Scalar());
+    const auto& agent_name = agent_node.Scalar();
+    Expects(!agent_name.empty());
+    check_for_duplicates(sys.agents, agent_name);
     auto& agent = sys.agents.emplace_back();
 
     // Parse agent.name
-    agent.name = agent_node.Scalar();
+    agent.name = agent_name;
 
     // Parse agent.groups
     if (const auto groups = agent_data["groups"]) {

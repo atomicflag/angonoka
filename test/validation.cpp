@@ -54,6 +54,28 @@ TEST_CASE("General validation")
             == R"(Unexpected attribute "val3" in "map")");
     }
 
+    SECTION("Empty attributes")
+    {
+        // clang-format off
+        constexpr auto schema = attributes(
+            required("foobar", attributes(
+                required("val1")
+            ))
+        );
+        // clang-format on
+
+        // clang-format off
+        const auto node = YAML::Load(
+            "foobar:\n"
+            "  val1: 3\n"
+            "  : 3\n"
+        );
+        // clang-format on
+        const auto result = schema(node);
+        REQUIRE_FALSE(result);
+        REQUIRE(result.error() == R"(Empty attribute in "foobar")");
+    }
+
     SECTION("Map values")
     {
         // clang-format off

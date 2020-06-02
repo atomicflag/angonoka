@@ -9,11 +9,23 @@ if compiler.has_argument('-Wconversion')
 	add_project_arguments(['-Wconversion'], language : 'cpp')
 endif
 
+if not get_option('debug')
+	add_project_arguments([
+        '-Dgsl_CONFIG_CONTRACT_CHECKING_OFF',
+        '-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME',
+        ], language : 'cpp')
+else
+	add_project_arguments([
+        '-Dgsl_CONFIG_CONTRACT_VIOLATION_THROWS',
+        ], language : 'cpp')
+endif
+
 dependencies = [
 	dependency('fmt'),
 	dependency('yaml-cpp'),
 	dependency('clipp'),
 	dependency('range-v3'),
+	dependency('gsl-lite'),
 	dependency('boost', include_type: 'system')
 ]
 
