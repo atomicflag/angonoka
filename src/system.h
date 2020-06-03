@@ -88,5 +88,14 @@ struct System {
     Groups groups;
     Agents agents;
     Tasks tasks;
+
+    /**
+      Checks if any of the agents are "universal".
+
+      A "universal" agent is an agent that can perform any task.
+
+      @return True if there is at least 1 universal agent.
+    */
+    [[nodiscard]] bool has_universal_agents() const noexcept;
 };
 } // namespace angonoka

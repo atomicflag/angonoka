@@ -24,8 +24,8 @@ namespace angonoka::detail {
     @param sys    System instance
     @param groups An array of Groups
 
-    @return A pair of the index of the group in System.groups
-    and whether the insert took place.
+    @return The index of the group in System.groups
+    and whether the insertion took place.
 */
 std::pair<int, bool>
 find_or_insert_group(Groups& groups, std::string_view group);

@@ -3,7 +3,6 @@
 #include "load.h"
 #include <fmt/format.h>
 #include <gsl/gsl-lite.hpp>
-#include <range/v3/algorithm/any_of.hpp>
 #include <range/v3/algorithm/find.hpp>
 
 namespace {
@@ -56,8 +55,7 @@ void parse_task_group(
     Expects(!group_name.empty());
     const auto [gid, is_inserted]
         = detail::find_or_insert_group(system.groups, group_name);
-    if (is_inserted
-        && !ranges::any_of(system.agents, &Agent::is_universal)) {
+    if (is_inserted && !system.has_universal_agents()) {
         constexpr auto text = R"_(No suitable agent for task "{}")_";
         throw InvalidTasksDef{fmt::format(text, group_name)};
     }
