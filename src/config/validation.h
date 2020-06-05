@@ -75,6 +75,50 @@ template <typename T> struct required : detail::functor<T> {
 template <typename T> required(gsl::czstring, T) -> required<T>;
 required(gsl::czstring)->required<decltype(scalar())>;
 
+namespace detail {
+    /**
+        Helper variable template to check if the type is a string
+        literal.
+    */
+    template <typename T>
+    inline constexpr auto is_text = std::
+        is_convertible_v<std::remove_reference_t<T>, gsl::czstring>;
+
+    /**
+        Extract the map attribute's name.
+
+        If an attribute is a string literal, pass the argument as is.
+
+        @param attr Either an attribute or a string literal
+    */
+    consteval auto attr_name(auto&& attr)
+    {
+        if constexpr (is_text<decltype(attr)>) {
+            return attr;
+        } else {
+            return attr.name;
+        }
+    }
+
+    /**
+        Extract or construct an attribute check function.
+
+        If an attrubte is a string literal, construct
+        the required attrubte with the string literal as it's
+        name.
+
+        @param attr Either an attribute or a string literal
+    */
+    consteval auto attr_check(auto&& attr)
+    {
+        if constexpr (is_text<decltype(attr)>) {
+            return required(attr);
+        } else {
+            return attr;
+        }
+    }
+} // namespace detail
+
 /**
     Optional YAML field.
 
@@ -144,14 +188,14 @@ consteval auto attributes(auto... attrs)
                     attr_name,
                     scope);
             }
-            if (!((attr_name == attrs.name) || ...)) {
+            if (!((attr_name == detail::attr_name(attrs)) || ...)) {
                 return R"(Unexpected attribute "{}" in "{}")"_format(
                     attr_name,
                     scope);
             }
         }
         result r = bo::success();
-        ((r = attrs(node, scope)) && ...);
+        ((r = detail::attr_check(attrs)(node, scope)) && ...);
         return r;
     };
 }

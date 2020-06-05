@@ -28,6 +28,29 @@ TEST_CASE("General validation")
         REQUIRE(schema(node));
     }
 
+    SECTION("Implicit required")
+    {
+        // clang-format off
+        constexpr auto schema = attributes(
+            required("map", attributes(
+                "val1",
+                "val2",
+                optional("val3")
+            ))
+        );
+        // clang-format on
+
+        // clang-format off
+        const auto node = YAML::Load(
+            "map:\n"
+            "  val1: 1\n"
+            "  val2: 2\n"
+            "  val3: 3\n"
+        );
+        // clang-format on
+        REQUIRE(schema(node));
+    }
+
     SECTION("Basic map with extra arg")
     {
         // clang-format off

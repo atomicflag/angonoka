@@ -18,8 +18,8 @@ void validate_configuration(const YAML::Node& node)
         required("agents",
             values(attributes(
                 optional("perf", attributes(
-                    required("min"),
-                    required("max")
+                    "min",
+                    "max"
                 )),
                 optional("groups", sequence())
             ))
@@ -28,8 +28,8 @@ void validate_configuration(const YAML::Node& node)
             values(attributes(
                 optional("group"),
                 required("days", attributes(
-                    required("min"),
-                    required("max")
+                    "min",
+                    "max"
                 ))
             ))
         )
