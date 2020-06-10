@@ -56,9 +56,8 @@ TEST_CASE("Loading tasks")
         const auto& task = system.tasks[0];
         REQUIRE(task.name == "task 1");
         REQUIRE_FALSE(task.group_id);
-        constexpr int secs_in_day = 60 * 60 * 24;
-        REQUIRE(task.dur.min == secs_in_day);
-        REQUIRE(task.dur.max == secs_in_day * 3);
+        REQUIRE(task.dur.min == std::chrono::days{1});
+        REQUIRE(task.dur.max == std::chrono::days{3});
     }
 
     SECTION("Invalid task duration type")

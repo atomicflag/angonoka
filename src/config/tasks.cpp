@@ -21,10 +21,9 @@ using namespace angonoka;
 */
 void parse_days(const YAML::Node& days, Task& task)
 {
-    constexpr int secs_in_day = 60 * 60 * 24;
     try {
-        task.dur.min = days["min"].as<int>() * secs_in_day;
-        task.dur.max = days["max"].as<int>() * secs_in_day;
+        task.dur.min = std::chrono::days{days["min"].as<int>()};
+        task.dur.max = std::chrono::days{days["max"].as<int>()};
     } catch (const YAML::Exception&) {
         throw InvalidTasksDef{"Invalid task duration."};
     }

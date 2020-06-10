@@ -55,13 +55,13 @@ System load_text(gsl::czstring text)
 } // namespace angonoka
 
 namespace angonoka::detail {
-std::pair<int, bool>
+std::pair<GroupId, bool>
 find_or_insert_group(Groups& groups, std::string_view group)
 {
     Expects(!group.empty());
     if (const auto f = ranges::find(groups, group); f != groups.end())
-        return {Int{std::distance(groups.begin(), f)}, false};
+        return {std::distance(groups.begin(), f), false};
     groups.emplace_back(group);
-    return {Int{groups.size() - 1}, true};
+    return {groups.size() - 1, true};
 }
 } // namespace angonoka::detail

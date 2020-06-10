@@ -27,7 +27,7 @@ namespace angonoka::detail {
     @return The index of the group in System.groups
     and whether the insertion took place.
 */
-std::pair<int, bool>
+std::pair<GroupId, bool>
 find_or_insert_group(Groups& groups, std::string_view group);
 
 /**

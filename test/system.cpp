@@ -30,8 +30,7 @@ TEST_CASE("Agent type traits")
 TEST_CASE("Task type traits")
 {
     STATIC_REQUIRE(std::is_nothrow_destructible_v<angonoka::Task>);
-    STATIC_REQUIRE(
-        std::is_nothrow_default_constructible_v<angonoka::Task>);
+    STATIC_REQUIRE(std::is_default_constructible_v<angonoka::Task>);
     STATIC_REQUIRE(std::is_copy_constructible_v<angonoka::Task>);
     STATIC_REQUIRE(std::is_copy_assignable_v<angonoka::Task>);
     STATIC_REQUIRE(

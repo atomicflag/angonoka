@@ -1,11 +1,13 @@
 #pragma once
 
 #include "common.h"
+#include <chrono>
 #include <optional>
 #include <string>
 
 namespace angonoka {
-using GroupId = int;
+constexpr auto max_groups = 255;
+using GroupId = Constrained<0, max_groups>;
 constexpr auto static_alloc_group_ids = 5;
 using GroupIds = Set<GroupId, static_alloc_group_ids>;
 
@@ -63,11 +65,11 @@ struct Agent {
 */
 struct Task {
     std::string name;
-    std::optional<int> group_id;
+    std::optional<GroupId> group_id;
     struct Duration {
-        int min, max;
+        std::chrono::seconds min, max;
     };
-    Duration dur{-1, -1};
+    Duration dur;
 };
 
 constexpr auto static_alloc_groups = 5;
