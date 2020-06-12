@@ -17,14 +17,15 @@ TEST_CASE("System type traits")
 TEST_CASE("Agent type traits")
 {
     STATIC_REQUIRE(std::is_nothrow_destructible_v<angonoka::Agent>);
-    STATIC_REQUIRE(
-        std::is_nothrow_default_constructible_v<angonoka::Agent>);
+    STATIC_REQUIRE(std::is_default_constructible_v<angonoka::Agent>);
     STATIC_REQUIRE(std::is_copy_constructible_v<angonoka::Agent>);
     STATIC_REQUIRE(std::is_copy_assignable_v<angonoka::Agent>);
     STATIC_REQUIRE(
         std::is_nothrow_move_constructible_v<angonoka::Agent>);
     STATIC_REQUIRE(
         std::is_nothrow_move_assignable_v<angonoka::Agent>);
+    STATIC_REQUIRE(
+        sizeof(angonoka::Agent::Performance::Value) == sizeof(float));
 }
 
 TEST_CASE("Task type traits")

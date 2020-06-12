@@ -17,9 +17,12 @@ void validate_configuration(const YAML::Node& node)
     constexpr auto schema = attributes(
         required("agents",
             values(attributes(
-                optional("perf", attributes(
-                    "min",
-                    "max"
+                optional("performance", any_of(
+                    attributes(
+                        "min",
+                        "max"
+                    ),
+                    scalar()
                 )),
                 optional("groups", sequence())
             ))
@@ -36,7 +39,7 @@ void validate_configuration(const YAML::Node& node)
     );
     // clang-format on
     if (const auto r = schema(node); !r) {
-        throw angonoka::InvalidTasksDef{r.error()};
+        throw angonoka::ValidationError{r.error()};
     }
 }
 } // namespace

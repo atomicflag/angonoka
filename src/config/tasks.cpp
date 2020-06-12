@@ -25,12 +25,12 @@ void parse_days(const YAML::Node& days, Task& task)
         task.dur.min = std::chrono::days{days["min"].as<int>()};
         task.dur.max = std::chrono::days{days["max"].as<int>()};
     } catch (const YAML::Exception&) {
-        throw InvalidTasksDef{"Invalid task duration."};
+        throw ValidationError{"Invalid task duration."};
     }
     if (task.dur.min > task.dur.max) {
         constexpr auto text = "Task's duration minimum can't be "
                               "greater than maximum.";
-        throw InvalidTasksDef{text};
+        throw ValidationError{text};
     }
 }
 
@@ -56,7 +56,7 @@ void parse_task_group(
         = detail::find_or_insert_group(system.groups, group_name);
     if (is_inserted && !system.has_universal_agents()) {
         constexpr auto text = R"_(No suitable agent for task "{}")_";
-        throw InvalidTasksDef{fmt::format(text, group_name)};
+        throw ValidationError{fmt::format(text, group_name)};
     }
     task.group_id = gid;
 }
@@ -73,7 +73,7 @@ void check_for_duplicates(const Tasks& tasks, std::string_view name)
     if (const auto a = ranges::find(tasks, name, &Task::name);
         a != tasks.end()) {
         constexpr auto text = "Duplicate task definition";
-        throw InvalidTasksDef{text};
+        throw ValidationError{text};
     }
 }
 

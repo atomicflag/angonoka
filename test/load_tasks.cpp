@@ -13,7 +13,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text = ANGONOKA_COMMON_YAML;
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Empty 'tasks' section")
@@ -25,7 +25,7 @@ TEST_CASE("Loading tasks")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Invalid 'tasks' format")
@@ -37,7 +37,7 @@ TEST_CASE("Loading tasks")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("A single task")
@@ -73,7 +73,7 @@ TEST_CASE("Loading tasks")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Invalid task duration")
@@ -89,7 +89,7 @@ TEST_CASE("Loading tasks")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Valid group id")
@@ -160,7 +160,7 @@ TEST_CASE("Loading tasks")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Duplicate attributes")
@@ -184,7 +184,7 @@ TEST_CASE("Loading tasks")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("No suitable agents")
@@ -207,7 +207,7 @@ TEST_CASE("Loading tasks")
         // only work on tasks from group "A".
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 }
 

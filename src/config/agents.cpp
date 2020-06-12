@@ -49,15 +49,21 @@ void parse_agent_groups(
 void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 {
     try {
-        agent.perf.min = perf["min"].as<float>();
-        agent.perf.max = perf["max"].as<float>();
+        if (perf.IsScalar()) {
+            const auto perf_value = perf.as<float>();
+            agent.perf.min = perf_value;
+            agent.perf.max = perf_value;
+        } else {
+            agent.perf.min = perf["min"].as<float>();
+            agent.perf.max = perf["max"].as<float>();
+        }
     } catch (const YAML::Exception&) {
-        throw InvalidTasksDef{"Invalid agent performance."};
+        throw ValidationError{"Invalid agent performance."};
     }
     if (agent.perf.min > agent.perf.max) {
         constexpr auto text = "Agent's performance minimum can't be "
                               "greater than maximum.";
-        throw InvalidTasksDef{text};
+        throw ValidationError{text};
     }
 }
 
@@ -74,7 +80,7 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
     if (const auto a = ranges::find(agents, name, &Agent::name);
         a != agents.end()) {
         constexpr auto text = "Duplicate agent definition";
-        throw InvalidTasksDef{text};
+        throw ValidationError{text};
     }
 }
 
@@ -114,7 +120,7 @@ void parse_agent(
     }
 
     // Parse agent.perf
-    if (const auto perf = agent_data["perf"]) {
+    if (const auto perf = agent_data["performance"]) {
         parse_agent_perf(perf, agent);
     }
 }

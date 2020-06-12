@@ -16,7 +16,7 @@ TEST_CASE("Loading agents")
         constexpr auto text = ANGONOKA_COMMON_YAML;
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Section 'agents' has an invalid type")
@@ -28,7 +28,7 @@ TEST_CASE("Loading agents")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Invalid agent spec")
@@ -41,7 +41,7 @@ TEST_CASE("Loading agents")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Invalid group spec")
@@ -55,7 +55,7 @@ TEST_CASE("Loading agents")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Extra attributes")
@@ -69,7 +69,7 @@ TEST_CASE("Loading agents")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Parse groups")
@@ -141,11 +141,11 @@ TEST_CASE("Loading agents")
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
-            "    perf:";
+            "    performance:";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Missing perf value")
@@ -155,12 +155,12 @@ TEST_CASE("Loading agents")
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
-            "    perf:\n"
+            "    performance:\n"
             "      min: 1.0";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Invalid perf type, text")
@@ -170,13 +170,13 @@ TEST_CASE("Loading agents")
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
-            "    perf:\n"
+            "    performance:\n"
             "      min: text\n"
             "      max: text";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Invalid perf type, dict")
@@ -186,14 +186,14 @@ TEST_CASE("Loading agents")
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
-            "    perf:\n"
+            "    performance:\n"
             "      min: 1\n"
             "      max:\n"
             "        - 2";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Invalid perf values")
@@ -203,13 +203,13 @@ TEST_CASE("Loading agents")
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
-            "    perf:\n"
+            "    performance:\n"
             "      min: 2.0\n"
             "      max: 1.0";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Parse performance")
@@ -219,7 +219,7 @@ TEST_CASE("Loading agents")
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
-            "    perf:\n"
+            "    performance:\n"
             "      min: 0.8\n"
             "      max: 1.8\n"
             "  agent 2:";
@@ -244,7 +244,7 @@ TEST_CASE("Loading agents")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
     }
 
     SECTION("Duplicate agent sections")
@@ -259,7 +259,36 @@ TEST_CASE("Loading agents")
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
-            angonoka::InvalidTasksDef);
+            angonoka::ValidationError);
+    }
+
+    SECTION("Exact performance")
+    {
+        // clang-format off
+        constexpr auto text = 
+            ANGONOKA_COMMON_YAML
+            "agents:\n"
+            "  agent 1:\n"
+            "    performance: 1.0\n";
+        // clang-format on
+        const auto system = angonoka::load_text(text);
+        const auto& agent_perf = system.agents[0].perf;
+        REQUIRE(agent_perf.min == Approx(1.f));
+        REQUIRE(agent_perf.max == Approx(1.f));
+    }
+
+    SECTION("Agent performance validation")
+    {
+        // clang-format off
+        constexpr auto text = 
+            ANGONOKA_COMMON_YAML
+            "agents:\n"
+            "  agent 1:\n"
+            "    performance: -1\n";
+        // clang-format on
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
     }
 }
 
