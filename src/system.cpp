@@ -21,12 +21,12 @@ bool Agent::can_work_on(GroupId id) const noexcept
 
 Agent::Performance::Value::Value(float v)
 {
-    if (v >= 0.F && v <= 100.F) {
+    if (v > 0.F) {
         value = v;
         return;
     }
     throw ValidationError{
-        "Agent performance must be between 0.0 and 100.0"};
+        "Agent's performance must be greater than 0"};
 }
 
 Agent::Performance::Value::operator float() const noexcept

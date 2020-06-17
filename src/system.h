@@ -6,8 +6,7 @@
 #include <string>
 
 namespace angonoka {
-constexpr auto max_groups = 255;
-using GroupId = Constrained<0, max_groups>;
+using GroupId = int8;
 constexpr auto static_alloc_group_ids = 5;
 using GroupIds = Set<GroupId, static_alloc_group_ids>;
 
@@ -31,10 +30,13 @@ struct Agent {
         /**
             Validated performance value.
         */
-        struct Value {
-            float value;
+        class Value {
+        public:
             Value(float v);
             operator float() const noexcept;
+
+        private:
+            float value;
         };
         static constexpr float default_min = .5F;
         static constexpr float default_max = 1.5F;
