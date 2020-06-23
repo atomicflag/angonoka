@@ -91,7 +91,11 @@ build-cov: ninja
 .PHONY: check-cov
 check-cov: build-cov
 	cd build
-	gcovr --gcov-executable 'llvm-cov gcov' -f ../src -r ../
+	gcovr \
+		--gcov-executable 'llvm-cov gcov' \
+		-f ../src \
+		-e '.*\.rl.cpp$$' \
+		-r ../
 
 .PHONY: format
 format:
@@ -115,6 +119,12 @@ check-tidy:
 		-e 's/-fno-omit-frame-pointer//g' \
 		-e 's/--coverage//g' \
 		compile_commands.json
+	python3 <<EOF
+		import json
+		data = json.load(open('compile_commands.json'))
+		data = [f for f in data if '@' not in f['file']]
+		json.dump(data, open('compile_commands.json', 'w'))
+	EOF
 	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
 		$$(echo | clang -v -E -x c++ - 2>&1 | \
 			sed -n 's/^ \(\/[^ ]*\)/-extra-arg=-isystem\1/p' | \

@@ -12,22 +12,25 @@ using namespace angonoka;
 
     Parses blocks such as these:
 
-    days:
-      min: 1
-      max: 3
+    duration:
+      min: 1 day
+      max: 3 days
 
-    @param days   Map with task duration
-    @param task   Task object
+    @param duration  A map with min/max values or a scalar
+    @param task      Task object
 */
-void parse_days(const YAML::Node& days, Task& task)
+void parse_duration(const YAML::Node& duration, Task::Duration& dur)
 {
-    try {
-        task.dur.min = std::chrono::days{days["min"].as<int>()};
-        task.dur.max = std::chrono::days{days["max"].as<int>()};
-    } catch (const YAML::Exception&) {
-        throw ValidationError{"Invalid task duration."};
+    using detail::parse_duration;
+    if (duration.IsScalar()) {
+        const auto value = parse_duration(duration.Scalar());
+        dur.min = value;
+        dur.max = value;
+    } else {
+        dur.min = parse_duration(duration["min"].Scalar());
+        dur.max = parse_duration(duration["max"].Scalar());
     }
-    if (task.dur.min > task.dur.max) {
+    if (dur.min > dur.max) {
         constexpr auto text = "Task's duration minimum can't be "
                               "greater than maximum.";
         throw ValidationError{text};
@@ -102,7 +105,7 @@ void parse_task(
     check_for_duplicates(sys.tasks, task_name);
     auto& task = sys.tasks.emplace_back();
     task.name = task_name;
-    parse_days(task_data["days"], task);
+    parse_duration(task_data["duration"], task.duration);
 
     // Parse task.group
     if (const auto group = task_data["group"]) {

@@ -79,7 +79,7 @@ struct Task {
     struct Duration {
         std::chrono::seconds min, max;
     };
-    Duration dur;
+    Duration duration;
 };
 
 constexpr auto static_alloc_groups = 5;

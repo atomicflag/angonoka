@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../system.h"
+#include <chrono>
 #include <gsl/gsl-lite.hpp>
 #include <string_view>
 #include <utility>
@@ -29,6 +30,21 @@ namespace angonoka::detail {
 */
 std::pair<GroupId, bool>
 find_or_insert_group(Groups& groups, std::string_view group);
+
+/**
+    Parses human-readable durations.
+
+    Parses durations with resolution ranging from seconds
+    up to and including months. Examples:
+
+    1h 15min
+    3 weeks and 5 months
+    30 seconds
+
+    @param text A string containing a duration.
+    @return The duration in seconds.
+*/
+std::chrono::seconds parse_duration(std::string_view text);
 
 /**
     Parses agents blocks.

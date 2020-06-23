@@ -5,9 +5,9 @@
 #define ANGONOKA_COMMON_YAML                                         \
     "tasks:\n"                                                       \
     "  task1:\n"                                                     \
-    "    days:\n"                                                    \
-    "      min: 1\n"                                                 \
-    "      max: 3\n"
+    "    duration:\n"                                                \
+    "      min: 1 day\n"                                             \
+    "      max: 3 days\n"
 
 TEST_CASE("Loading agents")
 {
@@ -284,7 +284,7 @@ TEST_CASE("Loading agents")
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
-            "    performance: -1\n";
+            "    performance: -1.0\n";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),

@@ -30,9 +30,12 @@ void validate_configuration(const YAML::Node& node)
         required("tasks",
             values(attributes(
                 optional("group"),
-                required("days", attributes(
-                    "min",
-                    "max"
+                required("duration", any_of(
+                    attributes(
+                        "min",
+                        "max"
+                    ),
+                    scalar()
                 ))
             ))
         )

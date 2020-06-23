@@ -8,6 +8,9 @@
 
 TEST_CASE("Loading tasks")
 {
+    using namespace std::chrono;
+    using namespace std::literals::chrono_literals;
+
     SECTION("No 'tasks' section")
     {
         constexpr auto text = ANGONOKA_COMMON_YAML;
@@ -47,17 +50,17 @@ TEST_CASE("Loading tasks")
             ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  task 1:\n"
-            "    days:\n"
-            "      min: 1\n"
-            "      max: 3";
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 3 days";
         // clang-format on
         const auto system = angonoka::load_text(text);
         REQUIRE(system.tasks.size() == 1);
         const auto& task = system.tasks[0];
         REQUIRE(task.name == "task 1");
         REQUIRE_FALSE(task.group_id);
-        REQUIRE(task.dur.min == std::chrono::days{1});
-        REQUIRE(task.dur.max == std::chrono::days{3});
+        REQUIRE(task.duration.min == days{1});
+        REQUIRE(task.duration.max == days{3});
     }
 
     SECTION("Invalid task duration type")
@@ -67,7 +70,7 @@ TEST_CASE("Loading tasks")
             ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  task 1:\n"
-            "    days:\n"
+            "    duration:\n"
             "      min: as\n"
             "      max: a";
         // clang-format on
@@ -83,13 +86,42 @@ TEST_CASE("Loading tasks")
             ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  task 1:\n"
-            "    days:\n"
-            "      min: 5\n"
-            "      max: 2";
+            "    duration:\n"
+            "      min: 5 days\n"
+            "      max: 2 days";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
             angonoka::ValidationError);
+    }
+
+    SECTION("Missing task duration")
+    {
+        // clang-format off
+        constexpr auto text =
+            ANGONOKA_COMMON_YAML
+            "tasks:\n"
+            "  task 1:";
+        // clang-format on
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("Exact duration")
+    {
+        // clang-format off
+        constexpr auto text =
+            ANGONOKA_COMMON_YAML
+            "tasks:\n"
+            "  task 1:\n"
+            "    duration: 3h";
+        // clang-format on
+        const auto system = angonoka::load_text(text);
+        REQUIRE(system.tasks.size() == 1);
+        const auto& task = system.tasks[0];
+        REQUIRE(task.duration.min == 3h);
+        REQUIRE(task.duration.max == 3h);
     }
 
     SECTION("Valid group id")
@@ -103,9 +135,9 @@ TEST_CASE("Loading tasks")
             "tasks:\n"
             "  task 1:\n"
             "    group: A\n"
-            "    days:\n"
-            "      min: 1\n"
-            "      max: 2";
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
         // clang-format on
         const auto system = angonoka::load_text(text);
         REQUIRE(system.tasks.size() == 1);
@@ -126,14 +158,14 @@ TEST_CASE("Loading tasks")
             "tasks:\n"
             "  task 1:\n"
             "    group: A\n"
-            "    days:\n"
-            "      min: 1\n"
-            "      max: 2\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days\n"
             "  task 2:\n"
             "    group: A\n"
-            "    days:\n"
-            "      min: 1\n"
-            "      max: 2";
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
         // clang-format on
         const auto system = angonoka::load_text(text);
         REQUIRE(system.tasks.size() == 2);
@@ -150,13 +182,13 @@ TEST_CASE("Loading tasks")
             ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  task 1:\n"
-            "    days:\n"
-            "      min: 1\n"
-            "      max: 2\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days\n"
             "  task 1:\n"
-            "    days:\n"
-            "      min: 1\n"
-            "      max: 2";
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
@@ -178,9 +210,9 @@ TEST_CASE("Loading tasks")
             "  task 1:\n"
             "    group: A\n"
             "    group: B\n"
-            "    days:\n"
-            "      min: 1\n"
-            "      max: 3";
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 3 days";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
@@ -198,9 +230,9 @@ TEST_CASE("Loading tasks")
             "tasks:\n"
             "  task 1:\n"
             "    group: B\n"
-            "    days:\n"
-            "      min: 1\n"
-            "      max: 3";
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 3 days";
         // clang-format on
 
         // "task 1" has a group "B" and the only agent can

@@ -1,20 +1,31 @@
 agents:
-  agent 1:
-    perf:
-      min: 0.5
-      max: 1.0
+  Bob:
+    performance:
+      min: 0.9
+      max: 1.1
     groups:
-      - A
-      - B
-  agent 2:
-    perf:
+      - Backend
+      - Frontend
+  Mary:
+    performance:
       min: 0.5
-      max: 1.0
-  agent 3:
+      max: 0.9
+  Jack:
     groups:
-      - C
+      - Design
 tasks:
-  task1:
-    days:
-      min: 1
-      min: 2
+  Develop the API:
+    duration:
+      min: 3 days
+      max: 2 weeks
+    group: Backend
+  Design the landing page:
+    duration:
+      min: 3h
+      max: 1 week
+    group: Design
+  Develop the website:
+    duration:
+      min: 2 weeks
+      max: 1 month
+    group: Frontend

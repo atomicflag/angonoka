@@ -13,6 +13,7 @@ gsl-lite/[^0.37.0]
 
 [build_requires]
 meson/[^0.54.1]
+ragel/[^6.10.0]
 
 [generators]
 pkg_config
