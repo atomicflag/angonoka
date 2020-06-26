@@ -44,6 +44,7 @@ build/build.ninja: build/conaninfo.txt
 
 .PHONY: test
 test:
+	export LLVM_PROFILE_FILE=angonoka.profraw
 	build/angonoka_test
 
 .PHONY: ninja
@@ -84,18 +85,17 @@ plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
 .PHONY: build-cov
-build-cov: MESON_ARGS=--buildtype debug \
-	-Db_coverage=true
+build-cov: MESON_ARGS=--buildtype debug
+build-cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping
 build-cov: ninja
 
 .PHONY: check-cov
 check-cov: build-cov
-	cd build
-	gcovr \
-		--gcov-executable 'llvm-cov gcov' \
-		-f ../src \
-		-e '.*\.rl.cpp$$' \
-		-r ../
+	llvm-profdata merge -sparse angonoka.profraw -o angonoka.profdata
+	llvm-cov report \
+		build/angonoka_test \
+		-instr-profile=angonoka.profdata \
+		src
 
 .PHONY: format
 format:

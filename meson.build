@@ -45,6 +45,7 @@ sources = [
   'src/config/load.cpp',
   'src/config/tasks.cpp',
   'src/system.cpp',
+  'src/exceptions.cpp',
   ragel.process('src/config/parse_duration.rl.cpp')
 ]
 

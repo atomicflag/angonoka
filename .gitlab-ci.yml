@@ -4,6 +4,9 @@ stages:
 
 variables:
   CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
+  CCACHE_BASEDIR: "$CI_PROJECT_DIR"
+  CCACHE_COMPRESS: "1"
+  CCACHE_COMPRESSLEVEL: "9"
 
 default:
   image: registry.gitlab.com/signal9/cpp-env:squashed

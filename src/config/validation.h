@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common.h"
+#include "../concepts.h"
 #include <boost/outcome/result.hpp>
 #include <boost/outcome/try.hpp>
 #include <fmt/format.h>
@@ -14,6 +15,15 @@ namespace angonoka::validation {
 namespace bo = boost::outcome_v2;
 using result = bo::result<void, std::string>;
 using namespace fmt::literals;
+
+template <typename T>
+concept Check
+    = std::is_invocable_v<T, const YAML::Node&, gsl::czstring>;
+template <typename T>
+concept Attribute = std::is_convertible_v<
+    decltype(std::declval<T>().name),
+    std::string_view>&& Check<T>;
+template <typename T> concept AttrOrStr = String<T> || Attribute<T>;
 
 /**
     YAML scalar.
@@ -35,7 +45,7 @@ namespace detail {
         @var name   Parameter's name
         @var check  Function to apply to the field
     */
-    template <typename T> struct functor {
+    template <Check T> struct functor {
         gsl::czstring name;
         T check;
 
@@ -57,7 +67,7 @@ namespace detail {
     @var name   Parameter's name
     @var check  Function to apply to the field
 */
-template <typename T> struct required : detail::functor<T> {
+template <Check T> struct required : detail::functor<T> {
     using detail::functor<T>::functor;
     result
     operator()(const YAML::Node& node, std::string_view scope) const
@@ -72,18 +82,10 @@ template <typename T> struct required : detail::functor<T> {
     }
 };
 
-template <typename T> required(gsl::czstring, T) -> required<T>;
+template <Check T> required(gsl::czstring, T) -> required<T>;
 required(gsl::czstring)->required<decltype(scalar())>;
 
 namespace detail {
-    /**
-        Helper variable template to check if the type is a string
-        literal.
-    */
-    template <typename T>
-    inline constexpr auto is_text = std::
-        is_convertible_v<std::remove_reference_t<T>, gsl::czstring>;
-
     /**
         Extract the map attribute's name.
 
@@ -91,13 +93,10 @@ namespace detail {
 
         @param attr Either an attribute or a string literal
     */
-    consteval auto attr_name(auto&& attr)
+    consteval auto attr_name(gsl::czstring attr) { return attr; }
+    consteval auto attr_name(Attribute auto&& attr)
     {
-        if constexpr (is_text<decltype(attr)>) {
-            return attr;
-        } else {
-            return attr.name;
-        }
+        return attr.name;
     }
 
     /**
@@ -109,14 +108,11 @@ namespace detail {
 
         @param attr Either an attribute or a string literal
     */
-    consteval auto attr_check(auto&& attr)
+    consteval auto attr_check(gsl::czstring attr)
     {
-        if constexpr (is_text<decltype(attr)>) {
-            return required(attr);
-        } else {
-            return attr;
-        }
+        return required(attr);
     }
+    consteval auto attr_check(Attribute auto&& attr) { return attr; }
 } // namespace detail
 
 /**
@@ -125,7 +121,7 @@ namespace detail {
     @var name  Parameter's name
     @var check Function to apply to the field
 */
-template <typename T> struct optional : detail::functor<T> {
+template <Check T> struct optional : detail::functor<T> {
     using detail::functor<T>::functor;
 
     result operator()(
@@ -138,7 +134,7 @@ template <typename T> struct optional : detail::functor<T> {
     }
 };
 
-template <typename T> optional(gsl::czstring, T) -> optional<T>;
+template <Check T> optional(gsl::czstring, T) -> optional<T>;
 optional(gsl::czstring)->optional<decltype(scalar())>;
 
 /**
@@ -148,7 +144,7 @@ optional(gsl::czstring)->optional<decltype(scalar())>;
 
     @param check Function to apply to each item
 */
-consteval auto sequence(auto check)
+consteval auto sequence(Check auto check)
 {
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
@@ -171,7 +167,7 @@ consteval auto sequence() { return sequence(scalar()); }
 
     @param attrs Sequence of optional or required parameters
 */
-consteval auto attributes(auto... attrs)
+consteval auto attributes(AttrOrStr auto... attrs)
 {
     return [=](const YAML::Node& node,
                std::string_view scope = "Document") -> result {
@@ -216,7 +212,7 @@ consteval auto attributes(auto... attrs)
 
     @param check Function to apply to each value
 */
-consteval auto values(auto check)
+consteval auto values(Check auto check)
 {
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
@@ -234,7 +230,7 @@ consteval auto values(auto check)
 
     @param check Functions to match
 */
-consteval auto any_of(auto... checks)
+consteval auto any_of(Check auto... checks)
 {
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {

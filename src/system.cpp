@@ -25,8 +25,7 @@ Agent::Performance::Value::Value(float v)
         value = v;
         return;
     }
-    throw ValidationError{
-        "Agent's performance must be greater than 0"};
+    throw NegativePerformance{};
 }
 
 Agent::Performance::Value::operator float() const noexcept

@@ -46,8 +46,8 @@ write data noentry noerror;
 namespace angonoka::detail {
 std::chrono::seconds parse_duration(std::string_view text)
 {
-    if (text.empty()) throw ValidationError{"Invalid duration."};
     using namespace std::chrono;
+    if (text.empty()) throw InvalidDuration{};
     int cs{0};
     gsl::zstring p = const_cast<char*>(text.data());
     gsl::czstring pe = text.end();
@@ -58,8 +58,7 @@ std::chrono::seconds parse_duration(std::string_view text)
     %% write init;
     %% write exec;
     // clang-format on
-    if (cs < duration_parser_first_final)
-        throw ValidationError{"Invalid duration."};
+    if (cs < duration_parser_first_final) throw InvalidDuration{};
     return v;
 }
 } // namespace angonoka::detail

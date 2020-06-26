@@ -30,11 +30,7 @@ void parse_duration(const YAML::Node& duration, Task::Duration& dur)
         dur.min = parse_duration(duration["min"].Scalar());
         dur.max = parse_duration(duration["max"].Scalar());
     }
-    if (dur.min > dur.max) {
-        constexpr auto text = "Task's duration minimum can't be "
-                              "greater than maximum.";
-        throw ValidationError{text};
-    }
+    if (dur.min > dur.max) throw TaskDurationMinMax{};
 }
 
 /**
@@ -57,10 +53,8 @@ void parse_task_group(
     Expects(!group_name.empty());
     const auto [gid, is_inserted]
         = detail::find_or_insert_group(system.groups, group_name);
-    if (is_inserted && !system.has_universal_agents()) {
-        constexpr auto text = R"_(No suitable agent for task "{}")_";
-        throw ValidationError{fmt::format(text, group_name)};
-    }
+    if (is_inserted && !system.has_universal_agents())
+        throw NoSuitableAgent{group_name};
     task.group_id = gid;
 }
 
@@ -74,10 +68,8 @@ void check_for_duplicates(const Tasks& tasks, std::string_view name)
 {
     Expects(!name.empty());
     if (const auto a = ranges::find(tasks, name, &Task::name);
-        a != tasks.end()) {
-        constexpr auto text = "Duplicate task definition";
-        throw ValidationError{text};
-    }
+        a != tasks.end())
+        throw DuplicateTaskDefinition{};
 }
 
 /**

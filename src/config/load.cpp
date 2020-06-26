@@ -41,9 +41,8 @@ void validate_configuration(const YAML::Node& node)
         )
     );
     // clang-format on
-    if (const auto r = schema(node); !r) {
-        throw angonoka::ValidationError{r.error()};
-    }
+    if (const auto r = schema(node); !r)
+        throw angonoka::SchemaError{r.error()};
 }
 } // namespace
 

@@ -58,13 +58,10 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
             agent.perf.max = perf["max"].as<float>();
         }
     } catch (const YAML::Exception&) {
-        throw ValidationError{"Invalid agent performance."};
+        throw InvalidAgentPerformance{};
     }
-    if (agent.perf.min > agent.perf.max) {
-        constexpr auto text = "Agent's performance minimum can't be "
-                              "greater than maximum.";
-        throw ValidationError{text};
-    }
+    if (agent.perf.min > agent.perf.max)
+        throw AgentPerformanceMinMax{};
 }
 
 /**
@@ -78,10 +75,8 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
 {
     Expects(!name.empty());
     if (const auto a = ranges::find(agents, name, &Agent::name);
-        a != agents.end()) {
-        constexpr auto text = "Duplicate agent definition";
-        throw ValidationError{text};
-    }
+        a != agents.end())
+        throw DuplicateAgentDefinition{};
 }
 
 /**
