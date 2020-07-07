@@ -14,13 +14,13 @@ using GroupIds = Set<GroupId, static_alloc_group_ids>;
     Agent that performs Tasks.
 
     Agent::group_ids refer to Group indices in the System::groups. The
-    lower the perf parameter is the slower an agent will perform any
-    given task. An agent can only perform tasks belonging to groups in
-    group_ids.
+    lower the performance parameter is the slower an agent will
+    perform any given task. An agent can only perform tasks belonging
+    to groups in group_ids.
 
-    @var name         Agent's name
-    @var group_ids    Set of Group ids
-    @var perf         Performance min/max
+    @var name           Agent's name
+    @var group_ids      Set of Group ids
+    @var performance    Performance min/max
 */
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Agent {
@@ -43,7 +43,7 @@ struct Agent {
         Value min = default_min;
         Value max = default_max;
     };
-    Performance perf;
+    Performance performance;
 
     /**
         Tells if the agent can work on any task.
@@ -102,12 +102,13 @@ struct System {
     Tasks tasks;
 
     /**
-      Checks if any of the agents are "universal".
+        Checks if any of the agents are "universal".
 
-      A "universal" agent is an agent that can perform any task.
+        A "universal" agent is an agent that can perform any task.
 
-      @return True if there is at least 1 universal agent.
+        @return True if there is at least 1 universal agent.
     */
+    // NOLINTNEXTLINE(bugprone-exception-escape)
     [[nodiscard]] bool has_universal_agents() const noexcept;
 };
 } // namespace angonoka

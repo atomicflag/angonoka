@@ -122,7 +122,9 @@ check-tidy:
 	python3 <<EOF
 		import json
 		data = json.load(open('compile_commands.json'))
-		data = [f for f in data if '@' not in f['file']]
+		def keep(f): return '@' not in f['file'] and \
+		    'angonoka_test@exe' not in f['output']
+		data = tuple(filter(keep, data))
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
 	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \

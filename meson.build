@@ -45,6 +45,7 @@ sources = [
   'src/config/load.cpp',
   'src/config/tasks.cpp',
   'src/system.cpp',
+  'src/schedule.cpp',
   'src/exceptions.cpp',
   ragel.process('src/config/parse_duration.rl.cpp')
 ]
@@ -64,7 +65,8 @@ test_sources = [
   'test/load_tasks.cpp',
   'test/parse_duration.cpp',
   'test/system.cpp',
-  'test/validation.cpp'
+  'test/validation.cpp',
+  'test/schedule.cpp'
 ]
 
 test_exe = executable(

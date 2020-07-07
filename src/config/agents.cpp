@@ -35,32 +35,34 @@ void parse_agent_groups(
 }
 
 /**
-    Parses agent perf.
+    Parses agent performance.
 
     Parses blocks such as these:
 
-    perf:
+    performance:
       min: 1.0
       max: 2.0
 
-    @param perf   Map with perf data
-    @param agent  An instance of Agent
+    @param performance  Map with performance data
+    @param agent        An instance of Agent
 */
-void parse_agent_perf(const YAML::Node& perf, Agent& agent)
+void parse_agent_performance(
+    const YAML::Node& performance,
+    Agent& agent)
 {
     try {
-        if (perf.IsScalar()) {
-            const auto perf_value = perf.as<float>();
-            agent.perf.min = perf_value;
-            agent.perf.max = perf_value;
+        if (performance.IsScalar()) {
+            const auto performance_value = performance.as<float>();
+            agent.performance.min = performance_value;
+            agent.performance.max = performance_value;
         } else {
-            agent.perf.min = perf["min"].as<float>();
-            agent.perf.max = perf["max"].as<float>();
+            agent.performance.min = performance["min"].as<float>();
+            agent.performance.max = performance["max"].as<float>();
         }
     } catch (const YAML::Exception&) {
         throw InvalidAgentPerformance{};
     }
-    if (agent.perf.min > agent.perf.max)
+    if (agent.performance.min > agent.performance.max)
         throw AgentPerformanceMinMax{};
 }
 
@@ -74,6 +76,7 @@ void parse_agent_perf(const YAML::Node& perf, Agent& agent)
 void check_for_duplicates(const Agents& agents, std::string_view name)
 {
     Expects(!name.empty());
+
     if (const auto a = ranges::find(agents, name, &Agent::name);
         a != agents.end())
         throw DuplicateAgentDefinition{};
@@ -85,7 +88,7 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
     Parses blocks such as these:
 
     agent 1:
-      perf:
+      performance:
         min: 0.5
         max: 1.5
       groups:
@@ -103,6 +106,7 @@ void parse_agent(
 {
     const auto& agent_name = agent_node.Scalar();
     Expects(!agent_name.empty());
+
     check_for_duplicates(sys.agents, agent_name);
     auto& agent = sys.agents.emplace_back();
 
@@ -115,8 +119,8 @@ void parse_agent(
     }
 
     // Parse agent.perf
-    if (const auto perf = agent_data["performance"]) {
-        parse_agent_perf(perf, agent);
+    if (const auto performance = agent_data["performance"]) {
+        parse_agent_performance(performance, agent);
     }
 }
 } // namespace

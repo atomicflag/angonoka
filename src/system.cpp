@@ -1,5 +1,6 @@
 #include "system.h"
 #include "exceptions.h"
+#include <gsl/gsl-lite.hpp>
 #include <range/v3/algorithm/any_of.hpp>
 
 namespace angonoka {
@@ -14,8 +15,11 @@ bool Agent::can_work_on(GroupId id) const noexcept
     return group_ids.contains(id);
 }
 
-[[nodiscard]] bool System::has_universal_agents() const noexcept
+// NOLINTNEXTLINE(bugprone-exception-escape)
+bool System::has_universal_agents() const noexcept
 {
+    Expects(!agents.empty());
+
     return ranges::any_of(agents, &Agent::is_universal);
 }
 
@@ -23,6 +27,7 @@ Agent::Performance::Value::Value(float v)
 {
     if (v > 0.F) {
         value = v;
+
         return;
     }
     throw NegativePerformance{};

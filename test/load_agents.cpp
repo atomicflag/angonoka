@@ -134,7 +134,7 @@ TEST_CASE("Loading agents")
         REQUIRE(system.agents[1].group_ids.empty());
     }
 
-    SECTION("Invalid perf section")
+    SECTION("Invalid performance section")
     {
         // clang-format off
         constexpr auto text = 
@@ -148,7 +148,7 @@ TEST_CASE("Loading agents")
             angonoka::ValidationError);
     }
 
-    SECTION("Missing perf value")
+    SECTION("Missing performance value")
     {
         // clang-format off
         constexpr auto text = 
@@ -163,7 +163,7 @@ TEST_CASE("Loading agents")
             angonoka::ValidationError);
     }
 
-    SECTION("Invalid perf type, text")
+    SECTION("Invalid performance type, text")
     {
         // clang-format off
         constexpr auto text = 
@@ -179,7 +179,7 @@ TEST_CASE("Loading agents")
             angonoka::ValidationError);
     }
 
-    SECTION("Invalid perf type, dict")
+    SECTION("Invalid performance type, dict")
     {
         // clang-format off
         constexpr auto text =
@@ -196,7 +196,7 @@ TEST_CASE("Loading agents")
             angonoka::ValidationError);
     }
 
-    SECTION("Invalid perf values")
+    SECTION("Invalid performance values")
     {
         // clang-format off
         constexpr auto text = 
@@ -225,12 +225,12 @@ TEST_CASE("Loading agents")
             "  agent 2:";
         // clang-format on
         const auto system = angonoka::load_text(text);
-        const auto& agent1_perf = system.agents[0].perf;
-        REQUIRE(agent1_perf.min == Approx(.8f));
-        REQUIRE(agent1_perf.max == Approx(1.8f));
-        const auto& agent2_perf = system.agents[1].perf;
-        REQUIRE(agent2_perf.min == Approx(.5f));
-        REQUIRE(agent2_perf.max == Approx(1.5f));
+        const auto& agent1_performance = system.agents[0].performance;
+        REQUIRE(agent1_performance.min == Approx(.8f));
+        REQUIRE(agent1_performance.max == Approx(1.8f));
+        const auto& agent2_performance = system.agents[1].performance;
+        REQUIRE(agent2_performance.min == Approx(.5f));
+        REQUIRE(agent2_performance.max == Approx(1.5f));
     }
 
     SECTION("Duplicate agents")
@@ -272,9 +272,9 @@ TEST_CASE("Loading agents")
             "    performance: 1.0\n";
         // clang-format on
         const auto system = angonoka::load_text(text);
-        const auto& agent_perf = system.agents[0].perf;
-        REQUIRE(agent_perf.min == Approx(1.f));
-        REQUIRE(agent_perf.max == Approx(1.f));
+        const auto& agent_performance = system.agents[0].performance;
+        REQUIRE(agent_performance.min == Approx(1.f));
+        REQUIRE(agent_performance.max == Approx(1.f));
     }
 
     SECTION("Agent performance validation")

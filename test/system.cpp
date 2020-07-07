@@ -43,11 +43,14 @@ TEST_CASE("System member functions")
 {
     angonoka::System s;
 
-    REQUIRE_FALSE(s.has_universal_agents());
-
-    s.agents.emplace_back();
+    s.groups.emplace_back("Test Group");
+    auto& a = s.agents.emplace_back();
 
     REQUIRE(s.has_universal_agents());
+
+    a.group_ids.emplace(angonoka::GroupId{0});
+
+    REQUIRE_FALSE(s.has_universal_agents());
 }
 
 TEST_CASE("Agent member functions")
