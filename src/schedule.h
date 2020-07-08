@@ -51,10 +51,14 @@ struct Constraints {
 
     @param i    GA Individual
     @param con  System constraints
+    @param buf  Buffer to hold the accumulated results
 
     @returns Makespan in seconds.
 */
-std::int_fast32_t makespan(IndividualView i, const Constraints& con);
+std::int_fast32_t makespan(
+    IndividualView i,
+    const Constraints& con,
+    gsl::span<std::int_fast32_t> buf);
 } // namespace angonoka::detail
 
 namespace angonoka {

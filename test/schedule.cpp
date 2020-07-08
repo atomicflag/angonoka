@@ -66,14 +66,14 @@ TEST_CASE("Schedule")
     {
         const auto sys = make_system();
         const detail::Constraints cons{sys};
+        std::vector<std::int_fast32_t> buf(3);
         {
             const IndData ind{0, 1, 2, 1};
-            REQUIRE(makespan(ind, cons) == 80);
+            REQUIRE(makespan(ind, cons, buf) == 80);
         }
-
         {
             const IndData ind{2, 2, 2, 2};
-            REQUIRE(makespan(ind, cons) == 154);
+            REQUIRE(makespan(ind, cons, buf) == 154);
         }
     }
 }

@@ -1,5 +1,6 @@
 #include "schedule.h"
 #include <gsl/gsl-lite.hpp>
+#include <range/v3/algorithm/fill.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/transform.hpp>
 
@@ -67,27 +68,31 @@ bool Constraints::can_work_on(
     return agent_groups[i];
 }
 
-std::int_fast32_t makespan(IndividualView i, const Constraints& con)
+std::int_fast32_t makespan(
+    IndividualView i,
+    const Constraints& con,
+    gsl::span<std::int_fast32_t> buf)
 {
     Expects(!i.empty());
     Expects(!con.durations.empty());
     Expects(!con.performance.empty());
     Expects(i.size() == con.durations.size());
+    Expects(buf.size() == con.performance.size());
 
-    using Results = Vector<std::int_fast32_t, static_alloc_agents>;
     const auto& dur = con.durations;
     const auto& perf = con.performance;
     const auto size = i.size();
     const auto asize = perf.size();
-    Results r(asize);
+    ranges::fill(buf, 0);
+
     for (gsl::index t{0}; t < size; ++t) {
         // NOLINTNEXTLINE(bugprone-signed-char-misuse)
         const auto ai = static_cast<gsl::index>(i[t]);
-        r[ai] += dur[t];
+        buf[ai] += dur[t];
     }
     float result{0.F};
     for (gsl::index i{0}; i < asize; ++i) {
-        const auto v = gsl::narrow_cast<float>(r[i]) * perf[i];
+        const auto v = gsl::narrow_cast<float>(buf[i]) * perf[i];
         if (v > result) result = v;
     }
 
