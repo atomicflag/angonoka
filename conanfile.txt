@@ -3,11 +3,11 @@
 # signal9: https://api.bintray.com/conan/signal9/conan
 
 [requires]
-fmt/[^6.0.0]
-yaml-cpp/[^0.6.2]
+fmt/[^7.0.1]
+yaml-cpp/[^0.6.3]
 clipp/[^1.2.3]@signal9/stable 
 boost/[^1.73.0]
-catch2/[^2.12.2]
+catch2/[^2.12.4]
 range-v3/[^0.10.0]
 gsl-lite/[^0.37.0]
 
