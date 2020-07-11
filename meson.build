@@ -30,6 +30,7 @@ dependencies = [
   dependency('clipp'),
   dependency('range-v3'),
   dependency('gsl-lite'),
+  dependency('pcg-cpp'),
   dependency('boost', include_type: 'system')
 ]
 

@@ -1,11 +1,14 @@
+# conan remote add signal9 https://api.bintray.com/conan/signal9/conan
+
 [requires]
 boost/1.73.0
 catch2/2.12.4
 clipp/1.2.3
 fmt/7.0.1
-gsl-lite/0.37.0
+gsl-lite/0.37.0@signal9/stable
 range-v3/0.10.0
 yaml-cpp/0.6.3
+pcg-cpp/0.98.1@signal9/stable
 
 [build_requires]
 meson/0.54.3

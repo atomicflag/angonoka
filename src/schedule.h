@@ -1,16 +1,19 @@
 #pragma once
 
 #include "system.h"
+#include <array>
 #include <boost/dynamic_bitset.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
 
 namespace angonoka::detail {
 using IndividualView = gsl::span<const std::int_fast8_t>;
+using Individual = gsl::span<std::int_fast8_t>;
 using ExpectedDurations
     = Vector<std::int_fast32_t, static_alloc_tasks>;
 using ExpectedPerformance = Vector<float, static_alloc_agents>;
 using AgentGroups = boost::dynamic_bitset<>;
+using Parents = std::array<IndividualView, 3>;
 
 /**
     Pre-calculated system constraints.
@@ -59,6 +62,11 @@ std::int_fast32_t makespan(
     IndividualView i,
     const Constraints& con,
     gsl::span<std::int_fast32_t> buf);
+
+/**
+    TODO: Write doc
+*/
+void crossover(Parents p, Individual i /* , random gen */);
 } // namespace angonoka::detail
 
 namespace angonoka {

@@ -76,4 +76,9 @@ TEST_CASE("Schedule")
             REQUIRE(makespan(ind, cons, buf) == 154);
         }
     }
+
+    SECTION("Crossover")
+    {
+        // TODO: WIP
+    }
 }
