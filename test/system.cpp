@@ -5,38 +5,37 @@
 
 TEST_CASE("System type traits")
 {
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<angonoka::System>);
-    STATIC_REQUIRE(
-        std::is_nothrow_default_constructible_v<angonoka::System>);
-    STATIC_REQUIRE(std::is_copy_constructible_v<angonoka::System>);
-    STATIC_REQUIRE(std::is_copy_assignable_v<angonoka::System>);
-    STATIC_REQUIRE(std::is_move_constructible_v<angonoka::System>);
-    STATIC_REQUIRE(std::is_move_assignable_v<angonoka::System>);
+    using angonoka::System;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<System>);
+    STATIC_REQUIRE(std::is_nothrow_default_constructible_v<System>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<System>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<System>);
+    STATIC_REQUIRE(std::is_move_constructible_v<System>);
+    STATIC_REQUIRE(std::is_move_assignable_v<System>);
 }
 
 TEST_CASE("Agent type traits")
 {
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<angonoka::Agent>);
-    STATIC_REQUIRE(std::is_default_constructible_v<angonoka::Agent>);
-    STATIC_REQUIRE(std::is_copy_constructible_v<angonoka::Agent>);
-    STATIC_REQUIRE(std::is_copy_assignable_v<angonoka::Agent>);
+    using angonoka::Agent;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<Agent>);
+    STATIC_REQUIRE(std::is_default_constructible_v<Agent>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<Agent>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<Agent>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Agent>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Agent>);
     STATIC_REQUIRE(
-        std::is_nothrow_move_constructible_v<angonoka::Agent>);
-    STATIC_REQUIRE(
-        std::is_nothrow_move_assignable_v<angonoka::Agent>);
-    STATIC_REQUIRE(
-        sizeof(angonoka::Agent::Performance::Value) == sizeof(float));
+        sizeof(Agent::Performance::Value) == sizeof(float));
 }
 
 TEST_CASE("Task type traits")
 {
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<angonoka::Task>);
-    STATIC_REQUIRE(std::is_default_constructible_v<angonoka::Task>);
-    STATIC_REQUIRE(std::is_copy_constructible_v<angonoka::Task>);
-    STATIC_REQUIRE(std::is_copy_assignable_v<angonoka::Task>);
-    STATIC_REQUIRE(
-        std::is_nothrow_move_constructible_v<angonoka::Task>);
-    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<angonoka::Task>);
+    using angonoka::Task;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<Task>);
+    STATIC_REQUIRE(std::is_default_constructible_v<Task>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<Task>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<Task>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Task>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Task>);
 }
 
 TEST_CASE("System member functions")

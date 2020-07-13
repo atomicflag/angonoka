@@ -1,5 +1,6 @@
 #include "schedule.h"
 #include <catch2/catch.hpp>
+#include <random>
 
 namespace {
 angonoka::System make_system()
@@ -31,6 +32,17 @@ angonoka::System make_system()
              .duration{40s, 90s}}}};
 }
 } // namespace
+
+TEST_CASE("Constraints type traits")
+{
+    using angonoka::detail::Constraints;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<Constraints>);
+    STATIC_REQUIRE(!std::is_default_constructible_v<Constraints>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<Constraints>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<Constraints>);
+    STATIC_REQUIRE(std::is_move_constructible_v<Constraints>);
+    STATIC_REQUIRE(std::is_move_assignable_v<Constraints>);
+}
 
 TEST_CASE("Schedule")
 {
@@ -79,6 +91,20 @@ TEST_CASE("Schedule")
 
     SECTION("Crossover")
     {
+        detail::RandomEngine gen{
+            pcg_extras::seed_seq_from<std::random_device>{}};
+        // clang-format off
+        const IndData data{
+            /* Parent 1 */
+            0, 0, 0, 0,
+            /* Parent 2 */
+            1, 1, 1, 1,
+            /* Parent 3 */
+            2, 2, 2, 2,
+            /* Child */
+            0, 0, 0, 0
+        };
+        // clang-format on
         // TODO: WIP
     }
 }

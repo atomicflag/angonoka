@@ -100,4 +100,12 @@ std::int_fast32_t makespan(
 
     return static_cast<std::int_fast32_t>(result);
 }
+
+void crossover(
+    Parents /* p */,
+    Individual /* i */,
+    RandomEngine& /* gen */)
+{
+    // TODO: WIP
+}
 } // namespace angonoka::detail

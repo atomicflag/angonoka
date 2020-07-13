@@ -4,6 +4,7 @@
 #include <array>
 #include <boost/dynamic_bitset.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <pcg_random.hpp>
 #include <range/v3/view/span.hpp>
 
 namespace angonoka::detail {
@@ -14,6 +15,7 @@ using ExpectedDurations
 using ExpectedPerformance = Vector<float, static_alloc_agents>;
 using AgentGroups = boost::dynamic_bitset<>;
 using Parents = std::array<IndividualView, 3>;
+using RandomEngine = pcg32;
 
 /**
     Pre-calculated system constraints.
@@ -34,7 +36,7 @@ struct Constraints {
 
         @param sys System instance.
     */
-    Constraints(const System& sys);
+    explicit Constraints(const System& sys);
 
     /**
         Check if an agent can perform a task.
@@ -64,9 +66,16 @@ std::int_fast32_t makespan(
     gsl::span<std::int_fast32_t> buf);
 
 /**
-    TODO: Write doc
+    Performs a GA crossover operation.
+
+    Creates a new individual i by mixing genetic code from
+    parents p.
+
+    @param p    An array of parents
+    @param i    Child individual
+    @param gen  Pseudorandom number generator
 */
-void crossover(Parents p, Individual i /* , random gen */);
+void crossover(Parents p, Individual i, RandomEngine& gen);
 } // namespace angonoka::detail
 
 namespace angonoka {
