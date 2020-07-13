@@ -101,11 +101,9 @@ std::int_fast32_t makespan(
     return static_cast<std::int_fast32_t>(result);
 }
 
-void crossover(
-    Parents /* p */,
-    Individual /* i */,
-    RandomEngine& /* gen */)
+GAOps::GAOps(gsl::not_null<RandomEngine*> gen, gsl::index size)
+    : pd{0, size - 1}
+    , gen{std::move(gen)}
 {
-    // TODO: WIP
 }
 } // namespace angonoka::detail

@@ -44,6 +44,17 @@ TEST_CASE("Constraints type traits")
     STATIC_REQUIRE(std::is_move_assignable_v<Constraints>);
 }
 
+TEST_CASE("GAOps type traits")
+{
+    using angonoka::detail::GAOps;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<GAOps>);
+    STATIC_REQUIRE(!std::is_default_constructible_v<GAOps>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<GAOps>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<GAOps>);
+    STATIC_REQUIRE(std::is_move_constructible_v<GAOps>);
+    STATIC_REQUIRE(std::is_move_assignable_v<GAOps>);
+}
+
 TEST_CASE("Schedule")
 {
     using namespace angonoka;

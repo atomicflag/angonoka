@@ -5,6 +5,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <pcg_random.hpp>
+#include <random>
 #include <range/v3/view/span.hpp>
 
 namespace angonoka::detail {
@@ -66,16 +67,25 @@ std::int_fast32_t makespan(
     gsl::span<std::int_fast32_t> buf);
 
 /**
-    Performs a GA crossover operation.
-
-    Creates a new individual i by mixing genetic code from
-    parents p.
-
-    @param p    An array of parents
-    @param i    Child individual
-    @param gen  Pseudorandom number generator
+    TODO: Write docs
 */
-void crossover(Parents p, Individual i, RandomEngine& gen);
+struct GAOps {
+    std::uniform_int_distribution<gsl::index> pd;
+    gsl::not_null<RandomEngine*> gen;
+
+    GAOps(gsl::not_null<RandomEngine*> gen, gsl::index size);
+
+    /**
+        Performs a GA crossover operation.
+
+        Creates a new individual i by mixing genetic code from
+        parents p.
+
+        @param p    An array of parents
+        @param i    Child individual
+    */
+    void crossover(Parents p, Individual i);
+};
 } // namespace angonoka::detail
 
 namespace angonoka {
