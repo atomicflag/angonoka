@@ -63,10 +63,10 @@ struct Constraints {
     @returns Makespan in seconds.
 */
 // NOLINTNEXTLINE(bugprone-exception-escape)
-std::int_fast32_t makespan(
+float makespan(
     IndividualView i,
     const Constraints& con,
-    gsl::span<std::int_fast32_t> buf) noexcept;
+    gsl::span<float> buf) noexcept;
 
 /**
     Performs a GA crossover operation.

@@ -2,6 +2,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <random>
 #include <range/v3/algorithm/fill.hpp>
+#include <range/v3/algorithm/max.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/transform.hpp>
 
@@ -72,10 +73,10 @@ bool Constraints::can_work_on(
 }
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
-std::int_fast32_t makespan(
+float makespan(
     IndividualView i,
     const Constraints& con,
-    gsl::span<std::int_fast32_t> buf) noexcept
+    gsl::span<float> buf) noexcept
 {
     Expects(!i.empty());
     Expects(!con.durations.empty());
@@ -86,23 +87,15 @@ std::int_fast32_t makespan(
     const auto& dur = con.durations;
     const auto& perf = con.performance;
     const auto size = i.size();
-    const auto asize = perf.size();
-    ranges::fill(buf, 0);
+    ranges::fill(buf, 0.F);
 
     for (gsl::index t{0}; t < size; ++t) {
         // NOLINTNEXTLINE(bugprone-signed-char-misuse)
         const auto ai = static_cast<gsl::index>(i[t]);
-        buf[ai] += dur[t];
+        auto& v = buf[ai];
+        v = std::fma(static_cast<float>(dur[t]), perf[ai], v);
     }
-    float result{0.F};
-    for (gsl::index i{0}; i < asize; ++i) {
-        const auto v = gsl::narrow_cast<float>(buf[i]) * perf[i];
-        if (v > result) result = v;
-    }
-
-    Ensures(result > 0.F);
-
-    return static_cast<std::int_fast32_t>(result);
+    return ranges::max(buf);
 }
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
