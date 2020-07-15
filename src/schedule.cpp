@@ -101,9 +101,18 @@ std::int_fast32_t makespan(
     return static_cast<std::int_fast32_t>(result);
 }
 
-GAOps::GAOps(gsl::not_null<RandomEngine*> gen, gsl::index size)
-    : pd{0, size - 1}
+// TODO: The number of parents is fixed, we don't need this class
+GAOps::GAOps(
+    gsl::not_null<RandomEngine*> gen,
+    gsl::index parent_count)
+    : pd{0, parent_count - 1}
     , gen{std::move(gen)}
 {
+    Expects(parent_count > 0);
+}
+
+void GAOps::crossover(Parents /* p */, Individual /* i */)
+{
+    // TODO: WIP
 }
 } // namespace angonoka::detail

@@ -1,6 +1,9 @@
 #include "schedule.h"
 #include <catch2/catch.hpp>
 #include <random>
+#include <range/v3/view/chunk.hpp>
+#include <range/v3/view/transform.hpp>
+#include <range/v3/range/conversion.hpp>
 
 namespace {
 angonoka::System make_system()
@@ -105,17 +108,25 @@ TEST_CASE("Schedule")
         detail::RandomEngine gen{
             pcg_extras::seed_seq_from<std::random_device>{}};
         // clang-format off
-        const IndData data{
+        const IndData parents{
             /* Parent 1 */
             0, 0, 0, 0,
             /* Parent 2 */
             1, 1, 1, 1,
             /* Parent 3 */
             2, 2, 2, 2,
-            /* Child */
-            0, 0, 0, 0
         };
         // clang-format on
+
+        IndData child(4);
+
+        detail::GAOps ga{&gen, 3};
+
+        const auto p = parents |  ranges::views::chunk(4) |
+            ranges::views::transform([](auto chunk){
+                    return gsl::span(chunk);
+                    }) | ranges::to<detail::Parents>();
+        ga.crossover(p, child);
         // TODO: WIP
     }
 }

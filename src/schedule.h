@@ -9,6 +9,7 @@
 #include <range/v3/view/span.hpp>
 
 namespace angonoka::detail {
+// TODO: gsl::span seems to be deprecated
 using IndividualView = gsl::span<const std::int_fast8_t>;
 using Individual = gsl::span<std::int_fast8_t>;
 using ExpectedDurations
@@ -67,13 +68,22 @@ std::int_fast32_t makespan(
     gsl::span<std::int_fast32_t> buf);
 
 /**
-    TODO: Write docs
+    Genetic Algorithm routines.
+
+    @var pd     Parent selection distribution for crossover op.
+    @var gen    Pseudorandom number generator.
 */
 struct GAOps {
     std::uniform_int_distribution<gsl::index> pd;
     gsl::not_null<RandomEngine*> gen;
 
-    GAOps(gsl::not_null<RandomEngine*> gen, gsl::index size);
+    /**
+        Constructor.
+
+        @param gen          Pseudorandom number generator.
+        @param parent_count Number of parents for crossover op.
+    */
+    GAOps(gsl::not_null<RandomEngine*> gen, gsl::index parent_count);
 
     /**
         Performs a GA crossover operation.
