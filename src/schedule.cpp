@@ -1,5 +1,6 @@
 #include "schedule.h"
 #include <gsl/gsl-lite.hpp>
+#include <random>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/transform.hpp>
@@ -24,7 +25,8 @@ constexpr auto get_performance = transform([](const Agent& a) {
     return (perf.min + perf.max) / 2;
 });
 
-Constraints::Constraints(const System& sys)
+// NOLINTNEXTLINE(bugprone-exception-escape)
+Constraints::Constraints(const System& sys) noexcept
     : durations{sys.tasks | get_durations | to<ExpectedDurations>()}
     , performance{sys.agents | get_performance | to<ExpectedPerformance>()}
     , agent_groups{sys.agents.size() * sys.tasks.size()}
@@ -53,9 +55,10 @@ Constraints::Constraints(const System& sys)
         agent_groups.size() == sys.tasks.size() * sys.agents.size());
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 bool Constraints::can_work_on(
     std::int_fast8_t agent_id,
-    std::int_fast8_t task_id) const
+    std::int_fast8_t task_id) const noexcept
 {
     Expects(!agent_groups.empty());
     Expects(!durations.empty());
@@ -68,10 +71,11 @@ bool Constraints::can_work_on(
     return agent_groups[i];
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 std::int_fast32_t makespan(
     IndividualView i,
     const Constraints& con,
-    gsl::span<std::int_fast32_t> buf)
+    gsl::span<std::int_fast32_t> buf) noexcept
 {
     Expects(!i.empty());
     Expects(!con.durations.empty());
@@ -101,18 +105,14 @@ std::int_fast32_t makespan(
     return static_cast<std::int_fast32_t>(result);
 }
 
-// TODO: The number of parents is fixed, we don't need this class
-GAOps::GAOps(
-    gsl::not_null<RandomEngine*> gen,
-    gsl::index parent_count)
-    : pd{0, parent_count - 1}
-    , gen{std::move(gen)}
+// NOLINTNEXTLINE(bugprone-exception-escape)
+void crossover(Parents p, Individual i, RandomEngine& gen) noexcept
 {
-    Expects(parent_count > 0);
-}
-
-void GAOps::crossover(Parents /* p */, Individual /* i */)
-{
-    // TODO: WIP
+    Expects(!i.empty());
+    using ParentDist = std::uniform_int_distribution<gsl::index>;
+    thread_local ParentDist pd{0, number_of_parents};
+    const auto individual_size = i.size();
+    for (gsl::index j{0}; j < individual_size; ++j)
+        i[j] = p[pd(gen)][j];
 }
 } // namespace angonoka::detail

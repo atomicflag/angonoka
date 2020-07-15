@@ -1,9 +1,6 @@
 #include "schedule.h"
 #include <catch2/catch.hpp>
 #include <random>
-#include <range/v3/view/chunk.hpp>
-#include <range/v3/view/transform.hpp>
-#include <range/v3/range/conversion.hpp>
 
 namespace {
 angonoka::System make_system()
@@ -45,17 +42,6 @@ TEST_CASE("Constraints type traits")
     STATIC_REQUIRE(std::is_copy_assignable_v<Constraints>);
     STATIC_REQUIRE(std::is_move_constructible_v<Constraints>);
     STATIC_REQUIRE(std::is_move_assignable_v<Constraints>);
-}
-
-TEST_CASE("GAOps type traits")
-{
-    using angonoka::detail::GAOps;
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<GAOps>);
-    STATIC_REQUIRE(!std::is_default_constructible_v<GAOps>);
-    STATIC_REQUIRE(std::is_copy_constructible_v<GAOps>);
-    STATIC_REQUIRE(std::is_copy_assignable_v<GAOps>);
-    STATIC_REQUIRE(std::is_move_constructible_v<GAOps>);
-    STATIC_REQUIRE(std::is_move_assignable_v<GAOps>);
 }
 
 TEST_CASE("Schedule")
@@ -105,28 +91,11 @@ TEST_CASE("Schedule")
 
     SECTION("Crossover")
     {
-        detail::RandomEngine gen{
-            pcg_extras::seed_seq_from<std::random_device>{}};
-        // clang-format off
-        const IndData parents{
-            /* Parent 1 */
-            0, 0, 0, 0,
-            /* Parent 2 */
-            1, 1, 1, 1,
-            /* Parent 3 */
-            2, 2, 2, 2,
-        };
-        // clang-format on
+        detail::RandomEngine gen{0};
+        IndData child(4), p1(4, 0), p2(4, 1), p3(4, 2);
 
-        IndData child(4);
+        detail::crossover({p1, p2, p3}, child, gen);
 
-        detail::GAOps ga{&gen, 3};
-
-        const auto p = parents |  ranges::views::chunk(4) |
-            ranges::views::transform([](auto chunk){
-                    return gsl::span(chunk);
-                    }) | ranges::to<detail::Parents>();
-        ga.crossover(p, child);
-        // TODO: WIP
+        REQUIRE(child == IndData{2, 1, 2, 0});
     }
 }

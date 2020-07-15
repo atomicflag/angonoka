@@ -5,18 +5,16 @@
 #include <boost/dynamic_bitset.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <pcg_random.hpp>
-#include <random>
-#include <range/v3/view/span.hpp>
 
 namespace angonoka::detail {
-// TODO: gsl::span seems to be deprecated
 using IndividualView = gsl::span<const std::int_fast8_t>;
 using Individual = gsl::span<std::int_fast8_t>;
 using ExpectedDurations
     = Vector<std::int_fast32_t, static_alloc_tasks>;
 using ExpectedPerformance = Vector<float, static_alloc_agents>;
 using AgentGroups = boost::dynamic_bitset<>;
-using Parents = std::array<IndividualView, 3>;
+constexpr auto number_of_parents = 3;
+using Parents = std::array<IndividualView, number_of_parents>;
 using RandomEngine = pcg32;
 
 /**
@@ -38,7 +36,8 @@ struct Constraints {
 
         @param sys System instance.
     */
-    explicit Constraints(const System& sys);
+    // NOLINTNEXTLINE(bugprone-exception-escape)
+    explicit Constraints(const System& sys) noexcept;
 
     /**
         Check if an agent can perform a task.
@@ -48,9 +47,10 @@ struct Constraints {
 
         @return True if the agent can perform the task.
     */
+    // NOLINTNEXTLINE(bugprone-exception-escape)
     [[nodiscard]] bool can_work_on(
         std::int_fast8_t agent_id,
-        std::int_fast8_t task_id) const;
+        std::int_fast8_t task_id) const noexcept;
 };
 
 /**
@@ -62,40 +62,24 @@ struct Constraints {
 
     @returns Makespan in seconds.
 */
+// NOLINTNEXTLINE(bugprone-exception-escape)
 std::int_fast32_t makespan(
     IndividualView i,
     const Constraints& con,
-    gsl::span<std::int_fast32_t> buf);
+    gsl::span<std::int_fast32_t> buf) noexcept;
 
 /**
-    Genetic Algorithm routines.
+    Performs a GA crossover operation.
 
-    @var pd     Parent selection distribution for crossover op.
-    @var gen    Pseudorandom number generator.
+    Creates a new individual i by mixing genetic code from
+    parents p.
+
+    @param p    An array of parents
+    @param i    Child individual
+    @param gen  Pseudorandom number generator.
 */
-struct GAOps {
-    std::uniform_int_distribution<gsl::index> pd;
-    gsl::not_null<RandomEngine*> gen;
-
-    /**
-        Constructor.
-
-        @param gen          Pseudorandom number generator.
-        @param parent_count Number of parents for crossover op.
-    */
-    GAOps(gsl::not_null<RandomEngine*> gen, gsl::index parent_count);
-
-    /**
-        Performs a GA crossover operation.
-
-        Creates a new individual i by mixing genetic code from
-        parents p.
-
-        @param p    An array of parents
-        @param i    Child individual
-    */
-    void crossover(Parents p, Individual i);
-};
+// NOLINTNEXTLINE(bugprone-exception-escape)
+void crossover(Parents p, Individual i, RandomEngine& gen) noexcept;
 } // namespace angonoka::detail
 
 namespace angonoka {
