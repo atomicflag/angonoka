@@ -26,8 +26,7 @@ constexpr auto get_performance = transform([](const Agent& a) {
     return (perf.min + perf.max) / 2;
 });
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
-Constraints::Constraints(const System& sys) noexcept
+Constraints::Constraints(const System& sys)
     : durations{sys.tasks | get_durations | to<ExpectedDurations>()}
     , performance{sys.agents | get_performance | to<ExpectedPerformance>()}
     , agent_groups{sys.agents.size() * sys.tasks.size()}
@@ -73,20 +72,19 @@ bool Constraints::can_work_on(
 }
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
-float makespan(
-    IndividualView i,
-    const Constraints& con,
-    gsl::span<float> buf) noexcept
+float makespan(IndividualView i, const Constraints& con) noexcept
 {
     Expects(!i.empty());
     Expects(!con.durations.empty());
     Expects(!con.performance.empty());
     Expects(i.size() == con.durations.size());
-    Expects(buf.size() == con.performance.size());
+
+    thread_local Vector<float, static_alloc_agents> buf;
 
     const auto& dur = con.durations;
     const auto& perf = con.performance;
     const auto size = i.size();
+    buf.resize(perf.size());
     ranges::fill(buf, 0.F);
 
     for (gsl::index t{0}; t < size; ++t) {
@@ -103,7 +101,7 @@ void crossover(Parents p, Individual i, RandomEngine& gen) noexcept
 {
     Expects(!i.empty());
     using ParentDist = std::uniform_int_distribution<gsl::index>;
-    thread_local ParentDist pd{0, number_of_parents};
+    thread_local ParentDist pd{0, number_of_parents - 1};
     const auto individual_size = i.size();
     for (gsl::index j{0}; j < individual_size; ++j)
         i[j] = p[pd(gen)][j];

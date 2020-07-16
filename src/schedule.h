@@ -36,8 +36,7 @@ struct Constraints {
 
         @param sys System instance.
     */
-    // NOLINTNEXTLINE(bugprone-exception-escape)
-    explicit Constraints(const System& sys) noexcept;
+    explicit Constraints(const System& sys);
 
     /**
         Check if an agent can perform a task.
@@ -63,10 +62,7 @@ struct Constraints {
     @returns Makespan in seconds.
 */
 // NOLINTNEXTLINE(bugprone-exception-escape)
-float makespan(
-    IndividualView i,
-    const Constraints& con,
-    gsl::span<float> buf) noexcept;
+float makespan(IndividualView i, const Constraints& con) noexcept;
 
 /**
     Performs a GA crossover operation.

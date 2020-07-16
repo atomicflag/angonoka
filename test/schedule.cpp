@@ -78,14 +78,13 @@ TEST_CASE("Schedule")
     {
         const auto sys = make_system();
         const detail::Constraints cons{sys};
-        std::vector<float> buf(3);
         {
             const IndData ind{0, 1, 2, 1};
-            REQUIRE(makespan(ind, cons, buf) == Approx(80.25F));
+            REQUIRE(makespan(ind, cons) == Approx(80.25F));
         }
         {
             const IndData ind{2, 2, 2, 2};
-            REQUIRE(makespan(ind, cons, buf) == Approx(154.F));
+            REQUIRE(makespan(ind, cons) == Approx(154.F));
         }
     }
 
@@ -97,5 +96,13 @@ TEST_CASE("Schedule")
         detail::crossover({p1, p2, p3}, child, gen);
 
         REQUIRE(child == IndData{2, 1, 2, 0});
+
+        detail::crossover({p1, p2, p3}, child, gen);
+
+        REQUIRE(child == IndData{1, 1, 1, 2});
+
+        detail::crossover({p1, p2, p3}, child, gen);
+
+        REQUIRE(child == IndData{0, 1, 1, 1});
     }
 }
