@@ -30,6 +30,7 @@ dependencies = [
   dependency('clipp'),
   dependency('range-v3'),
   dependency('gsl-lite'),
+  dependency('pybind11'),
   dependency('pcg-cpp'),
   dependency('boost', include_type: 'system')
 ]
@@ -58,6 +59,17 @@ exe = executable(
   dependencies: dependencies,
   install : true,
   install_rpath : '$ORIGIN/../lib64'
+)
+
+py_sources = [
+  'src/py/module.cpp'
+]
+
+py_lib = library(
+  meson.project_name(),
+  py_sources,
+  include_directories: include,
+  dependencies: dependencies+[dependency('python-3.8-embed')]
 )
 
 test_sources = [
