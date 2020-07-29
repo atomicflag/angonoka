@@ -169,14 +169,8 @@ epoch(veci&& start, float e_start, float beta_start)
         if (stun_count >= 100000) {
             avg_stun /= stun_count;
             last_avg_stun = avg_stun;
-            if (avg_stun < 0.03f) {
-                // beta *= 0.99f;
-                beta *= 1.f-(0.03f-avg_stun)*__builtin_powf(1.f-static_cast<float>(i)/max_c, 2.f);
-            } else {
-                // beta += 0.01f;
-                beta *= 1.f+(avg_stun-0.03f)*__builtin_powf(1.f-static_cast<float>(i)/max_c, 2.f);
-                // beta *= 1.1f;
-            }
+            const auto diff = avg_stun - 0.03f;
+            beta *= 1.f+diff*__builtin_powf(1.f-static_cast<float>(i)/max_c, 2.f);
             beta = __builtin_fminf(beta, 1e6f);
             // fmt::print("beta {}\n", 1.f+(avg_stun-0.03f)*__builtin_powf(1.f-static_cast<float>(i)/max_c, 2.f));
             stun_count = 0u;
