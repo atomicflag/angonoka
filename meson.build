@@ -13,7 +13,8 @@ if not get_option('debug')
   add_project_arguments(
     [
       '-Dgsl_CONFIG_CONTRACT_CHECKING_OFF',
-      '-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME'
+      '-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME',
+      '-ffast-math'
     ],
     language : 'cpp'
   )
@@ -69,7 +70,10 @@ py_lib = library(
   meson.project_name(),
   py_sources,
   include_directories: include,
-  dependencies: dependencies+[dependency('python-3.8-embed')]
+  dependencies: dependencies+[
+    dependency('python-3.8-embed'),
+    dependency('openmp', language:'cpp')
+  ],
 )
 
 test_sources = [
