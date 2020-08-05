@@ -165,7 +165,7 @@ void init(
 
 float stun(float lowest_e, float current_e) noexcept
 {
-    constexpr auto alpha = 5.f;
+    constexpr auto alpha = .5f;
     return 1.f - std::exp(-alpha * (current_e - lowest_e));
 }
 
