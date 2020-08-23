@@ -118,36 +118,57 @@ static_assert(std::is_nothrow_move_assignable_v<TaskAgents>);
 enum class AgentIndex : gsl::index {};
 enum class TaskIndex : gsl::index {};
 
-struct Data {
+class TaskDurations {
+public:
+    TaskDurations() = default;
+    TaskDurations(
+        const vecf& task_durations,
+        const vecf& agent_performances)
+        : float_data{std::make_unique<float[]>(
+            task_durations.size() * agent_performances.size())}
+        , agent_count{agent_performances.size()}
+    {
+        for (gsl::index i{0}; i < task_durations.size(); ++i) {
+            for (gsl::index j{0}; j < agent_performances.size();
+                 ++j) {
+                const auto idx
+                    = get_index(AgentIndex{j}, TaskIndex{i});
+                float_data[idx]
+                    = task_durations[i] / agent_performances[j];
+            }
+        }
+    }
+
+    float get(AgentIndex agent, TaskIndex task) const noexcept
+    {
+        return float_data[get_index(agent, task)];
+    }
+
+private:
     std::unique_ptr<float[]> float_data;
-
-    TaskAgents task_agents;
-
-    gsl::index task_count;
     gsl::index agent_count;
 
-    // TODO: Refactor into TaskDurations
-    gsl::index get_task_duration_index(
-        AgentIndex agent,
-        TaskIndex task) const noexcept
+    gsl::index
+    get_index(AgentIndex agent, TaskIndex task) const noexcept
     {
         return static_cast<gsl::index>(task) * agent_count
             + static_cast<gsl::index>(agent);
     }
+};
 
-    void set_task_duration_for(
-        AgentIndex agent,
-        TaskIndex task,
-        float value)
-    {
-        float_data[get_task_duration_index(agent, task)] = value;
-    }
+static_assert(std::is_nothrow_destructible_v<TaskDurations>);
+static_assert(std::is_nothrow_default_constructible_v<TaskDurations>);
+static_assert(!std::is_copy_constructible_v<TaskDurations>);
+static_assert(!std::is_copy_assignable_v<TaskDurations>);
+static_assert(std::is_nothrow_move_constructible_v<TaskDurations>);
+static_assert(std::is_nothrow_move_assignable_v<TaskDurations>);
 
-    float get_task_duration_for(AgentIndex agent, TaskIndex task)
-        const noexcept
-    {
-        return float_data[get_task_duration_index(agent, task)];
-    }
+struct Data {
+    TaskAgents task_agents;
+    TaskDurations task_durations;
+
+    gsl::index task_count;
+    gsl::index agent_count;
 
     std::vector<RandomUtils> random_utils;
 };
@@ -160,30 +181,12 @@ inline void RandomUtils::get_neighbor(veci& __restrict v) noexcept
     v[task_idx] = pick_random(data.task_agents[task_idx]);
 }
 
-viewf insert_data(const vecf& in, float* data)
-{
-    ranges::copy(in, data);
-    return {data, static_cast<long>(in.size())};
-}
-
-auto to_spans(const std::vector<veci>& in, Int* data, viewi* spans)
-{
-    for (auto&& v : in) {
-        *spans = {data, static_cast<long>(v.size())};
-        ++spans;
-        data = ranges::copy(v, data).out;
-    }
-    return std::make_tuple(data, spans);
-}
-
 void init(
-    vecf&& task_durations,
-    vecf&& agent_performances,
-    std::vector<veci>&& task_agents)
+    const vecf& task_durations,
+    const vecf& agent_performances,
+    const std::vector<veci>& task_agents)
 {
-    const auto task_duration_count
-        = task_durations.size() * agent_performances.size();
-    data.float_data = std::make_unique<float[]>(task_duration_count);
+    data.task_durations = {task_durations, agent_performances};
     data.task_count = task_durations.size();
     data.agent_count = agent_performances.size();
     data.task_agents = {task_agents};
@@ -217,7 +220,7 @@ public:
         const auto state_size = state.size();
         for (gsl::index i{0}; i < state_size; ++i) {
             const gsl::index a = state[i];
-            makespan_buffer[a] += data->get_task_duration_for(
+            makespan_buffer[a] += data->task_durations.get(
                 AgentIndex{a},
                 TaskIndex{i});
         }
