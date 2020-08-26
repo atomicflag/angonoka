@@ -132,7 +132,7 @@ public:
             for (gsl::index j{0}; j < agent_performances.size();
                  ++j) {
                 const auto idx
-                    = get_index(AgentIndex{j}, TaskIndex{i});
+                    = build_index(AgentIndex{j}, TaskIndex{i});
                 float_data[idx]
                     = task_durations[i] / agent_performances[j];
             }
@@ -141,7 +141,7 @@ public:
 
     float get(AgentIndex agent, TaskIndex task) const noexcept
     {
-        return float_data[get_index(agent, task)];
+        return float_data[build_index(agent, task)];
     }
 
 private:
@@ -149,7 +149,7 @@ private:
     gsl::index agent_count;
 
     gsl::index
-    get_index(AgentIndex agent, TaskIndex task) const noexcept
+    build_index(AgentIndex agent, TaskIndex task) const noexcept
     {
         return static_cast<gsl::index>(task) * agent_count
             + static_cast<gsl::index>(agent);
@@ -202,27 +202,25 @@ float stun(float lowest_e, float current_e, float alpha) noexcept
     return 1.f - std::exp(-alpha * (current_e - lowest_e));
 }
 
-class SchedulingUtils {
+class MakespanEstimator {
 public:
-    SchedulingUtils(gsl::not_null<Data*> data) noexcept
-        : makespan_buffer_data(
-            std::make_unique<float[]>(data->agent_count))
-        , makespan_buffer(
-              makespan_buffer_data.get(),
-              data->agent_count)
-        , data{data}
+    MakespanEstimator(
+        gsl::index agent_count,
+        gsl::not_null<TaskDurations*> task_durations) noexcept
+        : makespan_buffer_data(std::make_unique<float[]>(agent_count))
+        , makespan_buffer(makespan_buffer_data.get(), agent_count)
+        , task_durations{task_durations}
     {
     }
 
-    float makespan_of(const veci& __restrict state) noexcept
+    float operator()(const veci& __restrict state) noexcept
     {
         ranges::fill(makespan_buffer, 0.f);
         const auto state_size = state.size();
         for (gsl::index i{0}; i < state_size; ++i) {
             const gsl::index a = state[i];
-            makespan_buffer[a] += data->task_durations.get(
-                AgentIndex{a},
-                TaskIndex{i});
+            makespan_buffer[a]
+                += task_durations->get(AgentIndex{a}, TaskIndex{i});
         }
         return ranges::max(makespan_buffer);
     }
@@ -230,8 +228,150 @@ public:
 private:
     std::unique_ptr<float[]> makespan_buffer_data;
     ranges::span<float> makespan_buffer;
-    gsl::not_null<Data*> data;
+    gsl::not_null<TaskDurations*> task_durations;
 };
+
+static_assert(std::is_nothrow_destructible_v<MakespanEstimator>);
+static_assert(!std::is_default_constructible_v<MakespanEstimator>);
+static_assert(!std::is_copy_constructible_v<MakespanEstimator>);
+static_assert(!std::is_copy_assignable_v<MakespanEstimator>);
+static_assert(
+    std::is_nothrow_move_constructible_v<MakespanEstimator>);
+static_assert(std::is_nothrow_move_assignable_v<MakespanEstimator>);
+
+// constexpr count_t max_iterations = 10'000'000u;
+constexpr std::uint_fast64_t max_iterations = 1'000'000u;
+
+class BetaDriver {
+public:
+    BetaDriver(float beta, float beta_scale)
+        : value{beta}
+        , beta_scale{beta_scale}
+    {
+    }
+
+    void update(float stun, std::uint_fast64_t iteration) noexcept
+    {
+        average_stun += stun;
+        if (++stun_count == average_stun_window) {
+            average_stun /= stun_count;
+            last_average = average_stun;
+            const auto diff = average_stun - 0.03f;
+            const auto t = 1.f
+                - static_cast<float>(iteration) / max_iterations;
+            value *= 1.f + diff * beta_scale * t * t;
+            stun_count = 0u;
+        }
+    }
+
+    float beta() const noexcept { return value; }
+
+    float last_average_stun() const noexcept { return last_average; }
+
+private:
+    static constexpr std::uint_fast32_t average_stun_window
+        = max_iterations / 100;
+
+    float value;
+    float average_stun{.0f};
+    float last_average{.0f};
+    std::uint_fast32_t stun_count{0};
+
+    float beta_scale; // Temporary, should be hardcoded
+};
+
+static_assert(std::is_nothrow_destructible_v<BetaDriver>);
+static_assert(!std::is_default_constructible_v<BetaDriver>);
+static_assert(std::is_nothrow_copy_constructible_v<BetaDriver>);
+static_assert(std::is_nothrow_copy_assignable_v<BetaDriver>);
+static_assert(std::is_nothrow_move_constructible_v<BetaDriver>);
+static_assert(std::is_nothrow_move_assignable_v<BetaDriver>);
+
+struct OpaqueFloat {
+    float value;
+    operator float() { return value; }
+};
+
+struct Alpha : OpaqueFloat {
+};
+struct Beta : OpaqueFloat {
+};
+struct BetaScale : OpaqueFloat {
+};
+
+class StochasticTunneling {
+public:
+    StochasticTunneling(
+        gsl::not_null<RandomUtils*> random_utils,
+        MakespanEstimator&& makespan,
+        veci&& best_state,
+        Alpha alpha,
+        Beta beta,
+        BetaScale beta_scale)
+        : random_utils{random_utils}
+        , makespan{std::move(makespan)}
+        , current_state{best_state}
+        , best_state{std::move(best_state)}
+        , target_state(current_state.size())
+        , alpha{alpha}
+        , beta_driver{beta, beta_scale}
+    {
+    }
+
+    void run() noexcept {
+        for (current_iteration = 0; current_iteration < max_iterations; ++current_iteration) {
+            ranges::copy(current_state, target_state.begin());
+            random_utils->get_neighbor(target_state);
+            const auto target_e = makespan(target_state);
+            if (__builtin_expect(target_e < lowest_e, 0)) {
+                lowest_e = target_e;
+                ranges::copy(target_state, best_state.begin());
+                current_s = stun(lowest_e, current_e, alpha);
+            }
+            if (__builtin_expect(target_e < current_e, 0)) {
+                current_state.swap(target_state);
+                current_e = target_e;
+                continue;
+            }
+            const float target_s = stun(lowest_e, target_e, alpha);
+            const auto pr = std::min(
+                1.f,
+                std::exp(
+                    -beta_driver.beta() * (target_s - current_s)));
+            if (pr >= random_utils->get_uniform()) {
+                current_state.swap(target_state);
+                current_e = target_e;
+                current_s = target_s;
+                beta_driver.update(target_s, current_iteration);
+            }
+        }
+    }
+
+    // TODO: Add getters for results
+
+private:
+    using Counter = std::uint_fast64_t;
+
+    gsl::not_null<RandomUtils*> random_utils;
+    MakespanEstimator makespan;
+
+    // TODO: Merge into single storage with a view
+    veci current_state;
+    veci best_state;
+    veci target_state;
+
+
+    float current_e{makespan(current_state)};
+    float lowest_e{current_e};
+
+    float alpha;
+    float current_s{stun(lowest_e, current_e, alpha)};
+    BetaDriver beta_driver;
+
+    Counter current_iteration{0};
+};
+
+// TODO: Static asserts for StochasticTunneling
 
 std::tuple<veci, float>
 epoch(veci&& best_state, float beta, float alpha, float beta_scale)
@@ -249,24 +389,22 @@ epoch(veci&& best_state, float beta, float alpha, float beta_scale)
         veci current_state = best_state;
         veci target_state(current_state.size());
 
-        SchedulingUtils utils{&data};
-        float current_e = utils.makespan_of(current_state);
+        MakespanEstimator makespan{
+            data.agent_count,
+            &data.task_durations};
+        float current_e = makespan(current_state);
         float lowest_e = current_e;
 
         float current_s = stun(lowest_e, current_e, alpha);
-        float average_stun = 0.f;
-        count_t stun_count = 0u;
-        float last_average_stun;
+        BetaDriver beta_driver{beta, beta_scale};
 
         auto& __restrict random_utils
             = data.random_utils[omp_get_thread_num()];
-        // constexpr count_t max_iterations = 10'000'000u;
-        constexpr count_t max_iterations = 1'000'000u;
         for (count_t i{0}; i < max_iterations; ++i) {
             // target_state = current_state;
             ranges::copy(current_state, target_state.begin());
             random_utils.get_neighbor(target_state);
-            const auto target_e = utils.makespan_of(target_state);
+            const auto target_e = makespan(target_state);
             if (__builtin_expect(target_e < lowest_e, 0)) {
                 lowest_e = target_e;
                 // best_state = target_state;
@@ -282,24 +420,13 @@ epoch(veci&& best_state, float beta, float alpha, float beta_scale)
             const float target_s = stun(lowest_e, target_e, alpha);
             const auto pr = std::min(
                 1.f,
-                std::exp(-beta * (target_s - current_s)));
+                std::exp(
+                    -beta_driver.beta() * (target_s - current_s)));
             if (pr >= random_utils.get_uniform()) {
                 current_state.swap(target_state);
                 current_e = target_e;
                 current_s = target_s;
-                average_stun += target_s;
-                ++stun_count;
-            }
-            // TODO: Move into Beta (temp) scheduler?
-            constexpr auto average_stun_window = max_iterations / 100;
-            if (stun_count >= average_stun_window) {
-                average_stun /= stun_count;
-                last_average_stun = average_stun;
-                const auto diff = average_stun - 0.03f;
-                const auto t
-                    = 1.f - static_cast<float>(i) / max_iterations;
-                beta *= 1.f + diff * beta_scale * t * t;
-                stun_count = 0u;
+                beta_driver.update(target_s, i);
             }
         }
         // fmt::print("average_stun: {}\n", last_average_stun);
@@ -309,7 +436,7 @@ epoch(veci&& best_state, float beta, float alpha, float beta_scale)
                 global_state = std::move(best_state);
                 global_e = lowest_e;
             }
-            global_beta += beta;
+            global_beta += beta_driver.beta();
         }
     }
     // CALLGRIND_START_INSTRUMENTATION;
