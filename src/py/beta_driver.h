@@ -1,17 +1,15 @@
 #pragma once
 
-namespace angonoka::stun {
-// constexpr std::uint_fast64_t max_iterations = 1'000'000u;
-constexpr std::uint_fast64_t max_iterations = 10'000'000u;
+#include <cstdint>
+#include "common.h"
 
+namespace angonoka::stun {
 class BetaDriver {
 public:
     BetaDriver(float beta, float beta_scale);
 
     void update(float stun, std::uint_fast64_t iteration) noexcept;
-
     float beta() const noexcept;
-
     float last_average_stun() const noexcept;
 
 private:

@@ -5,7 +5,7 @@ namespace angonoka::stun {
 StochasticTunneling::StochasticTunneling(
         gsl::not_null<RandomUtils*> random_utils,
         MakespanEstimator&& makespan,
-        veci&& best_state,
+        span<const int16> best_state,
         Alpha alpha,
         Beta beta,
         BetaScale beta_scale)
@@ -16,6 +16,7 @@ StochasticTunneling::StochasticTunneling(
         , target_state{int_data.get()+best_state.size(), static_cast<std::ptrdiff_t>(best_state.size())}
         , best_state_{int_data.get()+best_state.size()*2, static_cast<std::ptrdiff_t>(best_state.size())}
         , alpha{alpha}
+        , current_s{stun(lowest_e_, current_e, alpha)}
         , beta_driver{beta, beta_scale}
 {
     ranges::copy(best_state, current_state.begin());
@@ -33,8 +34,8 @@ void StochasticTunneling::get_new_neighbor() noexcept
 
 bool StochasticTunneling::compare_energy_levels() noexcept
 {
-    if (__builtin_expect(target_e < current_e, 0)) {
-        if (__builtin_expect(target_e < lowest_e_, 0)) {
+    if (target_e < current_e) {
+        if (target_e < lowest_e_) {
             lowest_e_ = target_e;
             ranges::copy(target_state, best_state_.begin());
             current_s = stun(lowest_e_, current_e, alpha);
@@ -65,7 +66,7 @@ void StochasticTunneling::run() noexcept
     for (current_iteration = 0; current_iteration < max_iterations;
          ++current_iteration) {
         get_new_neighbor();
-        if (__builtin_expect(compare_energy_levels(), 0)) continue;
+        if (compare_energy_levels()) continue;
         perform_stun();
     }
 }

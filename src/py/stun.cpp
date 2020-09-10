@@ -1,8 +1,6 @@
 #include "random_utils.h"
 
 namespace angonoka::stun {
-void RandomUtils::get_neighbor(viewi v) noexcept;
-
 float RandomUtils::get_uniform() noexcept { return r(g); }
 
 gsl::index RandomUtils::random_index(gsl::index max) noexcept
@@ -10,34 +8,29 @@ gsl::index RandomUtils::random_index(gsl::index max) noexcept
     return static_cast<gsl::index>(r(g) * max);
 }
 
-std::int_fast16_t
-RandomUtils::pick_random(ranges::span<std::int_fast16_t> rng) noexcept
+int16
+RandomUtils::pick_random(span<int16> rng) noexcept
 {
     return rng[random_index(rng.size())];
 }
 
-void RandomUtils::get_neighbor(viewi v) noexcept
+void RandomUtils::get_neighbor(span<int16> v) noexcept
 {
     const auto task_idx = random_index(v.size());
     v[task_idx] = pick_random(data.task_agents[task_idx]);
 }
 
-TaskAgents::TaskAgents(const std::vector<veci>& data)
-    : int_data{std::make_unique<Int[]>(total_size(data))}
-    , spans{std::make_unique<viewi[]>(data.size())}
+TaskAgents::TaskAgents(range<const int16> data)
+    : int_data{std::make_unique<int16[]>(total_size(data))}
+    , spans{std::make_unique<span<const int16>[]>(data.size())}
     , task_agents{spans.get(), static_cast<long>(data.size())}
 {
-    Int* int_data_ptr = int_data.get();
-    viewi* spans_ptr = spans.get();
+    int16* int_data_ptr = int_data.get();
+    span<int16>* spans_ptr = spans.get();
     for (auto&& v : data) {
         *spans_ptr++ = {int_data_ptr, static_cast<long>(v.size())};
         int_data_ptr = ranges::copy(v, int_data_ptr).out;
     }
-}
-
-decltype(auto) TaskAgents::operator[](gsl::index i) const noexcept
-{
-    return task_agents[i];
 }
 
 TaskDurations::TaskDurations(
@@ -79,7 +72,7 @@ MakespanEstimator::MakespanEstimator(
 {
 }
 
-float MakespanEstimator::operator()(viewi state) noexcept
+float MakespanEstimator::operator()(span<const int16> state) noexcept
 {
     ranges::fill(makespan_buffer, 0.f);
     const auto state_size = state.size();
