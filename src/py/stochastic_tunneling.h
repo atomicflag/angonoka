@@ -1,21 +1,21 @@
 #pragma once
 
-#include <gsl/gsl-lite.hpp>
-#include "makespan_estimator.h"
-#include <range/v3/view/span.hpp>
-#include <memory>
-#include "common.h"
 #include "beta_driver.h"
+#include "common.h"
+#include "makespan_estimator.h"
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <range/v3/view/span.hpp>
 
 namespace angonoka::stun {
-    using ranges::span;
+using ranges::span;
 
-    class RandomUtils;
+class RandomUtils;
 
 // TODO: Can we use boost safe_numerics for this?
 struct OpaqueFloat {
     float value;
-    operator float() { return value; }
+    operator float() const { return value; }
 };
 
 struct Alpha : OpaqueFloat {
@@ -25,6 +25,14 @@ struct Beta : OpaqueFloat {
 struct BetaScale : OpaqueFloat {
 };
 
+//TODO: Refactor StochasticTunneling
+// add
+//
+// result_t stochastic_tunneling(args...)
+//
+// where result_t has all the important values
+// and stochastic_tunneling constructs a class
+// inside the implementation (if nessecary)
 class StochasticTunneling {
 public:
     StochasticTunneling(
@@ -36,9 +44,9 @@ public:
         BetaScale beta_scale);
 
     void run() noexcept;
-    float lowest_e() const noexcept;
-    span<const int16> best_state() const noexcept;
-    float beta() const noexcept;
+    [[nodiscard]] float lowest_e() const noexcept;
+    [[nodiscard]] span<const int16> best_state() const noexcept;
+    [[nodiscard]] float beta() const noexcept;
 
 private:
     using Counter = std::uint_fast64_t;
@@ -46,6 +54,7 @@ private:
     gsl::not_null<RandomUtils*> random_utils;
     MakespanEstimator makespan;
 
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
     std::unique_ptr<int16[]> int_data;
     span<int16> current_state;
     span<int16> target_state;

@@ -20,6 +20,8 @@ define RELEASE_CXXFLAGS =
 endef
 RELEASE_LDFLAGS := -Wl,--gc-sections
 LLVM_ROOT := $(shell readlink -m $$(which clang-tidy)/../..)
+CLANG_BUILTIN := $(shell echo | clang -v -E -x c++ - 2>&1 \
+	| sed -n 's/^ \(\/[^ ]*\)/-isystem\1/p' | tr '\n' ' ')
 define BUILD_ENV
 cd build
 . ./activate.sh
@@ -41,6 +43,13 @@ build/build.ninja: build/conaninfo.txt
 	export LDFLAGS="$$LDFLAGS $(LDFLAGS)"
 	sed -i -e 's/\([^a-zA-Z]-\)I/\1isystem/g' **.pc
 	meson $(MESON_ARGS) ..
+	python3 <<EOF
+		import json
+		data = json.load(open('compile_commands.json'))
+		for f in data: f['command'] = f['command'] \
+			.replace(' -I', ' $(CLANG_BUILTIN) -I', 1)
+		json.dump(data, open('compile_commands.json', 'w'))
+	EOF
 
 .PHONY: test
 test:
@@ -128,9 +137,6 @@ check-tidy:
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
 	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
-		$$(echo | clang -v -E -x c++ - 2>&1 | \
-			sed -n 's/^ \(\/[^ ]*\)/-extra-arg=-isystem\1/p' | \
-			tr '\n' ' ') \
 		-quiet 2>/dev/null | \
 		grep -E '(note:|error:|warning:)'	
 

@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace angonoka ::stun {
-    using ranges::span;
+using ranges::span;
 enum class AgentIndex : gsl::index {};
 enum class TaskIndex : gsl::index {};
 
@@ -13,16 +13,18 @@ class TaskDurations {
 public:
     TaskDurations() = default;
     TaskDurations(
-        range<float> task_durations,
-        range<float> agent_performances);
+        span<const float> task_durations,
+        span<const float> agent_performances);
 
-    float get(AgentIndex agent, TaskIndex task) const noexcept;
+    [[nodiscard]] float
+    get(AgentIndex agent, TaskIndex task) const noexcept;
 
 private:
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
     std::unique_ptr<float[]> float_data;
     gsl::index agent_count;
 
-    gsl::index
+    [[nodiscard]] gsl::index
     build_index(AgentIndex agent, TaskIndex task) const noexcept;
 };
 

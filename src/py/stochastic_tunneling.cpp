@@ -1,7 +1,19 @@
 #include "stochastic_tunneling.h"
+#include "random_utils.h"
+
+#include <cmath>
+#include <range/v3/algorithm/copy.hpp>
+#include <utility>
+
+namespace {
+float stun(float lowest_e, float current_e, float alpha) noexcept
+{
+    return 1.F - std::exp(-alpha * (current_e - lowest_e));
+}
+} // namespace angonoka::stun::detail
 
 namespace angonoka::stun {
-
+    using ::stun;
 StochasticTunneling::StochasticTunneling(
         gsl::not_null<RandomUtils*> random_utils,
         MakespanEstimator&& makespan,
@@ -9,20 +21,21 @@ StochasticTunneling::StochasticTunneling(
         Alpha alpha,
         Beta beta,
         BetaScale beta_scale)
-        : random_utils{random_utils}
+        : random_utils{std::move(random_utils)}
         , makespan{std::move(makespan)}
-        , int_data{std::make_unique<Int[]>(best_state.size()*3)}
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
+        , int_data{std::make_unique<int16[]>(best_state.size()*3)}
         , current_state{int_data.get(), static_cast<std::ptrdiff_t>(best_state.size())}
         , target_state{int_data.get()+best_state.size(), static_cast<std::ptrdiff_t>(best_state.size())}
         , best_state_{int_data.get()+best_state.size()*2, static_cast<std::ptrdiff_t>(best_state.size())}
         , alpha{alpha}
-        , current_s{stun(lowest_e_, current_e, alpha)}
         , beta_driver{beta, beta_scale}
 {
     ranges::copy(best_state, current_state.begin());
     ranges::copy(best_state, best_state_.begin());
     current_e = makespan(current_state);
     lowest_e_ = current_e;
+    current_s = stun(lowest_e_, current_e, alpha);
 }
 
 void StochasticTunneling::get_new_neighbor() noexcept
@@ -51,7 +64,7 @@ void StochasticTunneling::perform_stun() noexcept
 {
     target_s = stun(lowest_e_, target_e, alpha);
     const auto pr = std::min(
-        1.f,
+        1.F,
         std::exp(-beta_driver.beta() * (target_s - current_s)));
     if (pr >= random_utils->get_uniform()) {
         std::swap(current_state, target_state);
@@ -76,7 +89,7 @@ float StochasticTunneling::lowest_e() const noexcept
     return lowest_e_;
 }
 
-viewi StochasticTunneling::best_state() const noexcept
+span<const int16> StochasticTunneling::best_state() const noexcept
 {
     return best_state_;
 }

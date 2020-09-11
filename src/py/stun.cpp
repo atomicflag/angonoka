@@ -1,15 +1,27 @@
+#include "beta_driver.h"
+#include "makespan_estimator.h"
 #include "random_utils.h"
+#include "task_agents.h"
+#include "task_durations.h"
+#include <range/v3/algorithm/copy.hpp>
+#include <range/v3/algorithm/fill.hpp>
+#include <range/v3/algorithm/max.hpp>
+#include <utility>
+
+namespace {
+constexpr std::uint_fast32_t average_stun_window
+    = angonoka::stun::max_iterations / 100;
+} // namespace
 
 namespace angonoka::stun {
 float RandomUtils::get_uniform() noexcept { return r(g); }
 
-gsl::index RandomUtils::random_index(gsl::index max) noexcept
+RandomUtils::index_type RandomUtils::random_index(index_type max) noexcept
 {
-    return static_cast<gsl::index>(r(g) * max);
+    return static_cast<index_type>(r(g) * static_cast<float>(max));
 }
 
-int16
-RandomUtils::pick_random(span<int16> rng) noexcept
+int16 RandomUtils::pick_random(span<const int16> rng) noexcept
 {
     return rng[random_index(rng.size())];
 }
@@ -17,11 +29,14 @@ RandomUtils::pick_random(span<int16> rng) noexcept
 void RandomUtils::get_neighbor(span<int16> v) noexcept
 {
     const auto task_idx = random_index(v.size());
-    v[task_idx] = pick_random(data.task_agents[task_idx]);
+    // TODO: Fix this
+    // v[task_idx] = pick_random(data.task_agents[task_idx]);
 }
 
-TaskAgents::TaskAgents(range<const int16> data)
+TaskAgents::TaskAgents(span<const int16> data)
+    // TODO: We can't invoce total_size here, data isn't what we expected for some reason
     : int_data{std::make_unique<int16[]>(total_size(data))}
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
     , spans{std::make_unique<span<const int16>[]>(data.size())}
     , task_agents{spans.get(), static_cast<long>(data.size())}
 {
@@ -34,8 +49,8 @@ TaskAgents::TaskAgents(range<const int16> data)
 }
 
 TaskDurations::TaskDurations(
-    const vecf& task_durations,
-    const vecf& agent_performances)
+    span<const float> task_durations,
+    span<const float> agent_performances)
     : float_data{std::make_unique<float[]>(
         task_durations.size() * agent_performances.size())}
     , agent_count{agent_performances.size()}
@@ -65,10 +80,10 @@ gsl::index TaskDurations::build_index(
 
 MakespanEstimator::MakespanEstimator(
     gsl::index agent_count,
-    gsl::not_null<TaskDurations*> task_durations) noexcept
+    gsl::not_null<const TaskDurations*> task_durations) noexcept
     : makespan_buffer_data(std::make_unique<float[]>(agent_count))
     , makespan_buffer(makespan_buffer_data.get(), agent_count)
-    , task_durations{task_durations}
+    , task_durations{std::move(task_durations)}
 {
 }
 
@@ -98,17 +113,20 @@ void BetaDriver::update(
     if (++stun_count == average_stun_window) {
         average_stun /= stun_count;
         last_average = average_stun;
-        const auto diff = average_stun - 0.03f;
+        const auto diff = average_stun - 0.03F;
         const auto t
-            = 1.f - static_cast<float>(iteration) / max_iterations;
-        value *= 1.f + diff * beta_scale * t * t;
-        stun_count = 0u;
+            = 1.F - static_cast<float>(iteration) / max_iterations;
+        value *= 1.F + diff * beta_scale * t * t;
+        stun_count = 0U;
     }
 }
 
-float BetaDriver::beta() const noexcept { return value; }
+[[nodiscard]] float BetaDriver::beta() const noexcept
+{
+    return value;
+}
 
-float BetaDriver::last_average_stun() const noexcept
+[[nodiscard]] float BetaDriver::last_average_stun() const noexcept
 {
     return last_average;
 }

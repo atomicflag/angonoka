@@ -50,6 +50,8 @@ sources = [
   'src/system.cpp',
   'src/schedule.cpp',
   'src/exceptions.cpp',
+  'src/py/stun.cpp',
+  'src/py/stochastic_tunneling.cpp',
   ragel.process('src/config/parse_duration.rl.cpp')
 ]
 
@@ -62,19 +64,19 @@ exe = executable(
   install_rpath : '$ORIGIN/../lib64'
 )
 
-py_sources = [
-  'src/py/module.cpp'
-]
-
-py_lib = library(
-  meson.project_name(),
-  py_sources,
-  include_directories: include,
-  dependencies: dependencies+[
-    dependency('python-3.8-embed'),
-    dependency('openmp', language:'cpp')
-  ],
-)
+# py_sources = [
+#   'src/py/module.cpp'
+# ]
+#
+# py_lib = library(
+#   meson.project_name(),
+#   py_sources,
+#   include_directories: include,
+#   dependencies: dependencies+[
+#     dependency('python-3.8-embed'),
+#     dependency('openmp', language:'cpp')
+#   ],
+# )
 
 test_sources = [
   'test/catch.cpp',

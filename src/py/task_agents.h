@@ -1,21 +1,21 @@
 #pragma once
 
 #include "common.h"
-#include <range/v3/view/span.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <range/v3/view/span.hpp>
 
 namespace angonoka::stun {
-    using ranges::span;
+using ranges::span;
 class TaskAgents {
 public:
     TaskAgents() = default;
     TaskAgents(span<const int16> data);
 
     decltype(auto) operator[](gsl::index i) const noexcept
-{
-    return task_agents[i];
-}
+    {
+        return task_agents[i];
+    }
 
 private:
     std::unique_ptr<int16[]> int_data;
