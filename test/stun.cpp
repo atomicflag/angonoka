@@ -54,17 +54,6 @@ TEST_CASE("MakespanEstimator type traits")
         std::is_nothrow_move_assignable_v<MakespanEstimator>);
 }
 
-TEST_CASE("BetaDriver type traits")
-{
-    using angonoka::stun::BetaDriver;
-    static_assert(std::is_nothrow_destructible_v<BetaDriver>);
-    static_assert(!std::is_default_constructible_v<BetaDriver>);
-    static_assert(std::is_nothrow_copy_constructible_v<BetaDriver>);
-    static_assert(std::is_nothrow_copy_assignable_v<BetaDriver>);
-    static_assert(std::is_nothrow_move_constructible_v<BetaDriver>);
-    static_assert(std::is_nothrow_move_assignable_v<BetaDriver>);
-}
-
 TEST_CASE("StochasticTunneling type traits")
 {
     using angonoka::stun::StochasticTunneling;

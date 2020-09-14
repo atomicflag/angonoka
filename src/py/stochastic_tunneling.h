@@ -25,7 +25,13 @@ struct Beta : OpaqueFloat {
 struct BetaScale : OpaqueFloat {
 };
 
-//TODO: Refactor StochasticTunneling
+struct STUNResult {
+    float lowest_e;
+    span<const int16> best_state;
+    float beta;
+};
+
+// TODO: Refactor StochasticTunneling
 // add
 //
 // result_t stochastic_tunneling(args...)
@@ -36,17 +42,17 @@ struct BetaScale : OpaqueFloat {
 class StochasticTunneling {
 public:
     StochasticTunneling(
-        gsl::not_null<RandomUtils*> random_utils,
+        gsl::not_null<RandomUtils*>
+            random_utils, // TODO: Can we move this instead? Probably
+                          // not, we need to keep the PRNG state
+                          // around
         MakespanEstimator&& makespan,
-        span<const int16> best_state,
+        span<const int16> best_state, // TODO: Starting state?
         Alpha alpha,
         Beta beta,
         BetaScale beta_scale);
 
-    void run() noexcept;
-    [[nodiscard]] float lowest_e() const noexcept;
-    [[nodiscard]] span<const int16> best_state() const noexcept;
-    [[nodiscard]] float beta() const noexcept;
+    STUNResult operator()() noexcept;
 
 private:
     using Counter = std::uint_fast64_t;
@@ -54,7 +60,8 @@ private:
     gsl::not_null<RandomUtils*> random_utils;
     MakespanEstimator makespan;
 
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,
+    // modernize-avoid-c-arrays)
     std::unique_ptr<int16[]> int_data;
     span<int16> current_state;
     span<int16> target_state;

@@ -3,14 +3,23 @@
 #include "common.h"
 #include <cstdint>
 
+// TODO: Docstrings
+// This is like a stateful accumulator
+// drv.update(...) - mutate
+// drv.beta() - get new value
+
 namespace angonoka::stun {
 class BetaDriver {
 public:
     BetaDriver(float beta, float beta_scale);
 
+    // NOLINTNEXTLINE(bugprone-exception-escape)
     void update(float stun, std::uint_fast64_t iteration) noexcept;
-    [[nodiscard]] float beta() const noexcept;
-    [[nodiscard]] float last_average_stun() const noexcept;
+    [[nodiscard]] float beta() const noexcept { return value; }
+    [[nodiscard]] float last_average_stun() const noexcept
+    {
+        return last_average;
+    }
 
 private:
     float value;

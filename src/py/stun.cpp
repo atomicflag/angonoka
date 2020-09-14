@@ -8,15 +8,15 @@
 #include <range/v3/algorithm/max.hpp>
 #include <utility>
 
-namespace {
-constexpr std::uint_fast32_t average_stun_window
-    = angonoka::stun::max_iterations / 100;
-} // namespace
-
 namespace angonoka::stun {
+RandomUtils::RandomUtils(gsl::not_null<const TaskAgents*> task_agents)
+    : task_agents{std::move(task_agents)}
+{
+}
 float RandomUtils::get_uniform() noexcept { return r(g); }
 
-RandomUtils::index_type RandomUtils::random_index(index_type max) noexcept
+RandomUtils::index_type
+RandomUtils::random_index(index_type max) noexcept
 {
     return static_cast<index_type>(r(g) * static_cast<float>(max));
 }
@@ -29,14 +29,14 @@ int16 RandomUtils::pick_random(span<const int16> rng) noexcept
 void RandomUtils::get_neighbor(span<int16> v) noexcept
 {
     const auto task_idx = random_index(v.size());
-    // TODO: Fix this
-    // v[task_idx] = pick_random(data.task_agents[task_idx]);
+    v[task_idx] = pick_random((*task_agents)[task_idx]);
 }
 
 TaskAgents::TaskAgents(span<const int16> data)
-    // TODO: We can't invoce total_size here, data isn't what we expected for some reason
+    // TODO: We can't invoke total_size here, data isn't what we
+    // expected for some reason
     : int_data{std::make_unique<int16[]>(total_size(data))}
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
     , spans{std::make_unique<span<const int16>[]>(data.size())}
     , task_agents{spans.get(), static_cast<long>(data.size())}
 {
@@ -99,35 +99,4 @@ float MakespanEstimator::operator()(span<const int16> state) noexcept
     return ranges::max(makespan_buffer);
 }
 
-BetaDriver::BetaDriver(float beta, float beta_scale)
-    : value{beta}
-    , beta_scale{beta_scale}
-{
-}
-
-void BetaDriver::update(
-    float stun,
-    std::uint_fast64_t iteration) noexcept
-{
-    average_stun += stun;
-    if (++stun_count == average_stun_window) {
-        average_stun /= stun_count;
-        last_average = average_stun;
-        const auto diff = average_stun - 0.03F;
-        const auto t
-            = 1.F - static_cast<float>(iteration) / max_iterations;
-        value *= 1.F + diff * beta_scale * t * t;
-        stun_count = 0U;
-    }
-}
-
-[[nodiscard]] float BetaDriver::beta() const noexcept
-{
-    return value;
-}
-
-[[nodiscard]] float BetaDriver::last_average_stun() const noexcept
-{
-    return last_average;
-}
 } // namespace angonoka::stun

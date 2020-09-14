@@ -50,8 +50,9 @@ sources = [
   'src/system.cpp',
   'src/schedule.cpp',
   'src/exceptions.cpp',
-  'src/py/stun.cpp',
-  'src/py/stochastic_tunneling.cpp',
+  # 'src/py/stun.cpp',
+  'src/py/beta_driver.cpp',
+  # 'src/py/stochastic_tunneling.cpp',
   ragel.process('src/config/parse_duration.rl.cpp')
 ]
 
@@ -81,6 +82,7 @@ exe = executable(
 test_sources = [
   'test/catch.cpp',
   'test/load_agents.cpp',
+  'test/stun/beta_driver.cpp',
   'test/load_tasks.cpp',
   'test/parse_duration.cpp',
   'test/system.cpp',

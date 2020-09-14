@@ -10,10 +10,10 @@ float stun(float lowest_e, float current_e, float alpha) noexcept
 {
     return 1.F - std::exp(-alpha * (current_e - lowest_e));
 }
-} // namespace angonoka::stun::detail
+} // namespace
 
 namespace angonoka::stun {
-    using ::stun;
+using ::stun;
 StochasticTunneling::StochasticTunneling(
         gsl::not_null<RandomUtils*> random_utils,
         MakespanEstimator&& makespan,

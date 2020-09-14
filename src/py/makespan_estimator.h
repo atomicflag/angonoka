@@ -10,6 +10,8 @@ using ranges::span;
 
 class TaskDurations;
 
+// This is a stateful function
+
 class MakespanEstimator {
 public:
     MakespanEstimator(
