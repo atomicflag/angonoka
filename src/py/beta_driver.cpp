@@ -1,9 +1,16 @@
 #include "beta_driver.h"
 #include <gsl/gsl-lite.hpp>
 
+#ifndef NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define TO_FLOAT(v) static_cast<float>(base_value(v))
+#else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define TO_FLOAT(v) static_cast<float>(v)
+#endif
+
 namespace angonoka::stun {
-constexpr std::uint_fast32_t average_stun_window
-    = max_iterations / 100;
+constexpr uint32 average_stun_window = max_iterations / 100;
 
 BetaDriver::BetaDriver(float beta, float beta_scale)
     : value{beta}
@@ -13,21 +20,21 @@ BetaDriver::BetaDriver(float beta, float beta_scale)
 }
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
-void BetaDriver::update(
-    float stun,
-    std::uint_fast64_t iteration) noexcept
+void BetaDriver::update(float stun, uint64 iteration) noexcept
 {
     Expects(stun >= 0.F);
     Expects(iteration <= max_iterations);
 
     average_stun += stun;
     if (++stun_count != average_stun_window) return;
-    average_stun /= static_cast<float>(stun_count);
+    average_stun /= TO_FLOAT(stun_count);
     last_average = average_stun;
     const auto diff = average_stun - 0.03F;
     const auto t
-        = 1.F - static_cast<float>(iteration) / max_iterations;
+        = 1.F - TO_FLOAT(iteration) / TO_FLOAT(max_iterations);
     value *= 1.F + diff * beta_scale * t * t;
     stun_count = 0U;
 }
 } // namespace angonoka::stun
+
+#undef TO_FLOAT

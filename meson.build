@@ -5,9 +5,16 @@ project('angonoka', 'cpp',
 
 compiler = meson.get_compiler('cpp')
 
-if compiler.has_argument('-Wconversion')
-  add_project_arguments(['-Wconversion'], language : 'cpp')
-endif
+args = compiler.get_supported_arguments([
+  '-Wconversion',
+  '-Wthread-safety',
+  '-fasynchronous-unwind-tables',
+  '-Wnon-virtual-dtor',
+  '-Wshadow',
+  '-Wcast-align',
+  '-Wunused'
+])
+add_project_arguments(args, language : 'cpp')
 
 if not get_option('debug')
   add_project_arguments(
@@ -48,7 +55,7 @@ sources = [
   'src/config/load.cpp',
   'src/config/tasks.cpp',
   'src/system.cpp',
-  'src/schedule.cpp',
+  # 'src/schedule.cpp',
   'src/exceptions.cpp',
   # 'src/py/stun.cpp',
   'src/py/beta_driver.cpp',
@@ -87,7 +94,7 @@ test_sources = [
   'test/parse_duration.cpp',
   'test/system.cpp',
   'test/validation.cpp',
-  'test/schedule.cpp'
+  # 'test/schedule.cpp'
 ]
 
 test_exe = executable(

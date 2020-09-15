@@ -3,19 +3,44 @@
 #include "common.h"
 #include <cstdint>
 
-// TODO: Docstrings
-// This is like a stateful accumulator
-// drv.update(...) - mutate
-// drv.beta() - get new value
-
 namespace angonoka::stun {
+/**
+    Updates beta (temperature) value to keep the
+    average STUN value around 0.03 as recommended
+    in the paper
+
+    https://arxiv.org/pdf/physics/9903008.pdf
+*/
 class BetaDriver {
 public:
+    /**
+        Constructor.
+
+        @param beta Initial beta (temperature) value
+        @param beta_scale Beta update scaling factor (deprecated)
+    */
     BetaDriver(float beta, float beta_scale);
 
+    /**
+        Updates the internal counters, averages and the beta value.
+
+        @param stun Current STUN value
+        @param iteration Current iteration number
+    */
     // NOLINTNEXTLINE(bugprone-exception-escape)
-    void update(float stun, std::uint_fast64_t iteration) noexcept;
+    void update(float stun, uint64 iteration) noexcept;
+    /**
+        Returns the current beta (temperature) value.
+
+        @retun Beta value
+    */
     [[nodiscard]] float beta() const noexcept { return value; }
+
+    /**
+        Returns the last average stun value for diagnostic purposes.
+
+        @return Average STUN value over the last period
+    */
     [[nodiscard]] float last_average_stun() const noexcept
     {
         return last_average;
@@ -25,7 +50,7 @@ private:
     float value;
     float average_stun{.0F};
     float last_average{.0F};
-    std::uint_fast32_t stun_count{0};
+    uint32 stun_count{0};
 
     float beta_scale; // TODO: Temporary, should be hardcoded
 };
