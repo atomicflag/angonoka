@@ -1,5 +1,7 @@
-project('angonoka', 'cpp',
-  version : '0.1',
+project(
+  'angonoka',
+  'cpp',
+  version : '0.1.0',
   default_options : ['warning_level=3', 'cpp_std=c++2a']
 )
 
@@ -40,7 +42,7 @@ dependencies = [
   dependency('gsl-lite'),
   dependency('pybind11'),
   dependency('pcg-cpp'),
-  dependency('boost', include_type: 'system')
+  dependency('boost', include_type : 'system')
 ]
 
 ragel = generator(
@@ -50,24 +52,35 @@ ragel = generator(
 )
 
 include = include_directories('src')
-sources = [
-  'src/config/agents.cpp',
-  'src/config/load.cpp',
-  'src/config/tasks.cpp',
-  'src/system.cpp',
-  # 'src/schedule.cpp',
-  'src/exceptions.cpp',
-  # 'src/py/stun.cpp',
-  'src/py/beta_driver.cpp',
-  # 'src/py/stochastic_tunneling.cpp',
-  ragel.process('src/config/parse_duration.rl.cpp')
-]
+
+common_lib = static_library(
+  'common',
+  [
+    'src/config/agents.cpp',
+    'src/config/load.cpp',
+    'src/config/tasks.cpp',
+    'src/system.cpp',
+    # 'src/schedule.cpp',
+    'src/exceptions.cpp',
+    # 'src/py/stun.cpp',
+    'src/py/beta_driver.cpp',
+    # 'src/py/stochastic_tunneling.cpp',
+    ragel.process('src/config/parse_duration.rl.cpp')
+  ],
+  include_directories : include,
+  dependencies : dependencies,
+)
+
+common = declare_dependency(
+  link_with : common_lib,
+  dependencies : dependencies,
+  include_directories : include
+)
 
 exe = executable(
   meson.project_name()+'-'+target_machine.cpu_family(),
-  sources + ['src/angonoka.cpp'],
-  include_directories: include,
-  dependencies: dependencies,
+  ['src/angonoka.cpp'],
+  dependencies : common,
   install : true,
   install_rpath : '$ORIGIN/../lib64'
 )
@@ -86,21 +99,19 @@ exe = executable(
 #   ],
 # )
 
-test_sources = [
-  'test/catch.cpp',
-  'test/load_agents.cpp',
-  'test/stun/beta_driver.cpp',
-  'test/load_tasks.cpp',
-  'test/parse_duration.cpp',
-  'test/system.cpp',
-  'test/validation.cpp',
-  # 'test/schedule.cpp'
-]
 
 test_exe = executable(
   meson.project_name()+'_test',
-  sources + test_sources,
-  include_directories: include,
-  dependencies: dependencies + [dependency('catch2')]
+  [
+    'test/catch.cpp',
+    'test/load_agents.cpp',
+    'test/stun/beta_driver.cpp',
+    'test/load_tasks.cpp',
+    'test/parse_duration.cpp',
+    'test/system.cpp',
+    'test/validation.cpp',
+    # 'test/schedule.cpp'
+  ],
+  dependencies : [common, dependency('catch2')]
 )
 test('catch', test_exe)
