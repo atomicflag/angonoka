@@ -2,10 +2,12 @@
 
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
-#include <vector>
 
-namespace angonoka ::stun {
+namespace angonoka::stun {
 using ranges::span;
+
+// TODO: Add docstrings
+
 enum class AgentIndex : gsl::index {};
 enum class TaskIndex : gsl::index {};
 
@@ -20,7 +22,7 @@ public:
     get(AgentIndex agent, TaskIndex task) const noexcept;
 
 private:
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
     std::unique_ptr<float[]> float_data;
     gsl::index agent_count;
 
