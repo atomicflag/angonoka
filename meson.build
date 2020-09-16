@@ -63,7 +63,7 @@ common_lib = static_library(
     # 'src/schedule.cpp',
     'src/exceptions.cpp',
     # 'src/py/stun.cpp',
-    'src/py/beta_driver.cpp',
+    'src/stun/beta_driver.cpp',
     # 'src/py/stochastic_tunneling.cpp',
     ragel.process('src/config/parse_duration.rl.cpp')
   ],
