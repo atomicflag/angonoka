@@ -108,7 +108,6 @@ struct System {
 
         @return True if there is at least 1 universal agent.
     */
-    // NOLINTNEXTLINE(bugprone-exception-escape)
     [[nodiscard]] bool has_universal_agents() const noexcept;
 };
 } // namespace angonoka

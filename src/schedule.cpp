@@ -55,7 +55,6 @@ Constraints::Constraints(const System& sys)
         agent_groups.size() == sys.tasks.size() * sys.agents.size());
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 bool Constraints::can_work_on(
     std::int_fast8_t agent_id,
     std::int_fast8_t task_id) const noexcept
@@ -71,7 +70,6 @@ bool Constraints::can_work_on(
     return agent_groups[i];
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 float makespan(IndividualView i, const Constraints& con) noexcept
 {
     Expects(!i.empty());
@@ -96,7 +94,6 @@ float makespan(IndividualView i, const Constraints& con) noexcept
     return ranges::max(buf);
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void crossover(Parents p, Individual i, RandomEngine& gen) noexcept
 {
     Expects(!i.empty());

@@ -64,7 +64,7 @@ common_lib = static_library(
     'src/exceptions.cpp',
     # 'src/py/stun.cpp',
     'src/stun/beta_driver.cpp',
-    'src/stun/task_durations.cpp',
+    'src/stun/task_duration_cache.cpp',
     # 'src/py/stochastic_tunneling.cpp',
     ragel.process('src/config/parse_duration.rl.cpp')
   ],
@@ -107,7 +107,7 @@ test_exe = executable(
     'test/catch.cpp',
     'test/load_agents.cpp',
     'test/stun/beta_driver.cpp',
-    'test/stun/task_durations.cpp',
+    'test/stun/task_duration_cache.cpp',
     'test/load_tasks.cpp',
     'test/parse_duration.cpp',
     'test/system.cpp',

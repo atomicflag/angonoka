@@ -27,8 +27,8 @@ public:
         @param stun Current STUN value
         @param iteration Current iteration number
     */
-    // NOLINTNEXTLINE(bugprone-exception-escape)
     void update(float stun, uint64 iteration) noexcept;
+
     /**
         Returns the current beta (temperature) value.
 

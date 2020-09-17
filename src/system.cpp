@@ -11,11 +11,12 @@ bool Agent::is_universal() const noexcept
 
 bool Agent::can_work_on(GroupId id) const noexcept
 {
+    Expects(id >= 0);
+
     if (is_universal()) return true;
     return group_ids.contains(id);
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 bool System::has_universal_agents() const noexcept
 {
     Expects(!agents.empty());

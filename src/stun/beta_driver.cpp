@@ -19,7 +19,6 @@ BetaDriver::BetaDriver(float beta, float beta_scale)
     Expects(beta >= 0.F);
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void BetaDriver::update(float stun, uint64 iteration) noexcept
 {
     Expects(stun >= 0.F);

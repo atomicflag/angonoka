@@ -46,7 +46,6 @@ struct Constraints {
 
         @return True if the agent can perform the task.
     */
-    // NOLINTNEXTLINE(bugprone-exception-escape)
     [[nodiscard]] bool can_work_on(
         std::int_fast8_t agent_id,
         std::int_fast8_t task_id) const noexcept;
@@ -61,7 +60,6 @@ struct Constraints {
 
     @returns Makespan in seconds.
 */
-// NOLINTNEXTLINE(bugprone-exception-escape)
 float makespan(IndividualView i, const Constraints& con) noexcept;
 
 /**
@@ -74,7 +72,6 @@ float makespan(IndividualView i, const Constraints& con) noexcept;
     @param i    Child individual
     @param gen  Pseudorandom number generator.
 */
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void crossover(Parents p, Individual i, RandomEngine& gen) noexcept;
 } // namespace angonoka::detail
 
