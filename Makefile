@@ -124,6 +124,7 @@ check-format:
 check-tidy:
 	echo Running clang-tidy
 	cd build
+	cp compile_commands.json{,.bak}
 	sed -i \
 		-e 's/-fsanitize=[a-z,]*//g' \
 		-e 's/-pipe//g' \
@@ -141,6 +142,9 @@ check-tidy:
 	! python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
 		-quiet 2>/dev/null | \
 		grep -E '(note:|error:|warning:)'	
+	EXIT_CODE=$$?
+	cp compile_commands.json{.bak,}
+	exit $$EXIT_CODE
 
 .PHONY: check
 check: check-format check-tidy

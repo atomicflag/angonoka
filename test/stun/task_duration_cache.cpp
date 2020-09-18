@@ -3,7 +3,7 @@
 
 // TODO: Add more tests
 
-TEST_CASE("TaskDurations type traits")
+TEST_CASE("TaskDurationCache type traits")
 {
     using angonoka::stun::TaskDurationCache;
     static_assert(std::is_nothrow_destructible_v<TaskDurationCache>);
@@ -15,4 +15,9 @@ TEST_CASE("TaskDurations type traits")
         std::is_nothrow_move_constructible_v<TaskDurationCache>);
     static_assert(
         std::is_nothrow_move_assignable_v<TaskDurationCache>);
+}
+
+TEST_CASE("TaskDurationCache values")
+{
+    // pass
 }
