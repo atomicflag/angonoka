@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
 
@@ -10,13 +11,13 @@ using ranges::span;
     An opaque type representing an agent's position
     within the agents array.
 */
-enum class AgentIndex : gsl::index {};
+enum class AgentIndex : index {};
 
 /**
     An opaque type representing a task's position
     within the tasks array.
 */
-enum class TaskIndex : gsl::index {};
+enum class TaskIndex : index {};
 
 /**
     Pre-computes all task durations for all agents.
@@ -60,7 +61,7 @@ public:
 private:
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
     std::unique_ptr<float[]> float_data;
-    gsl::index agent_count;
+    index agent_count;
 
     /**
         Find the task duration's index within the cache.
@@ -72,7 +73,7 @@ private:
 
         @return Task duration's index
     */
-    [[nodiscard]] gsl::index
+    [[nodiscard]] index
     build_index(AgentIndex agent, TaskIndex task) const noexcept;
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <range/v3/view/span.hpp>
 #ifndef NDEBUG
 #include <boost/safe_numerics/automatic.hpp>
 #include <boost/safe_numerics/safe_integer.hpp>
@@ -18,4 +19,5 @@ using uint32 = std::uint_fast32_t;
 using int16 = std::int_fast16_t;
 #endif
 constexpr uint64 max_iterations = 10'000'000U;
+using index = ranges::span<int>::index_type;
 } // namespace angonoka::stun
