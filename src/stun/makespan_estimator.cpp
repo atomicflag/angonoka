@@ -15,10 +15,13 @@ MakespanEstimator::MakespanEstimator(
           static_cast<index>(agent_count))
     , task_duration_cache{std::move(task_duration_cache)}
 {
+    Expects(agent_count > 0);
 }
 
 float MakespanEstimator::operator()(span<const int16> state) noexcept
 {
+    Expects(!state.empty());
+
     ranges::fill(makespan_buffer, 0.F);
     const auto state_size = state.size();
     for (index i{0}; i < state_size; ++i) {

@@ -27,20 +27,6 @@ TEST_CASE("TaskAgents type traits")
     static_assert(std::is_nothrow_move_assignable_v<TaskAgents>);
 }
 
-TEST_CASE("MakespanEstimator type traits")
-{
-    using angonoka::stun::MakespanEstimator;
-    static_assert(std::is_nothrow_destructible_v<MakespanEstimator>);
-    static_assert(
-        !std::is_default_constructible_v<MakespanEstimator>);
-    static_assert(!std::is_copy_constructible_v<MakespanEstimator>);
-    static_assert(!std::is_copy_assignable_v<MakespanEstimator>);
-    static_assert(
-        std::is_nothrow_move_constructible_v<MakespanEstimator>);
-    static_assert(
-        std::is_nothrow_move_assignable_v<MakespanEstimator>);
-}
-
 TEST_CASE("StochasticTunneling type traits")
 {
     using angonoka::stun::StochasticTunneling;
