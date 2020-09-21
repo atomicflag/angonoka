@@ -5,8 +5,6 @@
 #include <memory>
 #include <range/v3/view/span.hpp>
 
-// TODO: More tests
-
 namespace angonoka::stun {
 using ranges::span;
 
