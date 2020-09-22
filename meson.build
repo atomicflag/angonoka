@@ -66,6 +66,7 @@ common_lib = static_library(
     'src/stun/beta_driver.cpp',
     'src/stun/task_duration_cache.cpp',
     'src/stun/makespan_estimator.cpp',
+    'src/stun/task_agents.cpp',
     # 'src/py/stochastic_tunneling.cpp',
     ragel.process('src/config/parse_duration.rl.cpp')
   ],

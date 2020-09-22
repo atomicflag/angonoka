@@ -32,22 +32,6 @@ void RandomUtils::get_neighbor(span<int16> v) noexcept
     v[task_idx] = pick_random((*task_agents)[task_idx]);
 }
 
-TaskAgents::TaskAgents(span<const int16> data)
-    // TODO: We can't invoke total_size here, data isn't what we
-    // expected for some reason
-    : int_data{std::make_unique<int16[]>(total_size(data))}
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-    , spans{std::make_unique<span<const int16>[]>(data.size())}
-    , task_agents{spans.get(), static_cast<long>(data.size())}
-{
-    int16* int_data_ptr = int_data.get();
-    span<int16>* spans_ptr = spans.get();
-    for (auto&& v : data) {
-        *spans_ptr++ = {int_data_ptr, static_cast<long>(v.size())};
-        int_data_ptr = ranges::copy(v, int_data_ptr).out;
-    }
-}
-
 TaskDurations::TaskDurations(
     span<const float> task_durations,
     span<const float> agent_performances)
