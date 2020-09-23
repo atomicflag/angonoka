@@ -4,6 +4,13 @@
 #include <range/v3/numeric/accumulate.hpp>
 
 namespace angonoka::stun {
+/**
+    Sums up lengths of all sub-arrays.
+
+    @param data Array of arrays
+
+    @return Sum of sizes of all sub-arrays.
+*/
 static gsl::index total_size(span<span<const int16>> data)
 {
     return ranges::accumulate(

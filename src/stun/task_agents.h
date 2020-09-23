@@ -5,15 +5,37 @@
 #include <memory>
 #include <range/v3/view/span.hpp>
 
-// TODO: Tests, documentation, Expects
+// TODO: Tests, Expects
 
 namespace angonoka::stun {
 using ranges::span;
+
+/**
+    Holds the array of agent ids for each task.
+
+    Answers the question "which agents can perform this task?".
+*/
 class TaskAgents {
 public:
+    /**
+        Default constructor.
+    */
     TaskAgents() = default;
+
+    /**
+        Constructor.
+
+        @param data Array of arrays of agent ids for each task
+    */
     TaskAgents(span<span<const int16>> data);
 
+    /**
+        Retrieves the array of agents that can perform a given task.
+
+        @param i Task index
+
+        @return An array of agent ids that can perform this task
+    */
     decltype(auto) operator[](index i) const noexcept
     {
         return task_agents[i];
