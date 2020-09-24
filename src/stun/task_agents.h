@@ -5,7 +5,7 @@
 #include <memory>
 #include <range/v3/view/span.hpp>
 
-// TODO: Tests, Expects
+// TODO: Tests
 
 namespace angonoka::stun {
 using ranges::span;
@@ -38,6 +38,9 @@ public:
     */
     decltype(auto) operator[](index i) const noexcept
     {
+        Expects(i >= 0);
+        Expects(i < task_agents.size());
+
         return task_agents[i];
     }
 

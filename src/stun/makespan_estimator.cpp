@@ -16,6 +16,9 @@ MakespanEstimator::MakespanEstimator(
     , task_duration_cache{std::move(task_duration_cache)}
 {
     Expects(agent_count > 0);
+
+    Ensures(makespan_buffer_data);
+    Ensures(!makespan_buffer.empty());
 }
 
 float MakespanEstimator::operator()(span<const int16> state) noexcept

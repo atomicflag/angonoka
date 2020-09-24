@@ -21,6 +21,8 @@ TaskDurationCache::TaskDurationCache(
                 = task_durations[i] / agent_performances[j];
         }
     }
+
+    Ensures(float_data);
 }
 
 float TaskDurationCache::get(AgentIndex agent, TaskIndex task)

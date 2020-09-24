@@ -111,6 +111,7 @@ test_exe = executable(
     'test/stun/beta_driver.cpp',
     'test/stun/task_duration_cache.cpp',
     'test/stun/makespan_estimator.cpp',
+    'test/stun/task_agents.cpp',
     'test/load_tasks.cpp',
     'test/parse_duration.cpp',
     'test/system.cpp',
