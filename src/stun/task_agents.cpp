@@ -11,7 +11,7 @@ namespace angonoka::stun {
 
     @return Sum of sizes of all sub-arrays.
 */
-static gsl::index total_size(span<span<const int16>> data)
+static gsl::index total_size(span<const span<const int16>> data)
 {
     Expects(!data.empty());
 
@@ -27,7 +27,7 @@ static gsl::index total_size(span<span<const int16>> data)
     return result;
 }
 
-TaskAgents::TaskAgents(span<span<const int16>> data)
+TaskAgents::TaskAgents(span<const span<const int16>> data)
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
     : int_data{std::make_unique<int16[]>(total_size(data))}
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)

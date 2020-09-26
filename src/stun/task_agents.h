@@ -27,7 +27,7 @@ public:
 
         @param data Array of arrays of agent ids for each task
     */
-    TaskAgents(span<span<const int16>> data);
+    TaskAgents(span<const span<const int16>> data);
 
     /**
         Retrieves the array of agents that can perform a given task.
