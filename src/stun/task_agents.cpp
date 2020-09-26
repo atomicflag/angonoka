@@ -28,25 +28,31 @@ static gsl::index total_size(span<const span<const int16>> data)
 }
 
 TaskAgents::TaskAgents(span<const span<const int16>> data)
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-    : int_data{std::make_unique<int16[]>(total_size(data))}
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-    , spans{std::make_unique<span<const int16>[]>(
-          static_cast<gsl::index>(data.size()))}
-    , task_agents{spans.get(), static_cast<long>(data.size())}
+    : int_data(total_size(data))
+    , task_agents(static_cast<gsl::index>(data.size()))
 {
     Expects(!data.empty());
 
-    int16* int_data_ptr = int_data.get();
-    span<const int16>* spans_ptr = spans.get();
+    int16* int_data_ptr = int_data.data();
+    span<const int16>* spans_ptr = task_agents.data();
     for (auto&& v : data) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        *spans_ptr++ = {int_data_ptr, static_cast<long>(v.size())};
+        *spans_ptr++ = {int_data_ptr, static_cast<index>(v.size())};
         int_data_ptr = ranges::copy(v, int_data_ptr).out;
     }
 
-    Ensures(spans);
-    Ensures(int_data);
+    Ensures(!int_data.empty());
     Ensures(!task_agents.empty());
+}
+
+TaskAgents::TaskAgents(const TaskAgents& other)
+    : TaskAgents{other.task_agents}
+{
+}
+
+TaskAgents& TaskAgents::operator=(const TaskAgents& other)
+{
+    *this = TaskAgents{other.task_agents};
+    return *this;
 }
 } // namespace angonoka::stun

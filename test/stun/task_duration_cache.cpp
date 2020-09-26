@@ -8,8 +8,8 @@ TEST_CASE("TaskDurationCache type traits")
     static_assert(std::is_nothrow_destructible_v<TaskDurationCache>);
     static_assert(
         std::is_nothrow_default_constructible_v<TaskDurationCache>);
-    static_assert(!std::is_copy_constructible_v<TaskDurationCache>);
-    static_assert(!std::is_copy_assignable_v<TaskDurationCache>);
+    static_assert(std::is_copy_constructible_v<TaskDurationCache>);
+    static_assert(std::is_copy_assignable_v<TaskDurationCache>);
     static_assert(
         std::is_nothrow_move_constructible_v<TaskDurationCache>);
     static_assert(

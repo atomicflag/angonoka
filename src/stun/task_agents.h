@@ -2,8 +2,8 @@
 
 #include "common.h"
 #include <gsl/gsl-lite.hpp>
-#include <memory>
 #include <range/v3/view/span.hpp>
+#include <vector>
 
 // TODO: Tests
 
@@ -36,7 +36,7 @@ public:
 
         @return An array of agent ids that can perform this task
     */
-    decltype(auto) operator[](index i) const noexcept
+    decltype(auto) operator[](gsl::index i) const noexcept
     {
         Expects(i >= 0);
         Expects(i < task_agents.size());
@@ -44,11 +44,14 @@ public:
         return task_agents[i];
     }
 
+    TaskAgents(const TaskAgents& other);
+    TaskAgents(TaskAgents&&) = default;
+    TaskAgents& operator=(const TaskAgents& other);
+    TaskAgents& operator=(TaskAgents&&) = default;
+    ~TaskAgents() = default;
+
 private:
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-    std::unique_ptr<int16[]> int_data;
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-    std::unique_ptr<span<const int16>[]> spans;
-    span<span<const int16>> task_agents;
+    std::vector<int16> int_data;
+    std::vector<span<const int16>> task_agents;
 };
 } // namespace angonoka::stun

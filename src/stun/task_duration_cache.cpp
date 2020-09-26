@@ -4,9 +4,8 @@ namespace angonoka::stun {
 TaskDurationCache::TaskDurationCache(
     span<const float> task_durations,
     span<const float> agent_performances)
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-    : float_data{std::make_unique<float[]>(static_cast<std::size_t>(
-        task_durations.size() * agent_performances.size()))}
+    : float_data(static_cast<std::size_t>(
+        task_durations.size() * agent_performances.size()))
     , agent_count{agent_performances.size()}
 {
     Expects(!task_durations.empty());
@@ -22,7 +21,8 @@ TaskDurationCache::TaskDurationCache(
         }
     }
 
-    Ensures(float_data);
+    Ensures(!float_data.empty());
+    Ensures(agent_count > 0);
 }
 
 float TaskDurationCache::get(AgentIndex agent, TaskIndex task)

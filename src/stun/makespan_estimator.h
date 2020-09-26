@@ -2,8 +2,8 @@
 
 #include "common.h"
 #include <gsl/gsl-lite.hpp>
-#include <memory>
 #include <range/v3/view/span.hpp>
+#include <vector>
 
 namespace angonoka::stun {
 using ranges::span;
@@ -37,9 +37,7 @@ public:
     float operator()(span<const int16> state) noexcept;
 
 private:
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-    std::unique_ptr<float[]> makespan_buffer_data;
-    span<float> makespan_buffer;
+    std::vector<float> makespan_buffer;
     gsl::not_null<const TaskDurationCache*> task_duration_cache;
 };
 } // namespace angonoka::stun

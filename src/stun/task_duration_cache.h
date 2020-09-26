@@ -3,6 +3,7 @@
 #include "common.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
+#include <vector>
 
 namespace angonoka::stun {
 using ranges::span;
@@ -59,8 +60,7 @@ public:
     get(AgentIndex agent, TaskIndex task) const noexcept;
 
 private:
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-    std::unique_ptr<float[]> float_data;
+    std::vector<float> float_data;
     index agent_count;
 
     /**
