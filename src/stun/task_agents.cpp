@@ -2,6 +2,7 @@
 
 #include <range/v3/algorithm/copy.hpp>
 #include <range/v3/numeric/accumulate.hpp>
+#include <range/v3/view/zip.hpp>
 
 namespace angonoka::stun {
 /**
@@ -34,15 +35,16 @@ TaskAgents::TaskAgents(span<const span<const int16>> data)
     Expects(!data.empty());
 
     int16* int_data_ptr = int_data.data();
-    span<const int16>* spans_ptr = task_agents.data();
-    for (auto&& v : data) {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        *spans_ptr++ = {int_data_ptr, static_cast<index>(v.size())};
+    using ranges::views::zip;
+    for (auto&& [v, a] : zip(data, task_agents)) {
+        a = {int_data_ptr, static_cast<index>(v.size())};
         int_data_ptr = ranges::copy(v, int_data_ptr).out;
     }
 
     Ensures(!int_data.empty());
     Ensures(!task_agents.empty());
+    Ensures(
+        task_agents.size() == static_cast<gsl::index>(data.size()));
 }
 
 TaskAgents::TaskAgents(const TaskAgents& other)
