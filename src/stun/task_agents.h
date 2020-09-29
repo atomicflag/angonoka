@@ -34,12 +34,12 @@ public:
 
         @return An array of agent ids that can perform this task
     */
-    decltype(auto) operator[](gsl::index i) const noexcept
+    decltype(auto) operator[](index i) const noexcept
     {
         Expects(i >= 0);
-        Expects(i < task_agents.size());
+        Expects(static_cast<gsl::index>(i) < task_agents.size());
 
-        return task_agents[i];
+        return task_agents[static_cast<gsl::index>(i)];
     }
 
     TaskAgents(const TaskAgents& other);

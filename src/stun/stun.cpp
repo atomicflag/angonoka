@@ -9,28 +9,6 @@
 #include <utility>
 
 namespace angonoka::stun {
-RandomUtils::RandomUtils(gsl::not_null<const TaskAgents*> task_agents)
-    : task_agents{std::move(task_agents)}
-{
-}
-float RandomUtils::get_uniform() noexcept { return r(g); }
-
-RandomUtils::index_type
-RandomUtils::random_index(index_type max) noexcept
-{
-    return static_cast<index_type>(r(g) * static_cast<float>(max));
-}
-
-int16 RandomUtils::pick_random(span<const int16> rng) noexcept
-{
-    return rng[random_index(rng.size())];
-}
-
-void RandomUtils::get_neighbor(span<int16> v) noexcept
-{
-    const auto task_idx = random_index(v.size());
-    v[task_idx] = pick_random((*task_agents)[task_idx]);
-}
 
 TaskDurations::TaskDurations(
     span<const float> task_durations,
