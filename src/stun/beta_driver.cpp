@@ -33,6 +33,8 @@ void BetaDriver::update(float stun, uint64 iteration) noexcept
         = 1.F - TO_FLOAT(iteration) / TO_FLOAT(max_iterations);
     value *= 1.F + diff * beta_scale * t * t;
     stun_count = 0U;
+
+    Ensures(value >= 0.F);
 }
 } // namespace angonoka::stun
 

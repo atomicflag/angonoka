@@ -27,8 +27,21 @@ template <typename T> concept AttrOrStr = String<T> || Attribute<T>;
 
 /**
     YAML scalar.
+
+    Example:
+
+    hello: "world"
+           ^
+           | Scalar
+
+    scalar()
+
+    Means that the value has to be a scalar and
+    not a map or a sequence, etc.
+
+    @return Check function
 */
-consteval auto scalar()
+consteval Check auto scalar()
 {
     return [](const YAML::Node& node,
               std::string_view scope) -> result {
@@ -64,6 +77,13 @@ namespace detail {
 /**
     Requred YAML field.
 
+    Example:
+
+    required("hello")
+
+    Means that the field "hello" is required and
+    it has to be a scalar value.
+
     @var name   Parameter's name
     @var check  Function to apply to the field
 */
@@ -72,13 +92,11 @@ template <Check T> struct required : detail::functor<T> {
     result
     operator()(const YAML::Node& node, std::string_view scope) const
     {
-        const auto n = node[this->name];
-        if (!n) {
-            return R"("{}" is missing a "{}" attribute)"_format(
-                scope,
-                this->name);
-        }
-        return this->check(n, this->name);
+        if (const auto n = node[this->name])
+            return this->check(n, this->name);
+        return R"("{}" is missing a "{}" attribute)"_format(
+            scope,
+            this->name);
     }
 };
 
@@ -92,6 +110,8 @@ namespace detail {
         If an attribute is a string literal, pass the argument as is.
 
         @param attr Either an attribute or a string literal
+
+        @return Attribute name
     */
     consteval auto attr_name(gsl::czstring attr) { return attr; }
     consteval auto attr_name(Attribute auto&& attr)
@@ -107,6 +127,8 @@ namespace detail {
         name.
 
         @param attr Either an attribute or a string literal
+
+        @return Check function
     */
     consteval auto attr_check(gsl::czstring attr)
     {
@@ -118,6 +140,13 @@ namespace detail {
 /**
     Optional YAML field.
 
+    Example:
+
+    optional("hello")
+
+    Means that the field "hello" is optional and if
+    present, it has to be a scalar value.
+
     @var name  Parameter's name
     @var check Function to apply to the field
 */
@@ -128,7 +157,7 @@ template <Check T> struct optional : detail::functor<T> {
         const YAML::Node& node,
         std::string_view /* scope */) const
     {
-        if (const auto n = node[this->name]; n)
+        if (const auto n = node[this->name])
             return this->check(n, this->name);
         return bo::success();
     }
@@ -142,9 +171,18 @@ optional(gsl::czstring)->optional<decltype(scalar())>;
 
     Validates each value of the array with the provided function.
 
+    Example:
+
+    sequence(scalar())
+
+    Means that the value has to be a sequence (array) of
+    scalar values.
+
     @param check Function to apply to each item
+
+    @return Check function
 */
-consteval auto sequence(Check auto check)
+consteval Check auto sequence(Check auto check)
 {
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
@@ -158,16 +196,26 @@ consteval auto sequence(Check auto check)
     };
 }
 
-consteval auto sequence() { return sequence(scalar()); }
+consteval Check auto sequence() { return sequence(scalar()); }
 
 /**
     YAML map.
 
     Matches specified parameters exactly, no extra fields permitted.
 
+    Example:
+
+    attributes("first", optional("second"))
+
+    Means that the value has to be a map with a required field
+   "first", which has to be a scalar and an optional field "second"
+   which also has to be a scalar.
+
     @param attrs Sequence of optional or required parameters
+
+    @return Check function
 */
-consteval auto attributes(AttrOrStr auto... attrs)
+consteval Check auto attributes(AttrOrStr auto... attrs)
 {
     return [=](const YAML::Node& node,
                std::string_view scope = "Document") -> result {
@@ -200,8 +248,9 @@ consteval auto attributes(AttrOrStr auto... attrs)
     YAML map.
 
     Validates each value of the map with the provided function.
+    Used when the number of map fields may vary.
 
-    For example:
+    Example:
 
     foo:
       bar1: 1
@@ -211,8 +260,10 @@ consteval auto attributes(AttrOrStr auto... attrs)
     values(scalar())
 
     @param check Function to apply to each value
+
+    @return Check function
 */
-consteval auto values(Check auto check)
+consteval Check auto values(Check auto check)
 {
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
@@ -228,9 +279,26 @@ consteval auto values(Check auto check)
 /**
     Match at least one of the validators.
 
+    Example:
+
+    required("example", any_of(scalar(), attributes("foo", "bar")))
+
+    Means the value has to either be a singular scalar value or
+    a map with 2 fields "foo" and "bar.
+
+    example: "hello"
+
+    or
+
+    example:
+      foo: 1
+      bar: 2
+
     @param check Functions to match
+
+    @return Check function
 */
-consteval auto any_of(Check auto... checks)
+consteval Check auto any_of(Check auto... checks)
 {
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
