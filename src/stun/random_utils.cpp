@@ -6,21 +6,36 @@ RandomUtils::RandomUtils(gsl::not_null<const TaskAgents*> task_agents)
     : task_agents{std::move(task_agents)}
 {
 }
-float RandomUtils::get_uniform() noexcept { return r(g); }
+
+float RandomUtils::get_uniform() noexcept
+{
+    return uniform(generator);
+}
 
 index RandomUtils::random_index(index max) noexcept
 {
-    return static_cast<index>(r(g) * static_cast<float>(max));
+    Expects(max >= 0);
+
+    const auto result
+        = static_cast<index>(get_uniform() * static_cast<float>(max));
+
+    Ensures(result < max);
+
+    return result;
 }
 
-int16 RandomUtils::pick_random(span<const int16> rng) noexcept
+int16 RandomUtils::pick_random(span<const int16> range) noexcept
 {
-    return rng[random_index(rng.size())];
+    Expects(!range.empty());
+
+    return range[random_index(range.size())];
 }
 
-void RandomUtils::get_neighbor_inplace(span<int16> v) noexcept
+void RandomUtils::get_neighbor_inplace(span<int16> state) noexcept
 {
-    const auto task_idx = random_index(v.size());
-    v[task_idx] = pick_random((*task_agents)[task_idx]);
+    Expects(!state.empty());
+
+    const auto task_idx = random_index(state.size());
+    state[task_idx] = pick_random((*task_agents)[task_idx]);
 }
 } // namespace angonoka::stun
