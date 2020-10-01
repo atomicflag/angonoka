@@ -30,4 +30,5 @@ TEST_CASE("Parsing durations")
     REQUIRE_THROWS_AS(
         parse_duration("-5 sec"),
         angonoka::ValidationError);
+    REQUIRE_THROWS_AS(parse_duration("s"), angonoka::ValidationError);
 }

@@ -15,7 +15,7 @@ action add_weeks { v += weeks{std::atoi(n)}; }
 action add_months { v += months{std::atoi(n)}; }
 action num { n = fpc; }
 
-number = digit* >num;
+number = digit+ >num;
 
 seconds_long = space ('sec' | 'second') 's'?;
 seconds = ('s' | seconds_long) %add_seconds;
