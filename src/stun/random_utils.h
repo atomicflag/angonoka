@@ -7,8 +7,6 @@
 #include <random>
 #include <range/v3/view/span.hpp>
 
-// TODO: Tests, docs, Expects
-
 namespace angonoka::stun {
 using ranges::span;
 using RandomEngine = pcg32;

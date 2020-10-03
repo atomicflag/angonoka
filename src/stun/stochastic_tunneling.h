@@ -7,12 +7,13 @@
 #include <memory>
 #include <range/v3/view/span.hpp>
 
+// TODO: Test, docs, Expects
+
 namespace angonoka::stun {
 using ranges::span;
 
 class RandomUtils;
 
-// TODO: Can we use boost safe_numerics for this?
 struct OpaqueFloat {
     float value;
     operator float() const { return value; }
@@ -39,6 +40,16 @@ struct STUNResult {
 // where result_t has all the important values
 // and stochastic_tunneling constructs a class
 // inside the implementation (if nessecary)
+//
+// 3 oct:
+//
+// in .h:
+// STUNResult stochastic_tunneling(args...)
+//
+// in .cpp:
+// struct State { ... }
+//
+// void perform_stun(State*, ...)
 class StochasticTunneling {
 public:
     StochasticTunneling(
