@@ -45,52 +45,13 @@ struct STUNResult {
 //
 // in .h:
 // STUNResult stochastic_tunneling(args...)
-//
-// in .cpp:
-// struct State { ... }
-//
-// void perform_stun(State*, ...)
-class StochasticTunneling {
-public:
-    StochasticTunneling(
-        gsl::not_null<RandomUtils*>
-            random_utils, // TODO: Can we move this instead? Probably
-                          // not, we need to keep the PRNG state
-                          // around
-        MakespanEstimator&& makespan,
-        span<const int16> best_state, // TODO: Starting state?
-        Alpha alpha,
-        Beta beta,
-        BetaScale beta_scale);
 
-    STUNResult operator()() noexcept;
+STUNResult stochastic_tunneling(
+    RandomUtils& random_utils,
+    MakespanEstimator&& makespan,
+    span<const int16> best_state,
+    Alpha alpha,
+    Beta beta,
+    BetaScale beta_scale) noexcept;
 
-private:
-    using Counter = std::uint_fast64_t;
-
-    gsl::not_null<RandomUtils*> random_utils;
-    MakespanEstimator makespan;
-
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,
-    // modernize-avoid-c-arrays)
-    std::unique_ptr<int16[]> int_data;
-    span<int16> current_state;
-    span<int16> target_state;
-    span<int16> best_state_;
-
-    float current_e;
-    float lowest_e_;
-    float target_e;
-
-    float alpha; // TODO: Should be a constant
-    float current_s;
-    float target_s;
-    BetaDriver beta_driver;
-
-    std::uint_fast64_t current_iteration{0};
-
-    void get_new_neighbor() noexcept;
-    bool compare_energy_levels() noexcept;
-    void perform_stun() noexcept;
-};
 } // namespace angonoka::stun
