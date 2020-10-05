@@ -10,20 +10,23 @@
 // TODO: Test, docs, Expects
 
 namespace angonoka::stun {
+
+namespace detail {
+    struct OpaqueFloat {
+        float value;
+        operator float() const noexcept { return value; }
+    };
+} // namespace detail
+
 using ranges::span;
 
 class RandomUtils;
 
-struct OpaqueFloat {
-    float value;
-    operator float() const { return value; }
+struct Alpha : detail::OpaqueFloat {
 };
-
-struct Alpha : OpaqueFloat {
+struct Beta : detail::OpaqueFloat {
 };
-struct Beta : OpaqueFloat {
-};
-struct BetaScale : OpaqueFloat {
+struct BetaScale : detail::OpaqueFloat {
 };
 
 struct STUNResult {
@@ -31,20 +34,6 @@ struct STUNResult {
     span<const int16> best_state;
     float beta;
 };
-
-// TODO: Refactor StochasticTunneling
-// add
-//
-// result_t stochastic_tunneling(args...)
-//
-// where result_t has all the important values
-// and stochastic_tunneling constructs a class
-// inside the implementation (if nessecary)
-//
-// 3 oct:
-//
-// in .h:
-// STUNResult stochastic_tunneling(args...)
 
 STUNResult stochastic_tunneling(
     RandomUtils& random_utils,
