@@ -1,12 +1,13 @@
 #include "stochastic_tunneling.h"
+#include "common.h"
 #include "random_utils.h"
-
 #include <cmath>
 #include <range/v3/algorithm/copy.hpp>
 #include <utility>
 
 namespace {
 using namespace angonoka::stun;
+using angonoka::stun::index;
 
 float stun(float lowest_e, float current_e, float alpha) noexcept
 {
@@ -17,7 +18,7 @@ struct StochasticTunneling {
     using Counter = std::uint_fast64_t;
 
     gsl::not_null<RandomUtils*> random_utils;
-    MakespanEstimator makespan;
+    gsl::not_null<MakespanEstimator*> makespan;
     BetaDriver beta_driver;
 
     std::vector<int16> int_data;
@@ -39,7 +40,7 @@ struct StochasticTunneling {
     {
         ranges::copy(current_state, target_state.begin());
         random_utils->get_neighbor_inplace(target_state);
-        target_e = makespan(target_state);
+        target_e = (*makespan)(target_state);
     }
 
     bool compare_energy_levels() noexcept
@@ -70,6 +71,32 @@ struct StochasticTunneling {
             beta_driver.update(target_s, current_iteration);
         }
     }
+
+    void copy_best_state(span<const int16> source_state)
+    {
+        ranges::copy(source_state, best_state.begin());
+        ranges::copy(source_state, current_state.begin());
+    }
+
+    void init_states(index state_size)
+    {
+        int_data.resize(static_cast<gsl::index>(state_size) * 3);
+        auto* const data = int_data.data();
+        const auto next = [&] {
+            const auto* const next = std::next(data, state_size);
+            return std::exchange(data, next);
+        };
+        current_state = {next(), state_size};
+        target_state = {next(), state_size};
+        best_state = {next(), state_size};
+    }
+
+    void init_energies()
+    {
+        current_e = (*makespan)(current_state);
+        lowest_e = current_e;
+        current_s = stun(lowest_e, current_e, alpha);
+    }
 };
 
 } // namespace
@@ -78,51 +105,21 @@ namespace angonoka::stun {
 using ::stun;
 STUNResult stochastic_tunneling(
     RandomUtils& random_utils,
-    MakespanEstimator&& makespan,
+    MakespanEstimator& makespan,
     span<const int16> best_state,
     Alpha alpha,
     Beta beta,
-    BetaScale beta_scale) noexcept
-// TODO: Figure out how to init State class
-// : random_utils{std::move(random_utils)}
-// , makespan{std::move(makespan)}
-// // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
-// , int_data{std::make_unique<int16[]>(best_state.size()*3)}
-// , current_state{int_data.get(),
-// static_cast<std::ptrdiff_t>(best_state.size())} ,
-// target_state{int_data.get()+best_state.size(),
-// static_cast<std::ptrdiff_t>(best_state.size())} ,
-// best_state_{int_data.get()+best_state.size()*2,
-// static_cast<std::ptrdiff_t>(best_state.size())} , alpha{alpha} ,
-// beta_driver{beta, beta_scale}
+    BetaScale beta_scale)
 {
-    StochasticTunneling stoch_tun{
+    StochasticTunneling stun_op{
         .random_utils{&random_utils},
-        .makespan{std::move(makespan)},
+        .makespan{&makespan},
         .beta_driver{beta, beta_scale},
         .alpha{alpha}};
 
-    // TODO: Refactor into new functions
-    const auto state_size = best_state.size();
-    stoch_tun.int_data.resize(state_size * 3);
-    stoch_tun.current_state = {stoch_tun.int_data.data(), state_size};
-    stoch_tun.target_state
-        = {std::next(stoch_tun.int_data.data(), state_size),
-           state_size};
-    stoch_tun.best_state
-        = {std::next(stoch_tun.int_data.data(), state_size * 2),
-           state_size};
-
-    ranges::copy(
-        stoch_tun.best_state,
-        stoch_tun.current_state.begin());
-    ranges::copy(best_state, stoch_tun.best_state.begin());
-    stoch_tun.current_e = stoch_tun.makespan(stoch_tun.current_state);
-    stoch_tun.lowest_e = stoch_tun.current_e;
-    stoch_tun.current_s = stun(
-        stoch_tun.lowest_e,
-        stoch_tun.current_e,
-        stoch_tun.alpha);
+    stun_op.init_states(best_state.size());
+    stun_op.copy_best_state(best_state);
+    stun_op.init_energies();
 
     // for (current_iteration = 0; current_iteration < max_iterations;
     //      ++current_iteration) {

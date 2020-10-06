@@ -41,6 +41,6 @@ STUNResult stochastic_tunneling(
     span<const int16> best_state,
     Alpha alpha,
     Beta beta,
-    BetaScale beta_scale) noexcept;
+    BetaScale beta_scale);
 
 } // namespace angonoka::stun
