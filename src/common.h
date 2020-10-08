@@ -10,6 +10,7 @@ namespace angonoka {
 namespace sn = boost::safe_numerics;
 using int8 = sn::safe<std::int_fast8_t, sn::automatic>;
 
+// TODO: Replace Vector with std::vector
 template <typename T, auto N>
 using Vector = boost::container::small_vector<T, N>;
 template <typename T, auto N>

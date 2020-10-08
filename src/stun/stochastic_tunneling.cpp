@@ -11,7 +11,14 @@ using angonoka::stun::index;
 
 float stun(float lowest_e, float current_e, float alpha) noexcept
 {
-    return 1.F - std::exp(-alpha * (current_e - lowest_e));
+    Expects(lowest_e >= 0.F);
+    Expects(current_e >= lowest_e);
+
+    const auto result
+        = 1.F - std::exp(-alpha * (current_e - lowest_e));
+
+    Ensures(result >= 0.F && result <= 1.F);
+    return result;
 }
 
 struct StochasticTunneling {
@@ -38,13 +45,26 @@ struct StochasticTunneling {
 
     void get_new_neighbor() noexcept
     {
+        Expects(!current_state.empty());
+        Expects(!target_state.empty());
+
         ranges::copy(current_state, target_state.begin());
         random_utils->get_neighbor_inplace(target_state);
         target_e = (*makespan)(target_state);
+
+        Ensures(target_e >= 0.F);
     }
 
-    bool compare_energy_levels() noexcept
+    bool neighbor_is_better() noexcept
     {
+        Expects(target_e >= 0.F);
+        Expects(current_e >= 0.F);
+        Expects(lowest_e >= 0.F);
+        Expects(current_e >= lowest_e);
+        Expects(!target_state.empty());
+        Expects(!current_state.empty());
+        Expects(!best_state.empty());
+
         if (target_e < current_e) {
             if (target_e < lowest_e) {
                 lowest_e = target_e;
@@ -53,13 +73,19 @@ struct StochasticTunneling {
             }
             std::swap(current_state, target_state);
             current_e = target_e;
-            return true; // TODO: Enum
+            return true;
         }
         return false;
     }
 
     void perform_stun() noexcept
     {
+        Expects(target_e >= 0.F);
+        Expects(lowest_e >= 0.F);
+        Expects(current_s >= 0.F);
+        Expects(!target_state.empty());
+        Expects(!current_state.empty());
+
         target_s = stun(lowest_e, target_e, alpha);
         const auto delta_s = target_s - current_s;
         const auto pr
@@ -70,32 +96,50 @@ struct StochasticTunneling {
             current_s = target_s;
             beta_driver.update(target_s, current_iteration);
         }
+
+        Ensures(target_s >= 0.F);
+        Ensures(current_s >= 0.F);
     }
 
     void copy_best_state(span<const int16> source_state) const
     {
+        Expects(source_state.size() == best_state.size());
+        Expects(source_state.size() == current_state.size());
+        Expects(!source_state.empty());
+
         ranges::copy(source_state, best_state.begin());
         ranges::copy(source_state, current_state.begin());
     }
 
     void init_states(index state_size)
     {
+        Expects(state_size > 0);
+
         int_data.resize(static_cast<gsl::index>(state_size) * 3);
         auto* data = int_data.data();
         const auto next = [&] {
-            auto* const next = std::next(data, state_size);
-            return std::exchange(data, next);
+            return std::exchange(data, std::next(data, state_size));
         };
         current_state = {next(), state_size};
         target_state = {next(), state_size};
         best_state = {next(), state_size};
+
+        Ensures(!current_state.empty());
+        Ensures(!target_state.empty());
+        Ensures(!best_state.empty());
     }
 
     void init_energies()
     {
+        Expects(!current_state.empty());
+
         current_e = (*makespan)(current_state);
         lowest_e = current_e;
         current_s = stun(lowest_e, current_e, alpha);
+
+        Ensures(current_e >= 0.F);
+        Ensures(lowest_e >= 0.F);
+        Ensures(current_s >= 0.F && current_s <= 1.F);
     }
 
     void run() noexcept
@@ -104,7 +148,7 @@ struct StochasticTunneling {
              current_iteration < max_iterations;
              ++current_iteration) {
             get_new_neighbor();
-            if (compare_energy_levels()) continue;
+            if (neighbor_is_better()) continue;
             perform_stun();
         }
     }
