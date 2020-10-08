@@ -72,7 +72,7 @@ struct StochasticTunneling {
         }
     }
 
-    void copy_best_state(span<const int16> source_state)
+    void copy_best_state(span<const int16> source_state) const
     {
         ranges::copy(source_state, best_state.begin());
         ranges::copy(source_state, current_state.begin());
@@ -81,9 +81,9 @@ struct StochasticTunneling {
     void init_states(index state_size)
     {
         int_data.resize(static_cast<gsl::index>(state_size) * 3);
-        auto* const data = int_data.data();
+        auto* data = int_data.data();
         const auto next = [&] {
-            const auto* const next = std::next(data, state_size);
+            auto* const next = std::next(data, state_size);
             return std::exchange(data, next);
         };
         current_state = {next(), state_size};
@@ -97,12 +97,22 @@ struct StochasticTunneling {
         lowest_e = current_e;
         current_s = stun(lowest_e, current_e, alpha);
     }
+
+    void run() noexcept
+    {
+        for (current_iteration = 0;
+             current_iteration < max_iterations;
+             ++current_iteration) {
+            get_new_neighbor();
+            if (compare_energy_levels()) continue;
+            perform_stun();
+        }
+    }
 };
 
 } // namespace
 
 namespace angonoka::stun {
-using ::stun;
 STUNResult stochastic_tunneling(
     RandomUtils& random_utils,
     MakespanEstimator& makespan,
@@ -120,13 +130,12 @@ STUNResult stochastic_tunneling(
     stun_op.init_states(best_state.size());
     stun_op.copy_best_state(best_state);
     stun_op.init_energies();
+    stun_op.run();
 
-    // for (current_iteration = 0; current_iteration < max_iterations;
-    //      ++current_iteration) {
-    //     get_new_neighbor();
-    //     if (compare_energy_levels()) continue;
-    //     perform_stun();
-    // }
+    return {
+        stun_op.lowest_e,
+        stun_op.best_state,
+        stun_op.beta_driver.beta()};
 }
 
 } // namespace angonoka::stun

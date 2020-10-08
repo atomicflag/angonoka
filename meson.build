@@ -68,7 +68,7 @@ common_lib = static_library(
     'src/stun/makespan_estimator.cpp',
     'src/stun/task_agents.cpp',
     'src/stun/random_utils.cpp',
-    # 'src/py/stochastic_tunneling.cpp',
+    'src/stun/stochastic_tunneling.cpp',
     ragel.process('src/config/parse_duration.rl.cpp')
   ],
   include_directories : include,
