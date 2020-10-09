@@ -1,14 +1,16 @@
 #pragma once
 
 #include "common.h"
+#include <boost/container/flat_set.hpp>
 #include <chrono>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace angonoka {
+using boost::container::flat_set;
 using GroupId = int8;
-constexpr auto static_alloc_group_ids = 5;
-using GroupIds = Set<GroupId, static_alloc_group_ids>;
+using GroupIds = flat_set<GroupId>;
 
 /**
     Agent that performs Tasks.
@@ -19,7 +21,7 @@ using GroupIds = Set<GroupId, static_alloc_group_ids>;
     to groups in group_ids.
 
     @var name           Agent's name
-    @var group_ids      Set of Group ids
+    @var group_ids      flat_set of Group ids
     @var performance    Performance min/max
 */
 // NOLINTNEXTLINE(bugprone-exception-escape)
@@ -82,12 +84,9 @@ struct Task {
     Duration duration;
 };
 
-constexpr auto static_alloc_groups = 5;
-using Groups = Vector<std::string, static_alloc_groups>;
-constexpr auto static_alloc_agents = 5;
-using Agents = Vector<Agent, static_alloc_agents>;
-constexpr auto static_alloc_tasks = 7;
-using Tasks = Vector<Task, static_alloc_tasks>;
+using Groups = std::vector<std::string>;
+using Agents = std::vector<Agent>;
+using Tasks = std::vector<Task>;
 
 /**
     System that represents Tasks and Agents.

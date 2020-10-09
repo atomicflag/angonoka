@@ -2,6 +2,7 @@
 
 #include "../common.h"
 #include "../concepts.h"
+#include <boost/container/flat_set.hpp>
 #include <boost/outcome/result.hpp>
 #include <boost/outcome/try.hpp>
 #include <fmt/format.h>
@@ -11,7 +12,7 @@
 #include <yaml-cpp/yaml.h>
 
 namespace angonoka::validation {
-
+using boost::container::flat_set;
 namespace bo = boost::outcome_v2;
 using result = bo::result<void, std::string>;
 using namespace fmt::literals;
@@ -221,8 +222,7 @@ consteval Check auto attributes(AttrOrStr auto... attrs)
                std::string_view scope = "Document") -> result {
         if (!node || node.IsScalar() || node.IsSequence())
             return R"("{}" is expected to be a map)"_format(scope);
-        constexpr auto static_alloc_size = sizeof...(attrs);
-        Set<std::string_view, static_alloc_size> unique_fields;
+        flat_set<std::string_view> unique_fields;
         for (auto&& n : node) {
             const auto& attr_name = n.first.Scalar();
             if (attr_name.empty())
