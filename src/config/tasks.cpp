@@ -53,7 +53,7 @@ void parse_task_group(
     Expects(!group_name.empty());
     const auto [gid, is_inserted]
         = detail::find_or_insert_group(system.groups, group_name);
-    if (is_inserted && !system.has_universal_agents())
+    if (is_inserted && !has_universal_agents(system))
         throw NoSuitableAgent{group_name};
     task.group_id = gid;
 }

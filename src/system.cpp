@@ -4,24 +4,24 @@
 #include <range/v3/algorithm/any_of.hpp>
 
 namespace angonoka {
-bool Agent::is_universal() const noexcept
+bool is_universal(const Agent& agent) noexcept
 {
-    return group_ids.empty();
+    return agent.group_ids.empty();
 }
 
-bool Agent::can_work_on(GroupId id) const noexcept
+bool can_work_on(const Agent& agent, GroupId id) noexcept
 {
     Expects(id >= 0);
 
-    if (is_universal()) return true;
-    return group_ids.contains(id);
+    if (is_universal(agent)) return true;
+    return agent.group_ids.contains(id);
 }
 
-bool System::has_universal_agents() const noexcept
+bool has_universal_agents(const System& system) noexcept
 {
-    Expects(!agents.empty());
+    Expects(!system.agents.empty());
 
-    return ranges::any_of(agents, &Agent::is_universal);
+    return ranges::any_of(system.agents, is_universal);
 }
 
 Agent::Performance::Value::Value(float v)

@@ -46,23 +46,27 @@ struct Agent {
         Value max = default_max;
     };
     Performance performance;
-
-    /**
-        Tells if the agent can work on any task.
-
-        @return True if the agent can perform any task.
-    */
-    [[nodiscard]] bool is_universal() const noexcept;
-
-    /**
-        Checks if the agent can work on tasks from a given group.
-
-        @param id Group id
-
-        @return True if the agent can work with a given group.
-    */
-    [[nodiscard]] bool can_work_on(GroupId id) const noexcept;
 };
+
+/**
+    Tells if the agent can work on any task.
+
+    @param agent Agent
+
+    @return True if the agent can perform any task.
+*/
+[[nodiscard]] bool is_universal(const Agent& agent) noexcept;
+
+/**
+    Checks if the agent can work on tasks from a given group.
+
+    @param agent Agent
+    @param id Group id
+
+    @return True if the agent can work with a given group.
+*/
+[[nodiscard]] bool
+can_work_on(const Agent& agent, GroupId id) noexcept;
 
 /**
     Task performed by an Agent.
@@ -99,14 +103,17 @@ struct System {
     Groups groups;
     Agents agents;
     Tasks tasks;
-
-    /**
-        Checks if any of the agents are "universal".
-
-        A "universal" agent is an agent that can perform any task.
-
-        @return True if there is at least 1 universal agent.
-    */
-    [[nodiscard]] bool has_universal_agents() const noexcept;
 };
+
+/**
+    Checks if any of the agents are "universal".
+
+    A "universal" agent is an agent that can perform any task.
+
+    @param system System
+
+    @return True if there is at least 1 universal agent.
+*/
+[[nodiscard]] bool
+has_universal_agents(const System& system) noexcept;
 } // namespace angonoka
