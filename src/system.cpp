@@ -23,19 +23,4 @@ bool has_universal_agents(const System& system) noexcept
 
     return ranges::any_of(system.agents, is_universal);
 }
-
-Agent::Performance::Value::Value(float v)
-{
-    if (v > 0.F) {
-        value = v;
-
-        return;
-    }
-    throw NegativePerformance{};
-}
-
-Agent::Performance::Value::operator float() const noexcept
-{
-    return value;
-}
 } // namespace angonoka

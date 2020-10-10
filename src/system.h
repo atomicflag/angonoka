@@ -29,21 +29,10 @@ struct Agent {
     std::string name;
     GroupIds group_ids;
     struct Performance {
-        /**
-            Validated performance value.
-        */
-        class Value {
-        public:
-            Value(float v);
-            operator float() const noexcept;
-
-        private:
-            float value;
-        };
         static constexpr float default_min = .5F;
         static constexpr float default_max = 1.5F;
-        Value min = default_min;
-        Value max = default_max;
+        float min = default_min;
+        float max = default_max;
     };
     Performance performance;
 };

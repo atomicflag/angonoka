@@ -23,8 +23,6 @@ TEST_CASE("Agent type traits")
     STATIC_REQUIRE(std::is_copy_assignable_v<Agent>);
     STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Agent>);
     STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Agent>);
-    STATIC_REQUIRE(
-        sizeof(Agent::Performance::Value) == sizeof(float));
 }
 
 TEST_CASE("Task type traits")
