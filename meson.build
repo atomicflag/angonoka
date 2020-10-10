@@ -40,7 +40,6 @@ dependencies = [
   dependency('clipp'),
   dependency('range-v3'),
   dependency('gsl-lite'),
-  dependency('pybind11'),
   dependency('pcg-cpp'),
   dependency('boost', include_type : 'system')
 ]
@@ -60,9 +59,7 @@ common_lib = static_library(
     'src/config/load.cpp',
     'src/config/tasks.cpp',
     'src/system.cpp',
-    # 'src/schedule.cpp',
     'src/exceptions.cpp',
-    # 'src/py/stun.cpp',
     'src/stun/beta_driver.cpp',
     'src/stun/task_duration_cache.cpp',
     'src/stun/makespan_estimator.cpp',
@@ -89,21 +86,6 @@ exe = executable(
   install_rpath : '$ORIGIN/../lib64'
 )
 
-# py_sources = [
-#   'src/py/module.cpp'
-# ]
-#
-# py_lib = library(
-#   meson.project_name(),
-#   py_sources,
-#   include_directories: include,
-#   dependencies: dependencies+[
-#     dependency('python-3.8-embed'),
-#     dependency('openmp', language:'cpp')
-#   ],
-# )
-
-
 test_exe = executable(
   meson.project_name()+'_test',
   [
@@ -118,7 +100,6 @@ test_exe = executable(
     'test/parse_duration.cpp',
     'test/system.cpp',
     'test/validation.cpp',
-    # 'test/schedule.cpp'
   ],
   dependencies : [common, dependency('catch2')]
 )
