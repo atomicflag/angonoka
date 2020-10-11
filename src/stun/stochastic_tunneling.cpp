@@ -3,6 +3,7 @@
 #include "random_utils.h"
 #include <cmath>
 #include <range/v3/algorithm/copy.hpp>
+#include <range/v3/to_container.hpp>
 #include <utility>
 
 namespace {
@@ -29,9 +30,9 @@ struct StochasticTunneling {
     BetaDriver beta_driver;
 
     std::vector<int16> int_data;
+    span<int16> best_state;
     span<int16> current_state;
     span<int16> target_state;
-    span<int16> best_state;
 
     float current_e;
     float lowest_e;
@@ -120,9 +121,9 @@ struct StochasticTunneling {
         const auto next = [&] {
             return std::exchange(data, std::next(data, state_size));
         };
+        best_state = {next(), state_size};
         current_state = {next(), state_size};
         target_state = {next(), state_size};
-        best_state = {next(), state_size};
 
         Ensures(!current_state.empty());
         Ensures(!target_state.empty());
@@ -176,9 +177,12 @@ STUNResult stochastic_tunneling(
     stun_op.init_energies();
     stun_op.run();
 
+    stun_op.int_data.resize(
+        static_cast<gsl::index>(best_state.size()));
+
     return {
         stun_op.lowest_e,
-        stun_op.best_state,
+        std::move(stun_op.int_data),
         stun_op.beta_driver.beta()};
 }
 

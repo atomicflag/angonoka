@@ -6,6 +6,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <range/v3/view/span.hpp>
+#include <vector>
 
 // TODO: Test, docs, Expects
 
@@ -31,13 +32,13 @@ struct BetaScale : detail::OpaqueFloat {
 
 struct STUNResult {
     float lowest_e;
-    span<const int16> best_state;
+    std::vector<int16> best_state;
     float beta;
 };
 
 STUNResult stochastic_tunneling(
     RandomUtils& random_utils,
-    MakespanEstimator&& makespan,
+    MakespanEstimator& makespan,
     span<const int16> best_state,
     Alpha alpha,
     Beta beta,
