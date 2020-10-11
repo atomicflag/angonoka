@@ -24,7 +24,6 @@ using GroupIds = flat_set<GroupId>;
     @var group_ids      flat_set of Group ids
     @var performance    Performance min/max
 */
-// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Agent {
     std::string name;
     GroupIds group_ids;

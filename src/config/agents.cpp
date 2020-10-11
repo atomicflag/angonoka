@@ -88,7 +88,6 @@ void parse_agent_performance(
     @param agents An array of Agents
     @param name   Agent's name
 */
-// NOLINTNEXTLINE(misc-unused-parameters)
 void check_for_duplicates(const Agents& agents, std::string_view name)
 {
     Expects(!name.empty());
