@@ -134,8 +134,9 @@ check-tidy:
 	python3 <<EOF
 		import json
 		data = json.load(open('compile_commands.json'))
-		def keep(f): return '@' not in f['file'] and \
-		    'angonoka_test@exe' not in f['output']
+		def keep(f): return 'meson-generated' \
+			not in f['output'] and \
+			'angonoka_test' not in f['output']
 		data = tuple(filter(keep, data))
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
