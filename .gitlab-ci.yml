@@ -18,6 +18,13 @@ default:
   before_script:
     - conan remote add signal9 https://api.bintray.com/conan/signal9/conan --insert
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
+    - |
+      cat <<EOF | patch ~/.conan/settings.yml
+      71c71
+      <                   "8", "9", "10"]
+      ---
+      >                   "8", "9", "10", "11"]
+      EOF
 
 test:
   stage: test
