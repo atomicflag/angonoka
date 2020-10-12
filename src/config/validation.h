@@ -63,12 +63,12 @@ namespace detail {
         gsl::czstring name;
         T check;
 
-        consteval functor(gsl::czstring name, T check)
+        constexpr functor(gsl::czstring name, T check)
             : name{name}
             , check{check}
         {
         }
-        explicit consteval functor(gsl::czstring name)
+        explicit constexpr functor(gsl::czstring name)
             : functor{name, scalar()}
         {
         }
@@ -114,8 +114,8 @@ namespace detail {
 
         @return Attribute name
     */
-    consteval auto attr_name(gsl::czstring attr) { return attr; }
-    consteval auto attr_name(Attribute auto&& attr)
+    constexpr auto attr_name(gsl::czstring attr) { return attr; }
+    constexpr auto attr_name(Attribute auto&& attr)
     {
         return attr.name;
     }
@@ -131,11 +131,11 @@ namespace detail {
 
         @return Check function
     */
-    consteval auto attr_check(gsl::czstring attr)
+    constexpr auto attr_check(gsl::czstring attr)
     {
         return required(attr);
     }
-    consteval auto attr_check(Attribute auto&& attr) { return attr; }
+    constexpr auto attr_check(Attribute auto&& attr) { return attr; }
 } // namespace detail
 
 /**
