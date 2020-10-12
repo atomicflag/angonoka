@@ -124,7 +124,7 @@ check-format:
 check-tidy:
 	echo Running clang-tidy
 	cd build
-	cp compile_commands.json{,.bak}
+	cp compile_commands.json compile_commands.json.bak
 	sed -i \
 		-e 's/-fsanitize=[a-z,]*//g' \
 		-e 's/-pipe//g' \
@@ -144,7 +144,7 @@ check-tidy:
 		-quiet 2>/dev/null | \
 		grep -E '(note:|error:|warning:)'	
 	EXIT_CODE=$$?
-	cp compile_commands.json{.bak,}
+	cp compile_commands.json.bak compile_commands.json
 	exit $$EXIT_CODE
 
 .PHONY: check
