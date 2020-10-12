@@ -19,11 +19,12 @@ default:
     - conan remote add signal9 https://api.bintray.com/conan/signal9/conan --insert
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
     - |
-      cat <<EOF | patch ~/.conan/settings.yml
-      71c71
-      <                   "8", "9", "10"]
-      ---
-      >                   "8", "9", "10", "11"]
+      base64 -d <<EOF | zcat > ~/.conan/settings.yml
+      H4sIAAAAAAAAA61QTWvDMAy9+1eY9tgw6lK6LudeBm0P62CHEYLjaKnBtY0/RrpfP9lmyd
+      h5BvGen54lWca3XZSqr+n7Ueo4NoQ7cZ20cb9rd9uGGN8G7gYIf3yTOBtrQvFkU51Nv7LC
+      3KxU4IpHKK6HQtP5BOel0WhfMLZoJl3JTowjyomsVnNCWOtDmvJsNFT0aV/RQccEjGWagG
+      0LRWCPhSJs1plu1nM1F3WQN5jKnQ4Yryn6dOkbkpfShrudTQfo4lDRF1DAPWTyJsMV5Wf9
+      YfCd1Bf5BSjj5/9jXEqX2NQ6EDwADhY90J+tPpQO5BtVYOkg1AEAAA==
       EOF
 
 test:
