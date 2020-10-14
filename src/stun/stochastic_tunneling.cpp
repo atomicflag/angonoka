@@ -1,5 +1,6 @@
 #include "stochastic_tunneling.h"
 #include "common.h"
+#include "makespan_estimator.h"
 #include "random_utils.h"
 #include <cmath>
 #include <range/v3/algorithm/copy.hpp>

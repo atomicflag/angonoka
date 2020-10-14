@@ -18,6 +18,10 @@ using uint64 = std::uint_fast64_t;
 using uint32 = std::uint_fast32_t;
 using int16 = std::int_fast16_t;
 #endif
+#ifndef ANGONOKA_UNIT_TEST
 constexpr uint64 max_iterations = 10'000'000U;
+#else
+constexpr uint64 max_iterations = 10U;
+#endif // ANGONOKA_UNIT_TEST
 using index = ranges::span<int>::index_type;
 } // namespace angonoka::stun

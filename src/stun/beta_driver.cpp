@@ -25,7 +25,7 @@ void BetaDriver::update(float stun, uint64 iteration) noexcept
     Expects(iteration <= max_iterations);
 
     average_stun += stun;
-    if (++stun_count != average_stun_window) return;
+    if (++stun_count < average_stun_window) return;
     average_stun /= TO_FLOAT(stun_count);
     last_average = average_stun;
     const auto diff = average_stun - 0.03F;

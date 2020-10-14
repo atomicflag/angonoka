@@ -2,7 +2,6 @@
 
 #include "beta_driver.h"
 #include "common.h"
-#include "makespan_estimator.h"
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <range/v3/view/span.hpp>
@@ -22,6 +21,7 @@ namespace detail {
 using ranges::span;
 
 class RandomUtils;
+class MakespanEstimator;
 
 struct Alpha : detail::OpaqueFloat {
 };

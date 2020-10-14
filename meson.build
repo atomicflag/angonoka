@@ -93,6 +93,7 @@ test_exe = executable(
     'test/load_agents.cpp',
     'test/stun/beta_driver.cpp',
     'test/stun/task_duration_cache.cpp',
+    'test/stun/stochastic_tunneling.cpp',
     'test/stun/makespan_estimator.cpp',
     'test/stun/random_utils.cpp',
     'test/stun/task_agents.cpp',
@@ -101,6 +102,7 @@ test_exe = executable(
     'test/system.cpp',
     'test/validation.cpp',
   ],
-  dependencies : [common, dependency('catch2')]
+  dependencies : [common, dependency('catch2')],
+  cpp_args : '-DANGONOKA_UNIT_TEST'
 )
 test('catch', test_exe)
