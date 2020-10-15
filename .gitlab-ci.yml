@@ -18,32 +18,6 @@ default:
   before_script:
     - conan remote add signal9 https://api.bintray.com/conan/signal9/conan --insert
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
-    - |
-      base64 -d <<EOF | zcat > ~/.conan/settings.yml
-      H4sIAAAAAAAAA9UXa2/jNux7f4XRAfdh5wZ+OynuS9fehgOaDliG64YhMBxbTdQ5tmfZTr
-      pfP1qkFLtV74CtA7YA5UOiKZLiQ61Esul4kV9av93zMq8OwraIWLVVw2zrlpfd0baWaVbB
-      3vcNY9+tbmxr1ZU/rmzr6tMv67O0yXZazXEe2RaAJApsq64z39swIiSKgoIRYVtps+9DVh
-      Cxe0AiQhQTUsuxIPw74jmhZNAsqZlvW6IGcwj1C9va81oglAf2Dez5CwchOCZ2YND6rBJJ
-      mzZb1o4jMfX9qsybiue2xQfPD2mb7Qai7QdoCAyAJu94WdnWHevaBiiKlT7p/xasVOxnj2
-      JwXuxHobs8s+BHYUNm+IluI55Ey/bg6V1VgifZ0/bASzgB1hGCNQdRrMcKZOKdtPSsEbwq
-      Qcf5fOae29a568yc88kn1x9P8nWRtg9VA4de3f1q0hLC16AlQhQjmmuV8tJRnbx4kyXozW
-      BIRAbFhOeEF4RdRxHKdNdThK+IQBGhJFxtC6XcyYS05knBelacvINsNAYrVv65yj+JiPMQ
-      SRMWuLfAvQXuLWa+jjVZR1jZ72tjEbuEPcJqH73zSM4jOY/kPJLzSM4nOZ/kfJLzSc7Xci
-      HhiIJFFWkMRoBaA1QaoM4AVVI+hLgX4l6Ie5HKFZcOGardeMK/Egg8k3oLHiv7C5LQY4jA
-      PnOya1OlTX5KkY97kTW8blmJIqodGR2J8PwI4xthho+SCXvY32leCvH/bi/Lqn3NC9ZgZE
-      RXXmSZMUohVXZIhR1SXYdU1iFVdTgU9VpraHcNS3OhW0hdCX48bRd8kx2PsAvEtWhh1gAB
-      GBaJLOqqafXy+/f47RastN4BNOc+JX2AKEQUIYoRzRHJthW+Wg7hjJzC3FClIZGHiMpmnE
-      PxqA/FKBejXIxyMcrNX+1Qc5RbfKFN6SZljiZGaxQ41/3KrUBm8NL31tY3esxYS17+cK8/
-      Y8eM1e14IuSHtHmApBSPxSNAthu+Nn+c1TUYor9cQFJvy25ArivJAbkBkoDcGElAniNJz0
-      EPPnPRpYW1arucV5AGveQTIXl9XtOVLd8zOHAJr5Tlz8Mf5NfyJl+bkmau402hpWYlITYo
-      7L/ROLurqhDyYYNO9UO59a4joUswOdYD4TkIiQ0chJpNsiItt0kG0by9/by86IXnuFNGyp
-      54f8I82wwmzLPNeMIoE1yEmh1ZBCzAouihc1wPq9e369duVl2eui6pxdhTaMTRhKMB52Oh
-      +lioPhaqj4UaqMlleNCouf/yHg0Fgpaay0QychFAInZpw3Ki27Tl2auO/4OUniYsqjOnbV
-      rXBbvAmFrvJIf39IWXX6halp7t47D5L59L0weSfhK5epI7X+86ule/baR42cJj0PwgGVWs
-      b6jbAeKzFR+tmCWLSQvdpGL0FFejZrIw/D58uLS+HY8f3REmnXX9Yv95C51KTDub+VRzt3
-      ueGuZvn6fLH68M+0CNvUDNJMN1yxm9raFZZAQuhrtNs6weILFMbjJk3yAh1mfyH++kfapP
-      pXLDNt3Wtn5iBYP7k8Q9b3ew/Kl8gH9HYRKt+J8MluHF8yap+BfgQM7jSBAAAA==
-      EOF
 
 test:
   stage: test
