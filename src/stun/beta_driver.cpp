@@ -10,13 +10,23 @@
 #endif
 
 namespace angonoka::stun {
-constexpr uint32 average_stun_window = max_iterations / 100;
+constexpr auto stun_window_count = 100;
+#ifdef NDEBUG
+constexpr uint32 average_stun_window
+    = max_iterations / stun_window_count;
+#else
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+uint32 average_stun_window;
+#endif
 
 BetaDriver::BetaDriver(float beta, float beta_scale)
     : value{beta}
     , beta_scale{beta_scale}
 {
     Expects(beta >= 0.F);
+#ifndef NDEBUG
+    average_stun_window = max_iterations / stun_window_count;
+#endif // NDEBUG
 }
 
 void BetaDriver::update(float stun, uint64 iteration) noexcept

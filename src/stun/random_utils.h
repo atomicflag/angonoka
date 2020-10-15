@@ -26,6 +26,16 @@ public:
     RandomUtils(gsl::not_null<const TaskAgents*> task_agents);
 
     /**
+        Debug constructon.
+
+        @param task_agents Agent ids for each task
+        @param seed Random engine seed
+    */
+    RandomUtils(
+        gsl::not_null<const TaskAgents*> task_agents,
+        gsl::index seed);
+
+    /**
         Randomly permutes a single task in the state.
 
         @param state An array of agent ids for each task

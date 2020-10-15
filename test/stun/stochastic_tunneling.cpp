@@ -14,25 +14,26 @@ TEST_CASE("Stochastic tunnleing")
     using ranges::to;
     using ranges::views::chunk;
 
-    const std::vector<int16>
-        task_agents_data{0, 1, 0, 1};
+#ifndef NDEBUG
+    max_iterations = 10U;
+    const auto _ = gsl::finally(
+        [] { max_iterations = default_max_iterations; });
+#endif
+
+    const std::vector<int16> task_agents_data{0, 1, 0, 1};
     const auto spans = task_agents_data | chunk(2)
         | to<std::vector<span<const int16>>>();
-
     const TaskAgents task_agents{spans};
-
     const std::vector<float> task_duration_data{1.F, 2.F};
     const TaskDurationCache cache{
         task_duration_data,
         task_duration_data};
-
     MakespanEstimator estimator{2, &cache};
-
-    RandomUtils random_utils{&task_agents};
-
+    RandomUtils random_utils{&task_agents, 0};
     std::vector<int16> best_state{0, 0};
-    // TODO: takes too much time
-    // TODO: push diagnostics
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
     const auto result = stochastic_tunneling(
         random_utils,
         estimator,
@@ -40,6 +41,7 @@ TEST_CASE("Stochastic tunnleing")
         Alpha{.5F},
         Beta{1.F},
         BetaScale{.3F});
+#pragma clang diagnostic pop
 
-    REQUIRE(result.lowest_e == Approx(1.F));
+    REQUIRE(result.lowest_e == Approx(1.0F));
 }

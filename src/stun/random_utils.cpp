@@ -7,6 +7,14 @@ RandomUtils::RandomUtils(gsl::not_null<const TaskAgents*> task_agents)
 {
 }
 
+RandomUtils::RandomUtils(
+    gsl::not_null<const TaskAgents*> task_agents,
+    gsl::index seed)
+    : task_agents{std::move(task_agents)}
+    , generator{seed}
+{
+}
+
 float RandomUtils::get_uniform() noexcept
 {
     return uniform(generator);

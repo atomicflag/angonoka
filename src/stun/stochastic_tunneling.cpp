@@ -159,6 +159,12 @@ struct StochasticTunneling {
 } // namespace
 
 namespace angonoka::stun {
+
+#ifndef NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+uint64 max_iterations = default_max_iterations;
+#endif // NDEBUG
+
 STUNResult stochastic_tunneling(
     RandomUtils& random_utils,
     MakespanEstimator& makespan,

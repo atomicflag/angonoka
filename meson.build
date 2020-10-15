@@ -102,7 +102,6 @@ test_exe = executable(
     'test/system.cpp',
     'test/validation.cpp',
   ],
-  dependencies : [common, dependency('catch2')],
-  cpp_args : '-DANGONOKA_UNIT_TEST'
+  dependencies : [common, dependency('catch2')]
 )
 test('catch', test_exe)
