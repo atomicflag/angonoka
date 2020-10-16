@@ -74,7 +74,7 @@ install: release
 	$(BUILD_ENV)
 	ninja install
 	cd ..
-	LIBS=$$(ldd build/angonoka-x86_64 | sed -n \
+	LIBS=$$(ldd build/src/angonoka-x86_64 | sed -n \
 		'/\(\.conan\|\/usr\/local\|\/opt\/llvm\)/s/.*=> \(.*\) (.*/\1/gp' \
 	)
 	mkdir -p dist/lib64
