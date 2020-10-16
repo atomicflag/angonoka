@@ -56,7 +56,7 @@ build/build.ninja: build/conaninfo.txt
 .PHONY: test
 test:
 	export LLVM_PROFILE_FILE=angonoka.profraw
-	build/angonoka_test
+	build/test/angonoka_test
 
 .PHONY: ninja
 ninja: build/build.ninja
@@ -104,7 +104,7 @@ build-cov: ninja
 check-cov: build-cov
 	llvm-profdata merge -sparse angonoka.profraw -o angonoka.profdata
 	llvm-cov report \
-		build/angonoka_test \
+		build/test/angonoka_test \
 		-instr-profile=angonoka.profdata \
 		src
 

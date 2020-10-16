@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <type_traits>
 
-#include "src/system.h"
+#include "system.h"
 
 TEST_CASE("System type traits")
 {

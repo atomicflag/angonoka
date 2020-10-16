@@ -23,8 +23,7 @@ if not get_option('debug')
     [
       '-Dgsl_CONFIG_CONTRACT_CHECKING_OFF',
       '-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME',
-      '-ffast-math'
-    ],
+    ] + compiler.get_supported_arguments(['-ffast-math']),
     language : 'cpp'
   )
 else
@@ -44,64 +43,7 @@ dependencies = [
   dependency('boost', include_type : 'system')
 ]
 
-ragel = generator(
-  find_program('ragel'),
-  output  : '@BASENAME@.cpp',
-  arguments : ['@INPUT@', '-G2', '-e', '-o@OUTPUT@']
-)
-
 include = include_directories('src')
 
-common_lib = static_library(
-  'common',
-  [
-    'src/config/agents.cpp',
-    'src/config/load.cpp',
-    'src/config/tasks.cpp',
-    'src/system.cpp',
-    'src/exceptions.cpp',
-    'src/stun/beta_driver.cpp',
-    'src/stun/task_duration_cache.cpp',
-    'src/stun/makespan_estimator.cpp',
-    'src/stun/task_agents.cpp',
-    'src/stun/random_utils.cpp',
-    'src/stun/stochastic_tunneling.cpp',
-    ragel.process('src/config/parse_duration.rl.cpp')
-  ],
-  include_directories : include,
-  dependencies : dependencies,
-)
-
-common = declare_dependency(
-  link_with : common_lib,
-  dependencies : dependencies,
-  include_directories : include
-)
-
-exe = executable(
-  meson.project_name()+'-'+target_machine.cpu_family(),
-  ['src/angonoka.cpp'],
-  dependencies : common,
-  install : true,
-  install_rpath : '$ORIGIN/../lib64'
-)
-
-test_exe = executable(
-  meson.project_name()+'_test',
-  [
-    'test/catch.cpp',
-    'test/load_agents.cpp',
-    'test/stun/beta_driver.cpp',
-    'test/stun/task_duration_cache.cpp',
-    'test/stun/stochastic_tunneling.cpp',
-    'test/stun/makespan_estimator.cpp',
-    'test/stun/random_utils.cpp',
-    'test/stun/task_agents.cpp',
-    'test/load_tasks.cpp',
-    'test/parse_duration.cpp',
-    'test/system.cpp',
-    'test/validation.cpp',
-  ],
-  dependencies : [common, dependency('catch2')]
-)
-test('catch', test_exe)
+subdir('src')
+subdir('test')
