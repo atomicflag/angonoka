@@ -14,12 +14,6 @@ TEST_CASE("Stochastic tunnleing")
     using ranges::to;
     using ranges::views::chunk;
 
-#ifndef NDEBUG
-    max_iterations = 10U;
-    const auto _ = gsl::finally(
-        [] { max_iterations = default_max_iterations; });
-#endif
-
     const std::vector<int16> task_agents_data{0, 1, 0, 1};
     const auto spans = task_agents_data | chunk(2)
         | to<std::vector<span<const int16>>>();
