@@ -9,6 +9,7 @@ gsl-lite/0.37.0@signal9/stable
 range-v3/0.11.0
 yaml-cpp/0.6.3
 pcg-cpp/0.98.1@signal9/stable
+trompeloeil/v38@rollbear/stable
 
 [build_requires]
 meson/0.55.3

@@ -13,7 +13,12 @@ test_exe = executable(
     'parse_duration.cpp',
     'system.cpp',
     'validation.cpp',
+  ] + stubs,
+  dependencies : [
+    common,
+    dependency('catch2'),
+    dependency('trompeloeil')
   ],
-  dependencies : [common, dependency('catch2')]
+  cpp_args: ['-DUNIT_TEST']
 )
 test('catch', test_exe)

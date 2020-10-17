@@ -26,8 +26,8 @@ float stun(float lowest_e, float current_e, float alpha) noexcept
 struct StochasticTunneling {
     using Counter = std::uint_fast64_t;
 
-    gsl::not_null<RandomUtils*> random_utils;
-    gsl::not_null<MakespanEstimator*> makespan;
+    gsl::not_null<RandomUtilsT*> random_utils;
+    gsl::not_null<MakespanEstimatorT*> makespan;
     BetaDriver beta_driver;
 
     std::vector<int16> int_data;
@@ -146,6 +146,9 @@ struct StochasticTunneling {
 
     void run() noexcept
     {
+#ifdef UNIT_TEST
+        constexpr auto max_iterations = 2;
+#endif // UNIT_TEST
         for (current_iteration = 0;
              current_iteration < max_iterations;
              ++current_iteration) {
@@ -161,8 +164,8 @@ struct StochasticTunneling {
 namespace angonoka::stun {
 
 STUNResult stochastic_tunneling(
-    RandomUtils& random_utils,
-    MakespanEstimator& makespan,
+    RandomUtilsT& random_utils,
+    MakespanEstimatorT& makespan,
     span<const int16> best_state,
     Alpha alpha,
     Beta beta,

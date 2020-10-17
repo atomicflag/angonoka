@@ -4,6 +4,10 @@ ragel = generator(
   arguments : ['@INPUT@', '-G2', '-e', '-o@OUTPUT@']
 )
 
+stubs = files([
+    'stun/stochastic_tunneling.cpp',
+])
+
 common_lib = static_library(
   'common',
   [
@@ -17,7 +21,6 @@ common_lib = static_library(
     'stun/makespan_estimator.cpp',
     'stun/task_agents.cpp',
     'stun/random_utils.cpp',
-    'stun/stochastic_tunneling.cpp',
     ragel.process('config/parse_duration.rl.cpp')
   ],
   include_directories : include,
@@ -32,7 +35,7 @@ common = declare_dependency(
 
 exe = executable(
   meson.project_name()+'-'+target_machine.cpu_family(),
-  ['angonoka.cpp'],
+  ['angonoka.cpp'] + stubs,
   dependencies : common,
   install : true,
   install_rpath : '$ORIGIN/../lib64'

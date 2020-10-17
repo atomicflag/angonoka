@@ -73,4 +73,12 @@ private:
     */
     int16 pick_random(span<const int16> range) noexcept;
 };
+
+#ifdef UNIT_TEST
+struct RandomUtilsStub {
+    virtual void get_neighbor_inplace(span<int16> state) noexcept = 0;
+    virtual float get_uniform() noexcept = 0;
+    virtual ~RandomUtilsStub() noexcept = default;
+};
+#endif // UNIT_TEST
 } // namespace angonoka::stun

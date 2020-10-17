@@ -20,8 +20,13 @@ namespace detail {
 
 using ranges::span;
 
-class RandomUtils;
-class MakespanEstimator;
+#ifndef UNIT_TEST
+using RandomUtilsT = class RandomUtils;
+using MakespanEstimatorT = class MakespanEstimator;
+#else // UNIT_TEST
+using RandomUtilsT = struct RandomUtilsStub;
+using MakespanEstimatorT = struct MakespanEstimatorStub;
+#endif // UNIT_TEST
 
 struct Alpha : detail::OpaqueFloat {
 };
@@ -37,8 +42,8 @@ struct STUNResult {
 };
 
 STUNResult stochastic_tunneling(
-    RandomUtils& random_utils,
-    MakespanEstimator& makespan,
+    RandomUtilsT& random_utils,
+    MakespanEstimatorT& makespan,
     span<const int16> best_state,
     Alpha alpha,
     Beta beta,

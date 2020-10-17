@@ -40,4 +40,11 @@ private:
     std::vector<float> makespan_buffer;
     gsl::not_null<const TaskDurationCache*> task_duration_cache;
 };
+
+#ifdef UNIT_TEST
+struct MakespanEstimatorStub {
+    virtual float operator()(span<const int16> state) noexcept = 0;
+    virtual ~MakespanEstimatorStub() noexcept = default;
+};
+#endif // UNIT_TEST
 } // namespace angonoka::stun
