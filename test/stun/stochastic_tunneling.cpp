@@ -34,16 +34,29 @@ TEST_CASE("Stochastic tunnleing")
     std::vector<int16> best_state{0, 0};
 
     RandomUtilsMock random_utils;
-    REQUIRE_CALL(random_utils, get_neighbor_inplace(_))
-        .WITH(static_cast<gsl::index>(_1.size()) == best_state.size())
-        .TIMES(2);
-    REQUIRE_CALL(random_utils, get_uniform()).RETURN(1.F).TIMES(2);
-
     MakespanEstimatorMock estimator;
+
+    trompeloeil::sequence seq;
+
     REQUIRE_CALL(estimator, call(_))
         .WITH(static_cast<gsl::index>(_1.size()) == best_state.size())
         .RETURN(1.F)
-        .TIMES(3);
+        .IN_SEQUENCE(seq);
+
+    REQUIRE_CALL(random_utils, get_neighbor_inplace(_))
+        .WITH(static_cast<gsl::index>(_1.size()) == best_state.size())
+        .IN_SEQUENCE(seq);
+
+    REQUIRE_CALL(estimator, call(_)).RETURN(1.F).IN_SEQUENCE(seq);
+
+    REQUIRE_CALL(random_utils, get_uniform())
+        .RETURN(1.F)
+        .IN_SEQUENCE(seq);
+
+    REQUIRE_CALL(random_utils, get_neighbor_inplace(_))
+        .IN_SEQUENCE(seq);
+
+    REQUIRE_CALL(estimator, call(_)).RETURN(.5F).IN_SEQUENCE(seq);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
@@ -56,5 +69,5 @@ TEST_CASE("Stochastic tunnleing")
         BetaScale{.3F});
 #pragma clang diagnostic pop
 
-    REQUIRE(result.lowest_e == Approx(1.0F));
+    REQUIRE(result.lowest_e == Approx(.5F));
 }
