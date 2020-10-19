@@ -22,6 +22,7 @@ TEST_CASE("MakespanEstimator estimation")
     using namespace angonoka::stun;
 
     const std::vector<float> data{1.F, 2.F, 3.F};
+    // TODO: stubs
     const TaskDurationCache cache{data, data};
 
     MakespanEstimator estimator{3, &cache};

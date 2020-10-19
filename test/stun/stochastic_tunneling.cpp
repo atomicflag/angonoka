@@ -3,8 +3,7 @@
 #include "stun/random_utils.h"
 #include <catch2/catch.hpp>
 #include <catch2/trompeloeil.hpp>
-#include <range/v3/to_container.hpp>
-#include <range/v3/view/chunk.hpp>
+#include <range/v3/algorithm/copy.hpp>
 #include <vector>
 
 namespace {
@@ -45,6 +44,7 @@ TEST_CASE("Stochastic tunnleing")
 
     REQUIRE_CALL(random_utils, get_neighbor_inplace(_))
         .WITH(static_cast<gsl::index>(_1.size()) == best_state.size())
+        .SIDE_EFFECT(ranges::copy(std::vector{1, 1}, _1.begin()))
         .IN_SEQUENCE(seq);
 
     REQUIRE_CALL(estimator, call(_)).RETURN(1.F).IN_SEQUENCE(seq);
@@ -64,10 +64,11 @@ TEST_CASE("Stochastic tunnleing")
         random_utils,
         estimator,
         best_state,
-        Alpha{.5F},
+        Gamma{.5F},
         Beta{1.F},
         BetaScale{.3F});
 #pragma clang diagnostic pop
 
-    REQUIRE(result.lowest_e == Approx(.5F));
+    REQUIRE(result.energy == Approx(.5F));
+    REQUIRE(result.state == std::vector<int16>{1, 1});
 }

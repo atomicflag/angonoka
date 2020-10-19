@@ -31,6 +31,7 @@ TEST_CASE("RandomUtils methods")
 
     const TaskAgents task_agents{spans};
 
+    // TODO: stubs
     RandomUtils utils{&task_agents};
 
     SECTION("Uniform value")

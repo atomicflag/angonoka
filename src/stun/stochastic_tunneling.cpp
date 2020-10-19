@@ -11,13 +11,13 @@ namespace {
 using namespace angonoka::stun;
 using angonoka::stun::index;
 
-float stun(float lowest_e, float current_e, float alpha) noexcept
+float stun(float lowest_e, float current_e, float gamma) noexcept
 {
     Expects(lowest_e >= 0.F);
     Expects(current_e >= lowest_e);
 
     const auto result
-        = 1.F - std::exp(-alpha * (current_e - lowest_e));
+        = 1.F - std::exp(-gamma * (current_e - lowest_e));
 
     Ensures(result >= 0.F && result <= 1.F);
     return result;
@@ -39,7 +39,7 @@ struct StochasticTunneling {
     float lowest_e;
     float target_e;
 
-    float alpha; // TODO: Should be a constant
+    float gamma; // TODO: Should be a constant
     float current_s;
     float target_s;
 
@@ -71,7 +71,7 @@ struct StochasticTunneling {
             if (target_e < lowest_e) {
                 lowest_e = target_e;
                 ranges::copy(target_state, best_state.begin());
-                current_s = stun(lowest_e, current_e, alpha);
+                current_s = stun(lowest_e, current_e, gamma);
             }
             std::swap(current_state, target_state);
             current_e = target_e;
@@ -88,7 +88,7 @@ struct StochasticTunneling {
         Expects(!target_state.empty());
         Expects(!current_state.empty());
 
-        target_s = stun(lowest_e, target_e, alpha);
+        target_s = stun(lowest_e, target_e, gamma);
         const auto delta_s = target_s - current_s;
         const auto pr
             = std::min(1.F, std::exp(-beta_driver.beta() * delta_s));
@@ -137,7 +137,7 @@ struct StochasticTunneling {
 
         current_e = (*makespan)(current_state);
         lowest_e = current_e;
-        current_s = stun(lowest_e, current_e, alpha);
+        current_s = stun(lowest_e, current_e, gamma);
 
         Ensures(current_e >= 0.F);
         Ensures(lowest_e >= 0.F);
@@ -166,8 +166,8 @@ namespace angonoka::stun {
 STUNResult stochastic_tunneling(
     RandomUtilsT& random_utils,
     MakespanEstimatorT& makespan,
-    span<const int16> best_state,
-    Alpha alpha,
+    span<const int16> state,
+    Gamma gamma,
     Beta beta,
     BetaScale beta_scale)
 {
@@ -175,15 +175,14 @@ STUNResult stochastic_tunneling(
         .random_utils{&random_utils},
         .makespan{&makespan},
         .beta_driver{beta, beta_scale},
-        .alpha{alpha}};
+        .gamma{gamma}};
 
-    stun_op.init_states(best_state.size());
-    stun_op.copy_best_state(best_state);
+    stun_op.init_states(state.size());
+    stun_op.copy_best_state(state);
     stun_op.init_energies();
     stun_op.run();
 
-    stun_op.int_data.resize(
-        static_cast<gsl::index>(best_state.size()));
+    stun_op.int_data.resize(static_cast<gsl::index>(state.size()));
 
     return {
         stun_op.lowest_e,
