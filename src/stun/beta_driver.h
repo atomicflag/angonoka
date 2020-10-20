@@ -17,15 +17,16 @@ public:
         Constructor.
 
         @param beta Initial beta (temperature) value
-        @param beta_scale Beta update scaling factor (deprecated)
     */
-    BetaDriver(float beta, float beta_scale);
+    BetaDriver(
+        float beta,
+        float beta_scale); // TODO: beta_scale should be hardcoded
 
     /**
         Updates the internal counters, averages and the beta value.
 
-        @param stun Current STUN value
-        @param iteration Current iteration number
+        @param stun         Current STUN value
+        @param iteration    Current iteration number
     */
     void update(float stun, uint64 iteration) noexcept;
 

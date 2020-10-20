@@ -38,8 +38,8 @@ public:
         agent performance multipliers (typically ranging from
         0.1 to 2.0) for each agent.
 
-        @param task_durations An array of task durations
-        @param agent_performances An array of agent performances
+        @param task_durations       An array of task durations
+        @param agent_performances   An array of agent performances
     */
     TaskDurationCache(
         span<const float> task_durations,
@@ -51,8 +51,8 @@ public:
 
         A simple lookup in a pre-computed 2D array.
 
-        @param agent Agent's index
-        @param task Task's index
+        @param agent    Agent's index
+        @param task     Task's index
 
         @return Task duration in seconds
     */
@@ -68,8 +68,8 @@ private:
 
         The cache is stored as a 1D array.
 
-        @param agent Agent's index
-        @param task Task's index
+        @param agent    Agent's index
+        @param task     Task's index
 
         @return Task duration's index
     */

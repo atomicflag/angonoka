@@ -35,11 +35,7 @@ using MakespanEstimatorT = struct MakespanEstimatorStub;
 /**
     Tunneling parameter.
 
-    See
-
-    https://arxiv.org/pdf/physics/9903008.pdf
-
-    for more details.
+    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
 */
 struct Gamma : detail::OpaqueFloat {
 };
@@ -47,14 +43,10 @@ struct Gamma : detail::OpaqueFloat {
 /**
     Temperature parameter.
 
-    See
+    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
 
-    https://arxiv.org/pdf/physics/9903008.pdf
-
-    for more details.
-
-    Note: Unlike the beta parameter in the paper,
-    this isn't an inverse temperature.
+    Note: Unlike the beta parameter in the paper, this isn't
+    an inverse temperature.
 */
 struct Beta : detail::OpaqueFloat {
 };
@@ -67,8 +59,8 @@ struct BetaScale : detail::OpaqueFloat {
     Result of a stochastic tunneling pass.
 
     @var energy Lowest energy achieved so far
-    @var state State that had the lowest energy
-    @var beta Final temperature
+    @var state  State that had the lowest energy
+    @var beta   Final temperature
 */
 struct STUNResult {
     float energy;
@@ -79,17 +71,13 @@ struct STUNResult {
 /**
     Perform a stochastic tunneling pass.
 
-    See
-
-    https://arxiv.org/pdf/physics/9903008.pdf
-
-    for more details.
+    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
 
     @param random_utils An instance of RandomUtils
-    @param makespan An instance of Makespan
-    @param state Initial state
-    @param gamma Tunneling parameter
-    @param beta Initial temperature
+    @param makespan     An instance of Makespan
+    @param state        Initial state
+    @param gamma        Tunneling parameter
+    @param beta         Initial temperature
 
     @return An instance of STUNResult
 */

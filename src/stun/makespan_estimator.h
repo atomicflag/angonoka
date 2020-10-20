@@ -11,15 +11,15 @@ using ranges::span;
 class TaskDurationCache;
 
 /**
-    Estimates makespan of a given configuration.
+    Estimates makespan of a schedule.
 */
 class MakespanEstimator {
 public:
     /**
         Constructor.
 
-        @param agent_count Total number of agents
-        @param task_duration_cache Cache of task durations
+        @param agent_count          Total number of agents
+        @param task_duration_cache  Cache of task durations
     */
     MakespanEstimator(
         gsl::index agent_count,

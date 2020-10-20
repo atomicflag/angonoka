@@ -1,6 +1,8 @@
 # Angonoka
 
-Angonoka is an estimation software based on predictive modeling.
+Angonoka is a time estimation software based on predictive modeling.
+
+:warning: *The project is under heavy development and is not usable yet.* :warning:
 
 [![pipeline status](https://gitlab.com/signal9/angonoka/badges/master/pipeline.svg)](https://gitlab.com/signal9/angonoka/commits/master)
 [![coverage report](https://gitlab.com/signal9/angonoka/badges/master/coverage.svg)](https://gitlab.com/signal9/angonoka/commits/master)
@@ -8,6 +10,7 @@ Angonoka is an estimation software based on predictive modeling.
 
 
 ```bash
+# WIP
 angonoka -c tasks.yaml
 ```
 
@@ -22,16 +25,14 @@ angonoka -c tasks.yaml
 
 Angonoka requires the following to build:
 
-* C++17
+* C++20 compliant compiler
 * [Conan][conan]
-* [Meson][meson]
-
 
 ## Usage
 
-Angonoka is easiest to use when built with [Conan](https://conan.io/):
-
 WIP
+
+*Add release links, building instructions...*
 
 ## Contributing
 

@@ -14,7 +14,7 @@ using RandomEngine = pcg32;
 class TaskAgents;
 
 /**
-    Various randomization routines.
+    Assortment of functions that use the PRNG.
 */
 class RandomUtils {
 public:
@@ -26,17 +26,17 @@ public:
     RandomUtils(gsl::not_null<const TaskAgents*> task_agents);
 
     /**
-        Debug constructon.
+        Constructor with the PRNG seed for debug.
 
-        @param task_agents Agent ids for each task
-        @param seed Random engine seed
+        @param task_agents  Agent ids for each task
+        @param seed         Random engine seed
     */
     RandomUtils(
         gsl::not_null<const TaskAgents*> task_agents,
         gsl::index seed);
 
     /**
-        Randomly permutes a single task in the state.
+        Assigns a new agent to a random task.
 
         @param state An array of agent ids for each task
     */
