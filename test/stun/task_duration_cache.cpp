@@ -1,4 +1,5 @@
 #include "stun/task_duration_cache.h"
+#include "utils.h"
 #include <catch2/catch.hpp>
 #include <vector>
 
@@ -18,11 +19,10 @@ TEST_CASE("TaskDurationCache type traits")
 
 TEST_CASE("TaskDurationCache values")
 {
-    using angonoka::stun::AgentIndex;
-    using angonoka::stun::TaskDurationCache;
-    using angonoka::stun::TaskIndex;
+    using namespace angonoka::stun;
+    using angonoka::utils::make_array;
 
-    const std::vector<float> data{1.f, 2.f, 3.f};
+    constexpr auto data = make_array(1.f, 2.f, 3.f);
 
     const TaskDurationCache cache{data, data};
 

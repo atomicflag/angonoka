@@ -1,5 +1,6 @@
 #include "stun/makespan_estimator.h"
 #include "stun/task_duration_cache.h"
+#include "utils.h"
 #include <catch2/catch.hpp>
 #include <vector>
 
@@ -20,14 +21,15 @@ TEST_CASE("MakespanEstimator type traits")
 TEST_CASE("MakespanEstimator estimation")
 {
     using namespace angonoka::stun;
+    using angonoka::utils::make_array;
 
-    const std::vector<float> data{1.F, 2.F, 3.F};
+    constexpr auto data = make_array(1.F, 2.F, 3.F);
     // TODO: stubs
     const TaskDurationCache cache{data, data};
 
     MakespanEstimator estimator{3, &cache};
 
-    REQUIRE(estimator(std::vector<int16>{1, 2, 1}) == 2.0F);
-    REQUIRE(estimator(std::vector<int16>{0, 1, 2}) == 1.0F);
-    REQUIRE(estimator(std::vector<int16>{2, 1, 0}) == 3.0F);
+    REQUIRE(estimator(make_array<int16>(1, 2, 1)) == 2.0F);
+    REQUIRE(estimator(make_array<int16>(0, 1, 2)) == 1.0F);
+    REQUIRE(estimator(make_array<int16>(2, 1, 0)) == 3.0F);
 }

@@ -1,5 +1,6 @@
 #include "stun/random_utils.h"
 #include "stun/task_agents.h"
+#include "utils.h"
 #include <catch2/catch.hpp>
 #include <functional>
 #include <range/v3/numeric/accumulate.hpp>
@@ -22,10 +23,12 @@ TEST_CASE("RandomUtils type traits")
 TEST_CASE("RandomUtils methods")
 {
     using namespace angonoka::stun;
+    using angonoka::utils::make_array;
     using ranges::to;
     using ranges::views::chunk;
 
-    const std::vector<int16> data{0, 1, 2, 3, 4, 5, 6, 7, 8};
+    constexpr auto data
+        = make_array<int16>(0, 1, 2, 3, 4, 5, 6, 7, 8);
     const auto spans
         = data | chunk(3) | to<std::vector<span<const int16>>>();
 
