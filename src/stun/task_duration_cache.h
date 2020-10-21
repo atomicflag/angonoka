@@ -77,4 +77,11 @@ private:
     build_index(AgentIndex agent, TaskIndex task) const noexcept;
 };
 
+#ifdef UNIT_TEST
+struct TaskDurationCacheStub {
+    [[nodiscard]] virtual float
+    get(AgentIndex agent, TaskIndex task) const noexcept = 0;
+    virtual ~TaskDurationCacheStub() noexcept = default;
+};
+#endif // UNIT_TEST
 } // namespace angonoka::stun

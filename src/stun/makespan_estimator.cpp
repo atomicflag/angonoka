@@ -6,7 +6,7 @@
 namespace angonoka::stun {
 MakespanEstimator::MakespanEstimator(
     gsl::index agent_count,
-    gsl::not_null<const TaskDurationCache*>
+    gsl::not_null<const TaskDurationCacheT*>
         task_duration_cache) noexcept
     : makespan_buffer(agent_count)
     , task_duration_cache{std::move(task_duration_cache)}

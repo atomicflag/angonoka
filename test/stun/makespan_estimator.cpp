@@ -2,7 +2,18 @@
 #include "stun/task_duration_cache.h"
 #include "utils.h"
 #include <catch2/catch.hpp>
+#include <catch2/trompeloeil.hpp>
 #include <vector>
+
+namespace {
+using namespace angonoka::stun;
+struct TaskDurationCacheMock final : TaskDurationCacheStub {
+    MAKE_CONST_MOCK2(
+        get,
+        float(AgentIndex, TaskIndex),
+        noexcept override);
+};
+} // namespace
 
 TEST_CASE("MakespanEstimator type traits")
 {
@@ -22,14 +33,48 @@ TEST_CASE("MakespanEstimator estimation")
 {
     using namespace angonoka::stun;
     using angonoka::utils::make_array;
+    using trompeloeil::_;
 
-    constexpr auto data = make_array(1.F, 2.F, 3.F);
-    // TODO: stubs
-    const TaskDurationCache cache{data, data};
+    {
+        const TaskDurationCacheMock cache;
 
-    MakespanEstimator estimator{3, &cache};
+        REQUIRE_CALL(cache, get(AgentIndex{1}, TaskIndex{0}))
+            .RETURN(1.F);
+        REQUIRE_CALL(cache, get(AgentIndex{2}, TaskIndex{1}))
+            .RETURN(1.F);
+        REQUIRE_CALL(cache, get(AgentIndex{1}, TaskIndex{2}))
+            .RETURN(1.F);
 
-    REQUIRE(estimator(make_array<int16>(1, 2, 1)) == 2.0F);
-    REQUIRE(estimator(make_array<int16>(0, 1, 2)) == 1.0F);
-    REQUIRE(estimator(make_array<int16>(2, 1, 0)) == 3.0F);
+        MakespanEstimator estimator{3, &cache};
+
+        REQUIRE(estimator(make_array<int16>(1, 2, 1)) == 2.0F);
+    }
+    {
+        const TaskDurationCacheMock cache;
+
+        REQUIRE_CALL(cache, get(AgentIndex{0}, TaskIndex{0}))
+            .RETURN(1.F);
+        REQUIRE_CALL(cache, get(AgentIndex{1}, TaskIndex{1}))
+            .RETURN(1.F);
+        REQUIRE_CALL(cache, get(AgentIndex{2}, TaskIndex{2}))
+            .RETURN(1.F);
+
+        MakespanEstimator estimator{3, &cache};
+
+        REQUIRE(estimator(make_array<int16>(0, 1, 2)) == 1.0F);
+    }
+    {
+        const TaskDurationCacheMock cache;
+
+        REQUIRE_CALL(cache, get(AgentIndex{2}, TaskIndex{0}))
+            .RETURN(3.F);
+        REQUIRE_CALL(cache, get(AgentIndex{1}, TaskIndex{1}))
+            .RETURN(1.F);
+        REQUIRE_CALL(cache, get(AgentIndex{0}, TaskIndex{2}))
+            .RETURN(1.F);
+
+        MakespanEstimator estimator{3, &cache};
+
+        REQUIRE(estimator(make_array<int16>(2, 1, 0)) == 3.0F);
+    }
 }

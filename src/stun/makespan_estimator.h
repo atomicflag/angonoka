@@ -8,7 +8,11 @@
 namespace angonoka::stun {
 using ranges::span;
 
-class TaskDurationCache;
+#ifndef UNIT_TEST
+using TaskDurationCacheT = class TaskDurationCache;
+#else // UNIT_TEST
+using TaskDurationCacheT = struct TaskDurationCacheStub;
+#endif // UNIT_TEST
 
 /**
     Estimates makespan of a schedule.
@@ -23,7 +27,7 @@ public:
     */
     MakespanEstimator(
         gsl::index agent_count,
-        gsl::not_null<const TaskDurationCache*>
+        gsl::not_null<const TaskDurationCacheT*>
             task_duration_cache) noexcept;
 
     /**
@@ -38,7 +42,7 @@ public:
 
 private:
     std::vector<float> makespan_buffer;
-    gsl::not_null<const TaskDurationCache*> task_duration_cache;
+    gsl::not_null<const TaskDurationCacheT*> task_duration_cache;
 };
 
 #ifdef UNIT_TEST
