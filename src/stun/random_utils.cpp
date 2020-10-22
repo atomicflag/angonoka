@@ -2,18 +2,21 @@
 #include "task_agents.h"
 
 namespace angonoka::stun {
-RandomUtils::RandomUtils(gsl::not_null<const TaskAgents*> task_agents)
+RandomUtils::RandomUtils(
+    gsl::not_null<const TaskAgentsT*> task_agents)
     : task_agents{std::move(task_agents)}
 {
 }
 
+#ifdef UNIT_TEST
 RandomUtils::RandomUtils(
-    gsl::not_null<const TaskAgents*> task_agents,
+    gsl::not_null<const TaskAgentsT*> task_agents,
     gsl::index seed)
     : task_agents{std::move(task_agents)}
     , generator{seed}
 {
 }
+#endif
 
 float RandomUtils::get_uniform() noexcept
 {

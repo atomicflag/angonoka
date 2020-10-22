@@ -2,12 +2,23 @@
 #include "stun/task_agents.h"
 #include "utils.h"
 #include <catch2/catch.hpp>
+#include <catch2/trompeloeil.hpp>
 #include <functional>
-#include <range/v3/numeric/accumulate.hpp>
-#include <range/v3/to_container.hpp>
-#include <range/v3/view/chunk.hpp>
-#include <range/v3/view/zip_with.hpp>
+#include <range/v3/algorithm/equal.hpp>
 #include <vector>
+
+namespace {
+using namespace angonoka::stun;
+using angonoka::stun::index;
+struct TaskAgentsMock final : TaskAgentsStub {
+    span<const int16> operator[](index i) const noexcept override
+    {
+        return get(i);
+    }
+
+    MAKE_CONST_MOCK1(get, span<const int16>(index), noexcept);
+};
+} // namespace
 
 TEST_CASE("RandomUtils type traits")
 {
@@ -23,19 +34,13 @@ TEST_CASE("RandomUtils type traits")
 TEST_CASE("RandomUtils methods")
 {
     using namespace angonoka::stun;
+    using angonoka::stun::index;
     using angonoka::utils::make_array;
-    using ranges::to;
-    using ranges::views::chunk;
+    using ranges::equal;
 
-    constexpr auto data
-        = make_array<int16>(0, 1, 2, 3, 4, 5, 6, 7, 8);
-    const auto spans
-        = data | chunk(3) | to<std::vector<span<const int16>>>();
+    const TaskAgentsMock task_agents;
 
-    const TaskAgents task_agents{spans};
-
-    // TODO: stubs
-    RandomUtils utils{&task_agents};
+    RandomUtils utils{&task_agents, 1};
 
     SECTION("Uniform value")
     {
@@ -45,18 +50,14 @@ TEST_CASE("RandomUtils methods")
 
     SECTION("Get neighbor")
     {
-        const auto values = {3, 6, 1};
-        auto state = values | to<std::vector<int16>>();
+        const auto data = make_array<int16>(2);
+        REQUIRE_CALL(task_agents, get(index{0}))
+            .RETURN(span<const int16>{data});
+
+        std::vector<int16> state{3, 6, 1};
 
         utils.get_neighbor_inplace(state);
 
-        using ranges::accumulate;
-        using ranges::views::zip_with;
-
-        const auto diff = accumulate(
-            zip_with(std::not_equal_to<>{}, state, values),
-            0);
-
-        REQUIRE(diff == 1);
+        REQUIRE(equal(state, make_array<int16>(2, 6, 1)));
     }
 }

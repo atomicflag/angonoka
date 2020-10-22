@@ -52,4 +52,11 @@ private:
     std::vector<int16> int_data;
     std::vector<span<const int16>> task_agents;
 };
+
+#ifdef UNIT_TEST
+struct TaskAgentsStub {
+    virtual span<const int16> operator[](index i) const noexcept = 0;
+    virtual ~TaskAgentsStub() noexcept = default;
+};
+#endif // UNIT_TEST
 } // namespace angonoka::stun

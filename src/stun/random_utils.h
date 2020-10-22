@@ -11,7 +11,11 @@ namespace angonoka::stun {
 using ranges::span;
 using RandomEngine = pcg32;
 
-class TaskAgents;
+#ifndef UNIT_TEST
+using TaskAgentsT = class TaskAgents;
+#else // UNIT_TEST
+using TaskAgentsT = struct TaskAgentsStub;
+#endif // UNIT_TEST
 
 /**
     Assortment of functions that use the PRNG.
@@ -23,17 +27,19 @@ public:
 
         @param task_agents Agent ids for each task
     */
-    RandomUtils(gsl::not_null<const TaskAgents*> task_agents);
+    RandomUtils(gsl::not_null<const TaskAgentsT*> task_agents);
 
+#ifdef UNIT_TEST
     /**
-        Constructor with the PRNG seed for debug.
+        Constructor with the PRNG seed.
 
         @param task_agents  Agent ids for each task
         @param seed         Random engine seed
     */
     RandomUtils(
-        gsl::not_null<const TaskAgents*> task_agents,
+        gsl::not_null<const TaskAgentsT*> task_agents,
         gsl::index seed);
+#endif
 
     /**
         Assigns a new agent to a random task.
@@ -50,7 +56,7 @@ public:
     float get_uniform() noexcept;
 
 private:
-    gsl::not_null<const TaskAgents*> task_agents;
+    gsl::not_null<const TaskAgentsT*> task_agents;
     RandomEngine generator{
         pcg_extras::seed_seq_from<std::random_device>{}};
     boost::random::uniform_01<float> uniform;
