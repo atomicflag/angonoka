@@ -11,18 +11,31 @@ namespace {
 using namespace angonoka::stun;
 using angonoka::stun::index;
 
-float stun(float lowest_e, float current_e, float gamma) noexcept
+/**
+    Adjusts the energy to be within 0.0 to 1.0 range.
+
+    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
+
+    @param lowest_e Lowest energy
+    @param energy   Target energy
+    @param gamma    Tunneling parameter
+
+    @return STUN-adjusted energy
+*/
+float stun(float lowest_e, float energy, float gamma) noexcept
 {
     Expects(lowest_e >= 0.F);
-    Expects(current_e >= lowest_e);
+    Expects(energy >= lowest_e);
 
-    const auto result
-        = 1.F - std::exp(-gamma * (current_e - lowest_e));
+    const auto result = 1.F - std::exp(-gamma * (energy - lowest_e));
 
     Ensures(result >= 0.F && result <= 1.F);
     return result;
 }
 
+/**
+    Stochastic tunneling function object.
+*/
 struct StochasticTunneling {
     using Counter = std::uint_fast64_t;
 
@@ -45,6 +58,9 @@ struct StochasticTunneling {
 
     std::uint_fast64_t current_iteration{0};
 
+    /**
+        Creates a new state from the current state.
+    */
     void get_new_neighbor() noexcept
     {
         Expects(!current_state.empty());
@@ -57,6 +73,10 @@ struct StochasticTunneling {
         Ensures(target_e >= 0.F);
     }
 
+    /**
+        Updates the lowest energy and best state if the
+        target state is better.
+    */
     bool neighbor_is_better() noexcept
     {
         Expects(target_e >= 0.F);
@@ -80,6 +100,9 @@ struct StochasticTunneling {
         return false;
     }
 
+    /**
+        Perform Monte Carlo sampling on the STUN-adjusted energy.
+    */
     void perform_stun() noexcept
     {
         Expects(target_e >= 0.F);
@@ -103,7 +126,12 @@ struct StochasticTunneling {
         Ensures(current_s >= 0.F);
     }
 
-    void copy_best_state(span<const int16> source_state) const
+    /**
+        Init all states with the source state.
+
+        @param source_state Source state
+    */
+    void init_states(span<const int16> source_state) const
     {
         Expects(source_state.size() == best_state.size());
         Expects(source_state.size() == current_state.size());
@@ -113,7 +141,12 @@ struct StochasticTunneling {
         ranges::copy(source_state, current_state.begin());
     }
 
-    void init_states(index state_size)
+    /**
+        Recreate state spans over the state buffer object.
+
+        @param state_size Size of the state
+    */
+    void prepare_state_spans(index state_size)
     {
         Expects(state_size > 0);
 
@@ -131,6 +164,9 @@ struct StochasticTunneling {
         Ensures(!best_state.empty());
     }
 
+    /**
+        Init energies and STUN-adjusted energies.
+    */
     void init_energies()
     {
         Expects(!current_state.empty());
@@ -144,6 +180,9 @@ struct StochasticTunneling {
         Ensures(current_s >= 0.F && current_s <= 1.F);
     }
 
+    /**
+        Run stochastic tunneling iterations.
+    */
     void run() noexcept
     {
 #ifdef UNIT_TEST
@@ -157,12 +196,28 @@ struct StochasticTunneling {
             perform_stun();
         }
     }
+
+    /**
+        Init states and run stochastic tunneling optimization.
+
+        @param state Initial state
+
+        @return An instance of STUNResult
+    */
+    [[nodiscard]] STUNResult operator()(span<const int16> state)
+    {
+        prepare_state_spans(state.size());
+        init_states(state);
+        init_energies();
+        run();
+        int_data.resize(static_cast<gsl::index>(state.size()));
+        return {lowest_e, std::move(int_data), beta_driver.beta()};
+    }
 };
 
 } // namespace
 
 namespace angonoka::stun {
-
 STUNResult stochastic_tunneling(
     RandomUtilsT& random_utils,
     MakespanEstimatorT& makespan,
@@ -177,17 +232,6 @@ STUNResult stochastic_tunneling(
         .beta_driver{beta, beta_scale},
         .gamma{gamma}};
 
-    stun_op.init_states(state.size());
-    stun_op.copy_best_state(state);
-    stun_op.init_energies();
-    stun_op.run();
-
-    stun_op.int_data.resize(static_cast<gsl::index>(state.size()));
-
-    return {
-        stun_op.lowest_e,
-        std::move(stun_op.int_data),
-        stun_op.beta_driver.beta()};
+    return stun_op(state);
 }
-
 } // namespace angonoka::stun

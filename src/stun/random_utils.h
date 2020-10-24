@@ -18,7 +18,7 @@ using TaskAgentsT = struct TaskAgentsStub;
 #endif // UNIT_TEST
 
 /**
-    Assortment of functions that use the PRNG.
+    Group of functions that use the PRNG.
 */
 class RandomUtils {
 public:
