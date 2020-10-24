@@ -58,6 +58,10 @@ test:
 	export LLVM_PROFILE_FILE=angonoka.profraw
 	build/test/angonoka_test
 
+.PHONY: benchmark
+benchmark:
+	build/benchmark/angonoka_benchmark
+
 .PHONY: ninja
 ninja: build/build.ninja
 	$(BUILD_ENV)
@@ -66,7 +70,8 @@ ninja: build/build.ninja
 .PHONY: debug
 debug: MESON_ARGS=--buildtype debug \
 	-Db_sanitize=address,undefined \
-	-Db_lundef=false
+	-Db_lundef=false \
+	-Dtests=enabled
 debug: ninja
 
 .PHONY: install
@@ -91,12 +96,21 @@ release: CXXFLAGS=$(RELEASE_CXXFLAGS)
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
 
+.PHONY: release-benchmark
+release-benchmark: MESON_ARGS=--buildtype release \
+	-Db_lto=true \
+	-Db_ndebug=true \
+	-Dbenchmark=enabled
+release-benchmark: CXXFLAGS=$(RELEASE_CXXFLAGS)
+release-benchmark: LDFLAGS=$(RELEASE_LDFLAGS)
+release-benchmark: ninja
+
 .PHONY: plain
 plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
 .PHONY: build-cov
-build-cov: MESON_ARGS=--buildtype debug
+build-cov: MESON_ARGS=--buildtype debug -Dtests=enabled
 build-cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping
 build-cov: ninja
 
