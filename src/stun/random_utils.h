@@ -29,7 +29,6 @@ public:
     */
     RandomUtils(gsl::not_null<const TaskAgentsT*> task_agents);
 
-#ifdef UNIT_TEST
     /**
         Constructor with the PRNG seed.
 
@@ -39,7 +38,6 @@ public:
     RandomUtils(
         gsl::not_null<const TaskAgentsT*> task_agents,
         gsl::index seed);
-#endif
 
     /**
         Assigns a new agent to a random task.

@@ -8,7 +8,6 @@ RandomUtils::RandomUtils(
 {
 }
 
-#ifdef UNIT_TEST
 RandomUtils::RandomUtils(
     gsl::not_null<const TaskAgentsT*> task_agents,
     gsl::index seed)
@@ -16,7 +15,6 @@ RandomUtils::RandomUtils(
     , generator{seed}
 {
 }
-#endif
 
 float RandomUtils::get_uniform() noexcept
 {

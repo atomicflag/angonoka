@@ -3,7 +3,7 @@ benchmark_exe = executable(
   [
     'celero.cpp',
     'stochastic_tunneling.cpp',
-  ],
+  ] + stubs,
   dependencies : [
     common,
     dependency('Celero', required : get_option('benchmark'), disabler : true),
