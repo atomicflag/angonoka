@@ -26,18 +26,25 @@ using ranges::views::iota;
 using ranges::views::linear_distribute;
 using ranges::views::take;
 
+template <auto agent_count, auto tasks_per_agent>
 struct STUNFixture : celero::TestFixture {
-    static constexpr auto agent_count = 10;
-    static constexpr auto task_count = agent_count * 5;
+    // static constexpr auto agent_count = 10;
+    // static constexpr auto tasks_per_agent = 10;
+    static constexpr auto task_count = agent_count * tasks_per_agent;
 
     std::vector<int16> agent_indices = iota(0, agent_count) | cycle
         | take(task_count * agent_count) | to<std::vector<int16>>();
     std::vector<span<const int16>> spans = agent_indices
         | chunk(agent_count) | to<std::vector<span<const int16>>>();
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    static constexpr auto duration_sum
+        = (tasks_per_agent / 2.F) * (1.F / tasks_per_agent + 1.F);
     std::vector<float> task_durations
-        = linear_distribute(.1F / 2.6F, .9F / 2.6F, 5) | cycle
-        | take(task_count) | to<std::vector<float>>();
+        = linear_distribute(
+              1.F / tasks_per_agent / duration_sum,
+              1.F / duration_sum,
+              tasks_per_agent)
+        | cycle | take(task_count) | to<std::vector<float>>();
     std::vector<float> agent_performances
         = std::vector(agent_count, 1.F);
 
@@ -48,15 +55,20 @@ struct STUNFixture : celero::TestFixture {
         task_durations,
         agent_performances};
     MakespanEstimator makespan{agent_count, &task_duration};
+    std::vector<int16> best_state = std::vector<int16>(task_count, 0);
 };
+using STUN5x3 = STUNFixture<5, 3>;
+using STUN5x10 = STUNFixture<5, 10>;
+using STUN10x10 = STUNFixture<10, 10>;
 } // namespace
 
+// TODO: Problem space values
+
 // NOLINTNEXTLINE(readability-redundant-member-init)
-BASELINE_F(DemoSimple, Baseline, STUNFixture, 0, 0)
+BASELINE_F(StochasticTunneling, Small, STUN5x3, 0, 0)
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
-    const std::vector<int16> best_state(task_count, 0);
     const auto result = stochastic_tunneling(
         random_utils,
         makespan,
@@ -65,10 +77,40 @@ BASELINE_F(DemoSimple, Baseline, STUNFixture, 0, 0)
         Beta{1.F},
         BetaScale{.3F});
     celero::DoNotOptimizeAway(result);
-    // TODO: percentile
     // fmt::print("{}\n", result.energy);
-    // for(const auto& v : result.state)
-    //     fmt::print("{} ", v);
+    // for (const auto& v : result.state) fmt::print("{} ", v);
     // fmt::print("\n");
+#pragma clang diagnostic pop
+}
+
+// NOLINTNEXTLINE(readability-redundant-member-init)
+BENCHMARK_F(StochasticTunneling, Medium, STUN5x10, 0, 0)
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
+    const auto result = stochastic_tunneling(
+        random_utils,
+        makespan,
+        best_state,
+        Gamma{.5F},
+        Beta{1.F},
+        BetaScale{.3F});
+    celero::DoNotOptimizeAway(result);
+#pragma clang diagnostic pop
+}
+
+// NOLINTNEXTLINE(readability-redundant-member-init)
+BENCHMARK_F(StochasticTunneling, Large, STUN10x10, 0, 0)
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
+    const auto result = stochastic_tunneling(
+        random_utils,
+        makespan,
+        best_state,
+        Gamma{.5F},
+        Beta{1.F},
+        BetaScale{.3F});
+    celero::DoNotOptimizeAway(result);
 #pragma clang diagnostic pop
 }
