@@ -93,10 +93,29 @@ struct STUNFixture : celero::TestFixture {
         return {energies};
     }
 
+    void run(float gamma, float beta_scale)
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
+        const auto result = stochastic_tunneling(
+            state->random_utils,
+            state->makespan,
+            state->best_state,
+            Gamma{gamma},
+            Beta{1.F},
+            BetaScale{beta_scale});
+        celero::DoNotOptimizeAway(result);
+        energies->addValue(result.energy);
+        // fmt::print("{}\n", result.energy);
+        // for (const auto& v : result.state) fmt::print("{} ", v);
+        // fmt::print("\n");
+#pragma clang diagnostic pop
+    }
+
     std::shared_ptr<LowestEnergyUDM> energies
         = std::make_shared<LowestEnergyUDM>();
     std::unique_ptr<STUNState> state;
-    std::array<std::array<gsl::index, 2>, 3> data{
+    std::array<std::array<gsl::index, 2>, 4> data{
         {{5, 5}, {5, 10}, {10, 10}, {15, 15}}};
 };
 } // namespace
@@ -104,21 +123,37 @@ struct STUNFixture : celero::TestFixture {
 // TODO: Measure different gamma & beta_scale
 
 // NOLINTNEXTLINE(readability-redundant-member-init)
-BASELINE_F(StochasticTunneling, Small, STUNFixture, 5, 5)
+BASELINE_F(StochasticTunneling, Baseline, STUNFixture, 5, 5)
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-braces"
-    const auto result = stochastic_tunneling(
-        state->random_utils,
-        state->makespan,
-        state->best_state,
-        Gamma{.5F},
-        Beta{1.F},
-        BetaScale{.3F});
-    celero::DoNotOptimizeAway(result);
-    energies->addValue(result.energy);
-    // fmt::print("{}\n", result.energy);
-    // for (const auto& v : result.state) fmt::print("{} ", v);
-    // fmt::print("\n");
-#pragma clang diagnostic pop
+    run(.5F, .3F);
+}
+
+BENCHMARK_F(StochasticTunneling, LowGamma, STUNFixture, 5, 5)
+{
+    run(.1F, .3F);
+}
+
+BENCHMARK_F(StochasticTunneling, LowBetaScale, STUNFixture, 5, 5)
+{
+    run(.5F, .1F);
+}
+
+BENCHMARK_F(StochasticTunneling, LowBoth, STUNFixture, 5, 5)
+{
+    run(.1F, .1F);
+}
+
+BENCHMARK_F(StochasticTunneling, HighGamma, STUNFixture, 5, 5)
+{
+    run(.9F, .3F);
+}
+
+BENCHMARK_F(StochasticTunneling, HighBetaScale, STUNFixture, 5, 5)
+{
+    run(.5F, .9F);
+}
+
+BENCHMARK_F(StochasticTunneling, HighBoth, STUNFixture, 5, 5)
+{
+    run(.9F, .9F);
 }
