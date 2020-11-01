@@ -7,9 +7,6 @@
 #include <range/v3/view/span.hpp>
 #include <vector>
 
-// TODO: Test, docs, Expects
-// TODO: Benchmark
-
 namespace angonoka::stun {
 
 namespace detail {

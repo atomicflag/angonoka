@@ -32,8 +32,8 @@ struct STUNState {
         , tasks_per_agent{tasks_per_agent}
     {
     }
-    gsl::index agent_count = 5;
-    gsl::index tasks_per_agent = 5;
+    gsl::index agent_count;
+    gsl::index tasks_per_agent;
     gsl::index task_count = agent_count * tasks_per_agent;
 
     std::vector<int16> agent_indices
@@ -41,20 +41,20 @@ struct STUNState {
         | take(task_count * agent_count) | to<std::vector<int16>>();
     std::vector<span<const int16>> spans = agent_indices
         | chunk(agent_count) | to<std::vector<span<const int16>>>();
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-    int duration_sum
-        = (tasks_per_agent / 2.F) * (1.F / tasks_per_agent + 1.F);
+    float duration_sum
+        = (static_cast<float>(tasks_per_agent) / 2.F)
+        * (1.F / static_cast<float>(tasks_per_agent) + 1.F);
     std::vector<float> task_durations
         = linear_distribute(
-              1.F / tasks_per_agent / duration_sum,
+              1.F / static_cast<float>(tasks_per_agent)
+                  / duration_sum,
               1.F / duration_sum,
-              tasks_per_agent)
+              static_cast<std::ptrdiff_t>(tasks_per_agent))
         | cycle | take(task_count) | to<std::vector<float>>();
     std::vector<float> agent_performances
         = std::vector(agent_count, 1.F);
 
     TaskAgents task_agents{spans};
-    // static constexpr auto random_engine_seed = 123;
     RandomUtils random_utils{&task_agents};
     TaskDurationCache task_duration{
         task_durations,
@@ -72,7 +72,6 @@ class LowestEnergyUDM
 };
 
 struct STUNFixture : celero::TestFixture {
-
     [[nodiscard]] std::vector<celero::TestFixture::ExperimentValue>
     getExperimentValues() const override
     {
@@ -82,8 +81,8 @@ struct STUNFixture : celero::TestFixture {
     void
     setUp(const celero::TestFixture::ExperimentValue& val) override
     {
-        const auto i = val.Value;
-        state = std::make_unique<STUNState>(data[i][0], data[i][1]);
+        const auto i = static_cast<gsl::index>(val.Value);
+        state = std::make_unique<STUNState>(gsl::at(data,i)[0], gsl::at(data, i)[1]);
     }
 
     [[nodiscard]] std::vector<
@@ -93,7 +92,7 @@ struct STUNFixture : celero::TestFixture {
         return {energies};
     }
 
-    void run(float gamma, float beta_scale)
+    void run_epoch(float gamma, float beta_scale) const
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
@@ -106,9 +105,6 @@ struct STUNFixture : celero::TestFixture {
             BetaScale{beta_scale});
         celero::DoNotOptimizeAway(result);
         energies->addValue(result.energy);
-        // fmt::print("{}\n", result.energy);
-        // for (const auto& v : result.state) fmt::print("{} ", v);
-        // fmt::print("\n");
 #pragma clang diagnostic pop
     }
 
@@ -120,40 +116,37 @@ struct STUNFixture : celero::TestFixture {
 };
 } // namespace
 
-// TODO: Measure different gamma & beta_scale
-
-// NOLINTNEXTLINE(readability-redundant-member-init)
 BASELINE_F(StochasticTunneling, Baseline, STUNFixture, 5, 5)
 {
-    run(.5F, .3F);
+    run_epoch(.5F, .3F);
 }
 
 BENCHMARK_F(StochasticTunneling, LowGamma, STUNFixture, 5, 5)
 {
-    run(.1F, .3F);
+    run_epoch(.1F, .3F);
 }
 
 BENCHMARK_F(StochasticTunneling, LowBetaScale, STUNFixture, 5, 5)
 {
-    run(.5F, .1F);
+    run_epoch(.5F, .1F);
 }
 
 BENCHMARK_F(StochasticTunneling, LowBoth, STUNFixture, 5, 5)
 {
-    run(.1F, .1F);
+    run_epoch(.1F, .1F);
 }
 
 BENCHMARK_F(StochasticTunneling, HighGamma, STUNFixture, 5, 5)
 {
-    run(.9F, .3F);
+    run_epoch(.9F, .3F);
 }
 
 BENCHMARK_F(StochasticTunneling, HighBetaScale, STUNFixture, 5, 5)
 {
-    run(.5F, .9F);
+    run_epoch(.5F, .9F);
 }
 
 BENCHMARK_F(StochasticTunneling, HighBoth, STUNFixture, 5, 5)
 {
-    run(.9F, .9F);
+    run_epoch(.9F, .9F);
 }
