@@ -41,8 +41,7 @@ struct STUNState {
         | take(task_count * agent_count) | to<std::vector<int16>>();
     std::vector<span<const int16>> spans = agent_indices
         | chunk(agent_count) | to<std::vector<span<const int16>>>();
-    float duration_sum
-        = (static_cast<float>(tasks_per_agent) / 2.F)
+    float duration_sum = (static_cast<float>(tasks_per_agent) / 2.F)
         * (1.F / static_cast<float>(tasks_per_agent) + 1.F);
     std::vector<float> task_durations
         = linear_distribute(
@@ -82,7 +81,9 @@ struct STUNFixture : celero::TestFixture {
     setUp(const celero::TestFixture::ExperimentValue& val) override
     {
         const auto i = static_cast<gsl::index>(val.Value);
-        state = std::make_unique<STUNState>(gsl::at(data,i)[0], gsl::at(data, i)[1]);
+        state = std::make_unique<STUNState>(
+            gsl::at(data, i)[0],
+            gsl::at(data, i)[1]);
     }
 
     [[nodiscard]] std::vector<
