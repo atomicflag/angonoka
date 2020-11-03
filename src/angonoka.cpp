@@ -14,7 +14,6 @@ int main(int argc, char** argv)
     using namespace clipp;
 
     Options options;
-    constexpr auto x = 42.F;
 
     group cli{value("input file", options.filename)};
 
