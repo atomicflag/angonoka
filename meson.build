@@ -1,20 +1,29 @@
-project('angonoka', 'cpp',
-  version : '0.1',
+project(
+  'angonoka',
+  'cpp',
+  version : '0.1.0',
   default_options : ['warning_level=3', 'cpp_std=c++2a']
 )
 
 compiler = meson.get_compiler('cpp')
 
-if compiler.has_argument('-Wconversion')
-  add_project_arguments(['-Wconversion'], language : 'cpp')
-endif
+args = compiler.get_supported_arguments([
+  '-Wconversion',
+  '-Wthread-safety',
+  '-fasynchronous-unwind-tables',
+  '-Wnon-virtual-dtor',
+  '-Wshadow',
+  '-Wcast-align',
+  '-Wunused'
+])
+add_project_arguments(args, language : 'cpp')
 
 if not get_option('debug')
   add_project_arguments(
     [
       '-Dgsl_CONFIG_CONTRACT_CHECKING_OFF',
-      '-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME'
-    ],
+      '-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME',
+    ] + compiler.get_supported_arguments(['-ffast-math']),
     language : 'cpp'
   )
 else
@@ -30,49 +39,12 @@ dependencies = [
   dependency('clipp'),
   dependency('range-v3'),
   dependency('gsl-lite'),
-  dependency('boost', include_type: 'system')
+  dependency('pcg-cpp'),
+  dependency('boost', include_type : 'system')
 ]
-
-ragel = generator(
-  find_program('ragel'),
-  output  : '@BASENAME@.cpp',
-  arguments : ['@INPUT@', '-G2', '-e', '-o@OUTPUT@']
-)
 
 include = include_directories('src')
-sources = [
-  'src/config/agents.cpp',
-  'src/config/load.cpp',
-  'src/config/tasks.cpp',
-  'src/system.cpp',
-  'src/schedule.cpp',
-  'src/exceptions.cpp',
-  ragel.process('src/config/parse_duration.rl.cpp')
-]
 
-exe = executable(
-  meson.project_name()+'-'+target_machine.cpu_family(),
-  sources + ['src/angonoka.cpp'],
-  include_directories: include,
-  dependencies: dependencies,
-  install : true,
-  install_rpath : '$ORIGIN/../lib64'
-)
-
-test_sources = [
-  'test/catch.cpp',
-  'test/load_agents.cpp',
-  'test/load_tasks.cpp',
-  'test/parse_duration.cpp',
-  'test/system.cpp',
-  'test/validation.cpp',
-  'test/schedule.cpp'
-]
-
-test_exe = executable(
-  meson.project_name()+'_test',
-  sources + test_sources,
-  include_directories: include,
-  dependencies: dependencies + [dependency('catch2')]
-)
-test('catch', test_exe)
+subdir('src')
+subdir('test')
+subdir('benchmark')

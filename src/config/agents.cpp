@@ -35,6 +35,19 @@ void parse_agent_groups(
 }
 
 /**
+    Makes sure the performance is greater than 0.
+
+    @param performance Performance value
+
+    @return Performance value
+*/
+float validate_performance(float performance)
+{
+    if (performance <= 0.F) throw NegativePerformance{};
+    return performance;
+}
+
+/**
     Parses agent performance.
 
     Parses blocks such as these:
@@ -52,12 +65,15 @@ void parse_agent_performance(
 {
     try {
         if (performance.IsScalar()) {
-            const auto performance_value = performance.as<float>();
+            const auto performance_value
+                = validate_performance(performance.as<float>());
             agent.performance.min = performance_value;
             agent.performance.max = performance_value;
         } else {
-            agent.performance.min = performance["min"].as<float>();
-            agent.performance.max = performance["max"].as<float>();
+            agent.performance.min = validate_performance(
+                performance["min"].as<float>());
+            agent.performance.max = validate_performance(
+                performance["max"].as<float>());
         }
     } catch (const YAML::Exception&) {
         throw InvalidAgentPerformance{};
@@ -72,7 +88,6 @@ void parse_agent_performance(
     @param agents An array of Agents
     @param name   Agent's name
 */
-// NOLINTNEXTLINE(misc-unused-parameters)
 void check_for_duplicates(const Agents& agents, std::string_view name)
 {
     Expects(!name.empty());

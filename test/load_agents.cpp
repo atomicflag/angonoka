@@ -115,9 +115,9 @@ TEST_CASE("Loading agents")
         REQUIRE(
             system.agents[0].group_ids == angonoka::GroupIds{0, 1});
         // Agent 2 should be universal
-        REQUIRE(system.agents[1].is_universal());
-        REQUIRE(system.agents[1].can_work_on(0));
-        REQUIRE(system.agents[1].can_work_on(1));
+        REQUIRE(is_universal(system.agents[1]));
+        REQUIRE(can_work_on(system.agents[1], 0));
+        REQUIRE(can_work_on(system.agents[1], 1));
     }
 
     SECTION("No groups")

@@ -22,11 +22,11 @@ default:
 test:
   stage: test
   script:
-    - make check-format
-    - make build-cov
-    - make check-tidy
+    - make check/format
+    - make build/cov
+    - make check/tidy
     - make test
-    - make check-cov
+    - make check/cov
 
 build:
   stage: build

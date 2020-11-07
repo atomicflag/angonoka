@@ -1,14 +1,16 @@
 #pragma once
 
 #include "common.h"
+#include <boost/container/flat_set.hpp>
 #include <chrono>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace angonoka {
+using boost::container::flat_set;
 using GroupId = int8;
-constexpr auto static_alloc_group_ids = 5;
-using GroupIds = Set<GroupId, static_alloc_group_ids>;
+using GroupIds = flat_set<GroupId>;
 
 /**
     Agent that performs Tasks.
@@ -19,48 +21,40 @@ using GroupIds = Set<GroupId, static_alloc_group_ids>;
     to groups in group_ids.
 
     @var name           Agent's name
-    @var group_ids      Set of Group ids
+    @var group_ids      flat_set of Group ids
     @var performance    Performance min/max
 */
-// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Agent {
     std::string name;
     GroupIds group_ids;
     struct Performance {
-        /**
-            Validated performance value.
-        */
-        class Value {
-        public:
-            Value(float v);
-            operator float() const noexcept;
-
-        private:
-            float value;
-        };
         static constexpr float default_min = .5F;
         static constexpr float default_max = 1.5F;
-        Value min = default_min;
-        Value max = default_max;
+        float min = default_min;
+        float max = default_max;
     };
     Performance performance;
-
-    /**
-        Tells if the agent can work on any task.
-
-        @return True if the agent can perform any task.
-    */
-    [[nodiscard]] bool is_universal() const noexcept;
-
-    /**
-        Checks if the agent can work on tasks from a given group.
-
-        @param id Group id
-
-        @return True if the agent can work with a given group.
-    */
-    [[nodiscard]] bool can_work_on(GroupId id) const noexcept;
 };
+
+/**
+    Tells if the agent can work on any task.
+
+    @param agent Agent
+
+    @return True if the agent can perform any task.
+*/
+[[nodiscard]] bool is_universal(const Agent& agent) noexcept;
+
+/**
+    Checks if the agent can work on tasks from a given group.
+
+    @param agent Agent
+    @param id Group id
+
+    @return True if the agent can work with a given group.
+*/
+[[nodiscard]] bool
+can_work_on(const Agent& agent, GroupId id) noexcept;
 
 /**
     Task performed by an Agent.
@@ -82,12 +76,9 @@ struct Task {
     Duration duration;
 };
 
-constexpr auto static_alloc_groups = 5;
-using Groups = Vector<std::string, static_alloc_groups>;
-constexpr auto static_alloc_agents = 5;
-using Agents = Vector<Agent, static_alloc_agents>;
-constexpr auto static_alloc_tasks = 7;
-using Tasks = Vector<Task, static_alloc_tasks>;
+using Groups = std::vector<std::string>;
+using Agents = std::vector<Agent>;
+using Tasks = std::vector<Task>;
 
 /**
     System that represents Tasks and Agents.
@@ -100,15 +91,17 @@ struct System {
     Groups groups;
     Agents agents;
     Tasks tasks;
-
-    /**
-        Checks if any of the agents are "universal".
-
-        A "universal" agent is an agent that can perform any task.
-
-        @return True if there is at least 1 universal agent.
-    */
-    // NOLINTNEXTLINE(bugprone-exception-escape)
-    [[nodiscard]] bool has_universal_agents() const noexcept;
 };
+
+/**
+    Checks if any of the agents are "universal".
+
+    A "universal" agent is an agent that can perform any task.
+
+    @param system System
+
+    @return True if there is at least 1 universal agent.
+*/
+[[nodiscard]] bool
+has_universal_agents(const System& system) noexcept;
 } // namespace angonoka
