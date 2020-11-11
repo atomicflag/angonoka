@@ -33,9 +33,17 @@ common = declare_dependency(
   include_directories : include
 )
 
-exe = executable(
+angonoka_exe = executable(
   meson.project_name()+'-'+target_machine.cpu_family(),
   ['angonoka.cpp'] + stubs,
+  dependencies : common,
+  install : true,
+  install_rpath : '$ORIGIN/../lib64'
+)
+
+stun_exe = executable(
+  meson.project_name()+'-stun',
+  ['stun.cpp'] + stubs,
   dependencies : common,
   install : true,
   install_rpath : '$ORIGIN/../lib64'

@@ -58,6 +58,11 @@ test:
 	export LLVM_PROFILE_FILE=angonoka.profraw
 	build/test/angonoka_test
 
+# TEMP
+.PHONY: stun
+stun:
+	build/src/angonoka-stun
+
 .PHONY: benchmark
 benchmark:
 	build/benchmark/angonoka_benchmark
