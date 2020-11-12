@@ -18,6 +18,7 @@ common_lib = static_library(
     'config/tasks.cpp',
     'system.cpp',
     'exceptions.cpp',
+    'stun_dag/makespan.cpp',
     'stun/beta_driver.cpp',
     'stun/task_duration_cache.cpp',
     'stun/task_agents.cpp',
