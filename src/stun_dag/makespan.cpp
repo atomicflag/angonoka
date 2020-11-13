@@ -40,6 +40,9 @@ Makespan::~Makespan() noexcept = default;
 
 float Makespan::operator()(State state) noexcept
 {
+    Expects(!state.empty());
+    Expects(state.size() == task_done.size());
+
     ranges::fill(sum_buffer, 0.F);
     for (auto [task_id, agent_id] : state) {
         const auto done
@@ -66,6 +69,6 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
 {
 
     return info->task_duration[task_id]
-        * info->agent_performance[agent_id];
+        / info->agent_performance[agent_id];
 }
 } // namespace angonoka::stun_dag

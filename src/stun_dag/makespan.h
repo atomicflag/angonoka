@@ -34,7 +34,6 @@ private:
     span<float> work_done;
 
     [[nodiscard]] float dependency_done(int16 task_id) const noexcept;
-
     [[nodiscard]] float
     task_duration(int16 task_id, int16 agent_id) const noexcept;
 };
