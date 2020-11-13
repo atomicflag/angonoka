@@ -18,14 +18,14 @@ struct TaskDurationCacheMock final : TaskDurationCacheStub {
 TEST_CASE("MakespanEstimator type traits")
 {
     using angonoka::stun::MakespanEstimator;
-    static_assert(std::is_nothrow_destructible_v<MakespanEstimator>);
-    static_assert(
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<MakespanEstimator>);
+    STATIC_REQUIRE(
         !std::is_default_constructible_v<MakespanEstimator>);
-    static_assert(std::is_copy_constructible_v<MakespanEstimator>);
-    static_assert(std::is_copy_assignable_v<MakespanEstimator>);
-    static_assert(
+    STATIC_REQUIRE(std::is_copy_constructible_v<MakespanEstimator>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<MakespanEstimator>);
+    STATIC_REQUIRE(
         std::is_nothrow_move_constructible_v<MakespanEstimator>);
-    static_assert(
+    STATIC_REQUIRE(
         std::is_nothrow_move_assignable_v<MakespanEstimator>);
 }
 

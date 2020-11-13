@@ -9,13 +9,13 @@
 TEST_CASE("TaskAgents type traits")
 {
     using angonoka::stun::TaskAgents;
-    static_assert(std::is_nothrow_destructible_v<TaskAgents>);
-    static_assert(
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<TaskAgents>);
+    STATIC_REQUIRE(
         std::is_nothrow_default_constructible_v<TaskAgents>);
-    static_assert(std::is_copy_constructible_v<TaskAgents>);
-    static_assert(std::is_copy_assignable_v<TaskAgents>);
-    static_assert(std::is_nothrow_move_constructible_v<TaskAgents>);
-    static_assert(std::is_nothrow_move_assignable_v<TaskAgents>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<TaskAgents>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<TaskAgents>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<TaskAgents>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<TaskAgents>);
 }
 
 TEST_CASE("TaskAgents values")

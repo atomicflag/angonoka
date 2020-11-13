@@ -27,10 +27,10 @@ TEST_CASE("BetaDriver")
 TEST_CASE("BetaDriver type traits")
 {
     using angonoka::stun::BetaDriver;
-    static_assert(std::is_nothrow_destructible_v<BetaDriver>);
-    static_assert(!std::is_default_constructible_v<BetaDriver>);
-    static_assert(std::is_nothrow_copy_constructible_v<BetaDriver>);
-    static_assert(std::is_nothrow_copy_assignable_v<BetaDriver>);
-    static_assert(std::is_nothrow_move_constructible_v<BetaDriver>);
-    static_assert(std::is_nothrow_move_assignable_v<BetaDriver>);
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<BetaDriver>);
+    STATIC_REQUIRE(!std::is_default_constructible_v<BetaDriver>);
+    STATIC_REQUIRE(std::is_nothrow_copy_constructible_v<BetaDriver>);
+    STATIC_REQUIRE(std::is_nothrow_copy_assignable_v<BetaDriver>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<BetaDriver>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<BetaDriver>);
 }

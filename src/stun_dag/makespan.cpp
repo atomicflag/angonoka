@@ -7,7 +7,7 @@
 namespace angonoka::stun_dag {
 
 Makespan::Makespan(
-    gsl::not_null<ScheduleInfo*> info,
+    gsl::not_null<const ScheduleInfo*> info,
     TasksCount tasks_count,
     AgentsCount agents_count)
     : info{std::move(info)}

@@ -6,14 +6,14 @@
 TEST_CASE("TaskDurationCache type traits")
 {
     using angonoka::stun::TaskDurationCache;
-    static_assert(std::is_nothrow_destructible_v<TaskDurationCache>);
-    static_assert(
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<TaskDurationCache>);
+    STATIC_REQUIRE(
         std::is_nothrow_default_constructible_v<TaskDurationCache>);
-    static_assert(std::is_copy_constructible_v<TaskDurationCache>);
-    static_assert(std::is_copy_assignable_v<TaskDurationCache>);
-    static_assert(
+    STATIC_REQUIRE(std::is_copy_constructible_v<TaskDurationCache>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<TaskDurationCache>);
+    STATIC_REQUIRE(
         std::is_nothrow_move_constructible_v<TaskDurationCache>);
-    static_assert(
+    STATIC_REQUIRE(
         std::is_nothrow_move_assignable_v<TaskDurationCache>);
 }
 

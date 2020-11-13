@@ -16,7 +16,7 @@ enum class AgentsCount : int {};
 class Makespan {
 public:
     Makespan(
-        gsl::not_null<ScheduleInfo*> info,
+        gsl::not_null<const ScheduleInfo*> info,
         TasksCount tasks_count,
         AgentsCount agents_count);
     Makespan(const Makespan& other);
@@ -28,7 +28,7 @@ public:
     float operator()(State state) noexcept;
 
 private:
-    gsl::not_null<ScheduleInfo*> info;
+    gsl::not_null<const ScheduleInfo*> info;
     std::vector<float> sum_buffer;
     span<float> task_done;
     span<float> work_done;
