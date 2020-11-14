@@ -12,7 +12,7 @@ struct ScheduleInfo;
 enum class TasksCount : int {};
 enum class AgentsCount : int {};
 
-// TODO: test
+// TODO: test, doc
 class Makespan {
 public:
     Makespan(

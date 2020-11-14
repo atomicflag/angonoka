@@ -19,4 +19,5 @@ struct StateItem {
     int16 agent_id;
 };
 using State = ranges::span<const StateItem>;
+using MutState = ranges::span<StateItem>;
 } // namespace angonoka::stun_dag

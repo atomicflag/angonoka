@@ -17,6 +17,9 @@ Makespan::Makespan(
     , task_done{sum_buffer.data(), static_cast<int>(tasks_count)}
     , work_done{task_done.end(), static_cast<int>(agents_count)}
 {
+    Expects(static_cast<int>(tasks_count) > 0);
+    Expects(static_cast<int>(agents_count) > 0);
+    Ensures(!sum_buffer.empty());
 }
 
 Makespan::Makespan(const Makespan& other)
@@ -30,6 +33,7 @@ Makespan::Makespan(const Makespan& other)
 Makespan& Makespan::operator=(const Makespan& other) noexcept
 {
     *this = Makespan{other};
+    Ensures(sum_buffer.size() == other.sum_buffer.size());
     return *this;
 }
 
@@ -56,6 +60,8 @@ float Makespan::operator()(State state) noexcept
 [[nodiscard]] float
 Makespan::dependency_done(int16 task_id) const noexcept
 {
+    Expects(task_id >= 0);
+
     using ranges::views::transform;
     const auto deps = info->dependencies[task_id];
     if (deps.empty()) return 0.F;
@@ -67,7 +73,8 @@ Makespan::dependency_done(int16 task_id) const noexcept
 [[nodiscard]] float
 Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
 {
-
+    Expects(task_id >= 0);
+    Expects(agent_id >= 0);
     return info->task_duration[task_id]
         / info->agent_performance[agent_id];
 }
