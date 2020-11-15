@@ -16,18 +16,18 @@ using RandomEngine = pcg32;
 class RandomUtils {
 public:
     /**
-        TODO: Doc, implement
+        TODO: Doc
         Default constructor.
     */
-    RandomUtils(int16 state_size);
+    RandomUtils();
 
     /**
-        TODO: Update doc, implement
+        TODO: Update doc
         Constructor with the PRNG seed.
 
         @param seed         Random engine seed
     */
-    RandomUtils(int16 state_size, gsl::index seed);
+    RandomUtils(gsl::index seed);
 
     /**
         Uniformally distributed real value between 0 and 1.
@@ -37,9 +37,9 @@ public:
     float get_uniform() noexcept;
 
     /**
-        TODO: Doc, implement
+        TODO: Doc
     */
-    int get_random_index() noexcept;
+    int get_uniform_int(int16 max) noexcept;
 
 private:
     RandomEngine generator{

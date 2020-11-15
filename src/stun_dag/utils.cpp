@@ -1,5 +1,7 @@
-#include "makespan.h"
+#include "utils.h"
+#include "random_utils.h"
 #include "schedule_info.h"
+#include <range/v3/algorithm/binary_search.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/max.hpp>
 #include <range/v3/view/transform.hpp>
@@ -77,5 +79,28 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
     Expects(agent_id >= 0);
     return info->task_duration[task_id]
         / info->agent_performance[agent_id];
+}
+
+namespace {
+    /**
+        TODO: Doc, expects
+    */
+    bool is_swappable(ScheduleInfo& info, int16 index) noexcept
+    {
+        Expects(index >= 1);
+        return !ranges::binary_search(
+            info.dependencies[index],
+            index - 1);
+    }
+} // namespace
+
+void mutate(
+    ScheduleInfo& info,
+    RandomUtils& random,
+    MutState state) noexcept
+{
+    const auto swap_index
+        = 1 + random.get_uniform_int(state.size() - 2);
+    // TODO: change agent
 }
 } // namespace angonoka::stun_dag

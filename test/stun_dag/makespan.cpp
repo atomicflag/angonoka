@@ -1,5 +1,5 @@
-#include "stun_dag/makespan.h"
 #include "stun_dag/schedule_info.h"
+#include "stun_dag/utils.h"
 #include <catch2/catch.hpp>
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/to_container.hpp>

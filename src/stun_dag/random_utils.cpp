@@ -1,24 +1,22 @@
 #include "random_utils.h"
 
 namespace angonoka::stun_dag {
-// TODO: Update
-// RandomUtils::RandomUtils(
-//     gsl::not_null<const TaskAgentsT*> task_agents)
-//     : task_agents{std::move(task_agents)}
-// {
-// }
+RandomUtils::RandomUtils() = default;
 
-// TODO: Update
-// RandomUtils::RandomUtils(
-//     gsl::not_null<const TaskAgentsT*> task_agents,
-//     gsl::index seed)
-//     : task_agents{std::move(task_agents)}
-//     , generator{seed}
-// {
-// }
+RandomUtils::RandomUtils(gsl::index seed)
+    : generator{seed}
+{
+}
 
 float RandomUtils::get_uniform() noexcept
 {
     return uniform(generator);
+}
+
+int RandomUtils::get_uniform_int(int16 max) noexcept
+{
+    using param_type = decltype(uniform_int)::param_type;
+    uniform_int.param(param_type{0, max});
+    return uniform_int(generator);
 }
 } // namespace angonoka::stun_dag

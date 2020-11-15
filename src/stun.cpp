@@ -4,7 +4,6 @@
 #include <string>
 
 #include "stun_dag/common.h"
-#include "stun_dag/makespan.h"
 #include "stun_dag/schedule_info.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
