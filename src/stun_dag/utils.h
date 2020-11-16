@@ -44,7 +44,7 @@ class RandomUtils;
     TODO: Doc, implement
 */
 void mutate(
-    ScheduleInfo& info,
+    const ScheduleInfo& info,
     RandomUtils& random,
     MutState state) noexcept;
 } // namespace angonoka::stun_dag

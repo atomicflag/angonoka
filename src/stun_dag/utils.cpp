@@ -82,25 +82,55 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
 }
 
 namespace {
-    /**
-        TODO: Doc, expects
-    */
-    bool is_swappable(ScheduleInfo& info, int16 index) noexcept
-    {
-        Expects(index >= 1);
-        return !ranges::binary_search(
-            info.dependencies[index],
-            index - 1);
-    }
+
+    struct Mutator {
+        gsl::not_null<const ScheduleInfo*> info;
+        gsl::not_null<RandomUtils*> random;
+
+        [[nodiscard]] bool is_swappable(int16 index) const noexcept
+        {
+            Expects(index >= 1);
+            return !ranges::binary_search(
+                info->dependencies[index],
+                index - 1);
+        }
+
+        void try_swap(MutState state) const noexcept
+        {
+            Expects(!state.empty());
+            const auto swap_index
+                = 1 + random->get_uniform_int(state.size() - 2);
+            if (!is_swappable(swap_index)) return;
+            using std::swap;
+            swap(state[swap_index], state[swap_index - 1]);
+        }
+
+        void update_agent(MutState state) const noexcept
+        {
+            Expects(!state.empty());
+            const auto task_index
+                = random->get_uniform_int(state.size() - 1);
+            const auto task_id = state[task_index].task_id;
+            const auto new_agent_id = random->get_uniform_int(
+                info->available_agents[task_id].size() - 1);
+            state[task_index].agent_id = new_agent_id;
+        }
+
+        void operator()(MutState state) const noexcept
+        {
+            Expects(!state.empty());
+            try_swap(state);
+            update_agent(state);
+        }
+    };
+
 } // namespace
 
 void mutate(
-    ScheduleInfo& info,
+    const ScheduleInfo& info,
     RandomUtils& random,
     MutState state) noexcept
 {
-    const auto swap_index
-        = 1 + random.get_uniform_int(state.size() - 2);
-    // TODO: change agent
+    return Mutator{.info = &info, .random = &random}(state);
 }
 } // namespace angonoka::stun_dag
