@@ -19,6 +19,7 @@ common_lib = static_library(
     'system.cpp',
     'exceptions.cpp',
     'stun_dag/utils.cpp',
+    'stun_dag/common.cpp',
     'stun_dag/random_utils.cpp',
     'stun/beta_driver.cpp',
     'stun/task_duration_cache.cpp',
