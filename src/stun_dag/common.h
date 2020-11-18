@@ -10,7 +10,7 @@
 namespace angonoka::stun_dag {
 #ifndef NDEBUG
 namespace sn = boost::safe_numerics;
-using int16 = sn::safe<std::int_fast16_t, sn::automatic>;
+using int16 = sn::safe<std::int_fast16_t>;
 #else
 using int16 = std::int_fast16_t;
 #endif

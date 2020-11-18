@@ -16,7 +16,7 @@ float RandomUtils::get_uniform() noexcept
 int RandomUtils::get_uniform_int(int16 max) noexcept
 {
     using param_type = decltype(uniform_int)::param_type;
-    uniform_int.param(param_type{0, max});
+    uniform_int.param(param_type{0, static_cast<int>(max)});
     return uniform_int(generator);
 }
 } // namespace angonoka::stun_dag

@@ -65,7 +65,8 @@ Makespan::dependency_done(int16 task_id) const noexcept
     Expects(task_id >= 0);
 
     using ranges::views::transform;
-    const auto deps = info->dependencies[task_id];
+    const auto deps
+        = info->dependencies[static_cast<gsl::index>(task_id)];
     if (deps.empty()) return 0.F;
     return ranges::max(deps | transform([&](const auto& dep_id) {
                            return task_done[dep_id];
@@ -77,12 +78,11 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
 {
     Expects(task_id >= 0);
     Expects(agent_id >= 0);
-    return info->task_duration[task_id]
-        / info->agent_performance[agent_id];
+    return info->task_duration[static_cast<gsl::index>(task_id)]
+        / info->agent_performance[static_cast<gsl::index>(agent_id)];
 }
 
 namespace {
-
     struct Mutator {
         gsl::not_null<const ScheduleInfo*> info;
         gsl::not_null<RandomUtils*> random;
@@ -91,7 +91,7 @@ namespace {
         {
             Expects(index >= 1);
             return !ranges::binary_search(
-                info->dependencies[index],
+                info->dependencies[static_cast<gsl::index>(index)],
                 index - 1);
         }
 
@@ -110,7 +110,8 @@ namespace {
             Expects(!state.empty());
             const auto task_index
                 = random->get_uniform_int(state.size() - 1);
-            const auto task_id = state[task_index].task_id;
+            const auto task_id
+                = static_cast<gsl::index>(state[task_index].task_id);
             const auto new_agent_id = random->get_uniform_int(
                 info->available_agents[task_id].size() - 1);
             state[task_index].agent_id = new_agent_id;
@@ -123,7 +124,6 @@ namespace {
             update_agent(state);
         }
     };
-
 } // namespace
 
 void mutate(

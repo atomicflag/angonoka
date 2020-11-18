@@ -6,5 +6,5 @@
 
 namespace angonoka {
 namespace sn = boost::safe_numerics;
-using int8 = sn::safe<std::int_fast8_t, sn::automatic>;
+using int8 = sn::safe<std::int_fast8_t>;
 } // namespace angonoka
