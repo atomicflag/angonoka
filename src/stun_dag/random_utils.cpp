@@ -8,15 +8,15 @@ RandomUtils::RandomUtils(gsl::index seed)
 {
 }
 
-float RandomUtils::get_uniform() noexcept
+float RandomUtils::uniform_01() noexcept
 {
-    return uniform(generator);
+    return uniform_01_(generator);
 }
 
-int RandomUtils::get_uniform_int(int16 max) noexcept
+int16 RandomUtils::uniform_int(int16 max) noexcept
 {
-    using param_type = decltype(uniform_int)::param_type;
-    uniform_int.param(param_type{0, static_cast<int>(max)});
-    return uniform_int(generator);
+    using param_type = decltype(uniform_int_)::param_type;
+    uniform_int_.param(param_type{0, static_cast<int>(max)});
+    return uniform_int_(generator);
 }
 } // namespace angonoka::stun_dag

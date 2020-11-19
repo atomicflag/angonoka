@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/safe_numerics/automatic.hpp>
 #include <boost/safe_numerics/safe_integer.hpp>
 #include <cstdint>
 

@@ -12,19 +12,38 @@ struct ScheduleInfo;
 enum class TasksCount : int {};
 enum class AgentsCount : int {};
 
-// TODO: test, doc
+/**
+    TODO: doc, test
+*/
 class Makespan {
 public:
+    /**
+        TODO: doc
+
+        Constructor.
+
+        @param info
+        @param tasks_count
+        @param agents_count
+    */
     Makespan(
         gsl::not_null<const ScheduleInfo*> info,
         TasksCount tasks_count,
         AgentsCount agents_count);
+
     Makespan(const Makespan& other);
     Makespan& operator=(const Makespan& other) noexcept;
     Makespan(Makespan&& other) noexcept;
     Makespan& operator=(Makespan&& other) noexcept;
     ~Makespan() noexcept;
 
+    /**
+        TODO: doc
+
+        @param state
+
+        @return
+    */
     float operator()(State state) noexcept;
 
 private:
@@ -33,7 +52,23 @@ private:
     span<float> task_done;
     span<float> work_done;
 
+    /**
+        TODO: doc
+
+        @param task_id
+
+        @return
+    */
     [[nodiscard]] float dependency_done(int16 task_id) const noexcept;
+
+    /**
+        TODO: doc
+
+        @param task_id
+        @param agent_id
+
+        @return
+    */
     [[nodiscard]] float
     task_duration(int16 task_id, int16 agent_id) const noexcept;
 };
@@ -41,7 +76,11 @@ private:
 class RandomUtils;
 
 /**
-    TODO: Doc, implement
+    TODO: Doc
+
+    @param info
+    @param random
+    @param state
 */
 void mutate(
     const ScheduleInfo& info,

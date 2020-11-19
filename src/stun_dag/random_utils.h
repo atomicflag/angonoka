@@ -11,21 +11,19 @@ namespace angonoka::stun_dag {
 using RandomEngine = pcg32;
 
 /**
-    Group of functions that use the PRNG.
+    Miscellaneous random number generators.
 */
 class RandomUtils {
 public:
     /**
-        TODO: Doc
         Default constructor.
     */
     RandomUtils();
 
     /**
-        TODO: Update doc
-        Constructor with the PRNG seed.
+        Constructor with a fixed PRNG seed.
 
-        @param seed         Random engine seed
+        @param seed Random engine seed
     */
     RandomUtils(gsl::index seed);
 
@@ -34,17 +32,21 @@ public:
 
         @return Random number
     */
-    float get_uniform() noexcept;
+    float uniform_01() noexcept;
 
     /**
-        TODO: Doc
+        Uniformally distributed discrete value between 0 and max.
+
+        @param max Maximum value
+
+        @return Random number
     */
-    int get_uniform_int(int16 max) noexcept;
+    int16 uniform_int(int16 max) noexcept;
 
 private:
     RandomEngine generator{
         pcg_extras::seed_seq_from<std::random_device>{}};
-    boost::random::uniform_01<float> uniform;
-    boost::random::uniform_int_distribution<> uniform_int;
+    boost::random::uniform_01<float> uniform_01_;
+    boost::random::uniform_int_distribution<> uniform_int_;
 };
 } // namespace angonoka::stun_dag

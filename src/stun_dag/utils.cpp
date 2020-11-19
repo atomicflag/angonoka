@@ -83,10 +83,23 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
 }
 
 namespace {
+    /**
+        TODO: doc
+
+        @var info
+        @var random
+    */
     struct Mutator {
         gsl::not_null<const ScheduleInfo*> info;
         gsl::not_null<RandomUtils*> random;
 
+        /**
+            TODO: doc
+
+            @param index
+
+            @return
+        */
         [[nodiscard]] bool is_swappable(int16 index) const noexcept
         {
             Expects(index >= 1);
@@ -95,28 +108,43 @@ namespace {
                 index - 1);
         }
 
+        /**
+            TODO: doc
+
+            @param state
+        */
         void try_swap(MutState state) const noexcept
         {
             Expects(!state.empty());
             const auto swap_index
-                = 1 + random->get_uniform_int(state.size() - 2);
+                = 1 + random->uniform_int(state.size() - 2);
             if (!is_swappable(swap_index)) return;
             using std::swap;
             swap(state[swap_index], state[swap_index - 1]);
         }
 
+        /**
+            TODO: doc
+
+            @param state
+        */
         void update_agent(MutState state) const noexcept
         {
             Expects(!state.empty());
             const auto task_index
-                = random->get_uniform_int(state.size() - 1);
+                = random->uniform_int(state.size() - 1);
             const auto task_id
                 = static_cast<gsl::index>(state[task_index].task_id);
-            const auto new_agent_id = random->get_uniform_int(
+            const auto new_agent_id = random->uniform_int(
                 info->available_agents[task_id].size() - 1);
             state[task_index].agent_id = new_agent_id;
         }
 
+        /**
+            TODO: doc
+
+            @param state
+        */
         void operator()(MutState state) const noexcept
         {
             Expects(!state.empty());
