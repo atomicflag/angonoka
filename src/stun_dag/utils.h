@@ -89,11 +89,14 @@ private:
 class RandomUtils;
 
 /**
-    TODO: Doc
+    Shuffle tasks and agents in-place.
 
-    @param info
-    @param random
-    @param state
+    Randomly swaps two adjacent tasks within the schedule and
+    reassigns an agent of a random task.
+
+    @param info     An instance of ScheduleInfo
+    @param random   An instance of RandomUtils
+    @param state    Scheduling configuration
 */
 void mutate(
     const ScheduleInfo& info,

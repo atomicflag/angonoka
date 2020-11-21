@@ -85,53 +85,68 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
 
 namespace {
     /**
-        TODO: doc
+        Function object for mutating the scheduling configuration.
 
-        @var info
-        @var random
+        @var info   An instance of ScheduleInfo
+        @var random An instance of RandomUtils
     */
     struct Mutator {
         gsl::not_null<const ScheduleInfo*> info;
         gsl::not_null<RandomUtils*> random;
 
         /**
-            TODO: doc
+            Checks if the task can be swapped with it's predecessor.
 
-            @param index
+            The function checks if a predecessor is a child of a given
+            task. Tasks without direct relations to each other can be
+            swapped without causing scheduling conflicts.
 
-            @return
+            @param task         First task
+            @param predecessor  Second task, predecessor
+
+            @return True if tasks can be swapped
         */
-        [[nodiscard]] bool is_swappable(int16 index) const noexcept
+        [[nodiscard]] bool
+        is_swappable(int16 task, int16 predecessor) const noexcept
         {
-            Expects(index >= 1);
+            Expects(task >= 0);
+            Expects(task < info->dependencies.size());
+            Expects(predecessor >= 0);
+            Expects(predecessor < info->dependencies.size());
+            Expects(task != predecessor);
             return !ranges::binary_search(
-                info->dependencies[static_cast<gsl::index>(index)],
-                index - 1);
+                info->dependencies[static_cast<gsl::index>(task)],
+                predecessor);
         }
 
         /**
-            TODO: doc
+            Attempts to swap two random adjacent tasks within the
+            schedule.
 
-            @param state
+            @param state Scheduling configuration
         */
         void try_swap(MutState state) const noexcept
         {
-            Expects(!state.empty());
+            Expects(state.size() >= 2);
             const auto swap_index
                 = 1 + random->uniform_int(state.size() - 2);
-            if (!is_swappable(swap_index)) return;
-            using std::swap;
-            swap(state[swap_index], state[swap_index - 1]);
+            auto& task_a = state[swap_index].task_id;
+            auto& task_b = state[swap_index - 1].task_id;
+            if (!is_swappable(task_a, task_b)) return;
+            std::swap(task_a, task_b);
         }
 
         /**
-            TODO: doc
+            Assigns a new agent to a random task.
 
-            @param state
+            @param state Scheduling configuration
         */
         void update_agent(MutState state) const noexcept
         {
             Expects(!state.empty());
+            Expects(
+                static_cast<gsl::index>(state.size())
+                == info->available_agents.size());
             const auto task_index
                 = random->uniform_int(state.size() - 1);
             const auto task_id
@@ -142,15 +157,24 @@ namespace {
         }
 
         /**
-            TODO: doc
+            Mutates the scheduling configuration in-place.
 
-            @param state
+            @param state Scheduling configuration
         */
         void operator()(MutState state) const noexcept
         {
             Expects(!state.empty());
-            try_swap(state);
-            update_agent(state);
+            const auto action = random->uniform_01();
+            constexpr auto both_threshold = .6F;
+            constexpr auto swap_threshold = .3F;
+            if (action >= both_threshold) {
+                try_swap(state);
+                update_agent(state);
+            } else if (action >= swap_threshold) {
+                try_swap(state);
+            } else {
+                update_agent(state);
+            }
         }
     };
 } // namespace
@@ -160,6 +184,7 @@ void mutate(
     RandomUtils& random,
     MutState state) noexcept
 {
+    Expects(!state.empty());
     return Mutator{.info = &info, .random = &random}(state);
 }
 } // namespace angonoka::stun_dag

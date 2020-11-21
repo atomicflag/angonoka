@@ -8,14 +8,14 @@ namespace angonoka::stun_dag {
 using ranges::span;
 
 /**
-    TODO: doc
+    General, read-only information about the schedule.
 
-    @var agent_performance
-    @var task_duration
-    @var available_agents_data
-    @var available_agents
-    @var dependencies_data
-    @var dependencies
+    @var agent_performance      Agent's speed multipliers
+    @var task_duration          Task durations in seconds
+    @var available_agents_data  Cache-friendly buffer
+    @var available_agents       Which agents can perform each task
+    @var dependencies_data      Cache-friendly buffer
+    @var dependencies           Task's dependent sub-tasks
 */
 struct ScheduleInfo {
     std::vector<float> agent_performance;
