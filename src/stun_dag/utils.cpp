@@ -51,8 +51,9 @@ float Makespan::operator()(State state) noexcept
 
     ranges::fill(sum_buffer, 0.F);
     for (auto [task_id, agent_id] : state) {
-        const auto done
-            = std::max(dependency_done(task_id), work_done[agent_id])
+        const auto done = std::max(
+                              dependencies_done(task_id),
+                              work_done[agent_id])
             + task_duration(task_id, agent_id);
         work_done[agent_id] = task_done[task_id] = done;
     }
@@ -60,7 +61,7 @@ float Makespan::operator()(State state) noexcept
 }
 
 [[nodiscard]] float
-Makespan::dependency_done(int16 task_id) const noexcept
+Makespan::dependencies_done(int16 task_id) const noexcept
 {
     Expects(task_id >= 0);
 

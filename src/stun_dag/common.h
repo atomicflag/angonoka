@@ -16,12 +16,22 @@ using int16 = sn::safe<std::int_fast16_t>;
 using int16 = std::int_fast16_t;
 #endif // NDEBUG
 
+/**
+    Scheduling information for the task.
+
+    The position of StateItem within State dictates
+    the relative order of this task.
+
+    @var task_id    Task's index
+    @var agent_id   Agent's index
+*/
 struct StateItem {
     int16 task_id;
     int16 agent_id;
 
     bool operator==(const StateItem&) const = default;
 
+// Needed for Catch diagnostics
 #ifndef NDEBUG
     friend std::ostream&
     operator<<(std::ostream& os, const StateItem& item);

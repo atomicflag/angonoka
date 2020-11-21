@@ -13,18 +13,26 @@ enum class TasksCount : int {};
 enum class AgentsCount : int {};
 
 /**
-    TODO: doc, test
+    Stateful function object for calculating the makespan.
+
+    Further reading:
+    https://en.wikipedia.org/wiki/Makespan
+
+    @var info       An instance of ScheduleInfo
+    @var sum_buffer Cache-friendly buffer
+    @var task_done  Mutable view of completion times for individual
+                    tasks
+    @var work_done  Mutable view of completion times for individual
+                    agents
 */
 class Makespan {
 public:
     /**
-        TODO: doc
-
         Constructor.
 
-        @param info
-        @param tasks_count
-        @param agents_count
+        @param info         An instance of ScheduleInfo
+        @param tasks_count  Total number of tasks
+        @param agents_count Total number of agents
     */
     Makespan(
         gsl::not_null<const ScheduleInfo*> info,
@@ -38,11 +46,11 @@ public:
     ~Makespan() noexcept;
 
     /**
-        TODO: doc
+        Calculate the makespan of a given scheduling configuration.
 
-        @param state
+        @param state Scheduling configuration
 
-        @return
+        @return Makespan in seconds
     */
     float operator()(State state) noexcept;
 
@@ -53,21 +61,26 @@ private:
     span<float> work_done;
 
     /**
-        TODO: doc
+        The time when the last dependency of a given task will be
+        completed.
 
-        @param task_id
+        @param task_id Task's index
 
-        @return
+        @return Time in seconds
     */
-    [[nodiscard]] float dependency_done(int16 task_id) const noexcept;
+    [[nodiscard]] float
+    dependencies_done(int16 task_id) const noexcept;
 
     /**
-        TODO: doc
+        How long it will take for a given agent to complete a given
+        task.
 
-        @param task_id
-        @param agent_id
+        Factors in agent's performace.
 
-        @return
+        @param task_id Task's index
+        @param agent_id Agent's index
+
+        @return Time in seconds
     */
     [[nodiscard]] float
     task_duration(int16 task_id, int16 agent_id) const noexcept;

@@ -16,7 +16,7 @@ using GroupIds = flat_set<GroupId>;
     Agent that performs Tasks.
 
     Agent::group_ids refer to Group indices in the System::groups. The
-    lower the performance parameter is the slower an agent will
+    lower the performance parameter the slower an agent will
     perform any given task. An agent can only perform tasks belonging
     to groups in group_ids.
 
