@@ -42,7 +42,6 @@ using State = ranges::span<const StateItem>;
 using MutState = ranges::span<StateItem>;
 } // namespace angonoka::stun_dag
 
-// TODO: test formatting
 namespace fmt {
 using angonoka::stun_dag::StateItem;
 template <> struct fmt::formatter<StateItem> {

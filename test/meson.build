@@ -20,6 +20,7 @@ test_exe = executable(
     'stun/task_agents.cpp',
     'stun_dag/makespan.cpp',
     'stun_dag/mutate.cpp',
+    'stun_dag/common.cpp',
     'load_tasks.cpp',
     'parse_duration.cpp',
     'system.cpp',
