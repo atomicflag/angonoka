@@ -7,7 +7,6 @@
 #include <range/v3/view/transform.hpp>
 
 namespace angonoka::stun_dag {
-
 Makespan::Makespan(
     gsl::not_null<const ScheduleInfo*> info,
     TasksCount tasks_count,
@@ -30,6 +29,7 @@ Makespan::Makespan(const Makespan& other)
         static_cast<TasksCount>(other.task_done.size()),
         static_cast<AgentsCount>(other.work_done.size())}
 {
+    Ensures(sum_buffer.size() == other.sum_buffer.size());
 }
 
 Makespan& Makespan::operator=(const Makespan& other) noexcept
@@ -89,10 +89,12 @@ namespace {
 
         @var info   An instance of ScheduleInfo
         @var random An instance of RandomUtils
+        @var state  Scheduling configuration
     */
     struct Mutator {
         gsl::not_null<const ScheduleInfo*> info;
         gsl::not_null<RandomUtils*> random;
+        MutState state;
 
         /**
             Checks if the task can be swapped with it's predecessor.
@@ -122,10 +124,8 @@ namespace {
         /**
             Attempts to swap two random adjacent tasks within the
             schedule.
-
-            @param state Scheduling configuration
         */
-        void try_swap(MutState state) const noexcept
+        void try_swap() noexcept
         {
             Expects(state.size() >= 2);
             const auto swap_index
@@ -138,10 +138,8 @@ namespace {
 
         /**
             Assigns a new agent to a random task.
-
-            @param state Scheduling configuration
         */
-        void update_agent(MutState state) const noexcept
+        void update_agent() noexcept
         {
             Expects(!state.empty());
             Expects(
@@ -158,22 +156,20 @@ namespace {
 
         /**
             Mutates the scheduling configuration in-place.
-
-            @param state Scheduling configuration
         */
-        void operator()(MutState state) const noexcept
+        void operator()() noexcept
         {
             Expects(!state.empty());
             const auto action = random->uniform_01();
             constexpr auto both_threshold = .6F;
             constexpr auto swap_threshold = .3F;
             if (action >= both_threshold) {
-                try_swap(state);
-                update_agent(state);
+                try_swap();
+                update_agent();
             } else if (action >= swap_threshold) {
-                try_swap(state);
+                try_swap();
             } else {
-                update_agent(state);
+                update_agent();
             }
         }
     };
@@ -185,6 +181,9 @@ void mutate(
     MutState state) noexcept
 {
     Expects(!state.empty());
-    return Mutator{.info = &info, .random = &random}(state);
+    return Mutator{
+        .info = &info,
+        .random = &random,
+        .state = state}();
 }
 } // namespace angonoka::stun_dag
