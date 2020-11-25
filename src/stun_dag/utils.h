@@ -9,8 +9,8 @@ namespace angonoka::stun_dag {
 using ranges::span;
 struct ScheduleInfo;
 
-enum class TasksCount : int {};
-enum class AgentsCount : int {};
+enum class TasksCount : int;
+enum class AgentsCount : int;
 
 /**
     Stateful function object for calculating the makespan.

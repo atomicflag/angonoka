@@ -12,8 +12,12 @@ namespace angonoka::stun_dag {
 #ifndef NDEBUG
 namespace sn = boost::safe_numerics;
 using int16 = sn::safe<std::int_fast16_t>;
+using uint32 = sn::safe<std::uint_fast32_t>;
+using uint64 = sn::safe<std::uint_fast64_t>;
 #else // NDEBUG
 using int16 = std::int_fast16_t;
+using uint32 = std::uint_fast32_t;
+using uint64 = std::uint_fast64_t;
 #endif // NDEBUG
 
 /**
