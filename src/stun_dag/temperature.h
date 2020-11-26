@@ -19,15 +19,15 @@ enum class MaxIterations : std::int_fast64_t;
 
     https://arxiv.org/pdf/physics/9903008.pdf
 */
-class BetaDriver {
+class Temperature {
 public:
     /**
-        TODO: Doc, impl
+        TODO: Doc
         Constructor.
 
         @param beta Initial beta (temperature) value
     */
-    BetaDriver(
+    Temperature(
         Beta beta,
         BetaScale beta_scale,
         MaxIterations max_iterations);
@@ -38,6 +38,7 @@ public:
         @param stun         Current STUN value
         @param iteration    Current iteration number
     */
+    // TODO: Convert Temperature to struct + free fn?
     void update(float stun, uint64 iteration) noexcept;
 
     /**
@@ -45,6 +46,7 @@ public:
 
         @retun Beta value
     */
+    // TODO: operator float?
     [[nodiscard]] float beta() const noexcept { return value; }
 
     /**
@@ -62,6 +64,8 @@ private:
     float average_stun{.0F};
     float last_average{.0F};
     uint32 stun_count{0};
+    uint64 max_iterations;
+    uint32 stun_window;
 
     float beta_scale; // TODO: Temporary, should be hardcoded
 };
