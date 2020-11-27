@@ -112,9 +112,13 @@ namespace {
         is_swappable(int16 task, int16 predecessor) const noexcept
         {
             Expects(task >= 0);
-            Expects(task < info->dependencies.size());
+            Expects(
+                static_cast<gsl::index>(task)
+                < info->dependencies.size());
             Expects(predecessor >= 0);
-            Expects(predecessor < info->dependencies.size());
+            Expects(
+                static_cast<gsl::index>(predecessor)
+                < info->dependencies.size());
             Expects(task != predecessor);
             return !ranges::binary_search(
                 info->dependencies[static_cast<gsl::index>(task)],

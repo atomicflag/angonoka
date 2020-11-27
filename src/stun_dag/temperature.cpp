@@ -17,16 +17,17 @@ Temperature::Temperature(
     BetaScale beta_scale,
     MaxIterations max_iterations)
     : value{beta}
-    , max_iterations{static_cast<std::int_fast64_t>(max_iterations)}
-    , stun_window{static_cast<std::int_fast64_t>(max_iterations) / stun_window_count}
+    , max_iterations{static_cast<std::uint_fast64_t>(max_iterations)}
+    , stun_window{static_cast<std::uint_fast64_t>(max_iterations) / stun_window_count}
     , beta_scale{beta_scale}
 {
     Expects(beta > 0.F);
     Expects(beta_scale > 0.F);
-    Expects(static_cast<std::int_fast64_t>(max_iterations) > 0);
+    Expects(static_cast<std::uint_fast64_t>(max_iterations) > 0);
     Ensures(stun_window > 0);
     Ensures(
-        static_cast<std::int_fast64_t>(max_iterations) > stun_window);
+        static_cast<std::uint_fast64_t>(max_iterations)
+        > stun_window);
 }
 
 void Temperature::update(float stun, uint64 iteration) noexcept

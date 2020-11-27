@@ -22,7 +22,7 @@ enum class MaxIterations : std::int_fast64_t;
 class Temperature {
 public:
     /**
-        TODO: Doc
+        TODO: Doc, move max_iterations out of this class
         Constructor.
 
         @param beta Initial beta (temperature) value
@@ -38,7 +38,7 @@ public:
         @param stun         Current STUN value
         @param iteration    Current iteration number
     */
-    // TODO: Convert Temperature to struct + free fn?
+    // TODO: replace iteration with dumpening/progress
     void update(float stun, uint64 iteration) noexcept;
 
     /**
