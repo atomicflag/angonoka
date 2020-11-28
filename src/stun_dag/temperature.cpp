@@ -15,33 +15,27 @@ constexpr auto stun_window_count = 100;
 Temperature::Temperature(
     Beta beta,
     BetaScale beta_scale,
-    MaxIterations max_iterations)
+    StunWindow stun_window)
     : value{beta}
-    , max_iterations{static_cast<std::uint_fast64_t>(max_iterations)}
-    , stun_window{static_cast<std::uint_fast64_t>(max_iterations) / stun_window_count}
+    , stun_window{static_cast<std::int_fast32_t>(stun_window_count)}
     , beta_scale{beta_scale}
 {
     Expects(beta > 0.F);
     Expects(beta_scale > 0.F);
-    Expects(static_cast<std::uint_fast64_t>(max_iterations) > 0);
-    Ensures(stun_window > 0);
-    Ensures(
-        static_cast<std::uint_fast64_t>(max_iterations)
-        > stun_window);
+    Expects(static_cast<std::int_fast32_t>(stun_window) > 0);
 }
 
-void Temperature::update(float stun, uint64 iteration) noexcept
+void Temperature::update(float stun, float dampening) noexcept
 {
     Expects(stun >= 0.F);
-    Expects(iteration <= max_iterations);
+    Expects(dampening >= 0.F);
 
     average_stun += stun;
     if (++stun_count < stun_window) return;
     average_stun /= TO_FLOAT(stun_count);
     last_average = average_stun;
     const auto diff = average_stun - 0.03F;
-    const auto t
-        = 1.F - TO_FLOAT(iteration) / TO_FLOAT(max_iterations);
+    const auto t = 1.F - dampening;
     value *= 1.F + diff * beta_scale * t * t;
     stun_count = 0U;
 

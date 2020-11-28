@@ -10,7 +10,7 @@ struct Beta : detail::OpaqueFloat {
 };
 struct BetaScale : detail::OpaqueFloat {
 };
-enum class MaxIterations : std::int_fast64_t;
+enum class StunWindow : std::int_fast32_t;
 
 /**
     Updates beta (temperature) value to keep the
@@ -22,7 +22,7 @@ enum class MaxIterations : std::int_fast64_t;
 class Temperature {
 public:
     /**
-        TODO: Doc, move max_iterations out of this class
+        TODO: Doc
         Constructor.
 
         @param beta Initial beta (temperature) value
@@ -30,24 +30,24 @@ public:
     Temperature(
         Beta beta,
         BetaScale beta_scale,
-        MaxIterations max_iterations);
+        StunWindow stun_window);
 
     /**
         Updates the internal counters, averages and the beta value.
+        TODO: doc
 
         @param stun         Current STUN value
-        @param iteration    Current iteration number
+        @param dampening
     */
-    // TODO: replace iteration with dumpening/progress
-    void update(float stun, uint64 iteration) noexcept;
+    void update(float stun, float dampening) noexcept;
 
     /**
         Returns the current beta (temperature) value.
+        TODO: doc
 
         @retun Beta value
     */
-    // TODO: operator float?
-    [[nodiscard]] float beta() const noexcept { return value; }
+    operator float() const noexcept { return value; }
 
     /**
         Returns the last average stun value for diagnostic purposes.
@@ -63,9 +63,8 @@ private:
     float value;
     float average_stun{.0F};
     float last_average{.0F};
-    uint32 stun_count{0};
-    uint64 max_iterations;
-    uint32 stun_window;
+    int32 stun_count{0};
+    int32 stun_window;
 
     float beta_scale; // TODO: Temporary, should be hardcoded
 };
