@@ -2,15 +2,23 @@
 
 #include "common.h"
 #include "detail.h"
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/rolling_mean.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
 #include <cstdint>
 
 namespace angonoka::stun_dag {
+using boost::accumulators::accumulator_set;
+using boost::accumulators::stats;
+namespace tag = boost::accumulators::tag;
 
 struct Beta : detail::OpaqueFloat {
 };
 struct BetaScale : detail::OpaqueFloat {
 };
 enum class StunWindow : std::int_fast32_t;
+
+// TODO: test
 
 /**
     Updates beta (temperature) value to keep the
@@ -22,10 +30,11 @@ enum class StunWindow : std::int_fast32_t;
 class Temperature {
 public:
     /**
-        TODO: Doc
         Constructor.
 
-        @param beta Initial beta (temperature) value
+        @param beta         Initial beta (temperature) value
+        @param beta_scale   Scaling factor
+        @param stun_window  STUN rolling mean window
     */
     Temperature(
         Beta beta,
@@ -54,18 +63,11 @@ public:
 
         @return Average STUN value over the last period
     */
-    [[nodiscard]] float last_average_stun() const noexcept
-    {
-        return last_average;
-    }
+    [[nodiscard]] float average_stun() const noexcept;
 
 private:
     float value;
-    float average_stun{.0F};
-    float last_average{.0F};
-    int32 stun_count{0};
-    int32 stun_window;
-
+    accumulator_set<float, stats<tag::rolling_mean>> acc;
     float beta_scale; // TODO: Temporary, should be hardcoded
 };
 } // namespace angonoka::stun_dag
