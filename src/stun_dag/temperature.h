@@ -43,16 +43,18 @@ public:
 
     /**
         Updates the internal counters, averages and the beta value.
-        TODO: doc
+
+        The dampening parameter reduces the rate of change of
+        the beta value, where 0 means no dampening and 1
+        reduces the rate to 0.
 
         @param stun         Current STUN value
-        @param dampening
+        @param dampening    Dampening value
     */
     void update(float stun, float dampening) noexcept;
 
     /**
         Returns the current beta (temperature) value.
-        TODO: doc
 
         @retun Beta value
     */
@@ -68,6 +70,6 @@ public:
 private:
     float value;
     accumulator_set<float, stats<tag::rolling_mean>> acc;
-    float beta_scale; // TODO: Temporary, should be hardcoded
+    float beta_scale;
 };
 } // namespace angonoka::stun_dag
