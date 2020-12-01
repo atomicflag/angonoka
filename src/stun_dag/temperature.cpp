@@ -2,14 +2,6 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <gsl/gsl-lite.hpp>
 
-#ifndef NDEBUG
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define TO_FLOAT(v) static_cast<float>(base_value(v))
-#else
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define TO_FLOAT(v) static_cast<float>(v)
-#endif
-
 namespace angonoka::stun_dag {
 Temperature::Temperature(
     Beta beta,
@@ -45,5 +37,3 @@ void Temperature::update(float stun, float dampening) noexcept
     Ensures(value >= 0.F);
 }
 } // namespace angonoka::stun_dag
-
-#undef TO_FLOAT
