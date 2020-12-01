@@ -21,6 +21,7 @@ test_exe = executable(
     'stun_dag/makespan.cpp',
     'stun_dag/mutate.cpp',
     'stun_dag/common.cpp',
+    'stun_dag/temperature.cpp',
     'load_tasks.cpp',
     'parse_duration.cpp',
     'system.cpp',
