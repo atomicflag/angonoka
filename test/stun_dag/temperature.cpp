@@ -32,4 +32,10 @@ TEST_CASE("Temperature update")
 
     REQUIRE(temp.average_stun() == Approx(0.f).margin(0.001));
     REQUIRE(temp < 1.f);
+
+    const float temp1 = temp;
+
+    for (int i{0}; i < 1000; ++i) temp.update(1.f, 1.f);
+
+    REQUIRE(temp == Approx(temp1).margin(0.001));
 }
