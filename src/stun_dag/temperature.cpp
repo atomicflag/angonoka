@@ -25,7 +25,6 @@ Temperature::Temperature(
 
 void Temperature::update(float stun, float dampening) noexcept
 {
-    using boost::accumulators::rolling_mean;
     Expects(stun >= 0.F);
     Expects(dampening >= 0.F);
 

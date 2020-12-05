@@ -12,13 +12,29 @@ using boost::accumulators::accumulator_set;
 using boost::accumulators::stats;
 namespace tag = boost::accumulators::tag;
 
+/**
+    Temperature parameter.
+
+    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
+*/
 struct Beta : detail::OpaqueFloat {
 };
+
+/**
+    Scaling factor for beta parameter.
+
+    The lower the value the slower the beta parameter
+    will adjust to new stun values.
+*/
 struct BetaScale : detail::OpaqueFloat {
 };
-enum class StunWindow : std::int_fast32_t;
 
-// TODO: test
+/**
+    STUN rolling mean window.
+
+    The lower the value the more volitile the temperature gets.
+*/
+enum class StunWindow : std::int_fast32_t;
 
 /**
     Updates beta (temperature) value to keep the
