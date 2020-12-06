@@ -28,21 +28,7 @@ struct Gamma : detail::OpaqueFloat {
 };
 
 /**
-    Temperature parameter.
-
-    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
-
-    Note: Unlike the beta parameter in the paper, this isn't
-    an inverse temperature.
-*/
-struct Beta : detail::OpaqueFloat {
-};
-
-// TODO: Temporary, should be hard-coded
-struct BetaScale : detail::OpaqueFloat {
-};
-
-/**
+    TODO: doc
     Result of a stochastic tunneling pass.
 
     @var energy Lowest energy achieved so far
@@ -50,31 +36,23 @@ struct BetaScale : detail::OpaqueFloat {
     @var beta   Final temperature
 */
 struct STUNResult {
+    // std::vector<int16> state;
     float energy;
-    std::vector<int16> state;
     float beta;
 };
 
+struct STUNOptions {
+    gsl::no_null<const ScheduleInfo*> info;
+    gsl::not_null<RandomUtils*> random;
+    gsl::not_null<Makespan*> makespan;
+    gsl::not_null<Temperature*> temp;
+};
+
 /**
-    Perform a stochastic tunneling pass.
-
-    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
-
-    @param random_utils An instance of RandomUtils
-    @param makespan     An instance of Makespan
-    @param state        Initial state
-    @param gamma        Tunneling parameter
-    @param beta         Initial temperature
-
-    @return An instance of STUNResult
+    TODO: doc
 */
 STUNResult stochastic_tunneling(
-    RandomUtilsT& random_utils,
-    MakespanEstimatorT& makespan,
-    span<const int16> state,
-    Gamma gamma,
-    Beta beta,
-    // TODO: Temporary, should be hardcoded
-    BetaScale beta_scale);
+    STUNOptions options,
+    MutState state) noexcept;
 
 } // namespace angonoka::stun_dag
