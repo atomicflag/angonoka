@@ -1,23 +1,16 @@
 #pragma once
 
-#include "beta_driver.h"
 #include "common.h"
+#include "detail.h"
 #include <gsl/gsl-lite.hpp>
-#include <memory>
-#include <range/v3/view/span.hpp>
 #include <vector>
 
 namespace angonoka::stun_dag {
 
-using ranges::span;
-
-#ifndef UNIT_TEST
-using RandomUtilsT = class RandomUtils;
-using MakespanEstimatorT = class MakespanEstimator;
-#else // UNIT_TEST
-using RandomUtilsT = struct RandomUtilsStub;
-using MakespanEstimatorT = struct MakespanEstimatorStub;
-#endif // UNIT_TEST
+class Temperature;
+class Makespan;
+class RandomUtils;
+struct ScheduleInfo;
 
 /**
     Tunneling parameter.
@@ -36,13 +29,13 @@ struct Gamma : detail::OpaqueFloat {
     @var beta   Final temperature
 */
 struct STUNResult {
-    // std::vector<int16> state;
+    std::vector<StateItem> state;
     float energy;
     float beta;
 };
 
 struct STUNOptions {
-    gsl::no_null<const ScheduleInfo*> info;
+    gsl::not_null<const ScheduleInfo*> info;
     gsl::not_null<RandomUtils*> random;
     gsl::not_null<Makespan*> makespan;
     gsl::not_null<Temperature*> temp;
@@ -51,8 +44,7 @@ struct STUNOptions {
 /**
     TODO: doc
 */
-STUNResult stochastic_tunneling(
-    STUNOptions options,
-    MutState state) noexcept;
+STUNResult
+stochastic_tunneling(STUNOptions options, MutState state) noexcept;
 
 } // namespace angonoka::stun_dag
