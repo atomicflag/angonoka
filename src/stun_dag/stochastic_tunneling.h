@@ -34,6 +34,9 @@ struct STUNResult {
     float beta;
 };
 
+/**
+    TODO: doc, mocks
+*/
 struct STUNOptions {
     gsl::not_null<const ScheduleInfo*> info;
     gsl::not_null<RandomUtils*> random;
@@ -45,6 +48,6 @@ struct STUNOptions {
     TODO: doc
 */
 STUNResult
-stochastic_tunneling(STUNOptions options, MutState state) noexcept;
+stochastic_tunneling(MutState state, STUNOptions options) noexcept;
 
 } // namespace angonoka::stun_dag

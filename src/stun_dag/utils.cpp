@@ -180,9 +180,9 @@ namespace {
 } // namespace
 
 void mutate(
+    MutState state,
     const ScheduleInfo& info,
-    RandomUtils& random,
-    MutState state) noexcept
+    RandomUtils& random) noexcept
 {
     Expects(!state.empty());
     return Mutator{

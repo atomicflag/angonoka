@@ -99,7 +99,7 @@ class RandomUtils;
     @param state    Scheduling configuration
 */
 void mutate(
+    MutState state,
     const ScheduleInfo& info,
-    RandomUtils& random,
-    MutState state) noexcept;
+    RandomUtils& random) noexcept;
 } // namespace angonoka::stun_dag

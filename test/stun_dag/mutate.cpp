@@ -25,12 +25,12 @@ TEST_CASE("Mutate state")
 
         std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
 
-        mutate(info, random, state);
+        mutate(state, info, random);
 
         REQUIRE(
             state == std::vector<StateItem>{{1, 0}, {0, 2}, {2, 2}});
 
-        for (int i{0}; i < 100; ++i) mutate(info, random, state);
+        for (int i{0}; i < 100; ++i) mutate(state, info, random);
 
         REQUIRE(
             state == std::vector<StateItem>{{1, 0}, {2, 0}, {0, 2}});
@@ -52,12 +52,12 @@ TEST_CASE("Mutate state")
 
         std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
 
-        mutate(info, random, state);
+        mutate(state, info, random);
 
         REQUIRE(
             state == std::vector<StateItem>{{0, 0}, {1, 2}, {2, 2}});
 
-        for (int i{0}; i < 100; ++i) mutate(info, random, state);
+        for (int i{0}; i < 100; ++i) mutate(state, info, random);
 
         REQUIRE(
             state == std::vector<StateItem>{{0, 0}, {1, 0}, {2, 2}});
