@@ -8,6 +8,7 @@ stubs = files([
     'stun/stochastic_tunneling.cpp',
     'stun/makespan_estimator.cpp',
     'stun/random_utils.cpp',
+    'stun_dag/stochastic_tunneling.cpp',
 ])
 
 common_lib = static_library(

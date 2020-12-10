@@ -7,10 +7,16 @@
 
 namespace angonoka::stun_dag {
 
-class Temperature;
-class Makespan;
-class RandomUtils;
 struct ScheduleInfo;
+#ifndef UNIT_TEST
+using TemperatureT = class Temperature;
+using MakespanT = class Makespan;
+using RandomUtilsT = class RandomUtils;
+#else // UNIT_TEST
+using TemperatureT = struct TemperatureStub;
+using MakespanT = struct MakespanStub;
+using RandomUtilsT = struct RandomUtilsStub;
+#endif // UNIT_TEST
 
 /**
     Tunneling parameter.
@@ -34,8 +40,6 @@ struct STUNResult {
 };
 
 /**
-    // TODO: mocks
-
     STUN auxilary data and utilities.
 
     @var info       Instance of ScheduleInfo
@@ -45,9 +49,9 @@ struct STUNResult {
 */
 struct STUNOptions {
     gsl::not_null<const ScheduleInfo*> info;
-    gsl::not_null<RandomUtils*> random;
-    gsl::not_null<Makespan*> makespan;
-    gsl::not_null<Temperature*> temp;
+    gsl::not_null<RandomUtilsT*> random;
+    gsl::not_null<MakespanT*> makespan;
+    gsl::not_null<TemperatureT*> temp;
 };
 
 /**
@@ -60,7 +64,8 @@ struct STUNOptions {
 
     @return An instance of STUNResult
 */
-STUNResult
-stochastic_tunneling(MutState state, STUNOptions options) noexcept;
+STUNResult stochastic_tunneling(
+    MutState state,
+    const STUNOptions& options) noexcept;
 
 } // namespace angonoka::stun_dag
