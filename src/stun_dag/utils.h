@@ -86,6 +86,13 @@ private:
     task_duration(int16 task_id, int16 agent_id) const noexcept;
 };
 
+#ifdef UNIT_TEST
+struct MakespanStub {
+    virtual float operator()(State state) noexcept = 0;
+    virtual ~MakespanStub() noexcept = default;
+};
+#endif // UNIT_TEST
+
 class RandomUtils;
 
 /**

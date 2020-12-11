@@ -49,4 +49,12 @@ private:
     boost::random::uniform_01<float> uniform_01_;
     boost::random::uniform_int_distribution<> uniform_int_;
 };
+
+#ifdef UNIT_TEST
+struct RandomUtilsStub {
+    virtual float uniform_01() noexcept = 0;
+    virtual int16 uniform_int(int16 max) noexcept = 0;
+    virtual ~RandomUtilsStub() noexcept = default;
+};
+#endif // UNIT_TEST
 } // namespace angonoka::stun_dag
