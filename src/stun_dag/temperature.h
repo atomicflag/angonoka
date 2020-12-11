@@ -88,4 +88,13 @@ private:
     accumulator_set<float, stats<tag::rolling_mean>> acc;
     float beta_scale;
 };
+
+#ifdef UNIT_TEST
+struct TemperatureStub {
+    virtual operator float() noexcept = 0;
+    virtual void update(float stun, float dampening) noexcept = 0;
+    [[nodiscard]] virtual float average_stun() const noexcept = 0;
+    virtual ~TemperatureStub() noexcept = default;
+};
+#endif // UNIT_TEST
 } // namespace angonoka::stun_dag
