@@ -53,7 +53,7 @@ private:
 #ifdef UNIT_TEST
 struct RandomUtilsStub {
     virtual float uniform_01() noexcept = 0;
-    virtual int16 uniform_int(int16 max) noexcept = 0;
+    virtual int16 uniform_int(std::int16_t max) noexcept = 0;
     virtual ~RandomUtilsStub() noexcept = default;
 };
 #endif // UNIT_TEST

@@ -65,7 +65,7 @@ struct STUNOptions {
     @return An instance of STUNResult
 */
 STUNResult stochastic_tunneling(
-    MutState state,
+    State state,
     const STUNOptions& options) noexcept;
 
 } // namespace angonoka::stun_dag
