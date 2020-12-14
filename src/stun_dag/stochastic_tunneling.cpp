@@ -6,6 +6,12 @@
 namespace {
 using namespace angonoka::stun_dag;
 
+#ifdef UNIT_TEST
+constexpr std::uint_fast64_t max_iterations = 2;
+#else // UNIT_TEST
+constexpr std::uint_fast64_t max_iterations = 100;
+#endif // UNIT_TEST
+
 /**
     Adjusts the energy to be within 0.0 to 1.0 range.
 
@@ -33,7 +39,35 @@ using namespace angonoka::stun_dag;
 */
 struct StochasticTunnelingOp {
     gsl::not_null<const STUNOptions*> options;
+    std::uint_fast64_t iteration{0};
+    std::vector<StateItem> state_buffer;
+    MutState best_state;
+    MutState current_state;
+    MutState target_state;
 
+    float current_e;
+    float lowest_e;
+    float target_e;
+
+    float gamma; // TODO: Should be a constant
+    float current_s;
+    float target_s;
+
+    /**
+        TODO: doc
+    */
+    void run() noexcept
+    {
+        for (iteration = 0; iteration < max_iterations; ++iteration) {
+            // get_new_neighbor();
+            // if (neighbor_is_better()) continue;
+            // perform_stun();
+        }
+    }
+
+    /**
+        TODO: doc
+    */
     [[nodiscard]] STUNResult operator()(State /* state */)
     {
         return {};
@@ -45,7 +79,7 @@ namespace angonoka::stun_dag {
 STUNResult
 stochastic_tunneling(State state, const STUNOptions& options) noexcept
 {
-    StochasticTunnelingOp op{&options};
+    StochasticTunnelingOp op{.options{&options}};
     return op(state);
 }
 } // namespace angonoka::stun_dag

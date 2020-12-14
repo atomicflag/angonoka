@@ -19,4 +19,5 @@ TEST_CASE("StateItem type traits")
     STATIC_REQUIRE(std::is_nothrow_copy_assignable_v<StateItem>);
     STATIC_REQUIRE(std::is_nothrow_move_constructible_v<StateItem>);
     STATIC_REQUIRE(std::is_nothrow_move_assignable_v<StateItem>);
+    STATIC_REQUIRE(std::is_trivially_copyable_v<StateItem>);
 }

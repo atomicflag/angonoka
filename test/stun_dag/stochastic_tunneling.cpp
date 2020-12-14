@@ -23,6 +23,16 @@ struct MakespanMock final : MakespanStub {
     }
     MAKE_MOCK1(run, float(State state), noexcept);
 };
+
+struct TemperatureMock final : TemperatureStub {
+    operator float() noexcept override { return to_float(); }
+    MAKE_MOCK0(to_float, float(), noexcept);
+    MAKE_MOCK2(
+        update,
+        void(float stun, float dampening),
+        noexcept override);
+    MAKE_MOCK0(average_stun, float(), const noexcept override);
+};
 } // namespace
 
 TEST_CASE("Stochastic tunneling")
@@ -31,6 +41,7 @@ TEST_CASE("Stochastic tunneling")
 
     RandomUtilsMock random_utils;
     MakespanMock makespan;
+    TemperatureMock temperature;
     // TODO: WIP
     // const auto r = stochastic_tunneling(State{},STUNOptions{});
 }
