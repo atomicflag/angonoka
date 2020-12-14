@@ -15,6 +15,14 @@ struct RandomUtilsMock final : RandomUtilsStub {
         int16(std::int16_t max),
         noexcept override);
 };
+
+struct MakespanMock final : MakespanStub {
+    float operator()(State state) noexcept override
+    {
+        return run(state);
+    }
+    MAKE_MOCK1(run, float(State state), noexcept);
+};
 } // namespace
 
 TEST_CASE("Stochastic tunneling")
@@ -22,6 +30,7 @@ TEST_CASE("Stochastic tunneling")
     using namespace angonoka::stun_dag;
 
     RandomUtilsMock random_utils;
+    MakespanMock makespan;
     // TODO: WIP
     // const auto r = stochastic_tunneling(State{},STUNOptions{});
 }

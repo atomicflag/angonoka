@@ -32,6 +32,7 @@ using namespace angonoka::stun_dag;
     TODO: doc, implement
 */
 struct StochasticTunnelingOp {
+    gsl::not_null<const STUNOptions*> options;
 
     [[nodiscard]] STUNResult operator()(State /* state */)
     {
@@ -41,11 +42,10 @@ struct StochasticTunnelingOp {
 } // namespace
 
 namespace angonoka::stun_dag {
-STUNResult stochastic_tunneling(
-    State state,
-    const STUNOptions& /* options */) noexcept
+STUNResult
+stochastic_tunneling(State state, const STUNOptions& options) noexcept
 {
-    StochasticTunnelingOp op;
+    StochasticTunnelingOp op{&options};
     return op(state);
 }
 } // namespace angonoka::stun_dag
