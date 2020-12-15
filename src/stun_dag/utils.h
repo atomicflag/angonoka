@@ -36,6 +36,7 @@ public:
     */
     Makespan(
         gsl::not_null<const ScheduleInfo*> info,
+        // TODO: can we pull counts from info?
         TasksCount tasks_count,
         AgentsCount agents_count);
 

@@ -1,7 +1,9 @@
 #include "stochastic_tunneling.h"
 #include "random_utils.h"
+#include "schedule_info.h"
 #include "temperature.h"
 #include "utils.h"
+#include <range/v3/algorithm/copy.hpp>
 
 namespace {
 using namespace angonoka::stun_dag;
@@ -11,6 +13,8 @@ constexpr std::uint_fast64_t max_iterations = 2;
 #else // UNIT_TEST
 constexpr std::uint_fast64_t max_iterations = 100;
 #endif // UNIT_TEST
+
+using index = MutState::index_type;
 
 /**
     Adjusts the energy to be within 0.0 to 1.0 range.
@@ -66,10 +70,50 @@ struct StochasticTunnelingOp {
     }
 
     /**
+        Recreate state spans over the state buffer object.
+
+        @param state_size Size of the state
+    */
+    void prepare_state_spans(index state_size)
+    {
+        Expects(state_size > 0);
+
+        state_buffer.resize(static_cast<gsl::index>(state_size) * 3);
+        auto* data = state_buffer.data();
+        const auto next = [&] {
+            return std::exchange(data, std::next(data, state_size));
+        };
+        best_state = {next(), state_size};
+        current_state = {next(), state_size};
+        target_state = {next(), state_size};
+
+        Ensures(current_state.size() == state_size);
+        Ensures(target_state.size() == state_size);
+        Ensures(best_state.size() == state_size);
+    }
+
+    /**
+        Init all states with the source state.
+
+        @param source_state Source state
+    */
+    void init_states(State source_state) const
+    {
+        Expects(source_state.size() == best_state.size());
+        Expects(source_state.size() == current_state.size());
+        Expects(!source_state.empty());
+
+        ranges::copy(source_state, best_state.begin());
+        ranges::copy(source_state, current_state.begin());
+    }
+
+    /**
         TODO: doc
     */
-    [[nodiscard]] STUNResult operator()(State /* state */)
+    [[nodiscard]] STUNResult operator()(State state)
     {
+        prepare_state_spans(state.size());
+        init_states(state);
         return {};
     }
 };
@@ -79,6 +123,10 @@ namespace angonoka::stun_dag {
 STUNResult
 stochastic_tunneling(State state, const STUNOptions& options) noexcept
 {
+    Expects(!state.empty());
+    Expects(
+        static_cast<gsl::index>(state.size())
+        == options.info->task_duration.size());
     StochasticTunnelingOp op{.options{&options}};
     return op(state);
 }

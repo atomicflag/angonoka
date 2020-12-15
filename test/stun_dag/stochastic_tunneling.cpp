@@ -1,5 +1,6 @@
 #include "stun_dag/stochastic_tunneling.h"
 #include "stun_dag/random_utils.h"
+#include "stun_dag/schedule_info.h"
 #include "stun_dag/temperature.h"
 #include "stun_dag/utils.h"
 #include <catch2/catch.hpp>
@@ -42,6 +43,15 @@ TEST_CASE("Stochastic tunneling")
     RandomUtilsMock random_utils;
     MakespanMock makespan;
     TemperatureMock temperature;
+    ScheduleInfo info;
+    info.task_duration.resize(3); // TEMP
+    std::vector<StateItem> state(3);
     // TODO: WIP
-    // const auto r = stochastic_tunneling(State{},STUNOptions{});
+    const auto r = stochastic_tunneling(
+        state,
+        STUNOptions{
+            .info{&info},
+            .random{&random_utils},
+            .makespan{&makespan},
+            .temp{&temperature}});
 }
