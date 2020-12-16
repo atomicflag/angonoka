@@ -9,9 +9,6 @@ namespace angonoka::stun_dag {
 using ranges::span;
 struct ScheduleInfo;
 
-enum class TasksCount : int;
-enum class AgentsCount : int;
-
 /**
     Stateful function object for calculating the makespan.
 
@@ -34,11 +31,7 @@ public:
         @param tasks_count  Total number of tasks
         @param agents_count Total number of agents
     */
-    Makespan(
-        gsl::not_null<const ScheduleInfo*> info,
-        // TODO: can we pull counts from info?
-        TasksCount tasks_count,
-        AgentsCount agents_count);
+    Makespan(gsl::not_null<const ScheduleInfo*> info);
 
     Makespan(const Makespan& other);
     Makespan& operator=(const Makespan& other) noexcept;

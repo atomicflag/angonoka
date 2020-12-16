@@ -44,16 +44,22 @@ TEST_CASE("Makespan special member functions")
 
     const auto info = make_test_schedule_info();
     const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
-    const std::vector<StateItem> state2{{0, 0}, {1, 1}};
+    Makespan makespan{&info};
 
-    Makespan makespan{&info, TasksCount{3}, AgentsCount{3}};
     REQUIRE(makespan(state) == Approx(3.F));
-    Makespan makespan2{&info, TasksCount{2}, AgentsCount{2}};
+
+    auto info2 = make_test_schedule_info();
+    info2.agent_performance.resize(2);
+    info2.task_duration.resize(2);
+    const std::vector<StateItem> state2{{0, 0}, {1, 1}};
+    Makespan makespan2{&info2};
+
     REQUIRE(makespan2(state2) == Approx(2.F));
 
     SECTION("Copy assignment")
     {
         makespan2 = makespan;
+        REQUIRE(makespan(state) == Approx(3.F));
         REQUIRE(makespan2(state) == Approx(3.F));
     }
     SECTION("Move assignment")
@@ -64,6 +70,7 @@ TEST_CASE("Makespan special member functions")
     SECTION("Copy ctor")
     {
         Makespan makespan3{makespan2};
+        REQUIRE(makespan2(state2) == Approx(2.F));
         REQUIRE(makespan3(state2) == Approx(2.F));
     }
     SECTION("Move ctor")
@@ -76,7 +83,7 @@ TEST_CASE("Makespan special member functions")
 TEST_CASE("Makespan estimation")
 {
     const auto info = make_test_schedule_info();
-    Makespan makespan{&info, TasksCount{3}, AgentsCount{3}};
+    Makespan makespan{&info};
     const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
     REQUIRE(makespan(state) == Approx(3.F));
 }

@@ -8,26 +8,26 @@
 
 namespace angonoka::stun_dag {
 Makespan::Makespan(
-    gsl::not_null<const ScheduleInfo*> info,
-    TasksCount tasks_count,
-    AgentsCount agents_count)
+    gsl::not_null<const ScheduleInfo*> info)
     : info{std::move(info)}
     , sum_buffer(
-          static_cast<gsl::index>(tasks_count)
-          + static_cast<gsl::index>(agents_count))
-    , task_done{sum_buffer.data(), static_cast<int>(tasks_count)}
-    , work_done{task_done.end(), static_cast<int>(agents_count)}
+info->task_duration.size()+info->agent_performance.size())
+    , task_done{sum_buffer.data(), static_cast<int>(info->task_duration.size())}
+    , work_done{task_done.end(), static_cast<int>(info->agent_performance.size())}
 {
-    Expects(static_cast<int>(tasks_count) > 0);
-    Expects(static_cast<int>(agents_count) > 0);
+    Expects(!info->agent_performance.empty());
+    Expects(!info->task_duration.empty());
     Ensures(!sum_buffer.empty());
+    Ensures(
+        task_done.size()
+        == static_cast<int>(info->task_duration.size()));
+    Ensures(
+        work_done.size()
+        == static_cast<int>(info->agent_performance.size()));
 }
 
 Makespan::Makespan(const Makespan& other)
-    : Makespan{
-        other.info,
-        static_cast<TasksCount>(other.task_done.size()),
-        static_cast<AgentsCount>(other.work_done.size())}
+    : Makespan{other.info}
 {
     Ensures(sum_buffer.size() == other.sum_buffer.size());
 }
