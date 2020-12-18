@@ -61,6 +61,22 @@ struct StochasticTunnelingOp {
     float target_s;
 
     /**
+        TODO: WIP
+        Creates a new state from the current state.
+    */
+    void get_new_neighbor() noexcept
+    {
+        Expects(!current_state.empty());
+        Expects(!target_state.empty());
+
+        ranges::copy(current_state, target_state.begin());
+        // random_utils->get_neighbor_inplace(target_state);
+        target_e = (*makespan)(target_state);
+
+        Ensures(target_e >= 0.F);
+    }
+
+    /**
         TODO: doc
     */
     void run() noexcept

@@ -83,111 +83,65 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
         / info->agent_performance[static_cast<gsl::index>(agent_id)];
 }
 
-namespace {
-    /**
-        Function object for mutating the scheduling configuration.
+void Mutator::try_swap(MutState state) noexcept
+{
+    Expects(state.size() >= 2);
+    const auto swap_index = 1 + random->uniform_int(state.size() - 2);
+    auto& task_a = state[swap_index].task_id;
+    auto& task_b = state[swap_index - 1].task_id;
+    if (!is_swappable(task_a, task_b)) return;
+    std::swap(task_a, task_b);
+}
 
-        @var info   An instance of ScheduleInfo
-        @var random An instance of RandomUtils
-        @var state  Scheduling configuration
-    */
-    struct Mutator {
-        gsl::not_null<const ScheduleInfo*> info;
-        gsl::not_null<RandomUtils*> random;
-        MutState state;
+[[nodiscard]] bool
+Mutator::is_swappable(int16 task, int16 predecessor) noexcept
+{
+    Expects(task >= 0);
+    Expects(
+        static_cast<gsl::index>(task) < info->dependencies.size());
+    Expects(predecessor >= 0);
+    Expects(
+        static_cast<gsl::index>(predecessor)
+        < info->dependencies.size());
+    Expects(task != predecessor);
+    return !ranges::binary_search(
+        info->dependencies[static_cast<gsl::index>(task)],
+        predecessor);
+}
 
-        /**
-            Checks if the task can be swapped with it's predecessor.
+Mutator::Mutator(const ScheduleInfo& info, RandomUtils& random)
+    : info{&info}
+    , random{&random}
+{
+}
 
-            The function checks if a predecessor is a child of a given
-            task. Tasks without direct relations to each other can be
-            swapped without causing scheduling conflicts.
-
-            @param task         First task
-            @param predecessor  Second task, predecessor
-
-            @return True if tasks can be swapped
-        */
-        [[nodiscard]] bool
-        is_swappable(int16 task, int16 predecessor) const noexcept
-        {
-            Expects(task >= 0);
-            Expects(
-                static_cast<gsl::index>(task)
-                < info->dependencies.size());
-            Expects(predecessor >= 0);
-            Expects(
-                static_cast<gsl::index>(predecessor)
-                < info->dependencies.size());
-            Expects(task != predecessor);
-            return !ranges::binary_search(
-                info->dependencies[static_cast<gsl::index>(task)],
-                predecessor);
-        }
-
-        /**
-            Attempts to swap two random adjacent tasks within the
-            schedule.
-        */
-        void try_swap() noexcept
-        {
-            Expects(state.size() >= 2);
-            const auto swap_index
-                = 1 + random->uniform_int(state.size() - 2);
-            auto& task_a = state[swap_index].task_id;
-            auto& task_b = state[swap_index - 1].task_id;
-            if (!is_swappable(task_a, task_b)) return;
-            std::swap(task_a, task_b);
-        }
-
-        /**
-            Assigns a new agent to a random task.
-        */
-        void update_agent() noexcept
-        {
-            Expects(!state.empty());
-            Expects(
-                static_cast<gsl::index>(state.size())
-                == info->available_agents.size());
-            const auto task_index
-                = random->uniform_int(state.size() - 1);
-            const auto task_id
-                = static_cast<gsl::index>(state[task_index].task_id);
-            const auto new_agent_id = random->uniform_int(
-                info->available_agents[task_id].size() - 1);
-            state[task_index].agent_id = new_agent_id;
-        }
-
-        /**
-            Mutates the scheduling configuration in-place.
-        */
-        void operator()() noexcept
-        {
-            Expects(!state.empty());
-            const auto action = random->uniform_01();
-            constexpr auto both_threshold = .6F;
-            constexpr auto swap_threshold = .3F;
-            if (action >= both_threshold) {
-                try_swap();
-                update_agent();
-            } else if (action >= swap_threshold) {
-                try_swap();
-            } else {
-                update_agent();
-            }
-        }
-    };
-} // namespace
-
-void mutate(
-    MutState state,
-    const ScheduleInfo& info,
-    RandomUtils& random) noexcept
+void Mutator::operator()(MutState state) noexcept
 {
     Expects(!state.empty());
-    return Mutator{
-        .info = &info,
-        .random = &random,
-        .state = state}();
+    const auto action = random->uniform_01();
+    constexpr auto both_threshold = .6F;
+    constexpr auto swap_threshold = .3F;
+    if (action >= both_threshold) {
+        try_swap(state);
+        update_agent(state);
+    } else if (action >= swap_threshold) {
+        try_swap(state);
+    } else {
+        update_agent(state);
+    }
+}
+
+void Mutator::update_agent(MutState state) noexcept
+{
+    Expects(!state.empty());
+    Expects(
+        static_cast<gsl::index>(state.size())
+        == info->available_agents.size());
+    const auto task_index = random->uniform_int(state.size() - 1);
+    const auto task_id
+        = static_cast<gsl::index>(state[task_index].task_id);
+    const auto new_agent_id = random->uniform_int(
+        info->available_agents[task_id].size() - 1);
+    state[task_index].agent_id = new_agent_id;
 }
 } // namespace angonoka::stun_dag

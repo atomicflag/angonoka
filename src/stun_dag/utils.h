@@ -90,17 +90,64 @@ struct MakespanStub {
 class RandomUtils;
 
 /**
+    TODO: doc
+
     Shuffle tasks and agents in-place.
 
     Randomly swaps two adjacent tasks within the schedule and
     reassigns an agent of a random task.
 
-    @param info     An instance of ScheduleInfo
-    @param random   An instance of RandomUtils
-    @param state    Scheduling configuration
+    @var info   An instance of ScheduleInfo
+    @var random An instance of RandomUtils
+    @var state  Scheduling configuration
 */
-void mutate(
-    MutState state,
-    const ScheduleInfo& info,
-    RandomUtils& random) noexcept;
+class Mutator {
+public:
+    /**
+        TODO: doc
+    */
+    Mutator(const ScheduleInfo& info, RandomUtils& random);
+
+    /**
+        Mutates the scheduling configuration in-place.
+    */
+    void operator()(MutState state) noexcept;
+
+private:
+    gsl::not_null<const ScheduleInfo*> info;
+    gsl::not_null<RandomUtils*> random;
+
+    /**
+        Checks if the task can be swapped with it's predecessor.
+
+        The function checks if a predecessor is a child of a given
+        task. Tasks without direct relations to each other can be
+        swapped without causing scheduling conflicts.
+
+        @param task         First task
+        @param predecessor  Second task, predecessor
+
+        @return True if tasks can be swapped
+    */
+    [[nodiscard]] bool
+    is_swappable(int16 task, int16 predecessor) noexcept;
+
+    /**
+        Attempts to swap two random adjacent tasks within the
+        schedule.
+    */
+    void try_swap(MutState state) noexcept;
+
+    /**
+        Assigns a new agent to a random task.
+    */
+    void update_agent(MutState state) noexcept;
+};
+
+#ifdef UNIT_TEST
+struct MutatorStub {
+    virtual float operator()(MutState state) noexcept = 0;
+    virtual ~MutatorStub() noexcept = default;
+};
+#endif // UNIT_TEST
 } // namespace angonoka::stun_dag
