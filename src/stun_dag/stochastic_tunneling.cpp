@@ -27,7 +27,7 @@ using index = MutState::index_type;
 
     @return STUN-adjusted energy
 */
-/* float stun(float lowest_e, float energy, float gamma) noexcept
+float stun(float lowest_e, float energy, float gamma) noexcept
 {
     Expects(lowest_e >= 0.F);
     Expects(energy >= lowest_e);
@@ -36,13 +36,16 @@ using index = MutState::index_type;
 
     Ensures(result >= 0.F && result <= 1.F);
     return result;
-} */
+}
 
 /**
     TODO: doc, implement
 */
 struct StochasticTunnelingOp {
-    gsl::not_null<const STUNOptions*> options;
+    gsl::not_null<const ScheduleInfo*> info;
+    gsl::not_null<RandomUtilsT*> random;
+    gsl::not_null<MakespanT*> makespan;
+    gsl::not_null<TemperatureT*> temp;
     std::uint_fast64_t iteration{0};
     std::vector<StateItem> state_buffer;
     MutState best_state;
@@ -67,6 +70,22 @@ struct StochasticTunnelingOp {
             // if (neighbor_is_better()) continue;
             // perform_stun();
         }
+    }
+
+    /**
+        Init energies and STUN-adjusted energies.
+    */
+    void init_energies()
+    {
+        Expects(!current_state.empty());
+
+        current_e = (*makespan)(current_state);
+        lowest_e = current_e;
+        current_s = stun(lowest_e, current_e, gamma);
+
+        Ensures(current_e >= 0.F);
+        Ensures(lowest_e >= 0.F);
+        Ensures(current_s >= 0.F && current_s <= 1.F);
     }
 
     /**
@@ -114,6 +133,7 @@ struct StochasticTunnelingOp {
     {
         prepare_state_spans(state.size());
         init_states(state);
+        init_energies();
         return {};
     }
 };
@@ -127,7 +147,11 @@ stochastic_tunneling(State state, const STUNOptions& options) noexcept
     Expects(
         static_cast<gsl::index>(state.size())
         == options.info->task_duration.size());
-    StochasticTunnelingOp op{.options{&options}};
+    StochasticTunnelingOp op{
+        .info{options.info},
+        .random{options.random},
+        .makespan{options.makespan},
+        .temp{options.temp}};
     return op(state);
 }
 } // namespace angonoka::stun_dag

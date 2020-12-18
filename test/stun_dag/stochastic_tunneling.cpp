@@ -20,9 +20,9 @@ struct RandomUtilsMock final : RandomUtilsStub {
 struct MakespanMock final : MakespanStub {
     float operator()(State state) noexcept override
     {
-        return run(state);
+        return call(state);
     }
-    MAKE_MOCK1(run, float(State state), noexcept);
+    MAKE_MOCK1(call, float(State state), noexcept);
 };
 
 struct TemperatureMock final : TemperatureStub {
@@ -46,7 +46,14 @@ TEST_CASE("Stochastic tunneling")
     ScheduleInfo info;
     info.task_duration.resize(3); // TEMP
     std::vector<StateItem> state(3);
+
+    trompeloeil::sequence seq;
+
+    REQUIRE_CALL(makespan, call(state)).RETURN(1.F).IN_SEQUENCE(seq);
+
     // TODO: WIP
+    // info is only needed for the mutate fn, should probably promote
+    // mutate to a functor class
     const auto r = stochastic_tunneling(
         state,
         STUNOptions{
