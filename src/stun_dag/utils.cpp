@@ -83,7 +83,7 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
         / info->agent_performance[static_cast<gsl::index>(agent_id)];
 }
 
-void Mutator::try_swap(MutState state) noexcept
+void Mutator::try_swap(MutState state) const noexcept
 {
     Expects(state.size() >= 2);
     const auto swap_index = 1 + random->uniform_int(state.size() - 2);
@@ -94,7 +94,7 @@ void Mutator::try_swap(MutState state) noexcept
 }
 
 [[nodiscard]] bool
-Mutator::is_swappable(int16 task, int16 predecessor) noexcept
+Mutator::is_swappable(int16 task, int16 predecessor) const noexcept
 {
     Expects(task >= 0);
     Expects(
@@ -115,7 +115,7 @@ Mutator::Mutator(const ScheduleInfo& info, RandomUtils& random)
 {
 }
 
-void Mutator::operator()(MutState state) noexcept
+void Mutator::operator()(MutState state) const noexcept
 {
     Expects(!state.empty());
     const auto action = random->uniform_01();
@@ -131,7 +131,7 @@ void Mutator::operator()(MutState state) noexcept
     }
 }
 
-void Mutator::update_agent(MutState state) noexcept
+void Mutator::update_agent(MutState state) const noexcept
 {
     Expects(!state.empty());
     Expects(

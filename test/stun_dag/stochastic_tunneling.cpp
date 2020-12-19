@@ -25,6 +25,14 @@ struct MakespanMock final : MakespanStub {
     MAKE_MOCK1(call, float(State state), noexcept);
 };
 
+struct MutatorMock final : MutatorStub {
+    void operator()(MutState state) const noexcept override
+    {
+        return call(state);
+    }
+    MAKE_MOCK1(call, void(MutState state), const noexcept);
+};
+
 struct TemperatureMock final : TemperatureStub {
     operator float() noexcept override { return to_float(); }
     MAKE_MOCK0(to_float, float(), noexcept);
@@ -39,25 +47,30 @@ struct TemperatureMock final : TemperatureStub {
 TEST_CASE("Stochastic tunneling")
 {
     using namespace angonoka::stun_dag;
+    using trompeloeil::_;
 
     RandomUtilsMock random_utils;
     MakespanMock makespan;
     TemperatureMock temperature;
-    ScheduleInfo info;
-    info.task_duration.resize(3); // TEMP
+    MutatorMock mutator;
     std::vector<StateItem> state(3);
 
     trompeloeil::sequence seq;
 
     REQUIRE_CALL(makespan, call(state)).RETURN(1.F).IN_SEQUENCE(seq);
+    REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
+    REQUIRE_CALL(makespan, call(_)).RETURN(1.F).IN_SEQUENCE(seq);
+    REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
+    REQUIRE_CALL(makespan, call(_)).RETURN(1.F).IN_SEQUENCE(seq);
+    REQUIRE_CALL(temperature, to_float())
+        .RETURN(1.F)
+        .IN_SEQUENCE(seq);
 
     // TODO: WIP
-    // info is only needed for the mutate fn, should probably promote
-    // mutate to a functor class
     const auto r = stochastic_tunneling(
         state,
         STUNOptions{
-            .info{&info},
+            .mutator{&mutator},
             .random{&random_utils},
             .makespan{&makespan},
             .temp{&temperature}});

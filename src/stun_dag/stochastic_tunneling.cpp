@@ -42,7 +42,7 @@ float stun(float lowest_e, float energy, float gamma) noexcept
     TODO: doc, implement
 */
 struct StochasticTunnelingOp {
-    gsl::not_null<const ScheduleInfo*> info;
+    gsl::not_null<const MutatorT*> mutator;
     gsl::not_null<RandomUtilsT*> random;
     gsl::not_null<MakespanT*> makespan;
     gsl::not_null<TemperatureT*> temp;
@@ -61,7 +61,6 @@ struct StochasticTunnelingOp {
     float target_s;
 
     /**
-        TODO: WIP
         Creates a new state from the current state.
     */
     void get_new_neighbor() noexcept
@@ -70,7 +69,7 @@ struct StochasticTunnelingOp {
         Expects(!target_state.empty());
 
         ranges::copy(current_state, target_state.begin());
-        // random_utils->get_neighbor_inplace(target_state);
+        (*mutator)(target_state);
         target_e = (*makespan)(target_state);
 
         Ensures(target_e >= 0.F);
@@ -82,7 +81,7 @@ struct StochasticTunnelingOp {
     void run() noexcept
     {
         for (iteration = 0; iteration < max_iterations; ++iteration) {
-            // get_new_neighbor();
+            get_new_neighbor();
             // if (neighbor_is_better()) continue;
             // perform_stun();
         }
@@ -150,7 +149,9 @@ struct StochasticTunnelingOp {
         prepare_state_spans(state.size());
         init_states(state);
         init_energies();
-        return {};
+        run();
+        state_buffer.resize(static_cast<gsl::index>(state.size()));
+        return {std::move(state_buffer), lowest_e, *temp};
     }
 };
 } // namespace
@@ -160,11 +161,8 @@ STUNResult
 stochastic_tunneling(State state, const STUNOptions& options) noexcept
 {
     Expects(!state.empty());
-    Expects(
-        static_cast<gsl::index>(state.size())
-        == options.info->task_duration.size());
     StochasticTunnelingOp op{
-        .info{options.info},
+        .mutator{options.mutator},
         .random{options.random},
         .makespan{options.makespan},
         .temp{options.temp}};

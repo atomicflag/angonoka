@@ -111,7 +111,7 @@ public:
     /**
         Mutates the scheduling configuration in-place.
     */
-    void operator()(MutState state) noexcept;
+    void operator()(MutState state) const noexcept;
 
 private:
     gsl::not_null<const ScheduleInfo*> info;
@@ -130,23 +130,23 @@ private:
         @return True if tasks can be swapped
     */
     [[nodiscard]] bool
-    is_swappable(int16 task, int16 predecessor) noexcept;
+    is_swappable(int16 task, int16 predecessor) const noexcept;
 
     /**
         Attempts to swap two random adjacent tasks within the
         schedule.
     */
-    void try_swap(MutState state) noexcept;
+    void try_swap(MutState state) const noexcept;
 
     /**
         Assigns a new agent to a random task.
     */
-    void update_agent(MutState state) noexcept;
+    void update_agent(MutState state) const noexcept;
 };
 
 #ifdef UNIT_TEST
 struct MutatorStub {
-    virtual float operator()(MutState state) noexcept = 0;
+    virtual void operator()(MutState state) const noexcept = 0;
     virtual ~MutatorStub() noexcept = default;
 };
 #endif // UNIT_TEST

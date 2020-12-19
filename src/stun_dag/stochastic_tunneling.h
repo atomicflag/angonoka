@@ -12,10 +12,12 @@ struct ScheduleInfo;
 using TemperatureT = class Temperature;
 using MakespanT = class Makespan;
 using RandomUtilsT = class RandomUtils;
+using MutatorT = class Mutator;
 #else // UNIT_TEST
 using TemperatureT = struct TemperatureStub;
 using MakespanT = struct MakespanStub;
 using RandomUtilsT = struct RandomUtilsStub;
+using MutatorT = struct MutatorStub;
 #endif // UNIT_TEST
 
 /**
@@ -36,19 +38,20 @@ struct Gamma : detail::OpaqueFloat {
 struct STUNResult {
     std::vector<StateItem> state;
     float energy;
-    float beta;
+    float temperature;
 };
 
 /**
     STUN auxilary data and utilities.
+    TODO: doc
 
-    @var info       Instance of ScheduleInfo
+    @var mutator
     @var random     Instance of RandomUtils
     @var makespan   Instance of Makespan
     @var temp       Instance of Temperature
 */
 struct STUNOptions {
-    gsl::not_null<const ScheduleInfo*> info;
+    gsl::not_null<const MutatorT*> mutator;
     gsl::not_null<RandomUtilsT*> random;
     gsl::not_null<MakespanT*> makespan;
     gsl::not_null<TemperatureT*> temp;
