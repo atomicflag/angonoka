@@ -61,9 +61,9 @@ TEST_CASE("Stochastic tunneling")
     REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
     REQUIRE_CALL(makespan, call(_)).RETURN(1.F).IN_SEQUENCE(seq);
     REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
-    REQUIRE_CALL(makespan, call(_)).RETURN(1.F).IN_SEQUENCE(seq);
+    REQUIRE_CALL(makespan, call(_)).RETURN(.1F).IN_SEQUENCE(seq);
     REQUIRE_CALL(temperature, to_float())
-        .RETURN(1.F)
+        .RETURN(.5F)
         .IN_SEQUENCE(seq);
 
     // TODO: WIP
@@ -74,4 +74,7 @@ TEST_CASE("Stochastic tunneling")
             .random{&random_utils},
             .makespan{&makespan},
             .temp{&temperature}});
+
+    REQUIRE(r.energy == Approx(.1F));
+    REQUIRE(r.temperature == Approx(.5F));
 }

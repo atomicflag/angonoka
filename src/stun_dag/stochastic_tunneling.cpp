@@ -76,13 +76,40 @@ struct StochasticTunnelingOp {
     }
 
     /**
+        Updates the lowest energy and best state if the
+        target state is better.
+    */
+    bool neighbor_is_better() noexcept
+    {
+        Expects(target_e >= 0.F);
+        Expects(current_e >= 0.F);
+        Expects(lowest_e >= 0.F);
+        Expects(current_e >= lowest_e);
+        Expects(!target_state.empty());
+        Expects(!current_state.empty());
+        Expects(!best_state.empty());
+
+        if (target_e < current_e) {
+            if (target_e < lowest_e) {
+                lowest_e = target_e;
+                ranges::copy(target_state, best_state.begin());
+                current_s = stun(lowest_e, current_e, gamma);
+            }
+            std::swap(current_state, target_state);
+            current_e = target_e;
+            return true;
+        }
+        return false;
+    }
+
+    /**
         TODO: doc
     */
     void run() noexcept
     {
         for (iteration = 0; iteration < max_iterations; ++iteration) {
             get_new_neighbor();
-            // if (neighbor_is_better()) continue;
+            if (neighbor_is_better()) continue;
             // perform_stun();
         }
     }
