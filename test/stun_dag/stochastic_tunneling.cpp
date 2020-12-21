@@ -60,13 +60,20 @@ TEST_CASE("Stochastic tunneling")
     REQUIRE_CALL(makespan, call(state)).RETURN(1.F).IN_SEQUENCE(seq);
     REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
     REQUIRE_CALL(makespan, call(_)).RETURN(1.F).IN_SEQUENCE(seq);
+    REQUIRE_CALL(temperature, to_float())
+        .RETURN(.5F)
+        .IN_SEQUENCE(seq);
+    REQUIRE_CALL(random_utils, uniform_01())
+        .RETURN(.1F)
+        .IN_SEQUENCE(seq);
+    REQUIRE_CALL(temperature, update(_, _)).IN_SEQUENCE(seq);
+
     REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
     REQUIRE_CALL(makespan, call(_)).RETURN(.1F).IN_SEQUENCE(seq);
     REQUIRE_CALL(temperature, to_float())
         .RETURN(.5F)
         .IN_SEQUENCE(seq);
 
-    // TODO: WIP
     const auto r = stochastic_tunneling(
         state,
         STUNOptions{

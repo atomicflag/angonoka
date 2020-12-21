@@ -39,7 +39,7 @@ float stun(float lowest_e, float energy, float gamma) noexcept
 }
 
 /**
-    TODO: doc, implement
+    TODO: doc
 */
 struct StochasticTunnelingOp {
     gsl::not_null<const MutatorT*> mutator;
@@ -103,6 +103,33 @@ struct StochasticTunnelingOp {
     }
 
     /**
+        Perform Monte Carlo sampling on the STUN-adjusted energy.
+    */
+    void perform_stun() noexcept
+    {
+        Expects(target_e >= 0.F);
+        Expects(lowest_e >= 0.F);
+        Expects(current_s >= 0.F);
+        Expects(!target_state.empty());
+        Expects(!current_state.empty());
+
+        target_s = stun(lowest_e, target_e, gamma);
+        const auto delta_s = target_s - current_s;
+        const auto pr = std::min(1.F, std::exp(-*temp * delta_s));
+        if (pr >= random->uniform_01()) {
+            std::swap(current_state, target_state);
+            current_e = target_e;
+            current_s = target_s;
+            temp->update(
+                target_s,
+                static_cast<float>(iteration) / max_iterations);
+        }
+
+        Ensures(target_s >= 0.F);
+        Ensures(current_s >= 0.F);
+    }
+
+    /**
         TODO: doc
     */
     void run() noexcept
@@ -110,7 +137,7 @@ struct StochasticTunnelingOp {
         for (iteration = 0; iteration < max_iterations; ++iteration) {
             get_new_neighbor();
             if (neighbor_is_better()) continue;
-            // perform_stun();
+            perform_stun();
         }
     }
 

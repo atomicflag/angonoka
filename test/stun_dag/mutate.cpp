@@ -5,6 +5,8 @@
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/view/chunk.hpp>
 
+// TODO: Mutator type traits
+
 TEST_CASE("Mutate state")
 {
     using namespace angonoka::stun_dag;
