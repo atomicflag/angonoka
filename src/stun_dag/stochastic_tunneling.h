@@ -43,9 +43,8 @@ struct STUNResult {
 
 /**
     STUN auxilary data and utilities.
-    TODO: doc
 
-    @var mutator
+    @var mutator    Instance of Mutator
     @var random     Instance of RandomUtils
     @var makespan   Instance of Makespan
     @var temp       Instance of Temperature
