@@ -40,13 +40,6 @@ float stun(float lowest_e, float energy, float gamma) noexcept
 
 /**
     Stochastic tunneling function object.
-
-    @var mutator    Mutates states
-    @var random     Random utilities
-    @var makespan   Makespan estimator
-    @var temp       Dynmic temperature
-
-    // TODO: doc
 */
 struct StochasticTunnelingOp {
     gsl::not_null<const MutatorT*> mutator;
@@ -137,7 +130,7 @@ struct StochasticTunnelingOp {
     }
 
     /**
-        TODO: doc
+        Run stochastic tunneling.
     */
     void run() noexcept
     {
@@ -203,7 +196,11 @@ struct StochasticTunnelingOp {
     }
 
     /**
-        TODO: doc
+        Init states and run stochastic tunneling optimization.
+
+        @param state Initial state
+
+        @return An instance of STUNResult
     */
     [[nodiscard]] STUNResult operator()(State state)
     {
