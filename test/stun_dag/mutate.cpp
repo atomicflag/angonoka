@@ -5,8 +5,6 @@
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/view/chunk.hpp>
 
-// TODO: Mutator type traits
-
 TEST_CASE("Mutate state")
 {
     using namespace angonoka::stun_dag;
@@ -66,4 +64,15 @@ TEST_CASE("Mutate state")
         REQUIRE(
             state == std::vector<StateItem>{{0, 0}, {1, 0}, {2, 2}});
     }
+}
+
+TEST_CASE("Mutator type traits")
+{
+    using angonoka::stun_dag::Mutator;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<Mutator>);
+    STATIC_REQUIRE(!std::is_default_constructible_v<Mutator>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<Mutator>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<Mutator>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Mutator>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Mutator>);
 }
