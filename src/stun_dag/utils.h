@@ -10,17 +10,10 @@ using ranges::span;
 struct ScheduleInfo;
 
 /**
-    Stateful function object for calculating the makespan.
+    Makespan estimator.
 
     Further reading:
     https://en.wikipedia.org/wiki/Makespan
-
-    @var info       An instance of ScheduleInfo
-    @var sum_buffer Cache-friendly buffer
-    @var task_done  Mutable view of completion times for individual
-                    tasks
-    @var work_done  Mutable view of completion times for individual
-                    agents
 */
 class Makespan {
 public:
@@ -90,26 +83,25 @@ struct MakespanStub {
 class RandomUtils;
 
 /**
-    TODO: doc
-
     Shuffle tasks and agents in-place.
 
     Randomly swaps two adjacent tasks within the schedule and
     reassigns an agent of a random task.
-
-    @var info   An instance of ScheduleInfo
-    @var random An instance of RandomUtils
-    @var state  Scheduling configuration
 */
 class Mutator {
 public:
     /**
-        TODO: doc
+        Constructor.
+
+        @param info   An instance of ScheduleInfo
+        @param random An instance of RandomUtils
     */
     Mutator(const ScheduleInfo& info, RandomUtils& random);
 
     /**
         Mutates the scheduling configuration in-place.
+
+        @param state Scheduling configuration
     */
     void operator()(MutState state) const noexcept;
 

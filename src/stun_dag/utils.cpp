@@ -85,7 +85,8 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
 
 void Mutator::try_swap(MutState state) const noexcept
 {
-    Expects(state.size() >= 2);
+    Expects(!state.empty());
+    if (state.size() == 1) return;
     const auto swap_index = 1 + random->uniform_int(state.size() - 2);
     auto& task_a = state[swap_index].task_id;
     auto& task_b = state[swap_index - 1].task_id;
@@ -118,17 +119,8 @@ Mutator::Mutator(const ScheduleInfo& info, RandomUtils& random)
 void Mutator::operator()(MutState state) const noexcept
 {
     Expects(!state.empty());
-    const auto action = random->uniform_01();
-    constexpr auto both_threshold = .6F;
-    constexpr auto swap_threshold = .3F;
-    if (action >= both_threshold) {
-        try_swap(state);
-        update_agent(state);
-    } else if (action >= swap_threshold) {
-        try_swap(state);
-    } else {
-        update_agent(state);
-    }
+    try_swap(state);
+    update_agent(state);
 }
 
 void Mutator::update_agent(MutState state) const noexcept

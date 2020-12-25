@@ -21,6 +21,7 @@ struct Options {
 int main(int /*unused*/, char** /*unused*/)
 {
     using namespace clipp;
+    // TODO: Add a test STUN invocation.
 
     // Options options;
 

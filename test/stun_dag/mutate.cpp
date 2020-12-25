@@ -29,12 +29,12 @@ TEST_CASE("Mutate state")
         mut(state);
 
         REQUIRE(
-            state == std::vector<StateItem>{{1, 0}, {0, 2}, {2, 2}});
+            state == std::vector<StateItem>{{0, 0}, {2, 1}, {1, 2}});
 
         for (int i{0}; i < 100; ++i) mut(state);
 
         REQUIRE(
-            state == std::vector<StateItem>{{1, 0}, {2, 0}, {0, 2}});
+            state == std::vector<StateItem>{{1, 2}, {0, 0}, {2, 2}});
     }
 
     SECTION("With dependencies")
@@ -49,7 +49,7 @@ TEST_CASE("Mutate state")
             info.dependencies,
             info.dependencies_data | chunk(1));
 
-        RandomUtils random{0};
+        RandomUtils random{1};
 
         std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
 
@@ -57,12 +57,32 @@ TEST_CASE("Mutate state")
         mut(state);
 
         REQUIRE(
-            state == std::vector<StateItem>{{0, 0}, {1, 2}, {2, 2}});
+            state == std::vector<StateItem>{{0, 0}, {1, 0}, {2, 2}});
 
         for (int i{0}; i < 100; ++i) mut(state);
 
         REQUIRE(
-            state == std::vector<StateItem>{{0, 0}, {1, 0}, {2, 2}});
+            state == std::vector<StateItem>{{0, 0}, {1, 0}, {2, 1}});
+    }
+
+    SECTION("Single task")
+    {
+        info.dependencies.clear();
+        info.dependencies.emplace_back();
+        info.available_agents.resize(1);
+
+        RandomUtils random{0};
+
+        std::vector<StateItem> state{{0, 0}};
+
+        Mutator mut{info, random};
+        mut(state);
+
+        REQUIRE(state == std::vector<StateItem>{{0, 2}});
+
+        for (int i{0}; i < 100; ++i) mut(state);
+
+        REQUIRE(state == std::vector<StateItem>{{0, 0}});
     }
 }
 
