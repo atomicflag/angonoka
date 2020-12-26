@@ -7,27 +7,28 @@
 #include <range/v3/view/transform.hpp>
 
 namespace angonoka::stun_dag {
-Makespan::Makespan(
-    gsl::not_null<const ScheduleInfo*> info)
-    : info{std::move(info)}
+Makespan::Makespan(const ScheduleInfo& info)
+    : info{&info}
     , sum_buffer(
-info->task_duration.size()+info->agent_performance.size())
-    , task_done{sum_buffer.data(), static_cast<int>(info->task_duration.size())}
-    , work_done{task_done.end(), static_cast<int>(info->agent_performance.size())}
+          info.task_duration.size() + info.agent_performance.size())
+    , task_done{sum_buffer.data(), static_cast<int>(info.task_duration.size())}
+    , work_done{
+          task_done.end(),
+          static_cast<int>(info.agent_performance.size())}
 {
-    Expects(!info->agent_performance.empty());
-    Expects(!info->task_duration.empty());
+    Expects(!info.agent_performance.empty());
+    Expects(!info.task_duration.empty());
     Ensures(!sum_buffer.empty());
     Ensures(
         task_done.size()
-        == static_cast<int>(info->task_duration.size()));
+        == static_cast<int>(info.task_duration.size()));
     Ensures(
         work_done.size()
-        == static_cast<int>(info->agent_performance.size()));
+        == static_cast<int>(info.agent_performance.size()));
 }
 
 Makespan::Makespan(const Makespan& other)
-    : Makespan{other.info}
+    : Makespan{*other.info}
 {
     Ensures(sum_buffer.size() == other.sum_buffer.size());
 }

@@ -44,7 +44,7 @@ TEST_CASE("Makespan special member functions")
 
     const auto info = make_test_schedule_info();
     const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
-    Makespan makespan{&info};
+    Makespan makespan{info};
 
     REQUIRE(makespan(state) == Approx(3.F));
 
@@ -52,7 +52,7 @@ TEST_CASE("Makespan special member functions")
     info2.agent_performance.resize(2);
     info2.task_duration.resize(2);
     const std::vector<StateItem> state2{{0, 0}, {1, 1}};
-    Makespan makespan2{&info2};
+    Makespan makespan2{info2};
 
     REQUIRE(makespan2(state2) == Approx(2.F));
 
@@ -83,7 +83,7 @@ TEST_CASE("Makespan special member functions")
 TEST_CASE("Makespan estimation")
 {
     const auto info = make_test_schedule_info();
-    Makespan makespan{&info};
+    Makespan makespan{info};
     const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
     REQUIRE(makespan(state) == Approx(3.F));
 }

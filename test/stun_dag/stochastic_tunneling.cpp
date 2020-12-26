@@ -80,7 +80,8 @@ TEST_CASE("Stochastic tunneling")
             .mutator{&mutator},
             .random{&random_utils},
             .makespan{&makespan},
-            .temp{&temperature}});
+            .temp{&temperature},
+            .gamma{.5F}});
 
     REQUIRE(r.energy == Approx(.1F));
     REQUIRE(r.temperature == Approx(.5F));

@@ -24,7 +24,7 @@ public:
         @param tasks_count  Total number of tasks
         @param agents_count Total number of agents
     */
-    Makespan(gsl::not_null<const ScheduleInfo*> info);
+    Makespan(const ScheduleInfo& info);
 
     Makespan(const Makespan& other);
     Makespan& operator=(const Makespan& other) noexcept;

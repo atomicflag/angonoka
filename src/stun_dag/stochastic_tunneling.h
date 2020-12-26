@@ -48,12 +48,14 @@ struct STUNResult {
     @var random     Instance of RandomUtils
     @var makespan   Instance of Makespan
     @var temp       Instance of Temperature
+    @var gamma // TODO: doc
 */
 struct STUNOptions {
     gsl::not_null<const MutatorT*> mutator;
     gsl::not_null<RandomUtilsT*> random;
     gsl::not_null<MakespanT*> makespan;
     gsl::not_null<TemperatureT*> temp;
+    float gamma;
 };
 
 /**

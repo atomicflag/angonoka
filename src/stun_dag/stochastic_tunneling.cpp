@@ -5,13 +5,16 @@
 #include "utils.h"
 #include <range/v3/algorithm/copy.hpp>
 
+// TODO: temp
+#include <fmt/printf.h>
+
 namespace {
 using namespace angonoka::stun_dag;
 
 #ifdef UNIT_TEST
 constexpr std::uint_fast64_t max_iterations = 2;
 #else // UNIT_TEST
-constexpr std::uint_fast64_t max_iterations = 100;
+constexpr std::uint_fast64_t max_iterations = 1'000'000;
 #endif // UNIT_TEST
 
 using index = MutState::index_type;
@@ -135,6 +138,16 @@ struct StochasticTunnelingOp {
     void run() noexcept
     {
         for (iteration = 0; iteration < max_iterations; ++iteration) {
+#ifndef UNIT_TEST
+            if (iteration % 100000 == 0) {
+                fmt::print(
+                    "beta: {} | min_e: {} | avg_stun: {} | {}\n",
+                    *temp,
+                    lowest_e,
+                    temp->average_stun(),
+                    current_s);
+            }
+#endif
             get_new_neighbor();
             if (neighbor_is_better()) continue;
             perform_stun();
@@ -223,7 +236,8 @@ stochastic_tunneling(State state, const STUNOptions& options) noexcept
         .mutator{options.mutator},
         .random{options.random},
         .makespan{options.makespan},
-        .temp{options.temp}};
+        .temp{options.temp},
+        .gamma{options.gamma}};
     return op(state);
 }
 } // namespace angonoka::stun_dag
