@@ -3,6 +3,7 @@ from operator import itemgetter
 from random import sample, choice, uniform, randint
 from itertools import groupby, chain
 from pprint import pprint
+from pickle import dump
 # import networkx as nx
 # import matplotlib.pyplot as plt
 # from graphviz import Digraph
@@ -82,15 +83,15 @@ tasks = tuple(make_ranks(4, 3))
 add_dependencies(tasks)
 tasks = sort(tasks)
 validate(tasks)
-# print(len(tasks))
-# exit()
-# print(tasks)
-agent_performance = ",".join(str(uniform(.5,1.5))+'F' for i in range(10))
+
+agent_perfs = [uniform(.5,1.5) for i in range(10)]
+
+agent_performance = ",".join(str(a)+'F' for a in agent_perfs)
 task_duration = ",".join(str(t.dur)+'F' for t in tasks)
 available_agents_data = ",".join(map(str,chain(*(t.agents for t in tasks))))
-available_agents = ",".join(f'next_aa({len(a.agents)})' for a in tasks)
+available_agents = ",".join(f'n({len(a.agents)})' for a in tasks)
 dependencies_data = ",".join(map(str,chain(*(t.deps for t in tasks))))
-dependencies = ",".join(f'next_dep({len(a.deps)})' for a in tasks)
+dependencies = ",".join(f'n({len(a.deps)})' for a in tasks)
 state = ",".join(f'{{{t.id},{t.agents[0]}}}' for t in tasks)
 print(f'''
 ScheduleInfo info{{
@@ -99,55 +100,24 @@ ScheduleInfo info{{
     .available_agents_data{{{available_agents_data}}},
     .dependencies_data{{{dependencies_data}}}
 }};
-auto* aa_head = info.available_agents_data.data();
-const auto next_aa = [&](auto s) {{
-    return span<int16>{{std::exchange(aa_head, std::next(aa_head, s)), s}};
-}};
-info.available_agents = {{{available_agents}}};
-auto* dep_head = info.dependencies_data.data();
-const auto next_dep = [&](auto s) {{
-    return span<int16>{{std::exchange(dep_head, std::next(dep_head, s)), s}};
-}};
-info.dependencies = {{{dependencies}}};
+{{
+    auto* h = info.available_agents_data.data();
+    const auto n = [&](auto s) {{
+        return span<int16>{{std::exchange(h, std::next(h, s)), s}};
+    }};
+    info.available_agents = {{{available_agents}}};
+}}
+{{
+    auto* h = info.dependencies_data.data();
+    const auto n = [&](auto s) {{
+        return span<int16>{{std::exchange(h, std::next(h, s)), s}};
+    }};
+    info.dependencies = {{{dependencies}}};
+}}
 
 std::vector<StateItem> state{{{state}}};
 ''')
+to_save = [agent_perfs, tasks]
+with open("info.pickle", "bw") as f:
+    dump(to_save, f)
 exit()
-
-def mutate(tasks):
-    i = randint(1, len(tasks)-1)
-    to_swap = i-1
-    if not is_swappable(tasks[to_swap], tasks[i]):
-        return False
-    tasks[i], tasks[to_swap] = tasks[to_swap], tasks[i]
-    return True
-
-def makespan(tasks):
-    task_done = {t.id:0 for t in tasks}
-    work = [0]*2
-    for t in tasks:
-        prev = [task_done[d] for d in t.deps]
-        prev += [work[t.agent]]
-        prev = max(prev)
-        work[t.agent] = task_done[t.id] = prev + t.dur
-    return max(work)
-
-m = 9999999
-for i in range(100000):
-    # print(mutate(tasks))
-    # pprint(('before', [t.id for t in tasks]))
-    v = mutate(tasks)
-    # pprint(('after', [t.id for t in tasks]))
-    # validate(tasks)
-    nm = makespan(tasks)
-    if nm < m:
-        m = nm
-        print(m)
-    # print(v, makespan(tasks))
-
-# G = Digraph(format='png')
-# for t in tasks:
-#     for d in t.deps:
-#         G.edge(t.id, d)
-#
-# G.render('graph')
