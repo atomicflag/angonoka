@@ -81,16 +81,16 @@ def is_swappable(a, b):
 
 tasks = tuple(make_ranks(4, 3))
 add_dependencies(tasks)
-tasks = sort(tasks)
-validate(tasks)
+# tasks = sort(tasks)
+# validate(tasks)
 
 agent_perfs = [uniform(.5,1.5) for i in range(10)]
 
 agent_performance = ",".join(str(a)+'F' for a in agent_perfs)
 task_duration = ",".join(str(t.dur)+'F' for t in tasks)
-available_agents_data = ",".join(map(str,chain(*(t.agents for t in tasks))))
+available_agents_data = ",".join(map(str,chain(*(sorted(t.agents) for t in tasks))))
 available_agents = ",".join(f'n({len(a.agents)})' for a in tasks)
-dependencies_data = ",".join(map(str,chain(*(t.deps for t in tasks))))
+dependencies_data = ",".join(map(str,chain(*(sorted(t.deps) for t in tasks))))
 dependencies = ",".join(f'n({len(a.deps)})' for a in tasks)
 state = ",".join(f'{{{t.id},{t.agents[0]}}}' for t in tasks)
 print(f'''
