@@ -5,9 +5,6 @@
 #include "utils.h"
 #include <range/v3/algorithm/copy.hpp>
 
-// TODO: temp
-#include <fmt/printf.h>
-
 namespace {
 using namespace angonoka::stun_dag;
 
@@ -138,16 +135,6 @@ struct StochasticTunnelingOp {
     void run() noexcept
     {
         for (iteration = 0; iteration < max_iterations; ++iteration) {
-#ifndef UNIT_TEST
-            if (iteration % 100000 == 0) {
-                fmt::print(
-                    "beta: {} | min_e: {} | avg_stun: {} | {}\n",
-                    *temp,
-                    lowest_e,
-                    temp->average_stun(),
-                    current_s);
-            }
-#endif
             get_new_neighbor();
             if (neighbor_is_better()) continue;
             perform_stun();
@@ -232,12 +219,15 @@ STUNResult
 stochastic_tunneling(State state, const STUNOptions& options) noexcept
 {
     Expects(!state.empty());
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wbraced-scalar-init"
     StochasticTunnelingOp op{
         .mutator{options.mutator},
         .random{options.random},
         .makespan{options.makespan},
         .temp{options.temp},
         .gamma{options.gamma}};
+#pragma clang diagnostic pop
     return op(state);
 }
 } // namespace angonoka::stun_dag
