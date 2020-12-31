@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
 #include <vector>
 
@@ -27,5 +28,25 @@ struct ScheduleInfo {
     std::vector<int16> dependencies_data;
     std::vector<span<int16>> dependencies;
 };
+
+// TODO: Add VectorOfSpans
+
+// class VectorOfSpans {
+//     public:
+//         VectorOfSpans(const VectorOfSpans& other);
+//         VectorOfSpans& operator=(const VectorOfSpans& other);
+//         VectorOfSpans(VectorOfSpans&& other) noexcept;
+//         VectorOfSpans& operator=(VectorOfSpans&& other) noexcept;
+//         ~VectorOfSpans() noexcept;
+//
+//         template<typename T>
+//         decltype(auto) operator[](T&& key) const {
+//             Expects(!spans.empty());
+//             return spans[std::forward<T>(key)];
+//         }
+//     private:
+//     std::vector<int16> data;
+//     std::vector<span<int16>> spans;
+// };
 
 } // namespace angonoka::stun_dag
