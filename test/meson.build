@@ -22,6 +22,7 @@ test_exe = executable(
     'stun_dag/mutate.cpp',
     'stun_dag/common.cpp',
     'stun_dag/temperature.cpp',
+    'stun_dag/schedule_info.cpp',
     'stun_dag/stochastic_tunneling.cpp',
     'load_tasks.cpp',
     'parse_duration.cpp',
