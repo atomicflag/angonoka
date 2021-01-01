@@ -23,6 +23,7 @@ common_lib = static_library(
     'stun_dag/common.cpp',
     'stun_dag/temperature.cpp',
     'stun_dag/random_utils.cpp',
+    'stun_dag/schedule_info.cpp',
     'stun/beta_driver.cpp',
     'stun/task_duration_cache.cpp',
     'stun/task_agents.cpp',

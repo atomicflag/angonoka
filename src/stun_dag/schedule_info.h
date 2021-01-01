@@ -29,24 +29,48 @@ struct ScheduleInfo {
     std::vector<span<int16>> dependencies;
 };
 
-// TODO: Add VectorOfSpans
+/**
+    TODO: doc
+*/
+class VectorOfSpans {
+public:
+    VectorOfSpans() noexcept;
+    VectorOfSpans(
+        std::vector<int16>&& data,
+        std::vector<span<int16>>&& spans) noexcept;
+    VectorOfSpans(const VectorOfSpans& other);
+    VectorOfSpans& operator=(const VectorOfSpans& other);
+    VectorOfSpans(VectorOfSpans&& other) noexcept;
+    VectorOfSpans& operator=(VectorOfSpans&& other) noexcept;
+    ~VectorOfSpans() noexcept;
 
-// class VectorOfSpans {
-//     public:
-//         VectorOfSpans(const VectorOfSpans& other);
-//         VectorOfSpans& operator=(const VectorOfSpans& other);
-//         VectorOfSpans(VectorOfSpans&& other) noexcept;
-//         VectorOfSpans& operator=(VectorOfSpans&& other) noexcept;
-//         ~VectorOfSpans() noexcept;
-//
-//         template<typename T>
-//         decltype(auto) operator[](T&& key) const {
-//             Expects(!spans.empty());
-//             return spans[std::forward<T>(key)];
-//         }
-//     private:
-//     std::vector<int16> data;
-//     std::vector<span<int16>> spans;
-// };
+    /**
+        TODO: doc
+    */
+    template <typename T> decltype(auto) operator[](T&& key) const
+    {
+        Expects(!spans.empty());
+        return spans[std::forward<T>(key)];
+    }
+
+    /**
+        TODO: doc
+    */
+    void clear() noexcept;
+
+    /**
+        TODO: doc
+    */
+    [[nodiscard]] std::size_t size() const noexcept;
+
+    /**
+        TODO: doc
+    */
+    [[nodiscard]] bool empty() const noexcept;
+
+private:
+    std::vector<int16> data;
+    std::vector<span<int16>> spans;
+};
 
 } // namespace angonoka::stun_dag

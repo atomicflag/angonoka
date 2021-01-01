@@ -59,3 +59,88 @@ TEST_CASE("ScheduleInfo special memeber functions")
         // REQUIRE(other.dependencies[2][1] == 1);
     }
 }
+
+TEST_CASE("VectorOfSpans type traits")
+{
+    using angonoka::stun_dag::VectorOfSpans;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<VectorOfSpans>);
+    STATIC_REQUIRE(
+        std::is_nothrow_default_constructible_v<VectorOfSpans>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<VectorOfSpans>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<VectorOfSpans>);
+    STATIC_REQUIRE(
+        std::is_nothrow_move_constructible_v<VectorOfSpans>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<VectorOfSpans>);
+}
+
+TEST_CASE("VectorOfSpans special memeber functions")
+{
+    using namespace angonoka::stun_dag;
+
+    SECTION("Empty")
+    {
+        VectorOfSpans vspans;
+
+        REQUIRE(vspans.empty());
+
+        SECTION("Copy ctor")
+        {
+            VectorOfSpans other{vspans};
+
+            REQUIRE(other.empty());
+        }
+    }
+
+    SECTION("Non-empty")
+    {
+
+        std::vector<int16> data{0, 1, 2};
+        auto* b = data.data();
+        const auto f = [&](auto s) -> span<int16> {
+            return {std::exchange(b, std::next(b, s)), s};
+        };
+        std::vector<span<int16>> spans{f(1), f(1), f(1)};
+
+        VectorOfSpans vspans{std::move(data), std::move(spans)};
+
+        REQUIRE(vspans.size() == 3);
+
+        SECTION("Copy ctor")
+        {
+            VectorOfSpans other{vspans};
+            vspans.clear();
+
+            REQUIRE(other.size() == 3);
+            REQUIRE(other[2u][0] == 2);
+        }
+
+        SECTION("Copy assignment")
+        {
+            VectorOfSpans other;
+            other = vspans;
+            vspans.clear();
+
+            REQUIRE(other.size() == 3);
+            REQUIRE(other[2u][0] == 2);
+        }
+
+        SECTION("Move ctor")
+        {
+            VectorOfSpans other{std::move(vspans)};
+
+            REQUIRE(vspans.empty());
+            REQUIRE(other.size() == 3);
+            REQUIRE(other[2u][0] == 2);
+        }
+
+        SECTION("Move assignment")
+        {
+            VectorOfSpans other;
+            other = std::move(vspans);
+
+            REQUIRE(vspans.empty());
+            REQUIRE(other.size() == 3);
+            REQUIRE(other[2u][0] == 2);
+        }
+    }
+}
