@@ -9,35 +9,22 @@ namespace angonoka::stun_dag {
 using ranges::span;
 
 /**
-    General, read-only information about the schedule.
-
-    @var agent_performance      Agent's speed multipliers
-    @var task_duration          Task durations in seconds
-    @var available_agents_data  Cache-friendly buffer
-    @var available_agents       Which agents can perform each task
-    @var dependencies_data      Cache-friendly buffer
-    @var dependencies           Task's dependent sub-tasks
-*/
-struct ScheduleInfo {
-    std::vector<float> agent_performance;
-    std::vector<float> task_duration;
-
-    std::vector<int16> available_agents_data;
-    std::vector<span<int16>> available_agents;
-
-    std::vector<int16> dependencies_data;
-    std::vector<span<int16>> dependencies;
-};
-
-/**
     TODO: doc
 */
 class VectorOfSpans {
 public:
+    /**
+        TODO: doc
+    */
     VectorOfSpans() noexcept;
+
+    /**
+        TODO: doc
+    */
     VectorOfSpans(
         std::vector<int16>&& data,
         std::vector<span<int16>>&& spans) noexcept;
+
     VectorOfSpans(const VectorOfSpans& other);
     VectorOfSpans& operator=(const VectorOfSpans& other);
     VectorOfSpans(VectorOfSpans&& other) noexcept;
@@ -73,4 +60,18 @@ private:
     std::vector<span<int16>> spans;
 };
 
+/**
+    General, read-only information about the schedule.
+
+    @var agent_performance      Agent's speed multipliers
+    @var task_duration          Task durations in seconds
+    @var available_agents       Which agents can perform each task
+    @var dependencies           Task's dependent sub-tasks
+*/
+struct ScheduleInfo {
+    std::vector<float> agent_performance;
+    std::vector<float> task_duration;
+    VectorOfSpans available_agents;
+    VectorOfSpans dependencies;
+};
 } // namespace angonoka::stun_dag

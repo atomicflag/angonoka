@@ -94,26 +94,31 @@ dependencies_data = ",".join(map(str,chain(*(sorted(t.deps) for t in tasks))))
 dependencies = ",".join(f'n({len(a.deps)})' for a in tasks)
 state = ",".join(f'{{{t.id},{t.agents[0]}}}' for t in tasks)
 print(f'''
+std::vector<int16> available_agents_data{{{available_agents_data}}};
+std::vector<int16> dependencies_data{{{dependencies_data}}};
+
+std::vector<span<int16>> available_agents = [&] () -> std::vector<span<int16>> {{
+    auto* h = available_agents_data.data();
+    const auto n = [&](auto s) {{
+        return span<int16>{{std::exchange(h, std::next(h, s)), s}};
+    }};
+    return {{{available_agents}}};
+}}();
+
+std::vector<span<int16>> dependencies = [&] () -> std::vector<span<int16>> {{
+    auto* h = dependencies_data.data();
+    const auto n = [&](auto s) {{
+        return span<int16>{{std::exchange(h, std::next(h, s)), s}};
+    }};
+    return {{{dependencies}}};
+}}();
+
 ScheduleInfo info{{
     .agent_performance{{{agent_performance}}},
     .task_duration{{{task_duration}}},
-    .available_agents_data{{{available_agents_data}}},
-    .dependencies_data{{{dependencies_data}}}
+    .available_agents{{std::move(available_agents_data),std::move(available_agents)}},
+    .dependencies{{std::move(dependencies_data), std::move(dependencies)}}
 }};
-{{
-    auto* h = info.available_agents_data.data();
-    const auto n = [&](auto s) {{
-        return span<int16>{{std::exchange(h, std::next(h, s)), s}};
-    }};
-    info.available_agents = {{{available_agents}}};
-}}
-{{
-    auto* h = info.dependencies_data.data();
-    const auto n = [&](auto s) {{
-        return span<int16>{{std::exchange(h, std::next(h, s)), s}};
-    }};
-    info.dependencies = {{{dependencies}}};
-}}
 
 std::vector<StateItem> state{{{state}}};
 ''')

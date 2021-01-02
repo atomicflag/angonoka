@@ -16,13 +16,18 @@ ScheduleInfo make_test_schedule_info()
     ScheduleInfo info;
     info.agent_performance = {1.F, 2.F, 3.F};
     info.task_duration = {1.F, 2.F, 3.F};
-    info.available_agents_data = {0, 1, 0, 1, 0, 1};
-    info.available_agents = info.available_agents_data | chunk(2)
-        | to<decltype(info.available_agents)>();
+    std::vector<int16> available_agents_data = {0, 1, 0, 1, 0, 1};
+    std::vector<span<int16>> available_agents = available_agents_data
+        | chunk(2) | to<decltype(available_agents)>();
+    info.available_agents
+        = {std::move(available_agents_data),
+           std::move(available_agents)};
 
-    info.dependencies_data = {0, 1};
-    info.dependencies.emplace_back();
-    push_back(info.dependencies, info.dependencies_data | chunk(1));
+    std::vector<int16> dependencies_data = {0, 1};
+    std::vector<span<int16>> dependencies{{}};
+    push_back(dependencies, dependencies_data | chunk(1));
+    info.dependencies
+        = {std::move(dependencies_data), std::move(dependencies)};
     return info;
 }
 } // namespace
