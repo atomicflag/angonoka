@@ -146,6 +146,10 @@ TEST_CASE("VectorOfSpans special memeber functions")
 
             REQUIRE(other.size() == 3);
             REQUIRE(other[2u][0] == 2);
+
+            other = vspans;
+
+            REQUIRE(other.empty());
         }
 
         SECTION("Move ctor")

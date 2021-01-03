@@ -20,14 +20,12 @@ VectorOfSpans::VectorOfSpans(const VectorOfSpans& other)
 {
     if (other.spans.empty()) return;
     data = other.data;
+    spans = other.spans;
     auto* const front_ptr = other.spans.front().data();
-    for (const auto& s : other.spans) {
-        if (s.empty()) {
-            spans.emplace_back();
-            continue;
-        }
+    for (auto& s : spans) {
+        if (s.empty()) continue;
         const auto d = std::distance(front_ptr, s.data());
-        spans.emplace_back(std::next(data.data(), d), s.size());
+        s = {std::next(data.data(), d), s.size()};
     }
 }
 
