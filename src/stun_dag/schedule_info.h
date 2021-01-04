@@ -9,17 +9,20 @@ namespace angonoka::stun_dag {
 using ranges::span;
 
 /**
-    TODO: doc
+    Cache-friendly container of views into an array of ints.
 */
 class VectorOfSpans {
 public:
     /**
-        TODO: doc
+        Default constructor.
     */
     VectorOfSpans() noexcept;
 
     /**
-        TODO: doc
+        Constructor.
+
+        @param data     Array of ints
+        @param spans    Array of spans
     */
     VectorOfSpans(
         std::vector<int16>&& data,
@@ -32,26 +35,34 @@ public:
     ~VectorOfSpans() noexcept;
 
     /**
-        TODO: doc
+        Get a span by index.
+
+        @param index Span index
+
+        @return A span of ints.
     */
-    template <typename T> decltype(auto) operator[](T&& key) const
+    template <typename T> decltype(auto) operator[](T&& index) const
     {
         Expects(!spans.empty());
-        return spans[std::forward<T>(key)];
+        return spans[std::forward<T>(index)];
     }
 
     /**
-        TODO: doc
+        Clear the contents of the container.
     */
     void clear() noexcept;
 
     /**
-        TODO: doc
+        Get size of the container.
+
+        @return Size of the container.
     */
     [[nodiscard]] std::size_t size() const noexcept;
 
     /**
-        TODO: doc
+        Check if the container is empty.
+
+        @return True if the container is empty.
     */
     [[nodiscard]] bool empty() const noexcept;
 
