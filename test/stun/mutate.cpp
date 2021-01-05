@@ -1,13 +1,13 @@
-#include "stun_dag/random_utils.h"
-#include "stun_dag/schedule_info.h"
-#include "stun_dag/utils.h"
+#include "stun/random_utils.h"
+#include "stun/schedule_info.h"
+#include "stun/utils.h"
 #include <catch2/catch.hpp>
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/view/chunk.hpp>
 
 TEST_CASE("Mutate state")
 {
-    using namespace angonoka::stun_dag;
+    using namespace angonoka::stun;
 
     ScheduleInfo info;
     info.agent_performance = {1.F, 2.F, 3.F};
@@ -101,7 +101,7 @@ TEST_CASE("Mutate state")
 
 TEST_CASE("Mutator type traits")
 {
-    using angonoka::stun_dag::Mutator;
+    using angonoka::stun::Mutator;
     STATIC_REQUIRE(std::is_nothrow_destructible_v<Mutator>);
     STATIC_REQUIRE(!std::is_default_constructible_v<Mutator>);
     STATIC_REQUIRE(std::is_copy_constructible_v<Mutator>);

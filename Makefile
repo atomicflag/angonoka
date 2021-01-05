@@ -63,9 +63,9 @@ test:
 stun:
 	build/src/angonoka-stun
 
-.PHONY: benchmark
-benchmark:
-	build/benchmark/angonoka_benchmark
+# .PHONY: benchmark
+# benchmark:
+# 	build/benchmark/angonoka_benchmark
 
 .PHONY: ninja
 ninja: build/build.ninja
@@ -101,14 +101,14 @@ release: CXXFLAGS=$(RELEASE_CXXFLAGS)
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
 
-.PHONY: release/benchmark
-release/benchmark: MESON_ARGS=--buildtype release \
-	-Db_lto=true \
-	-Db_ndebug=true \
-	-Dbenchmark=enabled
-release/benchmark: CXXFLAGS=$(RELEASE_CXXFLAGS)
-release/benchmark: LDFLAGS=$(RELEASE_LDFLAGS)
-release/benchmark: ninja
+# .PHONY: release/benchmark
+# release/benchmark: MESON_ARGS=--buildtype release \
+# 	-Db_lto=true \
+# 	-Db_ndebug=true \
+# 	-Dbenchmark=enabled
+# release/benchmark: CXXFLAGS=$(RELEASE_CXXFLAGS)
+# release/benchmark: LDFLAGS=$(RELEASE_LDFLAGS)
+# release/benchmark: ninja
 
 .PHONY: plain
 plain: MESON_ARGS=--buildtype plain
@@ -138,7 +138,7 @@ format:
 check/format:
 	echo Running clang-format
 	clang-format --Werror -n \
-		$$(find src test benchmark \
+		$$(find src test \
 			-name '*.h' -o -name '*.cpp')
 
 .PHONY: check/tidy

@@ -1,9 +1,9 @@
-#include "stun_dag/temperature.h"
+#include "stun/temperature.h"
 #include <catch2/catch.hpp>
 
 TEST_CASE("Temperature type traits")
 {
-    using angonoka::stun_dag::Temperature;
+    using angonoka::stun::Temperature;
     STATIC_REQUIRE(std::is_nothrow_destructible_v<Temperature>);
     STATIC_REQUIRE(!std::is_default_constructible_v<Temperature>);
     STATIC_REQUIRE(std::is_copy_constructible_v<Temperature>);
@@ -14,7 +14,7 @@ TEST_CASE("Temperature type traits")
 
 TEST_CASE("Temperature update")
 {
-    using namespace angonoka::stun_dag;
+    using namespace angonoka::stun;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"

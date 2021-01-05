@@ -1,50 +1,23 @@
 #include "random_utils.h"
-#include "task_agents.h"
 
 namespace angonoka::stun {
-RandomUtils::RandomUtils(
-    gsl::not_null<const TaskAgentsT*> task_agents)
-    : task_agents{std::move(task_agents)}
+RandomUtils::RandomUtils() = default;
+
+RandomUtils::RandomUtils(gsl::index seed)
+    : generator{seed}
 {
 }
 
-RandomUtils::RandomUtils(
-    gsl::not_null<const TaskAgentsT*> task_agents,
-    gsl::index seed)
-    : task_agents{std::move(task_agents)}
-    , generator{seed}
+float RandomUtils::uniform_01() noexcept
 {
+    return uniform_01_(generator);
 }
 
-float RandomUtils::get_uniform() noexcept
-{
-    return uniform(generator);
-}
-
-index RandomUtils::random_index(index max) noexcept
+int16 RandomUtils::uniform_int(int16 max) noexcept
 {
     Expects(max >= 0);
-
-    const auto result
-        = static_cast<index>(get_uniform() * static_cast<float>(max));
-
-    Ensures(result < max);
-
-    return result;
-}
-
-int16 RandomUtils::pick_random(span<const int16> range) noexcept
-{
-    Expects(!range.empty());
-
-    return range[random_index(range.size())];
-}
-
-void RandomUtils::get_neighbor_inplace(span<int16> state) noexcept
-{
-    Expects(!state.empty());
-
-    const auto task_idx = random_index(state.size());
-    state[task_idx] = pick_random((*task_agents)[task_idx]);
+    using param_type = decltype(uniform_int_)::param_type;
+    uniform_int_.param(param_type{0, static_cast<int>(max)});
+    return uniform_int_(generator);
 }
 } // namespace angonoka::stun

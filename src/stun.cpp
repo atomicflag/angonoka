@@ -4,17 +4,17 @@
 #include <memory>
 #include <string>
 
-#include "stun_dag/common.h"
-#include "stun_dag/random_utils.h"
-#include "stun_dag/schedule_info.h"
-#include "stun_dag/stochastic_tunneling.h"
-#include "stun_dag/temperature.h"
-#include "stun_dag/utils.h"
+#include "stun/common.h"
+#include "stun/random_utils.h"
+#include "stun/schedule_info.h"
+#include "stun/stochastic_tunneling.h"
+#include "stun/temperature.h"
+#include "stun/utils.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
 #include <utility>
 
-namespace angonoka::stun_dag {
+namespace angonoka::stun {
 
 void run()
 {
@@ -550,7 +550,7 @@ void run()
     }
     fmt::print("{}\n", state);
 }
-} // namespace angonoka::stun_dag
+} // namespace angonoka::stun
 
 namespace {
 struct Options {
@@ -571,6 +571,6 @@ int main(int /*unused*/, char** /*unused*/)
     //     return 1;
     // }
 
-    angonoka::stun_dag::run();
+    angonoka::stun::run();
     return 0;
 }

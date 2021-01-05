@@ -1,9 +1,9 @@
-#include "stun_dag/schedule_info.h"
+#include "stun/schedule_info.h"
 #include <catch2/catch.hpp>
 
 TEST_CASE("ScheduleInfo type traits")
 {
-    using angonoka::stun_dag::ScheduleInfo;
+    using angonoka::stun::ScheduleInfo;
     STATIC_REQUIRE(std::is_nothrow_destructible_v<ScheduleInfo>);
     STATIC_REQUIRE(
         std::is_nothrow_default_constructible_v<ScheduleInfo>);
@@ -16,7 +16,7 @@ TEST_CASE("ScheduleInfo type traits")
 
 TEST_CASE("ScheduleInfo special memeber functions")
 {
-    using namespace angonoka::stun_dag;
+    using namespace angonoka::stun;
 
     ScheduleInfo info{
         .agent_performance{1.F, 2.F, 3.F},
@@ -86,7 +86,7 @@ TEST_CASE("ScheduleInfo special memeber functions")
 
 TEST_CASE("VectorOfSpans type traits")
 {
-    using angonoka::stun_dag::VectorOfSpans;
+    using angonoka::stun::VectorOfSpans;
     STATIC_REQUIRE(std::is_nothrow_destructible_v<VectorOfSpans>);
     STATIC_REQUIRE(
         std::is_nothrow_default_constructible_v<VectorOfSpans>);
@@ -99,7 +99,7 @@ TEST_CASE("VectorOfSpans type traits")
 
 TEST_CASE("VectorOfSpans special memeber functions")
 {
-    using namespace angonoka::stun_dag;
+    using namespace angonoka::stun;
 
     SECTION("Empty")
     {

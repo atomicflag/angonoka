@@ -2,7 +2,7 @@
 #include <fmt/ostream.h>
 #include <ostream>
 
-namespace angonoka::stun_dag {
+namespace angonoka::stun {
 #ifndef NDEBUG
 std::ostream& operator<<(std::ostream& os, const StateItem& item)
 {
@@ -10,4 +10,4 @@ std::ostream& operator<<(std::ostream& os, const StateItem& item)
     return os;
 }
 #endif // NDEBUG
-} // namespace angonoka::stun_dag
+} // namespace angonoka::stun

@@ -1,6 +1,6 @@
 #include "schedule_info.h"
 
-namespace angonoka::stun_dag {
+namespace angonoka::stun {
 VectorOfSpans::VectorOfSpans(
     std::vector<int16>&& data,
     std::vector<span<int16>>&& spans) noexcept
@@ -50,4 +50,4 @@ VectorOfSpans::VectorOfSpans(
 VectorOfSpans&
 VectorOfSpans::operator=(VectorOfSpans&& other) noexcept = default;
 VectorOfSpans::~VectorOfSpans() noexcept = default;
-} // namespace angonoka::stun_dag
+} // namespace angonoka::stun

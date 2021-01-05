@@ -1,12 +1,12 @@
-#include "stun_dag/schedule_info.h"
-#include "stun_dag/utils.h"
+#include "stun/schedule_info.h"
+#include "stun/utils.h"
 #include <catch2/catch.hpp>
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/chunk.hpp>
 
 namespace {
-using namespace angonoka::stun_dag;
+using namespace angonoka::stun;
 ScheduleInfo make_test_schedule_info()
 {
     using ranges::to;
@@ -34,7 +34,7 @@ ScheduleInfo make_test_schedule_info()
 
 TEST_CASE("Makespan type traits")
 {
-    using angonoka::stun_dag::Makespan;
+    using angonoka::stun::Makespan;
     STATIC_REQUIRE(std::is_nothrow_destructible_v<Makespan>);
     STATIC_REQUIRE(!std::is_default_constructible_v<Makespan>);
     STATIC_REQUIRE(std::is_copy_constructible_v<Makespan>);
@@ -45,7 +45,7 @@ TEST_CASE("Makespan type traits")
 
 TEST_CASE("Makespan special member functions")
 {
-    using namespace angonoka::stun_dag;
+    using namespace angonoka::stun;
 
     const auto info = make_test_schedule_info();
     const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};

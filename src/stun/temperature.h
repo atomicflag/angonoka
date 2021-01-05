@@ -7,7 +7,7 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <cstdint>
 
-namespace angonoka::stun_dag {
+namespace angonoka::stun {
 using boost::accumulators::accumulator_set;
 using boost::accumulators::stats;
 namespace tag = boost::accumulators::tag;
@@ -97,4 +97,4 @@ struct TemperatureStub {
     virtual ~TemperatureStub() noexcept = default;
 };
 #endif // UNIT_TEST
-} // namespace angonoka::stun_dag
+} // namespace angonoka::stun

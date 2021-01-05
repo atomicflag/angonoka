@@ -47,4 +47,3 @@ include = include_directories('src')
 
 subdir('src')
 subdir('test')
-subdir('benchmark')

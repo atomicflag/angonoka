@@ -1,9 +1,9 @@
-#include "stun_dag/common.h"
+#include "stun/common.h"
 #include <catch2/catch.hpp>
 
 TEST_CASE("StateItem printing")
 {
-    using angonoka::stun_dag::StateItem;
+    using angonoka::stun::StateItem;
 
     const StateItem item{42, 123};
 
@@ -12,7 +12,7 @@ TEST_CASE("StateItem printing")
 
 TEST_CASE("StateItem type traits")
 {
-    using angonoka::stun_dag::StateItem;
+    using angonoka::stun::StateItem;
     STATIC_REQUIRE(std::is_nothrow_destructible_v<StateItem>);
     STATIC_REQUIRE(std::is_default_constructible_v<StateItem>);
     STATIC_REQUIRE(std::is_nothrow_copy_constructible_v<StateItem>);

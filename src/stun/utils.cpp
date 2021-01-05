@@ -6,7 +6,7 @@
 #include <range/v3/algorithm/max.hpp>
 #include <range/v3/view/transform.hpp>
 
-namespace angonoka::stun_dag {
+namespace angonoka::stun {
 Makespan::Makespan(const ScheduleInfo& info)
     : info{&info}
     , sum_buffer(
@@ -137,4 +137,4 @@ void Mutator::update_agent(MutState state) const noexcept
         info->available_agents[task_id].size() - 1);
     state[task_index].agent_id = new_agent_id;
 }
-} // namespace angonoka::stun_dag
+} // namespace angonoka::stun

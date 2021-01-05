@@ -5,7 +5,7 @@
 #include <range/v3/view/span.hpp>
 #include <vector>
 
-namespace angonoka::stun_dag {
+namespace angonoka::stun {
 using ranges::span;
 
 /**
@@ -85,4 +85,4 @@ struct ScheduleInfo {
     VectorOfSpans available_agents;
     VectorOfSpans dependencies;
 };
-} // namespace angonoka::stun_dag
+} // namespace angonoka::stun

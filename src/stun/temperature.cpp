@@ -2,7 +2,7 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <gsl/gsl-lite.hpp>
 
-namespace angonoka::stun_dag {
+namespace angonoka::stun {
 Temperature::Temperature(
     Beta beta,
     BetaScale beta_scale,
@@ -35,4 +35,4 @@ void Temperature::update(float stun, float dampening) noexcept
 
     Ensures(value >= 0.F);
 }
-} // namespace angonoka::stun_dag
+} // namespace angonoka::stun

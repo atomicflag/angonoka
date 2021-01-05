@@ -6,9 +6,6 @@ ragel = generator(
 
 stubs = files([
     'stun/stochastic_tunneling.cpp',
-    'stun/makespan_estimator.cpp',
-    'stun/random_utils.cpp',
-    'stun_dag/stochastic_tunneling.cpp',
 ])
 
 common_lib = static_library(
@@ -19,14 +16,11 @@ common_lib = static_library(
     'config/tasks.cpp',
     'system.cpp',
     'exceptions.cpp',
-    'stun_dag/utils.cpp',
-    'stun_dag/common.cpp',
-    'stun_dag/temperature.cpp',
-    'stun_dag/random_utils.cpp',
-    'stun_dag/schedule_info.cpp',
-    'stun/beta_driver.cpp',
-    'stun/task_duration_cache.cpp',
-    'stun/task_agents.cpp',
+    'stun/utils.cpp',
+    'stun/common.cpp',
+    'stun/temperature.cpp',
+    'stun/random_utils.cpp',
+    'stun/schedule_info.cpp',
     ragel.process('config/parse_duration.rl.cpp')
   ],
   include_directories : include,
