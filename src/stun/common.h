@@ -1,24 +1,66 @@
 #pragma once
 
 #include <cstdint>
+#include <fmt/format.h>
 #include <range/v3/view/span.hpp>
 #ifndef NDEBUG
-#include <boost/safe_numerics/automatic.hpp>
 #include <boost/safe_numerics/safe_integer.hpp>
-#endif
+#include <iosfwd>
+#endif // NDEBUG
 
 namespace angonoka::stun {
 #ifndef NDEBUG
 namespace sn = boost::safe_numerics;
-using uint64 = sn::safe<std::uint_fast64_t, sn::automatic>;
-using uint32 = sn::safe<std::int_fast32_t, sn::automatic>;
-using int16 = sn::safe<std::int_fast16_t, sn::automatic>;
-#else
-using uint64 = std::uint_fast64_t;
-using uint32 = std::uint_fast32_t;
+using int16 = sn::safe<std::int_fast16_t>;
+using int32 = sn::safe<std::int_fast32_t>;
+using uint64 = sn::safe<std::uint_fast64_t>;
+#else // NDEBUG
 using int16 = std::int_fast16_t;
-#endif
-constexpr uint64 default_max_iterations = 10'000'000U;
-constexpr uint64 max_iterations = default_max_iterations;
-using index = ranges::span<int>::index_type;
+using int32 = std::int_fast32_t;
+using uint64 = std::uint_fast64_t;
+#endif // NDEBUG
+
+/**
+    Scheduling information for the task.
+
+    The position of StateItem within State dictates
+    the relative order of this task.
+
+    @var task_id    Task's index
+    @var agent_id   Agent's index
+*/
+struct StateItem {
+    int16 task_id;
+    int16 agent_id;
+
+    bool operator==(const StateItem&) const = default;
+
+// Needed for Catch diagnostics
+#ifndef NDEBUG
+    friend std::ostream&
+    operator<<(std::ostream& os, const StateItem& item);
+#endif // NDEBUG
+};
+
+using State = ranges::span<const StateItem>;
+using MutState = ranges::span<StateItem>;
 } // namespace angonoka::stun
+
+namespace fmt {
+using angonoka::stun::StateItem;
+template <> struct fmt::formatter<StateItem> {
+    static constexpr auto parse(format_parse_context& ctx)
+    {
+        return ctx.end();
+    }
+    template <typename FormatContext>
+    constexpr auto format(const StateItem& item, FormatContext& ctx)
+    {
+        return format_to(
+            ctx.out(),
+            "({}, {})",
+            static_cast<int>(item.task_id),
+            static_cast<int>(item.agent_id));
+    }
+};
+} // namespace fmt

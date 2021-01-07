@@ -1,2 +1,2 @@
-option('benchmark', type : 'feature', value : 'disabled')
+# option('benchmark', type : 'feature', value : 'disabled')
 option('tests', type : 'feature', value : 'disabled')

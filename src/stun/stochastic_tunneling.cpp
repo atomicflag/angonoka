@@ -1,15 +1,20 @@
 #include "stochastic_tunneling.h"
-#include "common.h"
-#include "makespan_estimator.h"
 #include "random_utils.h"
-#include <cmath>
+#include "schedule_info.h"
+#include "temperature.h"
+#include "utils.h"
 #include <range/v3/algorithm/copy.hpp>
-#include <range/v3/to_container.hpp>
-#include <utility>
 
 namespace {
 using namespace angonoka::stun;
-using angonoka::stun::index;
+
+#ifdef UNIT_TEST
+constexpr std::uint_fast64_t max_iterations = 2;
+#else // UNIT_TEST
+constexpr std::uint_fast64_t max_iterations = 1'000'000;
+#endif // UNIT_TEST
+
+using index = MutState::index_type;
 
 /**
     Adjusts the energy to be within 0.0 to 1.0 range.
@@ -36,17 +41,16 @@ float stun(float lowest_e, float energy, float gamma) noexcept
 /**
     Stochastic tunneling function object.
 */
-struct StochasticTunneling {
-    using Counter = std::uint_fast64_t;
-
-    gsl::not_null<RandomUtilsT*> random_utils;
-    gsl::not_null<MakespanEstimatorT*> makespan;
-    BetaDriver beta_driver;
-
-    std::vector<int16> int_data;
-    span<int16> best_state;
-    span<int16> current_state;
-    span<int16> target_state;
+struct StochasticTunnelingOp {
+    gsl::not_null<const MutatorT*> mutator;
+    gsl::not_null<RandomUtilsT*> random;
+    gsl::not_null<MakespanT*> makespan;
+    gsl::not_null<TemperatureT*> temp;
+    std::uint_fast64_t iteration{0};
+    std::vector<StateItem> state_buffer;
+    MutState best_state;
+    MutState current_state;
+    MutState target_state;
 
     float current_e;
     float lowest_e;
@@ -55,8 +59,6 @@ struct StochasticTunneling {
     float gamma; // TODO: Should be a constant
     float current_s;
     float target_s;
-
-    std::uint_fast64_t current_iteration{0};
 
     /**
         Creates a new state from the current state.
@@ -67,7 +69,7 @@ struct StochasticTunneling {
         Expects(!target_state.empty());
 
         ranges::copy(current_state, target_state.begin());
-        random_utils->get_neighbor_inplace(target_state);
+        (*mutator)(target_state);
         target_e = (*makespan)(target_state);
 
         Ensures(target_e >= 0.F);
@@ -113,13 +115,14 @@ struct StochasticTunneling {
 
         target_s = stun(lowest_e, target_e, gamma);
         const auto delta_s = target_s - current_s;
-        const auto pr
-            = std::min(1.F, std::exp(-beta_driver.beta() * delta_s));
-        if (pr >= random_utils->get_uniform()) {
+        const auto pr = std::min(1.F, std::exp(-*temp * delta_s));
+        if (pr >= random->uniform_01()) {
             std::swap(current_state, target_state);
             current_e = target_e;
             current_s = target_s;
-            beta_driver.update(target_s, current_iteration);
+            temp->update(
+                target_s,
+                static_cast<float>(iteration) / max_iterations);
         }
 
         Ensures(target_s >= 0.F);
@@ -127,41 +130,15 @@ struct StochasticTunneling {
     }
 
     /**
-        Init all states with the source state.
-
-        @param source_state Source state
+        Run stochastic tunneling.
     */
-    void init_states(span<const int16> source_state) const
+    void run() noexcept
     {
-        Expects(source_state.size() == best_state.size());
-        Expects(source_state.size() == current_state.size());
-        Expects(!source_state.empty());
-
-        ranges::copy(source_state, best_state.begin());
-        ranges::copy(source_state, current_state.begin());
-    }
-
-    /**
-        Recreate state spans over the state buffer object.
-
-        @param state_size Size of the state
-    */
-    void prepare_state_spans(index state_size)
-    {
-        Expects(state_size > 0);
-
-        int_data.resize(static_cast<gsl::index>(state_size) * 3);
-        auto* data = int_data.data();
-        const auto next = [&] {
-            return std::exchange(data, std::next(data, state_size));
-        };
-        best_state = {next(), state_size};
-        current_state = {next(), state_size};
-        target_state = {next(), state_size};
-
-        Ensures(!current_state.empty());
-        Ensures(!target_state.empty());
-        Ensures(!best_state.empty());
+        for (iteration = 0; iteration < max_iterations; ++iteration) {
+            get_new_neighbor();
+            if (neighbor_is_better()) continue;
+            perform_stun();
+        }
     }
 
     /**
@@ -181,20 +158,41 @@ struct StochasticTunneling {
     }
 
     /**
-        Run stochastic tunneling iterations.
+        Recreate state spans over the state buffer object.
+
+        @param state_size Size of the state
     */
-    void run() noexcept
+    void prepare_state_spans(index state_size)
     {
-#ifdef UNIT_TEST
-        constexpr auto max_iterations = 2;
-#endif // UNIT_TEST
-        for (current_iteration = 0;
-             current_iteration < max_iterations;
-             ++current_iteration) {
-            get_new_neighbor();
-            if (neighbor_is_better()) continue;
-            perform_stun();
-        }
+        Expects(state_size > 0);
+
+        state_buffer.resize(static_cast<gsl::index>(state_size) * 3);
+        auto* data = state_buffer.data();
+        const auto next = [&] {
+            return std::exchange(data, std::next(data, state_size));
+        };
+        best_state = {next(), state_size};
+        current_state = {next(), state_size};
+        target_state = {next(), state_size};
+
+        Ensures(current_state.size() == state_size);
+        Ensures(target_state.size() == state_size);
+        Ensures(best_state.size() == state_size);
+    }
+
+    /**
+        Init all states with the source state.
+
+        @param source_state Source state
+    */
+    void init_states(State source_state) const
+    {
+        Expects(source_state.size() == best_state.size());
+        Expects(source_state.size() == current_state.size());
+        Expects(!source_state.empty());
+
+        ranges::copy(source_state, best_state.begin());
+        ranges::copy(source_state, current_state.begin());
     }
 
     /**
@@ -204,34 +202,32 @@ struct StochasticTunneling {
 
         @return An instance of STUNResult
     */
-    [[nodiscard]] STUNResult operator()(span<const int16> state)
+    [[nodiscard]] STUNResult operator()(State state)
     {
         prepare_state_spans(state.size());
         init_states(state);
         init_energies();
         run();
-        int_data.resize(static_cast<gsl::index>(state.size()));
-        return {lowest_e, std::move(int_data), beta_driver.beta()};
+        state_buffer.resize(static_cast<gsl::index>(state.size()));
+        return {std::move(state_buffer), lowest_e, *temp};
     }
 };
-
 } // namespace
 
 namespace angonoka::stun {
-STUNResult stochastic_tunneling(
-    RandomUtilsT& random_utils,
-    MakespanEstimatorT& makespan,
-    span<const int16> state,
-    Gamma gamma,
-    Beta beta,
-    BetaScale beta_scale)
+STUNResult
+stochastic_tunneling(State state, const STUNOptions& options) noexcept
 {
-    StochasticTunneling stun_op{
-        .random_utils{&random_utils},
-        .makespan{&makespan},
-        .beta_driver{beta, beta_scale},
-        .gamma{gamma}};
-
-    return stun_op(state);
+    Expects(!state.empty());
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wbraced-scalar-init"
+    StochasticTunnelingOp op{
+        .mutator{options.mutator},
+        .random{options.random},
+        .makespan{options.makespan},
+        .temp{options.temp},
+        .gamma{options.gamma}};
+#pragma clang diagnostic pop
+    return op(state);
 }
 } // namespace angonoka::stun

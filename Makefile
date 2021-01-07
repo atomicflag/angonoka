@@ -58,9 +58,14 @@ test:
 	export LLVM_PROFILE_FILE=angonoka.profraw
 	build/test/angonoka_test
 
-.PHONY: benchmark
-benchmark:
-	build/benchmark/angonoka_benchmark
+# TEMP
+.PHONY: stun
+stun:
+	build/src/angonoka-stun
+
+# .PHONY: benchmark
+# benchmark:
+# 	build/benchmark/angonoka_benchmark
 
 .PHONY: ninja
 ninja: build/build.ninja
@@ -96,14 +101,14 @@ release: CXXFLAGS=$(RELEASE_CXXFLAGS)
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
 
-.PHONY: release/benchmark
-release/benchmark: MESON_ARGS=--buildtype release \
-	-Db_lto=true \
-	-Db_ndebug=true \
-	-Dbenchmark=enabled
-release/benchmark: CXXFLAGS=$(RELEASE_CXXFLAGS)
-release/benchmark: LDFLAGS=$(RELEASE_LDFLAGS)
-release/benchmark: ninja
+# .PHONY: release/benchmark
+# release/benchmark: MESON_ARGS=--buildtype release \
+# 	-Db_lto=true \
+# 	-Db_ndebug=true \
+# 	-Dbenchmark=enabled
+# release/benchmark: CXXFLAGS=$(RELEASE_CXXFLAGS)
+# release/benchmark: LDFLAGS=$(RELEASE_LDFLAGS)
+# release/benchmark: ninja
 
 .PHONY: plain
 plain: MESON_ARGS=--buildtype plain
@@ -133,7 +138,7 @@ format:
 check/format:
 	echo Running clang-format
 	clang-format --Werror -n \
-		$$(find src test benchmark \
+		$$(find src test \
 			-name '*.h' -o -name '*.cpp')
 
 .PHONY: check/tidy
@@ -160,7 +165,10 @@ check/tidy:
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
 	python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
-		-quiet 2>/dev/null
+		-quiet $$(find ../src \
+			\( -name '*.cpp' -o -name '*.h' \) \
+			! -wholename '../src/stun.cpp' \
+			) 2>/dev/null
 	EXIT_CODE=$$?
 	mv compile_commands.json.bak compile_commands.json
 	exit $$EXIT_CODE

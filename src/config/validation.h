@@ -209,8 +209,8 @@ consteval Check auto sequence() { return sequence(scalar()); }
     attributes("first", optional("second"))
 
     Means that the value has to be a map with a required field
-   "first", which has to be a scalar and an optional field "second"
-   which also has to be a scalar.
+    "first", which has to be a scalar and an optional field "second"
+    which also has to be a scalar.
 
     @param attrs Sequence of optional or required parameters
 

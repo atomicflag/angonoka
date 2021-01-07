@@ -1,68 +1,53 @@
 #pragma once
 
-#include "beta_driver.h"
 #include "common.h"
+#include "detail.h"
 #include <gsl/gsl-lite.hpp>
-#include <memory>
-#include <range/v3/view/span.hpp>
 #include <vector>
 
 namespace angonoka::stun {
 
-namespace detail {
-    /**
-        Opaque floating point type.
-    */
-    struct OpaqueFloat {
-        float value;
-        operator float() const noexcept { return value; }
-    };
-} // namespace detail
-
-using ranges::span;
-
+struct ScheduleInfo;
 #ifndef UNIT_TEST
+using TemperatureT = class Temperature;
+using MakespanT = class Makespan;
 using RandomUtilsT = class RandomUtils;
-using MakespanEstimatorT = class MakespanEstimator;
+using MutatorT = class Mutator;
 #else // UNIT_TEST
+using TemperatureT = struct TemperatureStub;
+using MakespanT = struct MakespanStub;
 using RandomUtilsT = struct RandomUtilsStub;
-using MakespanEstimatorT = struct MakespanEstimatorStub;
+using MutatorT = struct MutatorStub;
 #endif // UNIT_TEST
-
-/**
-    Tunneling parameter.
-
-    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
-*/
-struct Gamma : detail::OpaqueFloat {
-};
-
-/**
-    Temperature parameter.
-
-    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
-
-    Note: Unlike the beta parameter in the paper, this isn't
-    an inverse temperature.
-*/
-struct Beta : detail::OpaqueFloat {
-};
-
-// TODO: Temporary, should be hard-coded
-struct BetaScale : detail::OpaqueFloat {
-};
 
 /**
     Result of a stochastic tunneling pass.
 
-    @var energy Lowest energy achieved so far
-    @var state  State that had the lowest energy
-    @var beta   Final temperature
+    @var state          State that had the lowest energy
+    @var energy         Lowest energy achieved so far
+    @var temperature    Final temperature
 */
 struct STUNResult {
+    std::vector<StateItem> state;
     float energy;
-    std::vector<int16> state;
-    float beta;
+    float temperature;
+};
+
+/**
+    STUN auxilary data and utilities.
+
+    @var mutator    Instance of Mutator
+    @var random     Instance of RandomUtils
+    @var makespan   Instance of Makespan
+    @var temp       Instance of Temperature
+    @var gamma      Tunneling parameter
+*/
+struct STUNOptions {
+    gsl::not_null<const MutatorT*> mutator;
+    gsl::not_null<RandomUtilsT*> random;
+    gsl::not_null<MakespanT*> makespan;
+    gsl::not_null<TemperatureT*> temp;
+    float gamma;
 };
 
 /**
@@ -70,21 +55,13 @@ struct STUNResult {
 
     See https://arxiv.org/pdf/physics/9903008.pdf for more details.
 
-    @param random_utils An instance of RandomUtils
-    @param makespan     An instance of Makespan
     @param state        Initial state
-    @param gamma        Tunneling parameter
-    @param beta         Initial temperature
+    @param STUNOptions  Data and utilities
 
     @return An instance of STUNResult
 */
 STUNResult stochastic_tunneling(
-    RandomUtilsT& random_utils,
-    MakespanEstimatorT& makespan,
-    span<const int16> state,
-    Gamma gamma,
-    Beta beta,
-    // TODO: Temporary, should be hardcoded
-    BetaScale beta_scale);
+    State state,
+    const STUNOptions& options) noexcept;
 
 } // namespace angonoka::stun
