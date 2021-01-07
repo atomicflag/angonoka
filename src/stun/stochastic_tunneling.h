@@ -21,19 +21,11 @@ using MutatorT = struct MutatorStub;
 #endif // UNIT_TEST
 
 /**
-    Tunneling parameter.
-
-    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
-*/
-struct Gamma : detail::OpaqueFloat {
-};
-
-/**
     Result of a stochastic tunneling pass.
 
-    @var state  State that had the lowest energy
-    @var energy Lowest energy achieved so far
-    @var beta   Final temperature
+    @var state          State that had the lowest energy
+    @var energy         Lowest energy achieved so far
+    @var temperature    Final temperature
 */
 struct STUNResult {
     std::vector<StateItem> state;
