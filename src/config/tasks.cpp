@@ -60,6 +60,7 @@ void parse_task_group(
 
 /**
     Check for duplicate tasks.
+    TODO: Legacy, remove
 
     @param agents An array of Tasks
     @param name   Agent's name
@@ -68,6 +69,17 @@ void check_for_duplicates(const Tasks& tasks, std::string_view name)
 {
     Expects(!name.empty());
     if (const auto a = ranges::find(tasks, name, &Task::name);
+        a != tasks.end())
+        throw DuplicateTaskDefinition{};
+}
+
+/**
+    TODO: doc
+*/
+void check_for_duplicates_new(const Tasks& tasks, std::string_view id)
+{
+    Expects(!id.empty());
+    if (const auto a = ranges::find(tasks, id, &Task::id);
         a != tasks.end())
         throw DuplicateTaskDefinition{};
 }
@@ -104,11 +116,40 @@ void parse_task(
         parse_task_group(group, task, sys);
     }
 }
+
+/**
+    TODO: doc, update
+*/
+void parse_task_new(const YAML::Node& task_data, System& sys)
+{
+    const auto& id = task_data["id"].Scalar();
+    // TODO: Make id optional
+    if (id.empty()) throw CantBeEmpty{"Task id"};
+    check_for_duplicates_new(sys.tasks, id);
+    auto& task = sys.tasks.emplace_back();
+    task.id = id;
+    parse_duration(task_data["duration"], task.duration);
+
+    // Parse task.group
+    if (const auto& group = task_data["group"]) {
+        parse_task_group(group, task, sys);
+    }
+
+    if (const auto& label = task_data["label"]) {
+        task.label = label.Scalar();
+    }
+}
 } // namespace
 
 namespace angonoka::detail {
 void parse_tasks(const YAML::Node& node, System& sys)
 {
+    // new
+    if (node.IsSequence()) {
+        for (auto&& task : node) { parse_task_new(task, sys); }
+        return;
+    }
+    // TODO: Legacy
     for (auto&& task : node) {
         parse_task(task.first, task.second, sys);
     }

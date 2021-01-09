@@ -2,7 +2,7 @@
 #include <fmt/format.h>
 
 namespace angonoka {
-
+using namespace fmt::literals;
 InvalidDuration::InvalidDuration()
     : ValidationError{"Invalid duration."}
 {
@@ -27,7 +27,7 @@ TaskDurationMinMax::TaskDurationMinMax()
 }
 NoSuitableAgent::NoSuitableAgent(std::string_view task)
     : ValidationError{
-        fmt::format(R"_(No suitable agent for task "{}")_", task)}
+        R"_(No suitable agent for task "{}")_"_format(task)}
 {
 }
 DuplicateTaskDefinition::DuplicateTaskDefinition()
@@ -36,6 +36,11 @@ DuplicateTaskDefinition::DuplicateTaskDefinition()
 }
 NegativePerformance::NegativePerformance()
     : ValidationError{"Agent's performance must be greater than 0"}
+{
+}
+
+CantBeEmpty::CantBeEmpty(std::string_view what)
+    : ValidationError{"{} can't be empty"_format(what)}
 {
 }
 } // namespace angonoka

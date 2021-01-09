@@ -69,6 +69,8 @@ can_work_on(const Agent& agent, GroupId id) noexcept;
 */
 struct Task {
     std::string name;
+    std::string label;
+    std::string id;
     std::optional<GroupId> group_id;
     struct Duration {
         std::chrono::seconds min, max;

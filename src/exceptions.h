@@ -38,5 +38,8 @@ struct DuplicateTaskDefinition : ValidationError {
 struct NegativePerformance : ValidationError {
     NegativePerformance();
 };
+struct CantBeEmpty : ValidationError {
+    CantBeEmpty(std::string_view what);
+};
 
 } // namespace angonoka

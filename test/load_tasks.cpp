@@ -241,6 +241,41 @@ TEST_CASE("Loading tasks")
             angonoka::load_text(text),
             angonoka::ValidationError);
     }
+
+    SECTION("Task list")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - label: task 1\n"
+            "    id: task_1\n"
+            "    duration: 1h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 1);
+        REQUIRE(system.tasks[0].id == "task_1");
+        REQUIRE(system.tasks[0].label == "task 1");
+    }
+
+    SECTION("Empty id")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - id: ''\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
 }
 
 #undef ANGONOKA_COMMON_YAML

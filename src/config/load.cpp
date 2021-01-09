@@ -28,16 +28,32 @@ void validate_configuration(const YAML::Node& node)
             ))
         ),
         required("tasks",
-            values(attributes(
-                optional("group"),
-                required("duration", any_of(
-                    attributes(
-                        "min",
-                        "max"
-                    ),
-                    scalar()
+            any_of(
+                // TODO: Legacy
+                values(attributes(
+                    optional("group"),
+                    required("duration", any_of(
+                        attributes(
+                            "min",
+                            "max"
+                        ),
+                        scalar()
+                    ))
+                )),
+                // New
+                sequence(attributes(
+                    optional("group"),
+                    optional("label"),
+                    "id",
+                    required("duration", any_of(
+                        attributes(
+                            "min",
+                            "max"
+                            ),
+                        scalar()
+                    ))
                 ))
-            ))
+            )
         )
     );
     // clang-format on
