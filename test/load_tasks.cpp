@@ -249,7 +249,7 @@ TEST_CASE("Loading tasks")
             "agents:\n"
             "  agent1:\n"
             "tasks:\n"
-            "  - label: task 1\n"
+            "  - name: task 1\n"
             "    id: task_1\n"
             "    duration: 1h";
         // clang-format on
@@ -258,7 +258,7 @@ TEST_CASE("Loading tasks")
 
         REQUIRE(system.tasks.size() == 1);
         REQUIRE(system.tasks[0].id == "task_1");
-        REQUIRE(system.tasks[0].label == "task 1");
+        REQUIRE(system.tasks[0].name == "task 1");
     }
 
     SECTION("Empty id")
@@ -268,13 +268,48 @@ TEST_CASE("Loading tasks")
             "agents:\n"
             "  agent1:\n"
             "tasks:\n"
-            "  - id: ''\n"
+            "  - name: 'task 1'\n"
+            "    id: ''\n"
             "    duration: 1h";
         // clang-format on
 
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
             angonoka::ValidationError);
+    }
+
+    SECTION("Missing name")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - id: 'hello'\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("Optional id")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    duration: 1h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 1);
+        REQUIRE(system.tasks[0].id.empty());
+        REQUIRE(system.tasks[0].name == "task 1");
     }
 }
 

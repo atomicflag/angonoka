@@ -43,8 +43,8 @@ void validate_configuration(const YAML::Node& node)
                 // New
                 sequence(attributes(
                     optional("group"),
-                    optional("label"),
-                    "id",
+                    "name",
+                    optional("id"),
                     required("duration", any_of(
                         attributes(
                             "min",

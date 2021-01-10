@@ -63,13 +63,14 @@ can_work_on(const Agent& agent, GroupId id) noexcept;
     perform Tasks from that group. Otherwise it will be processed by
     any Agent.
 
+    TODO: update doc
+
     @var name     Task's name
     @var group_id Group id, if any
     @var dur      Duration min/max in seconds
 */
 struct Task {
     std::string name;
-    std::string label;
     std::string id;
     std::optional<GroupId> group_id;
     struct Duration {

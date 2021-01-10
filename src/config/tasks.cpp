@@ -122,21 +122,24 @@ void parse_task(
 */
 void parse_task_new(const YAML::Node& task_data, System& sys)
 {
-    const auto& id = task_data["id"].Scalar();
-    // TODO: Make id optional
-    if (id.empty()) throw CantBeEmpty{"Task id"};
-    check_for_duplicates_new(sys.tasks, id);
+    const auto& name = task_data["name"].Scalar();
+    if (name.empty()) throw CantBeEmpty{"Task name"};
     auto& task = sys.tasks.emplace_back();
-    task.id = id;
+    task.name = name;
+
+    // Parse task.id
+    if (const auto& id_node = task_data["id"]) {
+        const auto& id = id_node.Scalar();
+        if (id.empty()) throw CantBeEmpty{"Task id"};
+        check_for_duplicates_new(sys.tasks, id);
+        task.id = id;
+    }
+
     parse_duration(task_data["duration"], task.duration);
 
     // Parse task.group
     if (const auto& group = task_data["group"]) {
         parse_task_group(group, task, sys);
-    }
-
-    if (const auto& label = task_data["label"]) {
-        task.label = label.Scalar();
     }
 }
 } // namespace
