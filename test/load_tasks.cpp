@@ -311,6 +311,35 @@ TEST_CASE("Loading tasks")
         REQUIRE(system.tasks[0].id.empty());
         REQUIRE(system.tasks[0].name == "task 1");
     }
+
+    SECTION("Depends on single task")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    id: A\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    depends_on: A\n"
+            "    duration: 2h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 2);
+        REQUIRE(system.tasks[0].id == "A");
+        REQUIRE(system.tasks[0].name == "task 1");
+        REQUIRE(system.tasks[1].id.empty());
+        REQUIRE(system.tasks[1].name == "task 2");
+        REQUIRE(system.tasks[1].dependencies == angonoka::TaskIds{0});
+    }
+
+    // TODO: test empty task id in depends_on, invalid task id in
+    // depends_on, out of order tasks, sequence of task ids, cycle
+    // detection
 }
 
 #undef ANGONOKA_COMMON_YAML

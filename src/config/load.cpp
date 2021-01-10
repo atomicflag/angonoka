@@ -45,11 +45,15 @@ void validate_configuration(const YAML::Node& node)
                     optional("group"),
                     "name",
                     optional("id"),
+                    optional("depends_on", any_of(
+                        scalar(),
+                        sequence()
+                    )),
                     required("duration", any_of(
                         attributes(
                             "min",
                             "max"
-                            ),
+                        ),
                         scalar()
                     ))
                 ))

@@ -4,9 +4,11 @@
 #include <fmt/format.h>
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/algorithm/find.hpp>
+#include <range/v3/view/zip.hpp>
 
 namespace {
 using namespace angonoka;
+using Dependencies = std::vector<std::vector<std::string_view>>;
 /**
     Parses task duration.
 
@@ -85,6 +87,18 @@ void check_for_duplicates_new(const Tasks& tasks, std::string_view id)
 }
 
 /**
+    TODO: doc
+*/
+TaskId find_task_index_by_id(const Tasks& tasks, std::string_view id)
+{
+    Expects(!id.empty());
+    if (const auto a = ranges::find(tasks, id, &Task::id);
+        a != tasks.end())
+        return std::distance(tasks.begin(), a);
+    throw TaskNotFound{id};
+}
+
+/**
     Parses task blocks.
 
     Parses blocks such as these:
@@ -96,7 +110,7 @@ void check_for_duplicates_new(const Tasks& tasks, std::string_view id)
         max: 2
 
     @param task_node  Scalar holding the name of the task
-    @param task_data  Map with task data
+    @param task_node  Map with task data
     @param sys        An instance of System
 */
 void parse_task(
@@ -118,28 +132,84 @@ void parse_task(
 }
 
 /**
-    TODO: doc, update
+    TODO: doc
 */
-void parse_task_new(const YAML::Node& task_data, System& sys)
+void parse_task_id(
+    const YAML::Node& id_node,
+    const Tasks& tasks,
+    Task& task)
 {
-    const auto& name = task_data["name"].Scalar();
+    const auto& id = id_node.Scalar();
+    if (id.empty()) throw CantBeEmpty{"Task id"};
+    check_for_duplicates_new(tasks, id);
+    task.id = id;
+}
+
+/**
+    TODO: doc
+*/
+void parse_dependencies(
+    const YAML::Node& depends_on,
+    std::vector<std::string_view>& task_deps)
+{
+    if (depends_on.IsSequence()) {
+        for (const auto& d : depends_on)
+            task_deps.emplace_back(d.Scalar());
+    } else {
+        task_deps.emplace_back(depends_on.Scalar());
+    }
+}
+
+/**
+    TODO: doc, rename
+*/
+void parse_task_new(
+    const YAML::Node& task_node,
+    System& sys,
+    Dependencies& deps)
+{
+    const auto& name = task_node["name"].Scalar();
     if (name.empty()) throw CantBeEmpty{"Task name"};
+
     auto& task = sys.tasks.emplace_back();
+    auto& task_deps = deps.emplace_back();
+
     task.name = name;
 
     // Parse task.id
-    if (const auto& id_node = task_data["id"]) {
-        const auto& id = id_node.Scalar();
-        if (id.empty()) throw CantBeEmpty{"Task id"};
-        check_for_duplicates_new(sys.tasks, id);
-        task.id = id;
+    if (const auto& id_node = task_node["id"]) {
+        parse_task_id(id_node, sys.tasks, task);
     }
 
-    parse_duration(task_data["duration"], task.duration);
+    parse_duration(task_node["duration"], task.duration);
 
     // Parse task.group
-    if (const auto& group = task_data["group"]) {
+    if (const auto& group = task_node["group"]) {
         parse_task_group(group, task, sys);
+    }
+
+    // Parse task.depends_on
+    if (const auto& depends_on = task_node["depends_on"]) {
+        parse_dependencies(depends_on, task_deps);
+    }
+}
+
+/**
+    TODO: doc
+*/
+void parse_dependencies_2nd_phase(
+    Tasks& tasks,
+    const Dependencies& deps)
+{
+    Expects(!tasks.empty());
+    Expects(tasks.size() == deps.size());
+
+    using ranges::views::zip;
+    for (auto&& [task, deps] : zip(tasks, deps)) {
+        for (auto dep : deps) {
+            const auto dep_index = find_task_index_by_id(tasks, dep);
+            task.dependencies.emplace(dep_index);
+        }
     }
 }
 } // namespace
@@ -149,7 +219,9 @@ void parse_tasks(const YAML::Node& node, System& sys)
 {
     // new
     if (node.IsSequence()) {
-        for (auto&& task : node) { parse_task_new(task, sys); }
+        Dependencies deps;
+        for (auto&& task : node) { parse_task_new(task, sys, deps); }
+        parse_dependencies_2nd_phase(sys.tasks, deps);
         return;
     }
     // TODO: Legacy

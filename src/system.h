@@ -10,7 +10,9 @@
 namespace angonoka {
 using boost::container::flat_set;
 using GroupId = int8;
+using TaskId = int8;
 using GroupIds = flat_set<GroupId>;
+using TaskIds = flat_set<TaskId>;
 
 /**
     Agent that performs Tasks.
@@ -73,6 +75,7 @@ struct Task {
     std::string name;
     std::string id;
     std::optional<GroupId> group_id;
+    TaskIds dependencies;
     struct Duration {
         std::chrono::seconds min, max;
     };

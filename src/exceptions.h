@@ -41,4 +41,7 @@ struct NegativePerformance : ValidationError {
 struct CantBeEmpty : ValidationError {
     CantBeEmpty(std::string_view what);
 };
+struct TaskNotFound : ValidationError {
+    TaskNotFound(std::string_view task_id);
+};
 } // namespace angonoka
