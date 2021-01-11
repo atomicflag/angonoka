@@ -148,15 +148,24 @@ void parse_task_id(
 /**
     TODO: doc
 */
+std::string_view validate_task_id(std::string_view task_id)
+{
+    if (task_id.empty()) throw CantBeEmpty{"Dependency id"};
+    return task_id;
+}
+
+/**
+    TODO: doc
+*/
 void parse_dependencies(
     const YAML::Node& depends_on,
     std::vector<std::string_view>& task_deps)
 {
     if (depends_on.IsSequence()) {
         for (const auto& d : depends_on)
-            task_deps.emplace_back(d.Scalar());
+            task_deps.emplace_back(validate_task_id(d.Scalar()));
     } else {
-        task_deps.emplace_back(depends_on.Scalar());
+        task_deps.emplace_back(validate_task_id(depends_on.Scalar()));
     }
 }
 

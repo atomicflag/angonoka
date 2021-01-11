@@ -337,7 +337,24 @@ TEST_CASE("Loading tasks")
         REQUIRE(system.tasks[1].dependencies == angonoka::TaskIds{0});
     }
 
-    // TODO: test empty task id in depends_on, invalid task id in
+    SECTION("Empty dependency id")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: ''\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    // TODO: test invalid task id in
     // depends_on, out of order tasks, sequence of task ids, cycle
     // detection
 }
