@@ -354,9 +354,26 @@ TEST_CASE("Loading tasks")
             angonoka::ValidationError);
     }
 
-    // TODO: test invalid task id in
-    // depends_on, out of order tasks, sequence of task ids, cycle
-    // detection
+    SECTION("Invalid dependency id")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: A\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    // TODO: out of order tasks
+    // TODO: sequence of task ids
+    // TODO: cycle detection
 }
 
 #undef ANGONOKA_COMMON_YAML
