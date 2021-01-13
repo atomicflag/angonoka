@@ -371,9 +371,31 @@ TEST_CASE("Loading tasks")
             angonoka::ValidationError);
     }
 
-    // TODO: out of order tasks
+    SECTION("Out of order dependencies")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: B\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    id: B\n"
+            "    duration: 2h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 2);
+        REQUIRE(system.tasks[0].dependencies == angonoka::TaskIds{1});
+        REQUIRE(system.tasks[1].dependencies.empty());
+    }
+
     // TODO: sequence of task ids
     // TODO: cycle detection
+    // TODO: subtasks
 }
 
 #undef ANGONOKA_COMMON_YAML
