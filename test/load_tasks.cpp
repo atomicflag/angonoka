@@ -393,7 +393,35 @@ TEST_CASE("Loading tasks")
         REQUIRE(system.tasks[1].dependencies.empty());
     }
 
-    // TODO: sequence of task ids
+    SECTION("Multiple dependencies")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on:\n"
+            "      - A\n"
+            "      - B\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    id: B\n"
+            "    duration: 2h\n"
+            "  - name: task 3\n"
+            "    id: A\n"
+            "    duration: 3h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 3);
+        REQUIRE(
+            system.tasks[0].dependencies == angonoka::TaskIds{1, 2});
+        REQUIRE(system.tasks[1].dependencies.empty());
+        REQUIRE(system.tasks[2].dependencies.empty());
+    }
+
     // TODO: cycle detection
     // TODO: subtasks
 }
