@@ -49,4 +49,9 @@ TaskNotFound::TaskNotFound(std::string_view task_id)
         R"_(Task with id "{}" doesn't exist)_"_format(task_id)}
 {
 }
+
+DependencyCycle::DependencyCycle()
+    : ValidationError{"Dependency cycle detected"}
+{
+}
 } // namespace angonoka

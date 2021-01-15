@@ -221,6 +221,47 @@ void parse_dependencies_2nd_phase(
         }
     }
 }
+
+/**
+    TODO: doc
+*/
+enum class VertexState : std::uint8_t {
+    not_visited,
+    visited,
+    complete
+};
+
+/**
+    TODO: doc
+*/
+void depth_first_search(
+    const Tasks& tasks,
+    std::vector<VertexState>& state,
+    int8 task_id)
+{
+    state[task_id] = VertexState::visited;
+    for (const auto& dep_id : tasks[task_id].dependencies) {
+        switch (state[dep_id]) {
+        case VertexState::visited: throw DependencyCycle();
+        case VertexState::not_visited:
+            depth_first_search(tasks, state, dep_id);
+        default: continue;
+        }
+    }
+    state[task_id] = VertexState::complete;
+}
+
+/**
+    TODO: doc
+*/
+void check_for_cycles(const Tasks& tasks)
+{
+    std::vector<VertexState> state(tasks.size());
+    for (int8 task_id{0}; task_id < tasks.size(); ++task_id) {
+        if (state[task_id] != VertexState::not_visited) continue;
+        depth_first_search(tasks, state, task_id);
+    }
+}
 } // namespace
 
 namespace angonoka::detail {
@@ -231,6 +272,7 @@ void parse_tasks(const YAML::Node& node, System& sys)
         Dependencies deps;
         for (auto&& task : node) { parse_task_new(task, sys, deps); }
         parse_dependencies_2nd_phase(sys.tasks, deps);
+        check_for_cycles(sys.tasks);
         return;
     }
     // TODO: Legacy

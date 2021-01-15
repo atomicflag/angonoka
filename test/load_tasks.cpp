@@ -422,7 +422,50 @@ TEST_CASE("Loading tasks")
         REQUIRE(system.tasks[2].dependencies.empty());
     }
 
-    // TODO: cycle detection
+    SECTION("Dependency cycle")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: B\n"
+            "    id: A\n"
+            "    duration: 1h\n"
+            "  - name: task 1\n"
+            "    depends_on: C\n"
+            "    id: B\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    id: C\n"
+            "    depends_on: A\n"
+            "    duration: 3h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("Depends on itself")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: A\n"
+            "    id: A\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
     // TODO: subtasks
 }
 

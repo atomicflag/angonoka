@@ -45,4 +45,7 @@ struct CantBeEmpty : ValidationError {
 struct TaskNotFound : ValidationError {
     TaskNotFound(std::string_view task_id);
 };
+struct DependencyCycle : ValidationError {
+    DependencyCycle();
+};
 } // namespace angonoka
