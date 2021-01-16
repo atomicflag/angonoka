@@ -30,11 +30,7 @@ validate_task_list(const YAML::Node& node, std::string_view scope)
             ),
             scalar()
         )),
-        optional("subtasks", 
-            []<typename... T>(T&&... args) {
-                return validate_task_list(std::forward<T>(args)...);
-            }
-        )
+        optional("subtasks", validate_task_list)
     ))(node, scope);
     // clang-format on
 }
