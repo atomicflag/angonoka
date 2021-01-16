@@ -466,7 +466,30 @@ TEST_CASE("Loading tasks")
             angonoka::ValidationError);
     }
 
-    // TODO: subtasks
+    SECTION("Subtasks")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    duration: 1h\n"
+            "    subtasks:\n"
+            "      - name: task 2\n"
+            "        duration: 2h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 2);
+        REQUIRE(system.tasks[0].name == "task 1");
+        REQUIRE(system.tasks[0].dependencies == angonoka::TaskIds{1});
+        REQUIRE(system.tasks[1].name == "task 2");
+        REQUIRE(system.tasks[1].dependencies.empty());
+    }
+
+    // TODO: deep subtasks
 }
 
 #undef ANGONOKA_COMMON_YAML

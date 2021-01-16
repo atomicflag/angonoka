@@ -5,6 +5,39 @@
 #include <range/v3/algorithm/find.hpp>
 
 namespace {
+using angonoka::validation::result;
+
+/**
+    TODO: doc
+*/
+result
+validate_task_list(const YAML::Node& node, std::string_view scope)
+{
+    using namespace angonoka::validation;
+    // clang-format off
+    return sequence(attributes(
+        optional("group"),
+        "name",
+        optional("id"),
+        optional("depends_on", any_of(
+            scalar(),
+            sequence()
+        )),
+        required("duration", any_of(
+            attributes(
+                "min",
+                "max"
+            ),
+            scalar()
+        )),
+        optional("subtasks", 
+            []<typename... T>(T&&... args) {
+                return validate_task_list(std::forward<T>(args)...);
+            }
+        )
+    ))(node, scope);
+    // clang-format on
+}
 /**
     Matches YAML configuration against the schema.
 
@@ -41,22 +74,7 @@ void validate_configuration(const YAML::Node& node)
                     ))
                 )),
                 // New
-                sequence(attributes(
-                    optional("group"),
-                    "name",
-                    optional("id"),
-                    optional("depends_on", any_of(
-                        scalar(),
-                        sequence()
-                    )),
-                    required("duration", any_of(
-                        attributes(
-                            "min",
-                            "max"
-                        ),
-                        scalar()
-                    ))
-                ))
+                validate_task_list
             )
         )
     );

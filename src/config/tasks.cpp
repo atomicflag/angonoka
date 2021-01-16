@@ -201,6 +201,14 @@ void parse_task_new(
     if (const auto& depends_on = task_node["depends_on"]) {
         parse_dependencies(depends_on, task_deps);
     }
+
+    // Parse task.subtasks
+    if (const auto& subtasks = task_node["subtasks"]) {
+        for (auto&& sub : subtasks) {
+            task.dependencies.emplace(sys.tasks.size());
+            parse_task_new(sub, sys, deps);
+        }
+    }
 }
 
 /**
