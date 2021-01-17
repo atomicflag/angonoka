@@ -203,9 +203,11 @@ void parse_task_new(
     }
 
     // Parse task.subtasks
+    // TODO: refactor into a function
     if (const auto& subtasks = task_node["subtasks"]) {
+        const auto task_id = sys.tasks.size() - 1;
         for (auto&& sub : subtasks) {
-            task.dependencies.emplace(sys.tasks.size());
+            sys.tasks[task_id].dependencies.emplace(sys.tasks.size());
             parse_task_new(sub, sys, deps);
         }
     }

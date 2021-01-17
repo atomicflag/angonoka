@@ -489,7 +489,55 @@ TEST_CASE("Loading tasks")
         REQUIRE(system.tasks[1].dependencies.empty());
     }
 
-    // TODO: deep subtasks
+    SECTION("Deep subtasks")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    duration: 1h\n"
+            "    subtasks:\n"
+            "      - name: task 1.1\n"
+            "        duration: 2h\n"
+            "        subtasks:\n"
+            "          - name: task 1.1.1\n"
+            "            duration: 2h\n"
+            "          - name: task 1.1.2\n"
+            "            id: X\n"
+            "            duration: 2h\n"
+            "      - name: task 1.2\n"
+            "        duration: 2h\n"
+            "        subtasks:\n"
+            "          - name: task 1.2.1\n"
+            "            duration: 2h\n"
+            "          - name: task 1.2.2\n"
+            "            depends_on: X\n"
+            "            duration: 2h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 7);
+        REQUIRE(system.tasks[0].name == "task 1");
+        REQUIRE(
+            system.tasks[0].dependencies == angonoka::TaskIds{1, 4});
+        REQUIRE(system.tasks[1].name == "task 1.1");
+        REQUIRE(
+            system.tasks[1].dependencies == angonoka::TaskIds{2, 3});
+        REQUIRE(system.tasks[2].name == "task 1.1.1");
+        REQUIRE(system.tasks[2].dependencies.empty());
+        REQUIRE(system.tasks[3].name == "task 1.1.2");
+        REQUIRE(system.tasks[3].dependencies.empty());
+        REQUIRE(system.tasks[4].name == "task 1.2");
+        REQUIRE(
+            system.tasks[4].dependencies == angonoka::TaskIds{5, 6});
+        REQUIRE(system.tasks[5].name == "task 1.2.1");
+        REQUIRE(system.tasks[5].dependencies.empty());
+        REQUIRE(system.tasks[6].name == "task 1.2.2");
+        REQUIRE(system.tasks[6].dependencies == angonoka::TaskIds{3});
+    }
 }
 
 #undef ANGONOKA_COMMON_YAML
