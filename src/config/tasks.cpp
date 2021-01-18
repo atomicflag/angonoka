@@ -169,6 +169,27 @@ void parse_dependencies(
     }
 }
 
+// Forward decl
+void parse_task_new(
+    const YAML::Node& task_node,
+    System& sys,
+    Dependencies& deps);
+
+/**
+    TODO: doc
+*/
+void parse_subtasks(
+    const YAML::Node& subtasks,
+    System& sys,
+    Dependencies& deps,
+    int8 task_id)
+{
+    for (auto&& sub : subtasks) {
+        sys.tasks[task_id].dependencies.emplace(sys.tasks.size());
+        parse_task_new(sub, sys, deps);
+    }
+}
+
 /**
     TODO: doc, rename
 */
@@ -206,10 +227,7 @@ void parse_task_new(
     // TODO: refactor into a function
     if (const auto& subtasks = task_node["subtasks"]) {
         const auto task_id = sys.tasks.size() - 1;
-        for (auto&& sub : subtasks) {
-            sys.tasks[task_id].dependencies.emplace(sys.tasks.size());
-            parse_task_new(sub, sys, deps);
-        }
+        parse_subtasks(subtasks, sys, deps, task_id);
     }
 }
 
