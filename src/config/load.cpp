@@ -56,23 +56,7 @@ void validate_configuration(const YAML::Node& node)
                 optional("groups", sequence())
             ))
         ),
-        required("tasks",
-            any_of(
-                // TODO: Legacy
-                values(attributes(
-                    optional("group"),
-                    required("duration", any_of(
-                        attributes(
-                            "min",
-                            "max"
-                        ),
-                        scalar()
-                    ))
-                )),
-                // New
-                validate_task_list
-            )
-        )
+        required("tasks", validate_task_list)
     );
     // clang-format on
     if (const auto r = schema(node); !r)

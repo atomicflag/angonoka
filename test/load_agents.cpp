@@ -4,7 +4,7 @@
 
 #define ANGONOKA_COMMON_YAML                                         \
     "tasks:\n"                                                       \
-    "  task1:\n"                                                     \
+    "  - name: task1\n"                                              \
     "    duration:\n"                                                \
     "      min: 1 day\n"                                             \
     "      max: 3 days\n"

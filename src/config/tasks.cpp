@@ -61,24 +61,9 @@ void parse_task_group(
 }
 
 /**
-    Check for duplicate tasks.
-    TODO: Legacy, remove
-
-    @param agents An array of Tasks
-    @param name   Agent's name
-*/
-void check_for_duplicates(const Tasks& tasks, std::string_view name)
-{
-    Expects(!name.empty());
-    if (const auto a = ranges::find(tasks, name, &Task::name);
-        a != tasks.end())
-        throw DuplicateTaskDefinition{};
-}
-
-/**
     TODO: doc
 */
-void check_for_duplicates_new(const Tasks& tasks, std::string_view id)
+void check_for_duplicates(const Tasks& tasks, std::string_view id)
 {
     Expects(!id.empty());
     if (const auto a = ranges::find(tasks, id, &Task::id);
@@ -99,40 +84,7 @@ TaskId find_task_index_by_id(const Tasks& tasks, std::string_view id)
 }
 
 /**
-    Parses task blocks.
-
-    Parses blocks such as these:
-
-    task 1:
-      group: A
-      days:
-        min: 2
-        max: 2
-
-    @param task_node  Scalar holding the name of the task
-    @param task_node  Map with task data
-    @param sys        An instance of System
-*/
-void parse_task(
-    const YAML::Node& task_node,
-    const YAML::Node& task_data,
-    System& sys)
-{
-    const auto& task_name = task_node.Scalar();
-    Expects(!task_name.empty());
-    check_for_duplicates(sys.tasks, task_name);
-    auto& task = sys.tasks.emplace_back();
-    task.name = task_name;
-    parse_duration(task_data["duration"], task.duration);
-
-    // Parse task.group
-    if (const auto group = task_data["group"]) {
-        parse_task_group(group, task, sys);
-    }
-}
-
-/**
-    TODO: doc
+    TODO: doc, expects
 */
 void parse_task_id(
     const YAML::Node& id_node,
@@ -141,12 +93,12 @@ void parse_task_id(
 {
     const auto& id = id_node.Scalar();
     if (id.empty()) throw CantBeEmpty{"Task id"};
-    check_for_duplicates_new(tasks, id);
+    check_for_duplicates(tasks, id);
     task.id = id;
 }
 
 /**
-    TODO: doc
+    TODO: doc, expects
 */
 std::string_view validate_task_id(std::string_view task_id)
 {
@@ -155,7 +107,7 @@ std::string_view validate_task_id(std::string_view task_id)
 }
 
 /**
-    TODO: doc
+    TODO: doc, expects
 */
 void parse_dependencies(
     const YAML::Node& depends_on,
@@ -170,13 +122,13 @@ void parse_dependencies(
 }
 
 // Forward decl
-void parse_task_new(
+void parse_task(
     const YAML::Node& task_node,
     System& sys,
     Dependencies& deps);
 
 /**
-    TODO: doc
+    TODO: doc, expects
 */
 void parse_subtasks(
     const YAML::Node& subtasks,
@@ -186,14 +138,14 @@ void parse_subtasks(
 {
     for (auto&& sub : subtasks) {
         sys.tasks[task_id].dependencies.emplace(sys.tasks.size());
-        parse_task_new(sub, sys, deps);
+        parse_task(sub, sys, deps);
     }
 }
 
 /**
-    TODO: doc, rename
+    TODO: doc, expects
 */
-void parse_task_new(
+void parse_task(
     const YAML::Node& task_node,
     System& sys,
     Dependencies& deps)
@@ -280,7 +232,7 @@ void depth_first_search(
 }
 
 /**
-    TODO: doc
+    TODO: doc, expects
 */
 void check_for_cycles(const Tasks& tasks)
 {
@@ -295,17 +247,9 @@ void check_for_cycles(const Tasks& tasks)
 namespace angonoka::detail {
 void parse_tasks(const YAML::Node& node, System& sys)
 {
-    // new
-    if (node.IsSequence()) {
-        Dependencies deps;
-        for (auto&& task : node) { parse_task_new(task, sys, deps); }
-        parse_dependencies_2nd_phase(sys.tasks, deps);
-        check_for_cycles(sys.tasks);
-        return;
-    }
-    // TODO: Legacy
-    for (auto&& task : node) {
-        parse_task(task.first, task.second, sys);
-    }
+    Dependencies deps;
+    for (auto&& task : node) { parse_task(task, sys, deps); }
+    parse_dependencies_2nd_phase(sys.tasks, deps);
+    check_for_cycles(sys.tasks);
 }
 } // namespace angonoka::detail

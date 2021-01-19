@@ -49,7 +49,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: 1 day\n"
             "      max: 3 days";
@@ -69,7 +69,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: as\n"
             "      max: a";
@@ -85,7 +85,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: 5 days\n"
             "      max: 2 days";
@@ -101,7 +101,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:";
+            "  - name: task 1";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
@@ -114,7 +114,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration: 3h";
         // clang-format on
         const auto system = angonoka::load_text(text);
@@ -133,7 +133,7 @@ TEST_CASE("Loading tasks")
             "    groups:\n"
             "      - A\n"
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    group: A\n"
             "    duration:\n"
             "      min: 1 day\n"
@@ -156,12 +156,12 @@ TEST_CASE("Loading tasks")
             "    groups:\n"
             "      - A\n"
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    group: A\n"
             "    duration:\n"
             "      min: 1 day\n"
             "      max: 2 days\n"
-            "  task 2:\n"
+            "  - name: task 2\n"
             "    group: A\n"
             "    duration:\n"
             "      min: 1 day\n"
@@ -181,18 +181,20 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: 1 day\n"
             "      max: 2 days\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: 1 day\n"
             "      max: 2 days";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
+
+        const auto system = angonoka::load_text(text);
+        REQUIRE(system.tasks.size() == 2);
+        REQUIRE(system.tasks[0].name == "task 1");
+        REQUIRE(system.tasks[1].name == "task 1");
     }
 
     SECTION("Duplicate attributes")
@@ -207,7 +209,7 @@ TEST_CASE("Loading tasks")
             "    groups:\n"
             "      - B\n"
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    group: A\n"
             "    group: B\n"
             "    duration:\n"
@@ -228,7 +230,7 @@ TEST_CASE("Loading tasks")
             "    groups:\n"
             "      - A\n"
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    group: B\n"
             "    duration:\n"
             "      min: 1 day\n"
@@ -242,7 +244,7 @@ TEST_CASE("Loading tasks")
             angonoka::ValidationError);
     }
 
-    SECTION("Task list")
+    SECTION("Task with id")
     {
         // clang-format off
         constexpr auto text =
@@ -538,6 +540,20 @@ TEST_CASE("Loading tasks")
         REQUIRE(system.tasks[6].name == "task 1.2.2");
         REQUIRE(system.tasks[6].dependencies == angonoka::TaskIds{3});
     }
+
+    // TODO: add null() yaml to allow for empty subtasks
+    // SECTION("Empty subtasks")
+    // {
+    //     // clang-format off
+    //     constexpr auto text =
+    //         "agents:\n"
+    //         "  agent1:\n"
+    //         "tasks:\n"
+    //         "  - name: task 1\n"
+    //         "    duration: 1h\n"
+    //         "    subtasks:";
+    //     const auto system = angonoka::load_text(text);
+    // }
 }
 
 #undef ANGONOKA_COMMON_YAML

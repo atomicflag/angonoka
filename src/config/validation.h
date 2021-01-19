@@ -189,7 +189,7 @@ constexpr Check auto sequence(Check auto check)
                std::string_view scope) -> result {
         if (!node || !node.IsSequence()) {
             return R"("{}" is expected to be a sequence)"_format(
-                node.Scalar());
+                scope);
         }
         const auto s = "Element of {}"_format(scope);
         for (auto&& a : node) { BOOST_OUTCOME_TRY(check(a, s)); }
