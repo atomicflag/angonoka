@@ -307,5 +307,4 @@ constexpr Check auto any_of(Check auto... checks)
         return r;
     };
 }
-
 } // namespace angonoka::validation

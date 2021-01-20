@@ -61,7 +61,10 @@ void parse_task_group(
 }
 
 /**
-    TODO: doc
+    Checks if a given id has already been used.
+
+    @param tasks    Array of Tasks
+    @param id       Task id to check
 */
 void check_for_duplicates(const Tasks& tasks, std::string_view id)
 {

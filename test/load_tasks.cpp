@@ -540,20 +540,6 @@ TEST_CASE("Loading tasks")
         REQUIRE(system.tasks[6].name == "task 1.2.2");
         REQUIRE(system.tasks[6].dependencies == angonoka::TaskIds{3});
     }
-
-    // TODO: add null() yaml to allow for empty subtasks
-    // SECTION("Empty subtasks")
-    // {
-    //     // clang-format off
-    //     constexpr auto text =
-    //         "agents:\n"
-    //         "  agent1:\n"
-    //         "tasks:\n"
-    //         "  - name: task 1\n"
-    //         "    duration: 1h\n"
-    //         "    subtasks:";
-    //     const auto system = angonoka::load_text(text);
-    // }
 }
 
 #undef ANGONOKA_COMMON_YAML
