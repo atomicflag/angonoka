@@ -65,11 +65,11 @@ can_work_on(const Agent& agent, GroupId id) noexcept;
     perform Tasks from that group. Otherwise it will be processed by
     any Agent.
 
-    TODO: update doc
-
-    @var name     Task's name
-    @var group_id Group id, if any
-    @var dur      Duration min/max in seconds
+    @var name           Task's name
+    @var id             Task's unique id
+    @var group_id       Group id, if any
+    @var dependencies   Task prerequisites
+    @var duration       Duration min/max in seconds
 */
 struct Task {
     std::string name;

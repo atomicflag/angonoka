@@ -62,19 +62,16 @@ void parse_agents(const YAML::Node& node, System& sys);
 
 /**
     Parses tasks blocks.
-    TODO: doc update
 
     Parses blocks such as these:
 
     tasks:
-      task 1:
-        days:
-          min: 1
-          max: 3
-      task 2:
-        days:
-          min: 2
-          max: 2
+      - name: task 1
+        duration:
+          min: 1 h
+          max: 3 h
+      - name: task 2
+        duration: 2h
 
     @param node   "tasks" node
     @param sys    An instance of System

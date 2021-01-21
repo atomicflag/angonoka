@@ -8,7 +8,22 @@ namespace {
 using angonoka::validation::result;
 
 /**
-    TODO: doc
+    Recursive helper-function for task list validation.
+
+    Parses blocks such as these:
+      - name: task 1
+        duration: 1h
+        subtasks:
+          - name: task 2
+            duration: 2h
+            subtasks:
+              - name: task 3
+                duration: 3h
+
+    @param node     YAML node containing the task list
+    @param scope    Name of the validation context
+
+    @return Success status or an error string
 */
 result
 validate_task_list(const YAML::Node& node, std::string_view scope)
