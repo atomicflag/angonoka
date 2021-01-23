@@ -97,7 +97,7 @@ System load_text(gsl::czstring text)
 } // namespace angonoka
 
 namespace angonoka::detail {
-std::pair<GroupId, bool>
+std::pair<GroupIndex, bool>
 find_or_insert_group(Groups& groups, std::string_view group)
 {
     Expects(!group.empty());

@@ -92,10 +92,12 @@ TEST_CASE("Loading agents")
         REQUIRE(system.agents.size() == 2);
         // Agent 1 has A(0) and B(1)
         REQUIRE(
-            system.agents[0].group_ids == angonoka::GroupIds{0, 1});
+            system.agents[0].group_ids
+            == angonoka::GroupIndices{0, 1});
         // Agent 2 has A(0) and C(2)
         REQUIRE(
-            system.agents[1].group_ids == angonoka::GroupIds{0, 2});
+            system.agents[1].group_ids
+            == angonoka::GroupIndices{0, 2});
     }
 
     SECTION("Universal agents")
@@ -113,7 +115,8 @@ TEST_CASE("Loading agents")
         const auto system = angonoka::load_text(text);
         // Agent 1 has A(0) and B(1)
         REQUIRE(
-            system.agents[0].group_ids == angonoka::GroupIds{0, 1});
+            system.agents[0].group_ids
+            == angonoka::GroupIndices{0, 1});
         // Agent 2 should be universal
         REQUIRE(is_universal(system.agents[1]));
         REQUIRE(can_work_on(system.agents[1], 0));

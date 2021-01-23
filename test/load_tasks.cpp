@@ -336,7 +336,8 @@ TEST_CASE("Loading tasks")
         REQUIRE(system.tasks[0].name == "task 1");
         REQUIRE(system.tasks[1].id.empty());
         REQUIRE(system.tasks[1].name == "task 2");
-        REQUIRE(system.tasks[1].dependencies == angonoka::TaskIds{0});
+        REQUIRE(
+            system.tasks[1].dependencies == angonoka::TaskIndices{0});
     }
 
     SECTION("Empty dependency id")
@@ -391,7 +392,8 @@ TEST_CASE("Loading tasks")
         const auto system = angonoka::load_text(text);
 
         REQUIRE(system.tasks.size() == 2);
-        REQUIRE(system.tasks[0].dependencies == angonoka::TaskIds{1});
+        REQUIRE(
+            system.tasks[0].dependencies == angonoka::TaskIndices{1});
         REQUIRE(system.tasks[1].dependencies.empty());
     }
 
@@ -419,7 +421,8 @@ TEST_CASE("Loading tasks")
 
         REQUIRE(system.tasks.size() == 3);
         REQUIRE(
-            system.tasks[0].dependencies == angonoka::TaskIds{1, 2});
+            system.tasks[0].dependencies
+            == angonoka::TaskIndices{1, 2});
         REQUIRE(system.tasks[1].dependencies.empty());
         REQUIRE(system.tasks[2].dependencies.empty());
     }
@@ -486,7 +489,8 @@ TEST_CASE("Loading tasks")
 
         REQUIRE(system.tasks.size() == 2);
         REQUIRE(system.tasks[0].name == "task 1");
-        REQUIRE(system.tasks[0].dependencies == angonoka::TaskIds{1});
+        REQUIRE(
+            system.tasks[0].dependencies == angonoka::TaskIndices{1});
         REQUIRE(system.tasks[1].name == "task 2");
         REQUIRE(system.tasks[1].dependencies.empty());
     }
@@ -524,21 +528,25 @@ TEST_CASE("Loading tasks")
         REQUIRE(system.tasks.size() == 7);
         REQUIRE(system.tasks[0].name == "task 1");
         REQUIRE(
-            system.tasks[0].dependencies == angonoka::TaskIds{1, 4});
+            system.tasks[0].dependencies
+            == angonoka::TaskIndices{1, 4});
         REQUIRE(system.tasks[1].name == "task 1.1");
         REQUIRE(
-            system.tasks[1].dependencies == angonoka::TaskIds{2, 3});
+            system.tasks[1].dependencies
+            == angonoka::TaskIndices{2, 3});
         REQUIRE(system.tasks[2].name == "task 1.1.1");
         REQUIRE(system.tasks[2].dependencies.empty());
         REQUIRE(system.tasks[3].name == "task 1.1.2");
         REQUIRE(system.tasks[3].dependencies.empty());
         REQUIRE(system.tasks[4].name == "task 1.2");
         REQUIRE(
-            system.tasks[4].dependencies == angonoka::TaskIds{5, 6});
+            system.tasks[4].dependencies
+            == angonoka::TaskIndices{5, 6});
         REQUIRE(system.tasks[5].name == "task 1.2.1");
         REQUIRE(system.tasks[5].dependencies.empty());
         REQUIRE(system.tasks[6].name == "task 1.2.2");
-        REQUIRE(system.tasks[6].dependencies == angonoka::TaskIds{3});
+        REQUIRE(
+            system.tasks[6].dependencies == angonoka::TaskIndices{3});
     }
 }
 

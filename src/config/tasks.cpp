@@ -75,9 +75,15 @@ void check_for_duplicates(const Tasks& tasks, std::string_view id)
 }
 
 /**
-    TODO: doc
+    Find the task index by id.
+
+    @param tasks    An array of Tasks
+    @param id       Task id
+
+    @return Task index
 */
-TaskId find_task_index_by_id(const Tasks& tasks, std::string_view id)
+TaskIndex
+find_task_index_by_id(const Tasks& tasks, std::string_view id)
 {
     Expects(!id.empty());
     if (const auto a = ranges::find(tasks, id, &Task::id);
@@ -137,10 +143,11 @@ void parse_subtasks(
     const YAML::Node& subtasks,
     System& sys,
     Dependencies& deps,
-    int8 task_id)
+    int8 task_index)
 {
     for (auto&& sub : subtasks) {
-        sys.tasks[task_id].dependencies.emplace(sys.tasks.size());
+        // The next task will be a depencency
+        sys.tasks[task_index].dependencies.emplace(sys.tasks.size());
         parse_task(sub, sys, deps);
     }
 }
@@ -179,10 +186,9 @@ void parse_task(
     }
 
     // Parse task.subtasks
-    // TODO: refactor into a function
     if (const auto& subtasks = task_node["subtasks"]) {
-        const auto task_id = sys.tasks.size() - 1;
-        parse_subtasks(subtasks, sys, deps, task_id);
+        const auto task_index = sys.tasks.size() - 1;
+        parse_subtasks(subtasks, sys, deps, task_index);
     }
 }
 
