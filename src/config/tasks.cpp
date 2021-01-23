@@ -58,6 +58,8 @@ void parse_task_group(
     if (is_inserted && !has_universal_agents(system))
         throw NoSuitableAgent{group_name};
     task.group_id = gid;
+
+    Ensures(task.group_id);
 }
 
 /**
@@ -93,7 +95,15 @@ find_task_index_by_id(const Tasks& tasks, std::string_view id)
 }
 
 /**
-    TODO: doc, expects
+    Parses Task ids.
+
+    Parses blocks such as these:
+
+    id: X
+
+    @param id_node  Scalar containing the id
+    @param tasks    Array of Tasks
+    @param task     An instance of Task
 */
 void parse_task_id(
     const YAML::Node& id_node,
@@ -104,6 +114,8 @@ void parse_task_id(
     if (id.empty()) throw CantBeEmpty{"Task id"};
     check_for_duplicates(tasks, id);
     task.id = id;
+
+    Ensures(!task.id.empty());
 }
 
 /**
