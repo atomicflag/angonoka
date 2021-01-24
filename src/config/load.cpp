@@ -11,6 +11,7 @@ using angonoka::validation::result;
     Recursive helper-function for task list validation.
 
     Parses blocks such as these:
+
       - name: task 1
         duration: 1h
         subtasks:
