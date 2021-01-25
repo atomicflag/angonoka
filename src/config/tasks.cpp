@@ -169,7 +169,17 @@ void parse_task(
     Dependencies& deps);
 
 /**
-    TODO: doc, expects
+    Parse subtasks definition.
+
+    Parses blocks such as these:
+
+    subtasks:
+      - ...
+
+    @param subtasks     YAML sequence of subtasks
+    @param sys          An instance of System
+    @param deps         Array of dependencies
+    @param task_index   Current task's index
 */
 void parse_subtasks(
     const YAML::Node& subtasks,
@@ -177,6 +187,9 @@ void parse_subtasks(
     Dependencies& deps,
     int8 task_index)
 {
+    Expects(!sys.tasks.empty());
+    Expects(task_index < sys.tasks.size());
+
     for (auto&& sub : subtasks) {
         // The next task will be a depencency
         sys.tasks[task_index].dependencies.emplace(sys.tasks.size());
