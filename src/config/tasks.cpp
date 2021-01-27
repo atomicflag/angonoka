@@ -198,13 +198,28 @@ void parse_subtasks(
 }
 
 /**
-    TODO: doc, expects
+    Parses task blocks.
+
+    Parses blocks such as these:
+
+    name: task 1
+    group: A
+    days:
+      min: 2
+      max: 2
+
+    @param task_node    Scalar holding the name of the task
+    @param sys          An instance of System
+    @param deps         Array of dependencies
 */
 void parse_task(
     const YAML::Node& task_node,
     System& sys,
     Dependencies& deps)
 {
+    Expects(!task_node.IsNull());
+    Expects(sys.tasks.size() == deps.size());
+
     const auto& name = task_node["name"].Scalar();
     if (name.empty()) throw CantBeEmpty{"Task name"};
 
@@ -235,6 +250,8 @@ void parse_task(
         const auto task_index = sys.tasks.size() - 1;
         parse_subtasks(subtasks, sys, deps, task_index);
     }
+
+    Ensures(sys.tasks.size() == deps.size());
 }
 
 /**
