@@ -255,7 +255,14 @@ void parse_task(
 }
 
 /**
-    TODO: doc
+    Second pass of parsing task dependencies.
+
+    Resolves Task ids and pupulates task dependencies.
+    Two phase lookup is needed because some task ids might
+    not be resolved during the first pass.
+
+    @param tasks   Array of Tasks
+    @param deps    Array of Task dependencies
 */
 void parse_dependencies_2nd_phase(
     Tasks& tasks,
