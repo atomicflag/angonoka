@@ -281,7 +281,7 @@ void parse_dependencies_2nd_phase(
 }
 
 /**
-    TODO: doc
+    State of the vertex for the dependency graph cycle detection.
 */
 enum class VertexState : std::uint8_t {
     not_visited,
@@ -290,13 +290,22 @@ enum class VertexState : std::uint8_t {
 };
 
 /**
-    TODO: doc
+    Depth first search algorithm for dependency cycle detection.
+
+    @param tasks    Array of Tasks
+    @param state    Array of vertex states
+    @param task_id  Current task id
 */
 void depth_first_search(
     const Tasks& tasks,
     std::vector<VertexState>& state,
     int8 task_id)
 {
+    Expects(!tasks.empty());
+    Expects(tasks.size() == state.size());
+    Expects(state[task_id] == VertexState::not_visited);
+    Expects(task_id < tasks.size());
+
     state[task_id] = VertexState::visited;
     for (const auto& dep_id : tasks[task_id].dependencies) {
         switch (state[dep_id]) {
@@ -314,6 +323,8 @@ void depth_first_search(
 */
 void check_for_cycles(const Tasks& tasks)
 {
+    Expects(!tasks.empty());
+
     std::vector<VertexState> state(tasks.size());
     for (int8 task_id{0}; task_id < tasks.size(); ++task_id) {
         if (state[task_id] != VertexState::not_visited) continue;
