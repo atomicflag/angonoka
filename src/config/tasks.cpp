@@ -336,9 +336,13 @@ void check_for_cycles(const Tasks& tasks)
 namespace angonoka::detail {
 void parse_tasks(const YAML::Node& node, System& sys)
 {
+    Expects(sys.tasks.empty());
+
     Dependencies deps;
     for (auto&& task : node) { parse_task(task, sys, deps); }
     parse_dependencies_2nd_phase(sys.tasks, deps);
     check_for_cycles(sys.tasks);
+
+    Ensures(!sys.tasks.empty());
 }
 } // namespace angonoka::detail
