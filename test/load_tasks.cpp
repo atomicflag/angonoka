@@ -49,7 +49,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: 1 day\n"
             "      max: 3 days";
@@ -69,7 +69,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: as\n"
             "      max: a";
@@ -85,7 +85,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: 5 days\n"
             "      max: 2 days";
@@ -101,7 +101,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:";
+            "  - name: task 1";
         // clang-format on
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
@@ -114,7 +114,7 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration: 3h";
         // clang-format on
         const auto system = angonoka::load_text(text);
@@ -133,7 +133,7 @@ TEST_CASE("Loading tasks")
             "    groups:\n"
             "      - A\n"
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    group: A\n"
             "    duration:\n"
             "      min: 1 day\n"
@@ -156,12 +156,12 @@ TEST_CASE("Loading tasks")
             "    groups:\n"
             "      - A\n"
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    group: A\n"
             "    duration:\n"
             "      min: 1 day\n"
             "      max: 2 days\n"
-            "  task 2:\n"
+            "  - name: task 2\n"
             "    group: A\n"
             "    duration:\n"
             "      min: 1 day\n"
@@ -181,18 +181,20 @@ TEST_CASE("Loading tasks")
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: 1 day\n"
             "      max: 2 days\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    duration:\n"
             "      min: 1 day\n"
             "      max: 2 days";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
+
+        const auto system = angonoka::load_text(text);
+        REQUIRE(system.tasks.size() == 2);
+        REQUIRE(system.tasks[0].name == "task 1");
+        REQUIRE(system.tasks[1].name == "task 1");
     }
 
     SECTION("Duplicate attributes")
@@ -207,7 +209,7 @@ TEST_CASE("Loading tasks")
             "    groups:\n"
             "      - B\n"
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    group: A\n"
             "    group: B\n"
             "    duration:\n"
@@ -228,7 +230,7 @@ TEST_CASE("Loading tasks")
             "    groups:\n"
             "      - A\n"
             "tasks:\n"
-            "  task 1:\n"
+            "  - name: task 1\n"
             "    group: B\n"
             "    duration:\n"
             "      min: 1 day\n"
@@ -240,6 +242,311 @@ TEST_CASE("Loading tasks")
         REQUIRE_THROWS_AS(
             angonoka::load_text(text),
             angonoka::ValidationError);
+    }
+
+    SECTION("Task with id")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    id: task_1\n"
+            "    duration: 1h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 1);
+        REQUIRE(system.tasks[0].id == "task_1");
+        REQUIRE(system.tasks[0].name == "task 1");
+    }
+
+    SECTION("Empty id")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: 'task 1'\n"
+            "    id: ''\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("Missing name")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - id: 'hello'\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("Optional id")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    duration: 1h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 1);
+        REQUIRE(system.tasks[0].id.empty());
+        REQUIRE(system.tasks[0].name == "task 1");
+    }
+
+    SECTION("Depends on single task")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    id: A\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    depends_on: A\n"
+            "    duration: 2h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 2);
+        REQUIRE(system.tasks[0].id == "A");
+        REQUIRE(system.tasks[0].name == "task 1");
+        REQUIRE(system.tasks[1].id.empty());
+        REQUIRE(system.tasks[1].name == "task 2");
+        REQUIRE(
+            system.tasks[1].dependencies == angonoka::TaskIndices{0});
+    }
+
+    SECTION("Empty dependency id")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: ''\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("Invalid dependency id")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: A\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("Out of order dependencies")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: B\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    id: B\n"
+            "    duration: 2h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 2);
+        REQUIRE(
+            system.tasks[0].dependencies == angonoka::TaskIndices{1});
+        REQUIRE(system.tasks[1].dependencies.empty());
+    }
+
+    SECTION("Multiple dependencies")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on:\n"
+            "      - A\n"
+            "      - B\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    id: B\n"
+            "    duration: 2h\n"
+            "  - name: task 3\n"
+            "    id: A\n"
+            "    duration: 3h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 3);
+        REQUIRE(
+            system.tasks[0].dependencies
+            == angonoka::TaskIndices{1, 2});
+        REQUIRE(system.tasks[1].dependencies.empty());
+        REQUIRE(system.tasks[2].dependencies.empty());
+    }
+
+    SECTION("Dependency cycle")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: B\n"
+            "    id: A\n"
+            "    duration: 1h\n"
+            "  - name: task 1\n"
+            "    depends_on: C\n"
+            "    id: B\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    id: C\n"
+            "    depends_on: A\n"
+            "    duration: 3h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("Depends on itself")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    depends_on: A\n"
+            "    id: A\n"
+            "    duration: 1h";
+        // clang-format on
+
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("Subtasks")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    duration: 1h\n"
+            "    subtasks:\n"
+            "      - name: task 2\n"
+            "        duration: 2h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 2);
+        REQUIRE(system.tasks[0].name == "task 1");
+        REQUIRE(
+            system.tasks[0].dependencies == angonoka::TaskIndices{1});
+        REQUIRE(system.tasks[1].name == "task 2");
+        REQUIRE(system.tasks[1].dependencies.empty());
+    }
+
+    SECTION("Deep subtasks")
+    {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    duration: 1h\n"
+            "    subtasks:\n"
+            "      - name: task 1.1\n"
+            "        duration: 2h\n"
+            "        subtasks:\n"
+            "          - name: task 1.1.1\n"
+            "            duration: 2h\n"
+            "          - name: task 1.1.2\n"
+            "            id: X\n"
+            "            duration: 2h\n"
+            "      - name: task 1.2\n"
+            "        duration: 2h\n"
+            "        subtasks:\n"
+            "          - name: task 1.2.1\n"
+            "            duration: 2h\n"
+            "          - name: task 1.2.2\n"
+            "            depends_on: X\n"
+            "            duration: 2h";
+        // clang-format on
+
+        const auto system = angonoka::load_text(text);
+
+        REQUIRE(system.tasks.size() == 7);
+        REQUIRE(system.tasks[0].name == "task 1");
+        REQUIRE(
+            system.tasks[0].dependencies
+            == angonoka::TaskIndices{1, 4});
+        REQUIRE(system.tasks[1].name == "task 1.1");
+        REQUIRE(
+            system.tasks[1].dependencies
+            == angonoka::TaskIndices{2, 3});
+        REQUIRE(system.tasks[2].name == "task 1.1.1");
+        REQUIRE(system.tasks[2].dependencies.empty());
+        REQUIRE(system.tasks[3].name == "task 1.1.2");
+        REQUIRE(system.tasks[3].dependencies.empty());
+        REQUIRE(system.tasks[4].name == "task 1.2");
+        REQUIRE(
+            system.tasks[4].dependencies
+            == angonoka::TaskIndices{5, 6});
+        REQUIRE(system.tasks[5].name == "task 1.2.1");
+        REQUIRE(system.tasks[5].dependencies.empty());
+        REQUIRE(system.tasks[6].name == "task 1.2.2");
+        REQUIRE(
+            system.tasks[6].dependencies == angonoka::TaskIndices{3});
     }
 }
 

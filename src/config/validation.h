@@ -42,7 +42,7 @@ template <typename T> concept AttrOrStr = String<T> || Attribute<T>;
 
     @return Check function
 */
-consteval Check auto scalar()
+constexpr Check auto scalar()
 {
     return [](const YAML::Node& node,
               std::string_view scope) -> result {
@@ -183,13 +183,13 @@ optional(gsl::czstring)->optional<decltype(scalar())>;
 
     @return Check function
 */
-consteval Check auto sequence(Check auto check)
+constexpr Check auto sequence(Check auto check)
 {
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
         if (!node || !node.IsSequence()) {
             return R"("{}" is expected to be a sequence)"_format(
-                node.Scalar());
+                scope);
         }
         const auto s = "Element of {}"_format(scope);
         for (auto&& a : node) { BOOST_OUTCOME_TRY(check(a, s)); }
@@ -197,7 +197,7 @@ consteval Check auto sequence(Check auto check)
     };
 }
 
-consteval Check auto sequence() { return sequence(scalar()); }
+constexpr Check auto sequence() { return sequence(scalar()); }
 
 /**
     YAML map.
@@ -216,7 +216,7 @@ consteval Check auto sequence() { return sequence(scalar()); }
 
     @return Check function
 */
-consteval Check auto attributes(AttrOrStr auto... attrs)
+constexpr Check auto attributes(AttrOrStr auto... attrs)
 {
     return [=](const YAML::Node& node,
                std::string_view scope = "Document") -> result {
@@ -263,7 +263,7 @@ consteval Check auto attributes(AttrOrStr auto... attrs)
 
     @return Check function
 */
-consteval Check auto values(Check auto check)
+constexpr Check auto values(Check auto check)
 {
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
@@ -298,7 +298,7 @@ consteval Check auto values(Check auto check)
 
     @return Check function
 */
-consteval Check auto any_of(Check auto... checks)
+constexpr Check auto any_of(Check auto... checks)
 {
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
@@ -307,5 +307,4 @@ consteval Check auto any_of(Check auto... checks)
         return r;
     };
 }
-
 } // namespace angonoka::validation

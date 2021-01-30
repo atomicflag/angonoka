@@ -28,7 +28,7 @@ namespace angonoka::detail {
     @return The index of the group in System.groups
     and whether the insertion took place.
 */
-std::pair<GroupId, bool>
+std::pair<GroupIndex, bool>
 find_or_insert_group(Groups& groups, std::string_view group);
 
 /**
@@ -66,14 +66,12 @@ void parse_agents(const YAML::Node& node, System& sys);
     Parses blocks such as these:
 
     tasks:
-      task 1:
-        days:
-          min: 1
-          max: 3
-      task 2:
-        days:
-          min: 2
-          max: 2
+      - name: task 1
+        duration:
+          min: 1 h
+          max: 3 h
+      - name: task 2
+        duration: 2h
 
     @param node   "tasks" node
     @param sys    An instance of System

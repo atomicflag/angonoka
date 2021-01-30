@@ -9,8 +9,10 @@
 
 namespace angonoka {
 using boost::container::flat_set;
-using GroupId = int8;
-using GroupIds = flat_set<GroupId>;
+using GroupIndex = int8;
+using TaskIndex = int8;
+using GroupIndices = flat_set<GroupIndex>;
+using TaskIndices = flat_set<TaskIndex>;
 
 /**
     Agent that performs Tasks.
@@ -26,7 +28,7 @@ using GroupIds = flat_set<GroupId>;
 */
 struct Agent {
     std::string name;
-    GroupIds group_ids;
+    GroupIndices group_ids;
     struct Performance {
         static constexpr float default_min = .5F;
         static constexpr float default_max = 1.5F;
@@ -54,7 +56,7 @@ struct Agent {
     @return True if the agent can work with a given group.
 */
 [[nodiscard]] bool
-can_work_on(const Agent& agent, GroupId id) noexcept;
+can_work_on(const Agent& agent, GroupIndex id) noexcept;
 
 /**
     Task performed by an Agent.
@@ -63,13 +65,17 @@ can_work_on(const Agent& agent, GroupId id) noexcept;
     perform Tasks from that group. Otherwise it will be processed by
     any Agent.
 
-    @var name     Task's name
-    @var group_id Group id, if any
-    @var dur      Duration min/max in seconds
+    @var name           Task's name
+    @var id             Task's unique id
+    @var group_id       Group id, if any
+    @var dependencies   Task prerequisites
+    @var duration       Duration min/max in seconds
 */
 struct Task {
     std::string name;
-    std::optional<GroupId> group_id;
+    std::string id;
+    std::optional<GroupIndex> group_id;
+    TaskIndices dependencies;
     struct Duration {
         std::chrono::seconds min, max;
     };

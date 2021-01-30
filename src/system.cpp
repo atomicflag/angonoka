@@ -9,7 +9,7 @@ bool is_universal(const Agent& agent) noexcept
     return agent.group_ids.empty();
 }
 
-bool can_work_on(const Agent& agent, GroupId id) noexcept
+bool can_work_on(const Agent& agent, GroupIndex id) noexcept
 {
     Expects(id >= 0);
 

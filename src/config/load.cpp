@@ -5,6 +5,51 @@
 #include <range/v3/algorithm/find.hpp>
 
 namespace {
+using angonoka::validation::result;
+
+/**
+    Recursive helper-function for task list validation.
+
+    Parses blocks such as these:
+
+      - name: task 1
+        duration: 1h
+        subtasks:
+          - name: task 2
+            duration: 2h
+            subtasks:
+              - name: task 3
+                duration: 3h
+
+    @param node     YAML node containing the task list
+    @param scope    Name of the validation context
+
+    @return Success status or an error string
+*/
+result
+validate_task_list(const YAML::Node& node, std::string_view scope)
+{
+    using namespace angonoka::validation;
+    // clang-format off
+    return sequence(attributes(
+        optional("group"),
+        "name",
+        optional("id"),
+        optional("depends_on", any_of(
+            scalar(),
+            sequence()
+        )),
+        required("duration", any_of(
+            attributes(
+                "min",
+                "max"
+            ),
+            scalar()
+        )),
+        optional("subtasks", validate_task_list)
+    ))(node, scope);
+    // clang-format on
+}
 /**
     Matches YAML configuration against the schema.
 
@@ -27,18 +72,7 @@ void validate_configuration(const YAML::Node& node)
                 optional("groups", sequence())
             ))
         ),
-        required("tasks",
-            values(attributes(
-                optional("group"),
-                required("duration", any_of(
-                    attributes(
-                        "min",
-                        "max"
-                    ),
-                    scalar()
-                ))
-            ))
-        )
+        required("tasks", validate_task_list)
     );
     // clang-format on
     if (const auto r = schema(node); !r)
@@ -64,7 +98,7 @@ System load_text(gsl::czstring text)
 } // namespace angonoka
 
 namespace angonoka::detail {
-std::pair<GroupId, bool>
+std::pair<GroupIndex, bool>
 find_or_insert_group(Groups& groups, std::string_view group)
 {
     Expects(!group.empty());

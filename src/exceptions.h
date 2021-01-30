@@ -26,6 +26,7 @@ struct AgentPerformanceMinMax : ValidationError {
 struct DuplicateAgentDefinition : ValidationError {
     DuplicateAgentDefinition();
 };
+// TODO: Add the task name to the error message
 struct TaskDurationMinMax : ValidationError {
     TaskDurationMinMax();
 };
@@ -38,5 +39,13 @@ struct DuplicateTaskDefinition : ValidationError {
 struct NegativePerformance : ValidationError {
     NegativePerformance();
 };
-
+struct CantBeEmpty : ValidationError {
+    CantBeEmpty(std::string_view what);
+};
+struct TaskNotFound : ValidationError {
+    TaskNotFound(std::string_view task_id);
+};
+struct DependencyCycle : ValidationError {
+    DependencyCycle();
+};
 } // namespace angonoka

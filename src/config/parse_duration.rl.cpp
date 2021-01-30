@@ -16,24 +16,12 @@ action add_months { v += months{std::atoi(n)}; }
 action num { n = fpc; }
 
 number = digit+ >num;
-
-seconds_long = space ('sec' | 'second') 's'?;
-seconds = ('s' | seconds_long) %add_seconds;
-
-minutes_long = space ('min' | 'minute') 's'?;
-minutes = ('m' | minutes_long) %add_minutes;
-
-hours_long = space 'hour' 's'?;
-hours = ('h' | hours_long) %add_hours;
-
-days_long = space 'day' 's'?;
-days = ('d' | days_long) %add_days;
-
-weeks_long = space 'week' 's'?;
-weeks = ('w' | weeks_long) %add_weeks;
-
+seconds = ('s' | space ('sec' | 'second') 's'?) %add_seconds;
+minutes = ('m' | space ('min' | 'minute') 's'?) %add_minutes;
+hours = ('h' | space 'hour' 's'?) %add_hours;
+days = ('d' | space 'day' 's'?) %add_days;
+weeks = ('w' | space 'week' 's'?) %add_weeks;
 months = (space 'month' 's'?) %add_months;
-
 duration = number space* (seconds | minutes | hours | days | weeks | months);
 and = space+ 'and' space+;
 main := duration ((and | space*) duration)*;

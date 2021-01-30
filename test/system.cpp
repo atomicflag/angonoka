@@ -45,7 +45,7 @@ TEST_CASE("System member functions")
 
     REQUIRE(has_universal_agents(s));
 
-    a.group_ids.emplace(angonoka::GroupId{0});
+    a.group_ids.emplace(angonoka::GroupIndex{0});
 
     REQUIRE_FALSE(has_universal_agents(s));
 }
@@ -55,11 +55,11 @@ TEST_CASE("Agent member functions")
     angonoka::Agent a;
 
     REQUIRE(is_universal(a));
-    REQUIRE(can_work_on(a, angonoka::GroupId{0}));
+    REQUIRE(can_work_on(a, angonoka::GroupIndex{0}));
 
-    a.group_ids.emplace(angonoka::GroupId{1});
+    a.group_ids.emplace(angonoka::GroupIndex{1});
 
     REQUIRE_FALSE(is_universal(a));
-    REQUIRE_FALSE(can_work_on(a, angonoka::GroupId{0}));
-    REQUIRE(can_work_on(a, angonoka::GroupId{1}));
+    REQUIRE_FALSE(can_work_on(a, angonoka::GroupIndex{0}));
+    REQUIRE(can_work_on(a, angonoka::GroupIndex{1}));
 }
