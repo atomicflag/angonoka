@@ -319,7 +319,9 @@ void depth_first_search(
 }
 
 /**
-    TODO: doc, expects
+    Makes sure task dependencies have no cycles.
+
+    @param tasks Array of tasks
 */
 void check_for_cycles(const Tasks& tasks)
 {
