@@ -14,17 +14,17 @@ agents:
     groups:
       - Design
 tasks:
-  Develop the API:
+  - name: Develop the API
     duration:
       min: 3 days
       max: 2 weeks
     group: Backend
-  Design the landing page:
+  - name: Design the landing page
     duration:
       min: 3h
       max: 1 week
     group: Design
-  Develop the website:
+  - name: Develop the website
     duration:
       min: 2 weeks
       max: 1 month

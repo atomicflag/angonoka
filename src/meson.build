@@ -43,7 +43,7 @@ angonoka_exe = executable(
 
 stun_exe = executable(
   meson.project_name()+'-stun',
-  ['stun.cpp'] + stubs,
+  ['stun.cpp', 'run.cpp'] + stubs,
   dependencies : common,
   install : true,
   install_rpath : '$ORIGIN/../lib64'

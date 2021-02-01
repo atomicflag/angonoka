@@ -16,6 +16,15 @@ namespace angonoka {
     @return An instance of System
 */
 System load_text(gsl::czstring text);
+
+/**
+    Load System from a YAML file.
+
+    @param path YAML configuration location
+
+    @return An instance of System
+*/
+System load_file(std::string_view path);
 } // namespace angonoka
 
 namespace angonoka::detail {
