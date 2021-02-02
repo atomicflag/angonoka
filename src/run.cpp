@@ -7,15 +7,40 @@
 #include "stun/temperature.h"
 #include "stun/utils.h"
 #include <gsl/gsl-lite.hpp>
+#include <range/v3/to_container.hpp>
 #include <range/v3/view/span.hpp>
+#include <range/v3/view/transform.hpp>
 #include <utility>
 
 namespace angonoka {
+
+stun::ScheduleInfo to_schedule(const System& sys)
+{
+    using ranges::to;
+    using ranges::views::transform;
+    using stun::ScheduleInfo;
+
+    return {
+        .agent_performance{
+            sys.agents | transform([](auto&& a) {
+                return a.performance.average();
+            })
+            | to<decltype(ScheduleInfo::agent_performance)>()},
+        .task_duration{
+            sys.tasks | transform([](auto&& a) {
+                return a.duration.average().count();
+            })
+            | to<decltype(ScheduleInfo::task_duration)>()}
+        // TODO: available_agents
+        // TODO: dependencies
+    };
+}
 
 void run(std::string_view tasks_yml)
 {
     // TODO: Construct ScheduleInfo from System
     const auto system = load_file(tasks_yml);
+    const auto schedule = to_schedule(system);
     /*
     float beta = 1.0F;
     for (int i{0}; i < 10; ++i) {

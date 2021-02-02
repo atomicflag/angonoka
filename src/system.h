@@ -34,6 +34,9 @@ struct Agent {
         static constexpr float default_max = 1.5F;
         float min = default_min;
         float max = default_max;
+
+        // TODO: doc, test
+        [[nodiscard]] float average() const;
     };
     Performance performance;
 };
@@ -78,6 +81,8 @@ struct Task {
     TaskIndices dependencies;
     struct Duration {
         std::chrono::seconds min, max;
+        // TODO: doc, test
+        [[nodiscard]] std::chrono::seconds average() const;
     };
     Duration duration;
 };

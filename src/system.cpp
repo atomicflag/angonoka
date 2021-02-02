@@ -23,4 +23,16 @@ bool has_universal_agents(const System& system) noexcept
 
     return ranges::any_of(system.agents, is_universal);
 }
+
+float Agent::Performance::average() const
+{
+    // NOLINTNEXTLINE: cppcoreguidelines-avoid-magic-numbers
+    return (min + max) / 2.F;
+}
+
+std::chrono::seconds Task::Duration::average() const
+{
+    // NOLINTNEXTLINE: cppcoreguidelines-avoid-magic-numbers
+    return (min + max) / 2;
+}
 } // namespace angonoka
