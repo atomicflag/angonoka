@@ -28,6 +28,11 @@ public:
         std::vector<int16>&& data,
         std::vector<span<int16>>&& spans) noexcept;
 
+    // TODO: doc, test, expects
+    VectorOfSpans(
+        std::vector<int16>&& data,
+        const std::vector<int16>& sizes) noexcept;
+
     VectorOfSpans(const VectorOfSpans& other);
     VectorOfSpans& operator=(const VectorOfSpans& other);
     VectorOfSpans(VectorOfSpans&& other) noexcept;

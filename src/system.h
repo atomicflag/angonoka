@@ -35,7 +35,7 @@ struct Agent {
         float min = default_min;
         float max = default_max;
 
-        // TODO: doc, test
+        // TODO: doc, test, expects
         [[nodiscard]] float average() const;
     };
     Performance performance;
@@ -81,11 +81,15 @@ struct Task {
     TaskIndices dependencies;
     struct Duration {
         std::chrono::seconds min, max;
-        // TODO: doc, test
+        // TODO: doc, test, expects
         [[nodiscard]] std::chrono::seconds average() const;
     };
     Duration duration;
 };
+
+// TODO: doc, test, expects
+[[nodiscard]] bool
+can_work_on(const Agent& agent, const Task& task) noexcept;
 
 using Groups = std::vector<std::string>;
 using Agents = std::vector<Agent>;

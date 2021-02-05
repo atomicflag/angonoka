@@ -11,27 +11,66 @@
 #include <range/v3/view/span.hpp>
 #include <range/v3/view/transform.hpp>
 #include <utility>
+#include <vector>
 
 namespace angonoka {
+using stun::ScheduleInfo;
+using AgentPerformance = decltype(ScheduleInfo::agent_performance);
+using TaskDuration = decltype(ScheduleInfo::task_duration);
+using AvailableAgents = decltype(ScheduleInfo::available_agents);
 
+using ranges::to;
+using ranges::views::transform;
+
+// TODO: doc, test, expects
+AgentPerformance average(const Agents& agents)
+{
+    return agents
+        | transform([](auto&& a) { return a.performance.average(); })
+        | to<AgentPerformance>();
+}
+
+// TODO: doc, test, expects
+TaskDuration average(const Tasks& tasks)
+{
+    return tasks | transform([](auto&& a) {
+               return a.duration.average().count();
+           })
+        | to<TaskDuration>();
+}
+
+// TODO: doc, test, expects
+AvailableAgents available_agents(const System& sys)
+{
+    using stun::int16;
+
+    std::vector<int16> data;
+    std::vector<int16> sizes;
+
+    for (auto&& task : sys.tasks) {
+        int16 agent_count{0};
+        for (int16 agent_index{0};
+             agent_index < std::ssize(sys.agents);
+             ++agent_index) {
+            const auto& agent
+                = sys.agents[static_cast<std::size_t>(agent_index)];
+            if (!can_work_on(agent, task)) continue;
+            ++agent_count;
+            data.emplace_back(agent_index);
+        }
+        sizes.emplace_back(agent_count);
+    }
+    return {std::move(data), sizes};
+}
+
+// TODO: doc, test, expects
 stun::ScheduleInfo to_schedule(const System& sys)
 {
-    using ranges::to;
-    using ranges::views::transform;
-    using stun::ScheduleInfo;
 
     return {
-        .agent_performance{
-            sys.agents | transform([](auto&& a) {
-                return a.performance.average();
-            })
-            | to<decltype(ScheduleInfo::agent_performance)>()},
-        .task_duration{
-            sys.tasks | transform([](auto&& a) {
-                return a.duration.average().count();
-            })
-            | to<decltype(ScheduleInfo::task_duration)>()}
-        // TODO: available_agents
+        .agent_performance{average(sys.agents)},
+        .task_duration{average(sys.tasks)},
+        .available_agents{available_agents(sys)}
         // TODO: dependencies
     };
 }

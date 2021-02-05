@@ -17,6 +17,13 @@ bool can_work_on(const Agent& agent, GroupIndex id) noexcept
     return agent.group_ids.contains(id);
 }
 
+[[nodiscard]] bool
+can_work_on(const Agent& agent, const Task& task) noexcept
+{
+    return is_universal(agent)
+        || (task.group_id && can_work_on(agent, *task.group_id));
+}
+
 bool has_universal_agents(const System& system) noexcept
 {
     Expects(!system.agents.empty());

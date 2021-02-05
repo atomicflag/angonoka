@@ -29,6 +29,19 @@ VectorOfSpans::VectorOfSpans(const VectorOfSpans& other)
     }
 }
 
+VectorOfSpans::VectorOfSpans(
+    std::vector<int16>&& data,
+    const std::vector<int16>& sizes) noexcept
+    : data{std::move(data)}
+{
+    auto* head = this->data.data();
+    for (auto&& size : sizes) {
+        spans.emplace_back(
+            std::exchange(head, std::next(head, size)),
+            size);
+    }
+}
+
 [[nodiscard]] std::size_t VectorOfSpans::size() const noexcept
 {
     return spans.size();
