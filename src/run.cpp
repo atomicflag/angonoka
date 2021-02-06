@@ -7,6 +7,7 @@
 #include "stun/temperature.h"
 #include "stun/utils.h"
 #include <gsl/gsl-lite.hpp>
+#include <range/v3/action/insert.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/span.hpp>
 #include <range/v3/view/transform.hpp>
@@ -18,8 +19,10 @@ using stun::ScheduleInfo;
 using AgentPerformance = decltype(ScheduleInfo::agent_performance);
 using TaskDuration = decltype(ScheduleInfo::task_duration);
 using AvailableAgents = decltype(ScheduleInfo::available_agents);
+using Dependencies = decltype(ScheduleInfo::dependencies);
 
 using ranges::to;
+using ranges::actions::insert;
 using ranges::views::transform;
 
 // TODO: doc, test, expects
@@ -60,33 +63,53 @@ AvailableAgents available_agents(const System& sys)
         }
         sizes.emplace_back(agent_count);
     }
+    data.shrink_to_fit();
+    return {std::move(data), sizes};
+}
+
+// TODO: doc, test, expects
+Dependencies dependencies(const Tasks& tasks)
+{
+    using stun::int16;
+
+    std::vector<int16> data;
+    std::vector<int16> sizes;
+
+    for (auto&& task : tasks) {
+        insert(data, data.end(), task.dependencies);
+        sizes.emplace_back(task.dependencies.size());
+    }
+    data.shrink_to_fit();
     return {std::move(data), sizes};
 }
 
 // TODO: doc, test, expects
 stun::ScheduleInfo to_schedule(const System& sys)
 {
-
     return {
         .agent_performance{average(sys.agents)},
         .task_duration{average(sys.tasks)},
-        .available_agents{available_agents(sys)}
-        // TODO: dependencies
-    };
+        .available_agents{available_agents(sys)},
+        .dependencies{dependencies(sys.tasks)}};
 }
 
 void run(std::string_view tasks_yml)
 {
-    // TODO: Construct ScheduleInfo from System
+    using namespace angonoka::stun;
+
+    // TODO: Handle YAML exceptions
     const auto system = load_file(tasks_yml);
     const auto schedule = to_schedule(system);
+
+    // TODO: Generate initial state
+
     /*
     float beta = 1.0F;
     for (int i{0}; i < 10; ++i) {
 
         RandomUtils random_utils;
-        Mutator mutator{info, random_utils};
-        Makespan makespan{info};
+        Mutator mutator{schedule, random_utils};
+        Makespan makespan{schedule};
         Temperature temperature{
             Beta{beta},
             BetaScale{1e-4f},
