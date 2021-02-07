@@ -33,7 +33,7 @@ struct StateItem {
     int16 task_id;
     int16 agent_id;
 
-    bool operator==(const StateItem&) const = default;
+    bool operator==(const StateItem&) const noexcept = default;
 
 // Needed for Catch diagnostics
 #ifndef NDEBUG
