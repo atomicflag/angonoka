@@ -36,7 +36,7 @@ TEST_CASE("Task type traits")
     STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Task>);
 }
 
-TEST_CASE("System member functions")
+TEST_CASE("System utility functions")
 {
     angonoka::System s;
 
@@ -50,7 +50,7 @@ TEST_CASE("System member functions")
     REQUIRE_FALSE(has_universal_agents(s));
 }
 
-TEST_CASE("Agent member functions")
+TEST_CASE("Agent utility functions")
 {
     angonoka::Agent a;
 
@@ -62,4 +62,24 @@ TEST_CASE("Agent member functions")
     REQUIRE_FALSE(is_universal(a));
     REQUIRE_FALSE(can_work_on(a, angonoka::GroupIndex{0}));
     REQUIRE(can_work_on(a, angonoka::GroupIndex{1}));
+}
+
+TEST_CASE("Agent member functions")
+{
+    angonoka::Agent a;
+
+    REQUIRE(a.performance.average() == Approx(1.F));
+
+    a.performance.min = 0.05F;
+    a.performance.max = 0.15F;
+
+    REQUIRE(a.performance.average() == Approx(.1F));
+}
+
+TEST_CASE("Task member functions")
+{
+    using namespace std::literals::chrono_literals;
+    angonoka::Task t{.duration{.min{1s}, .max{3s}}};
+
+    REQUIRE(t.duration.average() == 2s);
 }

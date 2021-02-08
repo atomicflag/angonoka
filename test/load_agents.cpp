@@ -232,8 +232,8 @@ TEST_CASE("Loading agents")
         REQUIRE(agent1_performance.min == Approx(.8f));
         REQUIRE(agent1_performance.max == Approx(1.8f));
         const auto& agent2_performance = system.agents[1].performance;
-        REQUIRE(agent2_performance.min == Approx(.5f));
-        REQUIRE(agent2_performance.max == Approx(1.5f));
+        REQUIRE(agent2_performance.min == Approx(1.f));
+        REQUIRE(agent2_performance.max == Approx(1.f));
     }
 
     SECTION("Duplicate agents")

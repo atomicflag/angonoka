@@ -129,13 +129,12 @@ initial_state(const stun::ScheduleInfo& info)
     return state;
 }
 
-void run(std::string_view tasks_yml)
+// TODO: doc, test, expects
+std::vector<stun::StateItem>
+optimize(const stun::ScheduleInfo& schedule)
 {
     using namespace angonoka::stun;
 
-    // TODO: Handle YAML exceptions
-    const auto system = load_file(tasks_yml);
-    const auto schedule = to_schedule(system);
     auto state = initial_state(schedule);
     float beta = 1.0F;
 #pragma clang diagnostic push
@@ -165,7 +164,18 @@ void run(std::string_view tasks_yml)
         state = std::move(r.state);
         beta = r.temperature;
     }
-    fmt::print("{}\n", state);
 #pragma clang diagnostic pop
+    return state;
+}
+
+void run(std::string_view tasks_yml)
+{
+    using namespace angonoka::stun;
+
+    // TODO: Handle YAML exceptions
+    const auto system = load_file(tasks_yml);
+    const auto schedule = to_schedule(system);
+    const auto state = optimize(schedule);
+    fmt::print("{}\n", state);
 }
 } // namespace angonoka

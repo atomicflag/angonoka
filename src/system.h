@@ -30,12 +30,15 @@ struct Agent {
     std::string name;
     GroupIndices group_ids;
     struct Performance {
-        static constexpr float default_min = .5F;
-        static constexpr float default_max = 1.5F;
-        float min = default_min;
-        float max = default_max;
+        static constexpr float default_performance = 1.F;
+        float min = default_performance;
+        float max = default_performance;
 
-        // TODO: doc, test, expects
+        /**
+            Calculates average (expected) performance.
+
+            @return Expected performance.
+        */
         [[nodiscard]] float average() const;
     };
     Performance performance;
@@ -81,7 +84,11 @@ struct Task {
     TaskIndices dependencies;
     struct Duration {
         std::chrono::seconds min, max;
-        // TODO: doc, test, expects
+        /**
+            Calculates average (expected) duration.
+
+            @return Expected duration in seconds.
+        */
         [[nodiscard]] std::chrono::seconds average() const;
     };
     Duration duration;

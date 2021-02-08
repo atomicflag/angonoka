@@ -33,12 +33,16 @@ bool has_universal_agents(const System& system) noexcept
 
 float Agent::Performance::average() const
 {
+    Expects(min > 0.F);
+    Expects(min <= max);
     // NOLINTNEXTLINE: cppcoreguidelines-avoid-magic-numbers
     return (min + max) / 2.F;
 }
 
 std::chrono::seconds Task::Duration::average() const
 {
+    Expects(min > std::chrono::seconds{0});
+    Expects(min <= max);
     // NOLINTNEXTLINE: cppcoreguidelines-avoid-magic-numbers
     return (min + max) / 2;
 }
