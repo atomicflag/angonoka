@@ -41,13 +41,20 @@ TEST_CASE("System utility functions")
     angonoka::System s;
 
     s.groups.emplace_back("Test Group");
+    auto& t = s.tasks.emplace_back();
     auto& a = s.agents.emplace_back();
 
     REQUIRE(has_universal_agents(s));
+    REQUIRE(can_work_on(a, t));
 
     a.group_ids.emplace(angonoka::GroupIndex{0});
 
     REQUIRE_FALSE(has_universal_agents(s));
+    REQUIRE_FALSE(can_work_on(a, t));
+
+    t.group_id = angonoka::GroupIndex{0};
+
+    REQUIRE(can_work_on(a, t));
 }
 
 TEST_CASE("Agent utility functions")

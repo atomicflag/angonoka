@@ -94,7 +94,14 @@ struct Task {
     Duration duration;
 };
 
-// TODO: doc, test, expects
+/**
+    Checks if the agent can work on a given task.
+
+    @param agent Agent
+    @param task Task
+
+    @return True if the agent can work on this task.
+*/
 [[nodiscard]] bool
 can_work_on(const Agent& agent, const Task& task) noexcept;
 
