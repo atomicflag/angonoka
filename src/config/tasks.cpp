@@ -44,18 +44,18 @@ void parse_duration(const YAML::Node& duration, Task::Duration& dur)
 
     @param group_node Scalar holding the name of the group
     @param task       An instance of Task
-    @param system     An instance of System
+    @param config     An instance of Configuration
 */
 void parse_task_group(
     const YAML::Node& group_node,
     Task& task,
-    System& system)
+    Configuration& config)
 {
     const auto& group_name = group_node.Scalar();
     Expects(!group_name.empty());
     const auto [gid, is_inserted]
-        = detail::find_or_insert_group(system.groups, group_name);
-    if (is_inserted && !has_universal_agents(system))
+        = detail::find_or_insert_group(config.groups, group_name);
+    if (is_inserted && !has_universal_agents(config))
         throw NoSuitableAgent{group_name};
     task.group_id = gid;
 
@@ -165,7 +165,7 @@ void parse_dependencies(
 // Forward decl
 void parse_task(
     const YAML::Node& task_node,
-    System& sys,
+    Configuration& config,
     Dependencies& deps);
 
 /**
@@ -177,23 +177,24 @@ void parse_task(
       - ...
 
     @param subtasks     YAML sequence of subtasks
-    @param sys          An instance of System
+    @param config       An instance of Configuration
     @param deps         Array of dependencies
     @param task_index   Current task's index
 */
 void parse_subtasks(
     const YAML::Node& subtasks,
-    System& sys,
+    Configuration& config,
     Dependencies& deps,
     int8 task_index)
 {
-    Expects(!sys.tasks.empty());
-    Expects(task_index < sys.tasks.size());
+    Expects(!config.tasks.empty());
+    Expects(task_index < config.tasks.size());
 
     for (auto&& sub : subtasks) {
         // The next task will be a depencency
-        sys.tasks[task_index].dependencies.emplace(sys.tasks.size());
-        parse_task(sub, sys, deps);
+        config.tasks[task_index].dependencies.emplace(
+            config.tasks.size());
+        parse_task(sub, config, deps);
     }
 }
 
@@ -209,35 +210,35 @@ void parse_subtasks(
       max: 2
 
     @param task_node    Scalar holding the name of the task
-    @param sys          An instance of System
+    @param config       An instance of Configuration
     @param deps         Array of dependencies
 */
 void parse_task(
     const YAML::Node& task_node,
-    System& sys,
+    Configuration& config,
     Dependencies& deps)
 {
     Expects(!task_node.IsNull());
-    Expects(sys.tasks.size() == deps.size());
+    Expects(config.tasks.size() == deps.size());
 
     const auto& name = task_node["name"].Scalar();
     if (name.empty()) throw CantBeEmpty{"Task name"};
 
-    auto& task = sys.tasks.emplace_back();
+    auto& task = config.tasks.emplace_back();
     auto& task_deps = deps.emplace_back();
 
     task.name = name;
 
     // Parse task.id
     if (const auto& id_node = task_node["id"]) {
-        parse_task_id(id_node, sys.tasks, task);
+        parse_task_id(id_node, config.tasks, task);
     }
 
     parse_duration(task_node["duration"], task.duration);
 
     // Parse task.group
     if (const auto& group = task_node["group"]) {
-        parse_task_group(group, task, sys);
+        parse_task_group(group, task, config);
     }
 
     // Parse task.depends_on
@@ -247,11 +248,11 @@ void parse_task(
 
     // Parse task.subtasks
     if (const auto& subtasks = task_node["subtasks"]) {
-        const auto task_index = sys.tasks.size() - 1;
-        parse_subtasks(subtasks, sys, deps, task_index);
+        const auto task_index = config.tasks.size() - 1;
+        parse_subtasks(subtasks, config, deps, task_index);
     }
 
-    Ensures(sys.tasks.size() == deps.size());
+    Ensures(config.tasks.size() == deps.size());
 }
 
 /**
@@ -336,15 +337,15 @@ void check_for_cycles(const Tasks& tasks)
 } // namespace
 
 namespace angonoka::detail {
-void parse_tasks(const YAML::Node& node, System& sys)
+void parse_tasks(const YAML::Node& node, Configuration& config)
 {
-    Expects(sys.tasks.empty());
+    Expects(config.tasks.empty());
 
     Dependencies deps;
-    for (auto&& task : node) { parse_task(task, sys, deps); }
-    parse_dependencies_2nd_phase(sys.tasks, deps);
-    check_for_cycles(sys.tasks);
+    for (auto&& task : node) { parse_task(task, config, deps); }
+    parse_dependencies_2nd_phase(config.tasks, deps);
+    check_for_cycles(config.tasks);
 
-    Ensures(!sys.tasks.empty());
+    Ensures(!config.tasks.empty());
 }
 } // namespace angonoka::detail

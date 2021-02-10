@@ -50,16 +50,16 @@ TaskDuration average(const Tasks& tasks)
 }
 
 // TODO: doc, test, expects
-AvailableAgents available_agents(const System& sys)
+AvailableAgents available_agents(const Configuration& config)
 {
     using stun::int16;
 
     std::vector<int16> data;
     std::vector<int16> sizes;
 
-    for (auto&& task : sys.tasks) {
+    for (auto&& task : config.tasks) {
         int16 agent_count{0};
-        for (auto&& [agent_index, agent] : enumerate(sys.agents)) {
+        for (auto&& [agent_index, agent] : enumerate(config.agents)) {
             if (!can_work_on(agent, task)) continue;
             ++agent_count;
             data.emplace_back(agent_index);
@@ -87,13 +87,13 @@ Dependencies dependencies(const Tasks& tasks)
 }
 
 // TODO: doc, test, expects
-stun::ScheduleInfo to_schedule(const System& sys)
+stun::ScheduleInfo to_schedule(const Configuration& config)
 {
     return {
-        .agent_performance{average(sys.agents)},
-        .task_duration{average(sys.tasks)},
-        .available_agents{available_agents(sys)},
-        .dependencies{dependencies(sys.tasks)}};
+        .agent_performance{average(config.agents)},
+        .task_duration{average(config.tasks)},
+        .available_agents{available_agents(config)},
+        .dependencies{dependencies(config.tasks)}};
 }
 
 // TODO: doc, test, expects
@@ -173,8 +173,8 @@ void run(std::string_view tasks_yml)
     using namespace angonoka::stun;
 
     // TODO: Handle YAML exceptions
-    const auto system = load_file(tasks_yml);
-    const auto schedule = to_schedule(system);
+    const auto config = load_file(tasks_yml);
+    const auto schedule = to_schedule(config);
     const auto state = optimize(schedule);
     fmt::print("{}\n", state);
 }

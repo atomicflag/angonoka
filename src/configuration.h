@@ -17,10 +17,10 @@ using TaskIndices = flat_set<TaskIndex>;
 /**
     Agent that performs Tasks.
 
-    Agent::group_ids refer to Group indices in the System::groups. The
-    lower the performance parameter the slower an agent will
-    perform any given task. An agent can only perform tasks belonging
-    to groups in group_ids.
+    Agent::group_ids refer to Group indices in the
+   Configuration::groups. The lower the performance parameter the
+   slower an agent will perform any given task. An agent can only
+   perform tasks belonging to groups in group_ids.
 
     @var name           Agent's name
     @var group_ids      flat_set of Group ids
@@ -110,13 +110,13 @@ using Agents = std::vector<Agent>;
 using Tasks = std::vector<Task>;
 
 /**
-    System that represents Tasks and Agents.
+    Configuration that represents Tasks and Agents.
 
     @var groups   Task groups
     @var agents   Agents that perform tasks
     @var tasks    All of the tasks
 */
-struct System {
+struct Configuration {
     Groups groups;
     Agents agents;
     Tasks tasks;
@@ -127,10 +127,10 @@ struct System {
 
     A "universal" agent is an agent that can perform any task.
 
-    @param system System
+    @param config Configuration
 
     @return True if there is at least 1 universal agent.
 */
 [[nodiscard]] bool
-has_universal_agents(const System& system) noexcept;
+has_universal_agents(const Configuration& config) noexcept;
 } // namespace angonoka

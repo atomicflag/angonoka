@@ -87,16 +87,16 @@ TEST_CASE("Loading agents")
             "      - A\n"
             "      - C\n";
         // clang-format on
-        const auto system = angonoka::load_text(text);
-        REQUIRE(system.groups == angonoka::Groups{"A", "B", "C"});
-        REQUIRE(system.agents.size() == 2);
+        const auto config = angonoka::load_text(text);
+        REQUIRE(config.groups == angonoka::Groups{"A", "B", "C"});
+        REQUIRE(config.agents.size() == 2);
         // Agent 1 has A(0) and B(1)
         REQUIRE(
-            system.agents[0].group_ids
+            config.agents[0].group_ids
             == angonoka::GroupIndices{0, 1});
         // Agent 2 has A(0) and C(2)
         REQUIRE(
-            system.agents[1].group_ids
+            config.agents[1].group_ids
             == angonoka::GroupIndices{0, 2});
     }
 
@@ -112,15 +112,15 @@ TEST_CASE("Loading agents")
             "      - B\n"
             "  agent 2:";
         // clang-format on
-        const auto system = angonoka::load_text(text);
+        const auto config = angonoka::load_text(text);
         // Agent 1 has A(0) and B(1)
         REQUIRE(
-            system.agents[0].group_ids
+            config.agents[0].group_ids
             == angonoka::GroupIndices{0, 1});
         // Agent 2 should be universal
-        REQUIRE(is_universal(system.agents[1]));
-        REQUIRE(can_work_on(system.agents[1], 0));
-        REQUIRE(can_work_on(system.agents[1], 1));
+        REQUIRE(is_universal(config.agents[1]));
+        REQUIRE(can_work_on(config.agents[1], 0));
+        REQUIRE(can_work_on(config.agents[1], 1));
     }
 
     SECTION("No groups")
@@ -132,9 +132,9 @@ TEST_CASE("Loading agents")
             "  agent 1:\n"
             "  agent 2:";
         // clang-format on
-        const auto system = angonoka::load_text(text);
-        REQUIRE(system.agents[0].group_ids.empty());
-        REQUIRE(system.agents[1].group_ids.empty());
+        const auto config = angonoka::load_text(text);
+        REQUIRE(config.agents[0].group_ids.empty());
+        REQUIRE(config.agents[1].group_ids.empty());
     }
 
     SECTION("Invalid performance section")
@@ -227,11 +227,11 @@ TEST_CASE("Loading agents")
             "      max: 1.8\n"
             "  agent 2:";
         // clang-format on
-        const auto system = angonoka::load_text(text);
-        const auto& agent1_performance = system.agents[0].performance;
+        const auto config = angonoka::load_text(text);
+        const auto& agent1_performance = config.agents[0].performance;
         REQUIRE(agent1_performance.min == Approx(.8f));
         REQUIRE(agent1_performance.max == Approx(1.8f));
-        const auto& agent2_performance = system.agents[1].performance;
+        const auto& agent2_performance = config.agents[1].performance;
         REQUIRE(agent2_performance.min == Approx(1.f));
         REQUIRE(agent2_performance.max == Approx(1.f));
     }
@@ -274,8 +274,8 @@ TEST_CASE("Loading agents")
             "  agent 1:\n"
             "    performance: 1.0\n";
         // clang-format on
-        const auto system = angonoka::load_text(text);
-        const auto& agent_performance = system.agents[0].performance;
+        const auto config = angonoka::load_text(text);
+        const auto& agent_performance = config.agents[0].performance;
         REQUIRE(agent_performance.min == Approx(1.f));
         REQUIRE(agent_performance.max == Approx(1.f));
     }

@@ -15,7 +15,7 @@ using namespace angonoka;
       - B
       - C
 
-    and inserts "A", "B", "C" into System.groups.
+    and inserts "A", "B", "C" into Configuration.groups.
     Then places group ids into agent.groups_ids.
 
     @param group_nodes    Sequence with group names
@@ -111,26 +111,26 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
         - B
 
     @param agent_node Scalar holding the name of the agent
-    @param agent_data Map with agent data
-    @param sys        An instance of System
+    @param agent_data   Map with agent data
+    @param config       An instance of Configuration
 */
 void parse_agent(
     const YAML::Node& agent_node,
     const YAML::Node& agent_data,
-    System& sys)
+    Configuration& config)
 {
     const auto& agent_name = agent_node.Scalar();
     Expects(!agent_name.empty());
 
-    check_for_duplicates(sys.agents, agent_name);
-    auto& agent = sys.agents.emplace_back();
+    check_for_duplicates(config.agents, agent_name);
+    auto& agent = config.agents.emplace_back();
 
     // Parse agent.name
     agent.name = agent_name;
 
     // Parse agent.groups
     if (const auto groups = agent_data["groups"]) {
-        parse_agent_groups(groups, agent, sys.groups);
+        parse_agent_groups(groups, agent, config.groups);
     }
 
     // Parse agent.perf
@@ -141,10 +141,10 @@ void parse_agent(
 } // namespace
 
 namespace angonoka::detail {
-void parse_agents(const YAML::Node& node, System& sys)
+void parse_agents(const YAML::Node& node, Configuration& config)
 {
     for (auto&& agent : node) {
-        parse_agent(agent.first, agent.second, sys);
+        parse_agent(agent.first, agent.second, config);
     }
 }
 } // namespace angonoka::detail

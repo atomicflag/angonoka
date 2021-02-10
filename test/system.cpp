@@ -1,17 +1,18 @@
 #include <catch2/catch.hpp>
 #include <type_traits>
 
-#include "system.h"
+#include "configuration.h"
 
-TEST_CASE("System type traits")
+TEST_CASE("Configuration type traits")
 {
-    using angonoka::System;
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<System>);
-    STATIC_REQUIRE(std::is_nothrow_default_constructible_v<System>);
-    STATIC_REQUIRE(std::is_copy_constructible_v<System>);
-    STATIC_REQUIRE(std::is_copy_assignable_v<System>);
-    STATIC_REQUIRE(std::is_move_constructible_v<System>);
-    STATIC_REQUIRE(std::is_move_assignable_v<System>);
+    using angonoka::Configuration;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<Configuration>);
+    STATIC_REQUIRE(
+        std::is_nothrow_default_constructible_v<Configuration>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<Configuration>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<Configuration>);
+    STATIC_REQUIRE(std::is_move_constructible_v<Configuration>);
+    STATIC_REQUIRE(std::is_move_assignable_v<Configuration>);
 }
 
 TEST_CASE("Agent type traits")
@@ -36,9 +37,9 @@ TEST_CASE("Task type traits")
     STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Task>);
 }
 
-TEST_CASE("System utility functions")
+TEST_CASE("Configuration utility functions")
 {
-    angonoka::System s;
+    angonoka::Configuration s;
 
     s.groups.emplace_back("Test Group");
     auto& t = s.tasks.emplace_back();

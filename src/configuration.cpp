@@ -1,4 +1,4 @@
-#include "system.h"
+#include "configuration.h"
 #include "exceptions.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/algorithm/any_of.hpp>
@@ -24,11 +24,11 @@ can_work_on(const Agent& agent, const Task& task) noexcept
         || (task.group_id && can_work_on(agent, *task.group_id));
 }
 
-bool has_universal_agents(const System& system) noexcept
+bool has_universal_agents(const Configuration& config) noexcept
 {
-    Expects(!system.agents.empty());
+    Expects(!config.agents.empty());
 
-    return ranges::any_of(system.agents, is_universal);
+    return ranges::any_of(config.agents, is_universal);
 }
 
 float Agent::Performance::average() const

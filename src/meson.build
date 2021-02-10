@@ -14,7 +14,7 @@ common_lib = static_library(
     'config/agents.cpp',
     'config/load.cpp',
     'config/tasks.cpp',
-    'system.cpp',
+    'configuration.cpp',
     'exceptions.cpp',
     'stun/utils.cpp',
     'stun/common.cpp',
