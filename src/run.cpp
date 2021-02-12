@@ -9,6 +9,7 @@
 #include <fmt/ranges.h>
 #include <gsl/gsl-lite.hpp>
 #include <indicators/progress_bar.hpp>
+#include <indicators/terminal_size.hpp>
 #include <range/v3/action/insert.hpp>
 #include <range/v3/range/operations.hpp>
 #include <range/v3/to_container.hpp>
@@ -33,29 +34,46 @@ using ranges::views::enumerate;
 using ranges::views::iota;
 using ranges::views::transform;
 
-// TODO: doc, test, expects
-AgentPerformance average(const Agents& agents)
+// TODO: doc, test
+AgentPerformance agent_performance(const Agents& agents)
 {
+    Expects(!agents.empty());
+
     return agents
         | transform([](auto&& a) { return a.performance.average(); })
         | to<AgentPerformance>();
 }
 
-// TODO: doc, test, expects
-TaskDuration average(const Tasks& tasks)
+// TODO: doc, test
+TaskDuration task_duration(const Tasks& tasks, int agent_count)
 {
-    // TODO: normalize values. 1.0F should be total time / total
-    // agents
-    return tasks | transform([](auto&& a) {
-               return a.duration.average().count();
-           })
-        | to<TaskDuration>();
+    Expects(!tasks.empty());
+    Expects(agent_count > 0);
+
+    TaskDuration durations;
+    durations.reserve(tasks.size());
+    float total{0.F};
+    for (auto&& t : tasks) {
+        durations.emplace_back(t.duration.average().count());
+        total += durations.back();
+    }
+    durations.shrink_to_fit();
+    const auto average_duration
+        = total / static_cast<float>(agent_count);
+    for (auto& d : durations) d /= average_duration;
+
+    Ensures(durations.size() == tasks.size());
+
+    return durations;
 }
 
-// TODO: doc, test, expects
+// TODO: doc, test
 AvailableAgents available_agents(const Configuration& config)
 {
     using stun::int16;
+
+    Expects(!config.tasks.empty());
+    Expects(!config.agents.empty());
 
     std::vector<int16> data;
     std::vector<int16> sizes;
@@ -70,13 +88,18 @@ AvailableAgents available_agents(const Configuration& config)
         sizes.emplace_back(agent_count);
     }
     data.shrink_to_fit();
+
+    Ensures(sizes.size() == config.tasks.size());
+
     return {std::move(data), sizes};
 }
 
-// TODO: doc, test, expects
+// TODO: doc, test
 Dependencies dependencies(const Tasks& tasks)
 {
     using stun::int16;
+
+    Expects(!tasks.empty());
 
     std::vector<int16> data;
     std::vector<int16> sizes;
@@ -86,6 +109,9 @@ Dependencies dependencies(const Tasks& tasks)
         sizes.emplace_back(task.dependencies.size());
     }
     data.shrink_to_fit();
+
+    Ensures(sizes.size() == tasks.size());
+
     return {std::move(data), sizes};
 }
 
@@ -93,19 +119,24 @@ Dependencies dependencies(const Tasks& tasks)
 stun::ScheduleInfo to_schedule(const Configuration& config)
 {
     return {
-        .agent_performance{average(config.agents)},
-        .task_duration{average(config.tasks)},
+        .agent_performance{agent_performance(config.agents)},
+        .task_duration{task_duration(
+            config.tasks,
+            static_cast<int>(config.agents.size()))},
         .available_agents{available_agents(config)},
         .dependencies{dependencies(config.tasks)}};
 }
 
-// TODO: doc, test, expects
+// TODO: doc, test
 void push_task(
     std::vector<stun::StateItem>& state,
     TaskIndices& tasks,
     TaskIndex task_index,
     const stun::ScheduleInfo& info)
 {
+    Expects(!tasks.empty());
+    Expects(tasks.size() + state.size() == info.task_duration.size());
+
     if (!tasks.contains(task_index)) return;
     const auto idx = static_cast<std::size_t>(task_index);
     for (auto&& dep_index : info.dependencies[idx])
@@ -114,23 +145,31 @@ void push_task(
         .task_id = task_index,
         .agent_id = info.available_agents[idx][0]});
     tasks.erase(task_index);
+
+    Ensures(tasks.size() + state.size() == info.task_duration.size());
 }
 
 // TODO: doc, test, expects
 std::vector<stun::StateItem>
 initial_state(const stun::ScheduleInfo& info)
 {
+    Expects(!info.task_duration.empty());
+
     std::vector<stun::StateItem> state;
+    state.reserve(info.task_duration.size());
     auto tasks = iota(0L, std::ssize(info.task_duration))
         | to<TaskIndices>();
     while (!tasks.empty())
         push_task(state, tasks, front(tasks), info);
 
-    Ensures(!state.empty());
     Ensures(state.size() == info.task_duration.size());
 
     return state;
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
+#pragma clang diagnostic ignored "-Wbraced-scalar-init"
 
 // TODO: doc, test, expects
 std::vector<stun::StateItem>
@@ -140,9 +179,6 @@ optimize(const stun::ScheduleInfo& schedule)
 
     auto state = initial_state(schedule);
     float beta = 1.0F;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-braces"
-#pragma clang diagnostic ignored "-Wbraced-scalar-init"
     constexpr auto number_of_epochs = 10;
     constexpr auto beta_scale = 1e-4F;
     constexpr auto stun_window = 10000;
@@ -156,7 +192,10 @@ optimize(const stun::ScheduleInfo& schedule)
         BetaScale{beta_scale},
         StunWindow{stun_window}};
 
+    constexpr auto extra_space = 22;
     indicators::ProgressBar bar{
+        indicators::option::BarWidth{
+            indicators::terminal_width() - extra_space},
         indicators::option::ShowElapsedTime{true},
         indicators::option::ShowRemainingTime{true},
         indicators::option::MaxProgress{number_of_epochs}};
@@ -175,9 +214,9 @@ optimize(const stun::ScheduleInfo& schedule)
         // beta = r.temperature;
         bar.tick();
     }
-#pragma clang diagnostic pop
     return state;
 }
+#pragma clang diagnostic pop
 
 void run(std::string_view tasks_yml)
 {
