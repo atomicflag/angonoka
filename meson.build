@@ -40,6 +40,7 @@ dependencies = [
   dependency('range-v3'),
   dependency('gsl-lite'),
   dependency('pcg-cpp'),
+  dependency('indicators'),
   dependency('boost', include_type : 'system')
 ]
 

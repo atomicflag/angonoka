@@ -8,6 +8,7 @@
 #include "stun/utils.h"
 #include <fmt/ranges.h>
 #include <gsl/gsl-lite.hpp>
+#include <indicators/progress_bar.hpp>
 #include <range/v3/action/insert.hpp>
 #include <range/v3/range/operations.hpp>
 #include <range/v3/to_container.hpp>
@@ -43,6 +44,8 @@ AgentPerformance average(const Agents& agents)
 // TODO: doc, test, expects
 TaskDuration average(const Tasks& tasks)
 {
+    // TODO: normalize values. 1.0F should be total time / total
+    // agents
     return tasks | transform([](auto&& a) {
                return a.duration.average().count();
            })
@@ -145,14 +148,21 @@ optimize(const stun::ScheduleInfo& schedule)
     constexpr auto stun_window = 10000;
     constexpr auto gamma = .5F;
 
+    RandomUtils random_utils;
+    Mutator mutator{schedule, random_utils};
+    Makespan makespan{schedule};
+    Temperature temperature{
+        Beta{beta},
+        BetaScale{beta_scale},
+        StunWindow{stun_window}};
+
+    indicators::ProgressBar bar{
+        indicators::option::ShowElapsedTime{true},
+        indicators::option::ShowRemainingTime{true},
+        indicators::option::MaxProgress{number_of_epochs}};
+
+    bar.set_progress(0);
     for (int i{0}; i < number_of_epochs; ++i) {
-        RandomUtils random_utils;
-        Mutator mutator{schedule, random_utils};
-        Makespan makespan{schedule};
-        Temperature temperature{
-            Beta{beta},
-            BetaScale{beta_scale},
-            StunWindow{stun_window}};
         auto r = stochastic_tunneling(
             state,
             STUNOptions{
@@ -162,7 +172,8 @@ optimize(const stun::ScheduleInfo& schedule)
                 .temp{&temperature},
                 .gamma{gamma}});
         state = std::move(r.state);
-        beta = r.temperature;
+        // beta = r.temperature;
+        bar.tick();
     }
 #pragma clang diagnostic pop
     return state;
