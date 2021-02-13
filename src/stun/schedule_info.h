@@ -90,4 +90,7 @@ struct ScheduleInfo {
     VectorOfSpans available_agents;
     VectorOfSpans dependencies;
 };
+
+// TODO: doc, test, expects
+std::vector<StateItem> initial_state(const ScheduleInfo& info);
 } // namespace angonoka::stun

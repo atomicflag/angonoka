@@ -11,10 +11,8 @@
 #include <indicators/progress_bar.hpp>
 #include <indicators/terminal_size.hpp>
 #include <range/v3/action/insert.hpp>
-#include <range/v3/range/operations.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/enumerate.hpp>
-#include <range/v3/view/iota.hpp>
 #include <range/v3/view/span.hpp>
 #include <range/v3/view/transform.hpp>
 #include <utility>
@@ -27,11 +25,9 @@ using TaskDuration = decltype(ScheduleInfo::task_duration);
 using AvailableAgents = decltype(ScheduleInfo::available_agents);
 using Dependencies = decltype(ScheduleInfo::dependencies);
 
-using ranges::front;
 using ranges::to;
 using ranges::actions::insert;
 using ranges::views::enumerate;
-using ranges::views::iota;
 using ranges::views::transform;
 
 // TODO: doc, test
@@ -127,46 +123,6 @@ stun::ScheduleInfo to_schedule(const Configuration& config)
         .dependencies{dependencies(config.tasks)}};
 }
 
-// TODO: doc, test
-void push_task(
-    std::vector<stun::StateItem>& state,
-    TaskIndices& tasks,
-    TaskIndex task_index,
-    const stun::ScheduleInfo& info)
-{
-    Expects(!tasks.empty());
-    Expects(tasks.size() + state.size() == info.task_duration.size());
-
-    if (!tasks.contains(task_index)) return;
-    const auto idx = static_cast<std::size_t>(task_index);
-    for (auto&& dep_index : info.dependencies[idx])
-        push_task(state, tasks, dep_index, info);
-    state.emplace_back(stun::StateItem{
-        .task_id = task_index,
-        .agent_id = info.available_agents[idx][0]});
-    tasks.erase(task_index);
-
-    Ensures(tasks.size() + state.size() == info.task_duration.size());
-}
-
-// TODO: doc, test, expects
-std::vector<stun::StateItem>
-initial_state(const stun::ScheduleInfo& info)
-{
-    Expects(!info.task_duration.empty());
-
-    std::vector<stun::StateItem> state;
-    state.reserve(info.task_duration.size());
-    auto tasks = iota(0L, std::ssize(info.task_duration))
-        | to<TaskIndices>();
-    while (!tasks.empty())
-        push_task(state, tasks, front(tasks), info);
-
-    Ensures(state.size() == info.task_duration.size());
-
-    return state;
-}
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
@@ -211,6 +167,7 @@ optimize(const stun::ScheduleInfo& schedule)
                 .temp{&temperature},
                 .gamma{gamma}});
         state = std::move(r.state);
+        fmt::print("{}\n", r.energy);
         // beta = r.temperature;
         bar.tick();
     }

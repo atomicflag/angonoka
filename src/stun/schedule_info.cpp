@@ -1,6 +1,12 @@
 #include "schedule_info.h"
+#include <boost/container/flat_set.hpp>
+#include <range/v3/range/operations.hpp>
+#include <range/v3/to_container.hpp>
+#include <range/v3/view/iota.hpp>
 
 namespace angonoka::stun {
+using boost::container::flat_set;
+
 VectorOfSpans::VectorOfSpans(
     std::vector<int16>&& data,
     std::vector<span<int16>>&& spans) noexcept
@@ -63,4 +69,45 @@ VectorOfSpans::VectorOfSpans(
 VectorOfSpans&
 VectorOfSpans::operator=(VectorOfSpans&& other) noexcept = default;
 VectorOfSpans::~VectorOfSpans() noexcept = default;
+
+// TODO: doc, test
+void push_task(
+    std::vector<StateItem>& state,
+    flat_set<int16>& tasks,
+    int16 task_index,
+    const ScheduleInfo& info)
+{
+    Expects(!tasks.empty());
+    Expects(tasks.size() + state.size() == info.task_duration.size());
+
+    if (!tasks.contains(task_index)) return;
+    const auto idx = static_cast<std::size_t>(task_index);
+    for (auto&& dep_index : info.dependencies[idx])
+        push_task(state, tasks, dep_index, info);
+    state.emplace_back(StateItem{
+        .task_id = task_index,
+        .agent_id = info.available_agents[idx][0]});
+    tasks.erase(task_index);
+
+    Ensures(tasks.size() + state.size() == info.task_duration.size());
+}
+
+std::vector<StateItem> initial_state(const ScheduleInfo& info)
+{
+    using ranges::front;
+    using ranges::views::iota;
+
+    Expects(!info.task_duration.empty());
+
+    std::vector<StateItem> state;
+    state.reserve(info.task_duration.size());
+    auto tasks = iota(0L, std::ssize(info.task_duration))
+        | ranges::to<flat_set<int16>>();
+    while (!tasks.empty())
+        push_task(state, tasks, front(tasks), info);
+
+    Ensures(state.size() == info.task_duration.size());
+
+    return state;
+}
 } // namespace angonoka::stun
