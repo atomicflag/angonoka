@@ -28,7 +28,14 @@ public:
         std::vector<int16>&& data,
         std::vector<span<int16>>&& spans) noexcept;
 
-    // TODO: doc, test, expects
+    /**
+        Construct from an array of span sizes.
+
+        TODO: test
+
+        @param data     Array of ints
+        @param sizes    Array of span sizes
+    */
     VectorOfSpans(
         std::vector<int16>&& data,
         const std::vector<int16>& sizes) noexcept;

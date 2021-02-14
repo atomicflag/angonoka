@@ -24,7 +24,7 @@ void VectorOfSpans::clear() noexcept
 VectorOfSpans::VectorOfSpans() noexcept = default;
 VectorOfSpans::VectorOfSpans(const VectorOfSpans& other)
 {
-    if (other.spans.empty()) return;
+    if (other.empty()) return;
     data = other.data;
     spans = other.spans;
     auto* const front_ptr = other.spans.front().data();
@@ -33,6 +33,8 @@ VectorOfSpans::VectorOfSpans(const VectorOfSpans& other)
         const auto d = std::distance(front_ptr, s.data());
         s = {std::next(data.data(), d), s.size()};
     }
+
+    Ensures(other.size() == size());
 }
 
 VectorOfSpans::VectorOfSpans(
@@ -40,12 +42,15 @@ VectorOfSpans::VectorOfSpans(
     const std::vector<int16>& sizes) noexcept
     : data{std::move(data)}
 {
+    if (sizes.empty()) return;
     auto* head = this->data.data();
     for (auto&& size : sizes) {
         spans.emplace_back(
             std::exchange(head, std::next(head, size)),
             size);
     }
+
+    Ensures(spans.size() == sizes.size());
 }
 
 [[nodiscard]] std::size_t VectorOfSpans::size() const noexcept
