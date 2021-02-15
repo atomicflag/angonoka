@@ -31,14 +31,12 @@ public:
     /**
         Construct from an array of span sizes.
 
-        TODO: test
-
         @param data     Array of ints
         @param sizes    Array of span sizes
     */
     VectorOfSpans(
         std::vector<int16>&& data,
-        const std::vector<int16>& sizes) noexcept;
+        span<const int16> sizes) noexcept;
 
     VectorOfSpans(const VectorOfSpans& other);
     VectorOfSpans& operator=(const VectorOfSpans& other);

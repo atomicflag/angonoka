@@ -171,4 +171,16 @@ TEST_CASE("VectorOfSpans special memeber functions")
             REQUIRE(other[2u][0] == 2);
         }
     }
+
+    SECTION("Construct from array of sizes")
+    {
+        std::vector<int16> data{1, 2, 3, 4, 5, 6};
+        const std::vector<int16> sizes{1, 2, 3};
+
+        const VectorOfSpans vec{std::move(data), sizes};
+
+        REQUIRE(vec.size() == 3);
+        REQUIRE(vec[1u].size() == 2);
+        REQUIRE(vec[1u][1] == 3);
+    }
 }

@@ -39,7 +39,7 @@ VectorOfSpans::VectorOfSpans(const VectorOfSpans& other)
 
 VectorOfSpans::VectorOfSpans(
     std::vector<int16>&& data,
-    const std::vector<int16>& sizes) noexcept
+    span<const int16> sizes) noexcept
     : data{std::move(data)}
 {
     if (sizes.empty()) return;
@@ -50,7 +50,7 @@ VectorOfSpans::VectorOfSpans(
             size);
     }
 
-    Ensures(spans.size() == sizes.size());
+    Ensures(std::ssize(spans) == sizes.size());
 }
 
 [[nodiscard]] std::size_t VectorOfSpans::size() const noexcept
