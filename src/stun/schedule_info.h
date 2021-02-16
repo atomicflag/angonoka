@@ -96,6 +96,14 @@ struct ScheduleInfo {
     VectorOfSpans dependencies;
 };
 
-// TODO: doc, test, expects
+/**
+    Construct a valid but naive schedule.
+
+    TODO: test
+
+    @param ScheduleInfo An instance of ScheduleInfo
+
+    @return A valid schedule
+*/
 std::vector<StateItem> initial_state(const ScheduleInfo& info);
 } // namespace angonoka::stun

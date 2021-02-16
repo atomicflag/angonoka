@@ -75,7 +75,16 @@ VectorOfSpans&
 VectorOfSpans::operator=(VectorOfSpans&& other) noexcept = default;
 VectorOfSpans::~VectorOfSpans() noexcept = default;
 
-// TODO: doc, test
+/**
+    Walks the dependency tree recursively.
+
+    TODO: test
+
+    @param state        Partially formed schedule
+    @param tasks        Set of unexplored tasks
+    @param task_index   Index of the current task
+    @param info         An instance of ScheduleInfo
+*/
 void push_task(
     std::vector<StateItem>& state,
     flat_set<int16>& tasks,
