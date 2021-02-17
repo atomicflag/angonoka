@@ -99,8 +99,6 @@ struct ScheduleInfo {
 /**
     Construct a valid but naive schedule.
 
-    TODO: test
-
     @param ScheduleInfo An instance of ScheduleInfo
 
     @return A valid schedule

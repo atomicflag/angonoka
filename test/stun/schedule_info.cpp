@@ -184,3 +184,30 @@ TEST_CASE("VectorOfSpans special memeber functions")
         REQUIRE(vec[1u][1] == 3);
     }
 }
+
+TEST_CASE("Initial state")
+{
+    using namespace angonoka::stun;
+
+    const ScheduleInfo info{
+        .agent_performance{1.F, 1.F, 1.F},
+        .task_duration{1.F, 1.F, 1.F, 1.F, 1.F, 1.F},
+        .available_agents{
+            std::vector<int16>{0, 1, 2, 0, 1, 2},
+            std::vector<int16>{1, 1, 1, 1, 1, 1}},
+        .dependencies{
+            std::vector<int16>{1, 2, 3, 4, 5},
+            std::vector<int16>{1, 1, 1, 1, 1, 0}}};
+
+    const auto state = initial_state(info);
+
+    REQUIRE(
+        state
+        == std::vector<StateItem>{
+            {.task_id = 5, .agent_id = 2},
+            {.task_id = 4, .agent_id = 1},
+            {.task_id = 3, .agent_id = 0},
+            {.task_id = 2, .agent_id = 2},
+            {.task_id = 1, .agent_id = 1},
+            {.task_id = 0, .agent_id = 0}});
+}

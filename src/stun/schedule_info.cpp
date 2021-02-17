@@ -78,8 +78,6 @@ VectorOfSpans::~VectorOfSpans() noexcept = default;
 /**
     Walks the dependency tree recursively.
 
-    TODO: test
-
     @param state        Partially formed schedule
     @param tasks        Set of unexplored tasks
     @param task_index   Index of the current task
