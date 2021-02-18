@@ -127,13 +127,27 @@ stun::ScheduleInfo to_schedule(const Configuration& config)
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
 
-// TODO: doc, test, expects
-std::vector<stun::StateItem>
-optimize(const stun::ScheduleInfo& schedule)
+/**
+    Find the optimal schedule.
+
+    TODO: test, expects
+
+    @param info Instance of ScheduleInfo
+
+    @return Optimal schedule.
+*/
+std::vector<stun::StateItem> optimize(const stun::ScheduleInfo& info)
 {
+    Expects(!info.agent_performance.empty());
+    Expects(!info.task_duration.empty());
+    Expects(!info.available_agents.empty());
+    Expects(
+        info.available_agents.size()
+        == info.agent_performance.size());
+
     using namespace angonoka::stun;
 
-    auto state = initial_state(schedule);
+    auto state = initial_state(info);
     float beta = 1.0F;
     constexpr auto number_of_epochs = 10;
     constexpr auto beta_scale = 1e-4F;
@@ -141,22 +155,13 @@ optimize(const stun::ScheduleInfo& schedule)
     constexpr auto gamma = .5F;
 
     RandomUtils random_utils;
-    Mutator mutator{schedule, random_utils};
-    Makespan makespan{schedule};
+    Mutator mutator{info, random_utils};
+    Makespan makespan{info};
     Temperature temperature{
         Beta{beta},
         BetaScale{beta_scale},
         StunWindow{stun_window}};
 
-    constexpr auto extra_space = 22;
-    indicators::ProgressBar bar{
-        indicators::option::BarWidth{
-            indicators::terminal_width() - extra_space},
-        indicators::option::ShowElapsedTime{true},
-        indicators::option::ShowRemainingTime{true},
-        indicators::option::MaxProgress{number_of_epochs}};
-
-    bar.set_progress(0);
     for (int i{0}; i < number_of_epochs; ++i) {
         auto r = stochastic_tunneling(
             state,
@@ -167,10 +172,10 @@ optimize(const stun::ScheduleInfo& schedule)
                 .temp{&temperature},
                 .gamma{gamma}});
         state = std::move(r.state);
-        fmt::print("{}\n", r.energy);
-        // beta = r.temperature;
-        bar.tick();
     }
+
+    // TODO: track progress via progress bar
+    // TODO: return the Result, not just the state
     return state;
 }
 #pragma clang diagnostic pop
