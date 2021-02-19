@@ -3,6 +3,7 @@
 #include "common.h"
 #include "detail.h"
 #include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/count.hpp>
 #include <boost/accumulators/statistics/rolling_mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <cstdint>
@@ -37,6 +38,11 @@ struct BetaScale : detail::OpaqueFloat {
 enum class StunWindow : std::int_fast32_t;
 
 /**
+    TODO: DOC
+*/
+enum class RestartPeriod : std::size_t;
+
+/**
     Updates beta (temperature) value to keep the
     average STUN value around 0.03 as recommended
     in the paper
@@ -48,14 +54,18 @@ public:
     /**
         Constructor.
 
+        TODO: doc
+
         @param beta         Initial beta (temperature) value
         @param beta_scale   Scaling factor
         @param stun_window  STUN rolling mean window
+        @param reset_period
     */
     Temperature(
         Beta beta,
         BetaScale beta_scale,
-        StunWindow stun_window);
+        StunWindow stun_window,
+        RestartPeriod restart_period);
 
     /**
         Updates the internal counters, averages and the beta value.
@@ -65,9 +75,8 @@ public:
         reduces the rate to 0.
 
         @param stun         Current STUN value
-        @param dampening    Dampening value
     */
-    void update(float stun, float dampening) noexcept;
+    void update(float stun) noexcept;
 
     /**
         Returns the current beta (temperature) value.
@@ -85,14 +94,15 @@ public:
 
 private:
     float value;
-    accumulator_set<float, stats<tag::rolling_mean>> acc;
+    accumulator_set<float, stats<tag::rolling_mean, tag::count>> acc;
     float beta_scale;
+    std::size_t restart_period_mask;
 };
 
 #ifdef UNIT_TEST
 struct TemperatureStub {
     virtual operator float() noexcept = 0;
-    virtual void update(float stun, float dampening) noexcept = 0;
+    virtual void update(float stun) noexcept = 0;
     [[nodiscard]] virtual float average_stun() const noexcept = 0;
     virtual ~TemperatureStub() noexcept = default;
 };
