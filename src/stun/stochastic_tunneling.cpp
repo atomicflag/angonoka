@@ -146,14 +146,9 @@ void StochasticTunneling::reset(State state)
     init_energies();
 }
 
-[[nodiscard]] STUNResult StochasticTunneling::finalize()
-{
-    state_buffer.resize(static_cast<gsl::index>(best_state.size()));
-    best_state = {};
-    current_state = {};
-    target_state = {};
-    return {std::move(state_buffer), lowest_e, *temp};
-}
+State StochasticTunneling::state() const { return best_state; }
+
+float StochasticTunneling::energy() const { return lowest_e; }
 
 StochasticTunneling::StochasticTunneling(const STUNOptions& options)
     : mutator{options.mutator}

@@ -36,10 +36,7 @@ struct MutatorMock final : MutatorStub {
 struct TemperatureMock final : TemperatureStub {
     operator float() noexcept override { return to_float(); }
     MAKE_MOCK0(to_float, float(), noexcept);
-    MAKE_MOCK2(
-        update,
-        void(float stun, float dampening),
-        noexcept override);
+    MAKE_MOCK1(update, void(float stun), noexcept override);
     MAKE_MOCK0(average_stun, float(), const noexcept override);
 };
 } // namespace
@@ -66,23 +63,19 @@ TEST_CASE("Stochastic tunneling")
     REQUIRE_CALL(random_utils, uniform_01())
         .RETURN(.1F)
         .IN_SEQUENCE(seq);
-    REQUIRE_CALL(temperature, update(_, _)).IN_SEQUENCE(seq);
+    REQUIRE_CALL(temperature, update(_)).IN_SEQUENCE(seq);
 
     REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
     REQUIRE_CALL(makespan, call(_)).RETURN(.1F).IN_SEQUENCE(seq);
-    REQUIRE_CALL(temperature, to_float())
-        .RETURN(.5F)
-        .IN_SEQUENCE(seq);
 
-    const auto r = stochastic_tunneling(
-        state,
-        STUNOptions{
-            .mutator{&mutator},
-            .random{&random_utils},
-            .makespan{&makespan},
-            .temp{&temperature},
-            .gamma{.5F}});
+    StochasticTunneling stun{
+        {.mutator{&mutator},
+         .random{&random_utils},
+         .makespan{&makespan},
+         .temp{&temperature},
+         .gamma{.5F}},
+        state};
+    for (int i{0}; i < 2; ++i) stun.update();
 
-    REQUIRE(r.energy == Approx(.1F));
-    REQUIRE(r.temperature == Approx(.5F));
+    REQUIRE(stun.energy() == Approx(.1F));
 }

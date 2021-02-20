@@ -81,7 +81,12 @@ public:
     /**
         TODO: doc, expects, test
     */
-    STUNResult finalize();
+    [[nodiscard]] State state() const;
+
+    /**
+        TODO: doc, expects, test
+    */
+    [[nodiscard]] float energy() const;
 
 private:
     using index = MutState::index_type;

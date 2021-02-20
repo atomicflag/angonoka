@@ -38,7 +38,11 @@ struct BetaScale : detail::OpaqueFloat {
 enum class StunWindow : std::int_fast32_t;
 
 /**
-    TODO: DOC
+    Number of iterations before a restart.
+
+    The temperature volatility starts off high and slowly drops
+    to 0 with each iteration. This value controls how many iterations
+    it takes for the temperature to go through the full cycle.
 */
 enum class RestartPeriod : std::size_t;
 
@@ -54,12 +58,12 @@ public:
     /**
         Constructor.
 
-        TODO: doc
+        Note: restart_period must be a power of 2.
 
-        @param beta         Initial beta (temperature) value
-        @param beta_scale   Scaling factor
-        @param stun_window  STUN rolling mean window
-        @param reset_period
+        @param beta             Initial beta (temperature) value
+        @param beta_scale       Scaling factor
+        @param stun_window      STUN rolling mean window
+        @param restart_period   Number of iterations before restarting
     */
     Temperature(
         Beta beta,

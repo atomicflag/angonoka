@@ -153,6 +153,7 @@ std::vector<stun::StateItem> optimize(const stun::ScheduleInfo& info)
     constexpr auto beta_scale = 1e-4F;
     constexpr auto stun_window = 10000;
     constexpr auto gamma = .5F;
+    const auto restart_period = 1 << 20;
 
     RandomUtils random_utils;
     Mutator mutator{info, random_utils};
@@ -160,19 +161,19 @@ std::vector<stun::StateItem> optimize(const stun::ScheduleInfo& info)
     Temperature temperature{
         Beta{beta},
         BetaScale{beta_scale},
-        StunWindow{stun_window}};
+        StunWindow{stun_window},
+        RestartPeriod{restart_period}};
 
-    for (int i{0}; i < number_of_epochs; ++i) {
-        auto r = stochastic_tunneling(
-            state,
-            STUNOptions{
-                .mutator{&mutator},
-                .random{&random_utils},
-                .makespan{&makespan},
-                .temp{&temperature},
-                .gamma{gamma}});
-        state = std::move(r.state);
-    }
+    StochasticTunneling stun{
+        {.mutator{&mutator},
+         .random{&random_utils},
+         .makespan{&makespan},
+         .temp{&temperature},
+         .gamma{gamma}},
+        state};
+    for (int i{0}; i < number_of_epochs * restart_period; ++i)
+        stun.update();
+    // state = stun.state();
 
     // TODO: track progress via progress bar
     // TODO: return the Result, not just the state
