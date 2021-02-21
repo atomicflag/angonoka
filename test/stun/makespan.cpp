@@ -83,6 +83,8 @@ TEST_CASE("Makespan special member functions")
         Makespan makespan4{std::move(makespan2)};
         REQUIRE(makespan4(state2) == Approx(2.F));
     }
+
+    // TODO: self-copy and self-move
 }
 
 TEST_CASE("Makespan estimation")

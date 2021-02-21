@@ -52,29 +52,46 @@ struct STUNOptions {
 /**
     Stochastic tunneling algorithm.
 
-    TODO: doc, test, expects
+    The internal state can be updated as many times as needed.
 */
 class StochasticTunneling {
 public:
     /**
-        Constructor.
+        Default constructor.
 
-        TODO: doc, test, expects
+        The object will be in an uninitialized state. User must call
+        reset to set the initial schedule.
+
+        TODO: test, expects
+
+        @param options Instance of STUNOptions
     */
     StochasticTunneling(const STUNOptions& options);
 
     /**
-        TODO: doc, test, expects
+        Constructor.
+
+        TODO: test, expects
+
+        @param options  Instance of STUNOptions
+        @param state    Initial schedule
     */
     StochasticTunneling(const STUNOptions& options, State state);
 
     /**
-        TODO: doc, expects, test
+        Reset stochastic tunneling algorithm to a new state.
+
+        TODO: expects, test
+
+        @param state Initial schedule
     */
     void reset(State state);
 
     /**
-        TODO: doc, expects, test
+        Update the internal state according to stochastic
+        tunneling algorithm.
+
+        TODO: expects, test
     */
     void update() noexcept;
 
@@ -109,7 +126,7 @@ private:
     float target_s;
 
     /**
-        Creates a new state from the current state.
+        Creates a new (mutated) state from the current state.
     */
     void get_new_neighbor() noexcept;
 
