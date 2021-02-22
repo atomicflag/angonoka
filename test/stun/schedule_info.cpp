@@ -83,7 +83,25 @@ TEST_CASE("ScheduleInfo special memeber functions")
         REQUIRE(other.dependencies[2u][1] == 1);
     }
 
-    // TODO: self-copy and self-move
+    SECTION("Self copy")
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+        info = info;
+#pragma clang diagnostic pop
+
+        REQUIRE(info.dependencies[2u][1] == 1);
+    }
+
+    SECTION("Self move")
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-move"
+        info = std::move(info);
+#pragma clang diagnostic pop
+
+        REQUIRE(info.dependencies[2u][1] == 1);
+    }
 }
 
 TEST_CASE("VectorOfSpans type traits")
@@ -172,6 +190,26 @@ TEST_CASE("VectorOfSpans special memeber functions")
             REQUIRE(other.size() == 3);
             REQUIRE(other[2u][0] == 2);
         }
+
+        SECTION("Self copy")
+        {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+            vspans = vspans;
+#pragma clang diagnostic pop
+
+            REQUIRE(vspans[2u][0] == 2);
+        }
+
+        SECTION("Self move")
+        {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-move"
+            vspans = std::move(vspans);
+#pragma clang diagnostic pop
+
+            REQUIRE(vspans[2u][0] == 2);
+        }
     }
 
     SECTION("Construct from array of sizes")
@@ -185,8 +223,6 @@ TEST_CASE("VectorOfSpans special memeber functions")
         REQUIRE(vec[1u].size() == 2);
         REQUIRE(vec[1u][1] == 3);
     }
-
-    // TODO: self-copy and self-move
 }
 
 TEST_CASE("Initial state")

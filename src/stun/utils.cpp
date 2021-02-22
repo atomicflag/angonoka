@@ -41,7 +41,18 @@ Makespan& Makespan::operator=(const Makespan& other) noexcept
 }
 
 Makespan::Makespan(Makespan&& other) noexcept = default;
-Makespan& Makespan::operator=(Makespan&& other) noexcept = default;
+Makespan& Makespan::operator=(Makespan&& other) noexcept
+{
+    if (&other == this) return *this;
+
+    info = std::move(other.info);
+    sum_buffer = std::move(other.sum_buffer);
+    task_done = other.task_done;
+    work_done = other.work_done;
+
+    Ensures(!sum_buffer.empty());
+    return *this;
+}
 
 Makespan::~Makespan() noexcept = default;
 
@@ -49,6 +60,8 @@ float Makespan::operator()(State state) noexcept
 {
     Expects(!state.empty());
     Expects(state.size() == task_done.size());
+    Expects(!sum_buffer.empty());
+    Expects(task_done.data() == sum_buffer.data());
 
     ranges::fill(sum_buffer, 0.F);
     for (auto [task_id, agent_id] : state) {

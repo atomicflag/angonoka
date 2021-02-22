@@ -72,7 +72,13 @@ VectorOfSpans& VectorOfSpans::operator=(const VectorOfSpans& other)
 VectorOfSpans::VectorOfSpans(
     VectorOfSpans&& other) noexcept = default;
 VectorOfSpans&
-VectorOfSpans::operator=(VectorOfSpans&& other) noexcept = default;
+VectorOfSpans::operator=(VectorOfSpans&& other) noexcept
+{
+    if (&other == this) return *this;
+    data = std::move(other.data);
+    spans = std::move(other.spans);
+    return *this;
+}
 VectorOfSpans::~VectorOfSpans() noexcept = default;
 
 /**

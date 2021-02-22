@@ -67,24 +67,45 @@ TEST_CASE("Makespan special member functions")
         REQUIRE(makespan(state) == Approx(3.F));
         REQUIRE(makespan2(state) == Approx(3.F));
     }
+
     SECTION("Move assignment")
     {
         makespan2 = std::move(makespan);
         REQUIRE(makespan2(state) == Approx(3.F));
     }
+
     SECTION("Copy ctor")
     {
         Makespan makespan3{makespan2};
         REQUIRE(makespan2(state2) == Approx(2.F));
         REQUIRE(makespan3(state2) == Approx(2.F));
     }
+
     SECTION("Move ctor")
     {
         Makespan makespan4{std::move(makespan2)};
         REQUIRE(makespan4(state2) == Approx(2.F));
     }
 
-    // TODO: self-copy and self-move
+    SECTION("Self copy")
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+        makespan = makespan;
+#pragma clang diagnostic pop
+
+        REQUIRE(makespan(state) == Approx(3.F));
+    }
+
+    SECTION("Self move")
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-move"
+        makespan = std::move(makespan);
+#pragma clang diagnostic pop
+
+        REQUIRE(makespan(state) == Approx(3.F));
+    }
 }
 
 TEST_CASE("Makespan estimation")

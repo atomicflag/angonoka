@@ -34,7 +34,7 @@ struct STUNResult {
 };
 
 /**
-    STUN auxilary data and utilities.
+    STUN auxiliary data and utilities.
     @var mutator    Instance of Mutator
     @var random     Instance of RandomUtils
     @var makespan   Instance of Makespan
