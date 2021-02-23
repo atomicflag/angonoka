@@ -41,6 +41,21 @@ struct TemperatureMock final : TemperatureStub {
 };
 } // namespace
 
+TEST_CASE("StochasticTunneling type traits")
+{
+    using angonoka::stun::StochasticTunneling;
+    STATIC_REQUIRE(
+        std::is_nothrow_destructible_v<StochasticTunneling>);
+    STATIC_REQUIRE(
+        !std::is_default_constructible_v<StochasticTunneling>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<StochasticTunneling>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<StochasticTunneling>);
+    STATIC_REQUIRE(
+        std::is_nothrow_move_constructible_v<StochasticTunneling>);
+    STATIC_REQUIRE(
+        std::is_nothrow_move_assignable_v<StochasticTunneling>);
+}
+
 TEST_CASE("Stochastic tunneling")
 {
     using namespace angonoka::stun;
@@ -68,14 +83,33 @@ TEST_CASE("Stochastic tunneling")
     REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
     REQUIRE_CALL(makespan, call(_)).RETURN(.1F).IN_SEQUENCE(seq);
 
-    StochasticTunneling stun{
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{.5F}},
-        state};
-    for (int i{0}; i < 2; ++i) stun.update();
+    SECTION("Simple")
+    {
+        StochasticTunneling stun{
+            {.mutator{&mutator},
+             .random{&random_utils},
+             .makespan{&makespan},
+             .temp{&temperature},
+             .gamma{.5F}},
+            state};
+        for (int i{0}; i < 2; ++i) stun.update();
 
-    REQUIRE(stun.energy() == Approx(.1F));
+        REQUIRE(stun.energy() == Approx(.1F));
+        REQUIRE(stun.state().size() == 3);
+    }
+
+    SECTION("Two phase construction")
+    {
+        StochasticTunneling stun{
+            {.mutator{&mutator},
+             .random{&random_utils},
+             .makespan{&makespan},
+             .temp{&temperature},
+             .gamma{.5F}}};
+        stun.reset(state);
+        for (int i{0}; i < 2; ++i) stun.update();
+
+        REQUIRE(stun.energy() == Approx(.1F));
+        REQUIRE(stun.state().size() == 3);
+    }
 }

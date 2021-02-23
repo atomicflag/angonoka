@@ -93,6 +93,8 @@ void StochasticTunneling::perform_stun() noexcept
 
 void StochasticTunneling::update() noexcept
 {
+    Expects(!state_buffer.empty());
+    Expects(!current_state.empty());
     get_new_neighbor();
     if (neighbor_is_better()) return;
     perform_stun();
@@ -141,6 +143,7 @@ void StochasticTunneling::init_states(State source_state) const
 
 void StochasticTunneling::reset(State state)
 {
+    Expects(!state.empty());
     prepare_state_spans(state.size());
     init_states(state);
     init_energies();
@@ -164,6 +167,7 @@ StochasticTunneling::StochasticTunneling(
     State state)
     : StochasticTunneling{options}
 {
+    Expects(!state.empty());
     reset(state);
 }
 } // namespace angonoka::stun

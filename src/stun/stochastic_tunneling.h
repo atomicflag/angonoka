@@ -62,7 +62,7 @@ public:
         The object will be in an uninitialized state. User must call
         reset to set the initial schedule.
 
-        TODO: test, expects
+        TODO: test
 
         @param options Instance of STUNOptions
     */
@@ -70,8 +70,6 @@ public:
 
     /**
         Constructor.
-
-        TODO: test, expects
 
         @param options  Instance of STUNOptions
         @param state    Initial schedule
@@ -81,8 +79,6 @@ public:
     /**
         Reset stochastic tunneling algorithm to a new state.
 
-        TODO: expects, test
-
         @param state Initial schedule
     */
     void reset(State state);
@@ -90,8 +86,6 @@ public:
     /**
         Update the internal state according to stochastic
         tunneling algorithm.
-
-        TODO: expects, test
     */
     void update() noexcept;
 
