@@ -149,9 +149,18 @@ void StochasticTunneling::reset(State state)
     init_energies();
 }
 
-State StochasticTunneling::state() const { return best_state; }
+State StochasticTunneling::state() const
+{
+    Expects(!state_buffer.empty());
+    Expects(!best_state.empty());
+    return best_state;
+}
 
-float StochasticTunneling::energy() const { return lowest_e; }
+float StochasticTunneling::energy() const
+{
+    Expects(!state_buffer.empty());
+    return lowest_e;
+}
 
 StochasticTunneling::StochasticTunneling(const STUNOptions& options)
     : mutator{options.mutator}

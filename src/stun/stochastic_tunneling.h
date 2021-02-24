@@ -62,8 +62,6 @@ public:
         The object will be in an uninitialized state. User must call
         reset to set the initial schedule.
 
-        TODO: test
-
         @param options Instance of STUNOptions
     */
     StochasticTunneling(const STUNOptions& options);
@@ -90,12 +88,16 @@ public:
     void update() noexcept;
 
     /**
-        TODO: doc, expects, test
+        The best schedule so far.
+
+        @return A schedule.
     */
     [[nodiscard]] State state() const;
 
     /**
-        TODO: doc, expects, test
+        The best makespan so far.
+
+        @return Makespan.
     */
     [[nodiscard]] float energy() const;
 
