@@ -5,6 +5,10 @@
 #include <range/v3/view/span.hpp>
 #include <vector>
 
+namespace angonoka {
+struct Configuration;
+} // namespace angonoka
+
 namespace angonoka::stun {
 using ranges::span;
 
@@ -104,4 +108,7 @@ struct ScheduleInfo {
     @return A valid schedule
 */
 std::vector<StateItem> initial_state(const ScheduleInfo& info);
+
+// TODO: doc, test, expects
+ScheduleInfo to_schedule(const Configuration& config);
 } // namespace angonoka::stun

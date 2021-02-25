@@ -1,8 +1,108 @@
 #include "schedule_info.h"
+#include "../configuration.h"
 #include <boost/container/flat_set.hpp>
+#include <range/v3/action/insert.hpp>
 #include <range/v3/range/operations.hpp>
 #include <range/v3/to_container.hpp>
+#include <range/v3/view/enumerate.hpp>
 #include <range/v3/view/iota.hpp>
+#include <range/v3/view/transform.hpp>
+
+namespace {
+using namespace angonoka;
+
+using stun::ScheduleInfo;
+using AgentPerformance = decltype(ScheduleInfo::agent_performance);
+using TaskDuration = decltype(ScheduleInfo::task_duration);
+using AvailableAgents = decltype(ScheduleInfo::available_agents);
+using Dependencies = decltype(ScheduleInfo::dependencies);
+
+using ranges::to;
+using ranges::actions::insert;
+using ranges::views::enumerate;
+using ranges::views::transform;
+
+// TODO: doc, test
+AgentPerformance agent_performance(const Agents& agents)
+{
+    Expects(!agents.empty());
+
+    return agents
+        | transform([](auto&& a) { return a.performance.average(); })
+        | to<AgentPerformance>();
+}
+
+// TODO: doc, test
+TaskDuration task_duration(const Tasks& tasks, int agent_count)
+{
+    Expects(!tasks.empty());
+    Expects(agent_count > 0);
+
+    TaskDuration durations;
+    durations.reserve(tasks.size());
+    float total{0.F};
+    for (auto&& t : tasks) {
+        durations.emplace_back(t.duration.average().count());
+        total += durations.back();
+    }
+    durations.shrink_to_fit();
+    const auto average_duration
+        = total / static_cast<float>(agent_count);
+    for (auto& d : durations) d /= average_duration;
+
+    Ensures(durations.size() == tasks.size());
+
+    return durations;
+}
+
+// TODO: doc, test
+AvailableAgents available_agents(const Configuration& config)
+{
+    using stun::int16;
+
+    Expects(!config.tasks.empty());
+    Expects(!config.agents.empty());
+
+    std::vector<int16> data;
+    std::vector<int16> sizes;
+
+    for (auto&& task : config.tasks) {
+        int16 agent_count{0};
+        for (auto&& [agent_index, agent] : enumerate(config.agents)) {
+            if (!can_work_on(agent, task)) continue;
+            ++agent_count;
+            data.emplace_back(agent_index);
+        }
+        sizes.emplace_back(agent_count);
+    }
+    data.shrink_to_fit();
+
+    Ensures(sizes.size() == config.tasks.size());
+
+    return {std::move(data), sizes};
+}
+
+// TODO: doc, test
+Dependencies dependencies(const Tasks& tasks)
+{
+    using stun::int16;
+
+    Expects(!tasks.empty());
+
+    std::vector<int16> data;
+    std::vector<int16> sizes;
+
+    for (auto&& task : tasks) {
+        insert(data, data.end(), task.dependencies);
+        sizes.emplace_back(task.dependencies.size());
+    }
+    data.shrink_to_fit();
+
+    Ensures(sizes.size() == tasks.size());
+
+    return {std::move(data), sizes};
+}
+} // namespace
 
 namespace angonoka::stun {
 using boost::container::flat_set;
@@ -127,5 +227,17 @@ std::vector<StateItem> initial_state(const ScheduleInfo& info)
     Ensures(state.size() == info.task_duration.size());
 
     return state;
+}
+
+// TODO: doc, test, expects
+ScheduleInfo to_schedule(const Configuration& config)
+{
+    return {
+        .agent_performance{agent_performance(config.agents)},
+        .task_duration{task_duration(
+            config.tasks,
+            static_cast<int>(config.agents.size()))},
+        .available_agents{available_agents(config)},
+        .dependencies{dependencies(config.tasks)}};
 }
 } // namespace angonoka::stun
