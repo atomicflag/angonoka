@@ -104,32 +104,30 @@ TEST_CASE("ScheduleInfo special memeber functions")
     }
 }
 
-TEST_CASE("VectorOfSpans type traits")
+TEST_CASE("Vector2D type traits")
 {
-    using angonoka::stun::VectorOfSpans;
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<VectorOfSpans>);
-    STATIC_REQUIRE(
-        std::is_nothrow_default_constructible_v<VectorOfSpans>);
-    STATIC_REQUIRE(std::is_copy_constructible_v<VectorOfSpans>);
-    STATIC_REQUIRE(std::is_copy_assignable_v<VectorOfSpans>);
-    STATIC_REQUIRE(
-        std::is_nothrow_move_constructible_v<VectorOfSpans>);
-    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<VectorOfSpans>);
+    using angonoka::stun::Vector2D;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<Vector2D>);
+    STATIC_REQUIRE(std::is_nothrow_default_constructible_v<Vector2D>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<Vector2D>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<Vector2D>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Vector2D>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Vector2D>);
 }
 
-TEST_CASE("VectorOfSpans special memeber functions")
+TEST_CASE("Vector2D special memeber functions")
 {
     using namespace angonoka::stun;
 
     SECTION("Empty")
     {
-        VectorOfSpans vspans;
+        Vector2D vspans;
 
         REQUIRE(vspans.empty());
 
         SECTION("Copy ctor")
         {
-            VectorOfSpans other{vspans};
+            Vector2D other{vspans};
 
             REQUIRE(other.empty());
         }
@@ -145,13 +143,13 @@ TEST_CASE("VectorOfSpans special memeber functions")
         };
         std::vector<span<int16>> spans{f(1), f(1), f(1)};
 
-        VectorOfSpans vspans{std::move(data), std::move(spans)};
+        Vector2D vspans{std::move(data), std::move(spans)};
 
         REQUIRE(vspans.size() == 3);
 
         SECTION("Copy ctor")
         {
-            VectorOfSpans other{vspans};
+            Vector2D other{vspans};
             vspans.clear();
 
             REQUIRE(other.size() == 3);
@@ -160,7 +158,7 @@ TEST_CASE("VectorOfSpans special memeber functions")
 
         SECTION("Copy assignment")
         {
-            VectorOfSpans other;
+            Vector2D other;
             other = vspans;
             vspans.clear();
 
@@ -174,7 +172,7 @@ TEST_CASE("VectorOfSpans special memeber functions")
 
         SECTION("Move ctor")
         {
-            VectorOfSpans other{std::move(vspans)};
+            Vector2D other{std::move(vspans)};
 
             REQUIRE(vspans.empty());
             REQUIRE(other.size() == 3);
@@ -183,7 +181,7 @@ TEST_CASE("VectorOfSpans special memeber functions")
 
         SECTION("Move assignment")
         {
-            VectorOfSpans other;
+            Vector2D other;
             other = std::move(vspans);
 
             REQUIRE(vspans.empty());
@@ -217,7 +215,7 @@ TEST_CASE("VectorOfSpans special memeber functions")
         std::vector<int16> data{1, 2, 3, 4, 5, 6};
         const std::vector<int16> sizes{1, 2, 3};
 
-        const VectorOfSpans vec{std::move(data), sizes};
+        const Vector2D vec{std::move(data), sizes};
 
         REQUIRE(vec.size() == 3);
         REQUIRE(vec[1u].size() == 2);

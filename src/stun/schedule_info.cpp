@@ -22,7 +22,16 @@ using ranges::actions::insert;
 using ranges::views::enumerate;
 using ranges::views::transform;
 
-// TODO: doc, test
+/**
+    Construct the packed agent performance map from an array of
+    Agents.
+
+    TODO: test
+
+    @param agents Array of Agents
+
+    @return Agent performance map
+*/
 AgentPerformance agent_performance(const Agents& agents)
 {
     Expects(!agents.empty());
@@ -32,7 +41,19 @@ AgentPerformance agent_performance(const Agents& agents)
         | to<AgentPerformance>();
 }
 
-// TODO: doc, test
+/**
+    Construct the packed task duration map from an array of tasks.
+
+    Task durations are normalized to bring the ideal makespan closer
+    to 1.
+
+    TODO: test
+
+    @param tasks        Array of Tasks
+    @param agent_count  Total number of agents
+
+    @return Task duration map
+*/
 TaskDuration task_duration(const Tasks& tasks, int agent_count)
 {
     Expects(!tasks.empty());
@@ -55,7 +76,15 @@ TaskDuration task_duration(const Tasks& tasks, int agent_count)
     return durations;
 }
 
-// TODO: doc, test
+/**
+    Construct the packed available agents map from Configuration.
+
+    TODO: test
+
+    @param config An instance of Configuration
+
+    @return Available agents map
+*/
 AvailableAgents available_agents(const Configuration& config)
 {
     using stun::int16;
@@ -82,7 +111,15 @@ AvailableAgents available_agents(const Configuration& config)
     return {std::move(data), sizes};
 }
 
-// TODO: doc, test
+/**
+    Construct the packed dependency map from Tasks.
+
+    TODO: test
+
+    @param tasks Array of Tasks
+
+    @return Dependency map.
+*/
 Dependencies dependencies(const Tasks& tasks)
 {
     using stun::int16;
@@ -107,7 +144,7 @@ Dependencies dependencies(const Tasks& tasks)
 namespace angonoka::stun {
 using boost::container::flat_set;
 
-VectorOfSpans::VectorOfSpans(
+Vector2D::Vector2D(
     std::vector<int16>&& data,
     std::vector<span<int16>>&& spans) noexcept
     : data{std::move(data)}
@@ -115,14 +152,14 @@ VectorOfSpans::VectorOfSpans(
 {
 }
 
-void VectorOfSpans::clear() noexcept
+void Vector2D::clear() noexcept
 {
     data.clear();
     spans.clear();
 }
 
-VectorOfSpans::VectorOfSpans() noexcept = default;
-VectorOfSpans::VectorOfSpans(const VectorOfSpans& other)
+Vector2D::Vector2D() noexcept = default;
+Vector2D::Vector2D(const Vector2D& other)
 {
     if (other.empty()) return;
     data = other.data;
@@ -137,7 +174,7 @@ VectorOfSpans::VectorOfSpans(const VectorOfSpans& other)
     Ensures(other.size() == size());
 }
 
-VectorOfSpans::VectorOfSpans(
+Vector2D::Vector2D(
     std::vector<int16>&& data,
     span<const int16> sizes) noexcept
     : data{std::move(data)}
@@ -153,33 +190,31 @@ VectorOfSpans::VectorOfSpans(
     Ensures(std::ssize(spans) == sizes.size());
 }
 
-[[nodiscard]] std::size_t VectorOfSpans::size() const noexcept
+[[nodiscard]] std::size_t Vector2D::size() const noexcept
 {
     return spans.size();
 }
 
-[[nodiscard]] bool VectorOfSpans::empty() const noexcept
+[[nodiscard]] bool Vector2D::empty() const noexcept
 {
     return spans.empty();
 }
 
-VectorOfSpans& VectorOfSpans::operator=(const VectorOfSpans& other)
+Vector2D& Vector2D::operator=(const Vector2D& other)
 {
-    *this = VectorOfSpans{other};
+    *this = Vector2D{other};
     return *this;
 }
 
-VectorOfSpans::VectorOfSpans(
-    VectorOfSpans&& other) noexcept = default;
-VectorOfSpans&
-VectorOfSpans::operator=(VectorOfSpans&& other) noexcept
+Vector2D::Vector2D(Vector2D&& other) noexcept = default;
+Vector2D& Vector2D::operator=(Vector2D&& other) noexcept
 {
     if (&other == this) return *this;
     data = std::move(other.data);
     spans = std::move(other.spans);
     return *this;
 }
-VectorOfSpans::~VectorOfSpans() noexcept = default;
+Vector2D::~Vector2D() noexcept = default;
 
 /**
     Walks the dependency tree recursively.
@@ -229,9 +264,11 @@ std::vector<StateItem> initial_state(const ScheduleInfo& info)
     return state;
 }
 
-// TODO: doc, test, expects
 ScheduleInfo to_schedule(const Configuration& config)
 {
+    Expects(!config.agents.empty());
+    Expects(!config.tasks.empty());
+
     return {
         .agent_performance{agent_performance(config.agents)},
         .task_duration{task_duration(

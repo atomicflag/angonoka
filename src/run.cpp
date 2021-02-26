@@ -38,8 +38,7 @@ std::vector<stun::StateItem> optimize(const stun::ScheduleInfo& info)
     Expects(!info.task_duration.empty());
     Expects(!info.available_agents.empty());
     Expects(
-        info.available_agents.size()
-        == info.agent_performance.size());
+        info.available_agents.size() == info.task_duration.size());
 
     using namespace angonoka::stun;
 

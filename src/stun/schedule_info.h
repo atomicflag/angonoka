@@ -15,12 +15,12 @@ using ranges::span;
 /**
     Cache-friendly container of views into an array of ints.
 */
-class VectorOfSpans {
+class Vector2D {
 public:
     /**
         Default constructor.
     */
-    VectorOfSpans() noexcept;
+    Vector2D() noexcept;
 
     /**
         Constructor.
@@ -28,7 +28,7 @@ public:
         @param data     Array of ints
         @param spans    Array of spans
     */
-    VectorOfSpans(
+    Vector2D(
         std::vector<int16>&& data,
         std::vector<span<int16>>&& spans) noexcept;
 
@@ -38,15 +38,15 @@ public:
         @param data     Array of ints
         @param sizes    Array of span sizes
     */
-    VectorOfSpans(
+    Vector2D(
         std::vector<int16>&& data,
         span<const int16> sizes) noexcept;
 
-    VectorOfSpans(const VectorOfSpans& other);
-    VectorOfSpans& operator=(const VectorOfSpans& other);
-    VectorOfSpans(VectorOfSpans&& other) noexcept;
-    VectorOfSpans& operator=(VectorOfSpans&& other) noexcept;
-    ~VectorOfSpans() noexcept;
+    Vector2D(const Vector2D& other);
+    Vector2D& operator=(const Vector2D& other);
+    Vector2D(Vector2D&& other) noexcept;
+    Vector2D& operator=(Vector2D&& other) noexcept;
+    ~Vector2D() noexcept;
 
     /**
         Get a span by index.
@@ -96,8 +96,8 @@ private:
 struct ScheduleInfo {
     std::vector<float> agent_performance;
     std::vector<float> task_duration;
-    VectorOfSpans available_agents;
-    VectorOfSpans dependencies;
+    Vector2D available_agents;
+    Vector2D dependencies;
 };
 
 /**
@@ -109,6 +109,14 @@ struct ScheduleInfo {
 */
 std::vector<StateItem> initial_state(const ScheduleInfo& info);
 
-// TODO: doc, test, expects
+/**
+    Construct ScheduleInfo from Configuration.
+
+    TODO: test
+
+    @param config An instance of Configuration
+
+    @return ScheduleInfo
+*/
 ScheduleInfo to_schedule(const Configuration& config);
 } // namespace angonoka::stun
