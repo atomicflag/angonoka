@@ -82,8 +82,8 @@ void run(std::string_view tasks_yml)
 
     // TODO: Handle YAML exceptions
     const auto config = load_file(tasks_yml);
-    const auto schedule = to_schedule(config);
-    const auto state = optimize(schedule);
+    const auto schedule_info = to_schedule_info(config);
+    const auto state = optimize(schedule_info);
     fmt::print("{}\n", state);
 }
 } // namespace angonoka

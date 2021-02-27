@@ -26,8 +26,6 @@ using ranges::views::transform;
     Construct the packed agent performance map from an array of
     Agents.
 
-    TODO: test
-
     @param agents Array of Agents
 
     @return Agent performance map
@@ -46,8 +44,6 @@ AgentPerformance agent_performance(const Agents& agents)
 
     Task durations are normalized to bring the ideal makespan closer
     to 1.
-
-    TODO: test
 
     @param tasks        Array of Tasks
     @param agent_count  Total number of agents
@@ -78,8 +74,6 @@ TaskDuration task_duration(const Tasks& tasks, int agent_count)
 
 /**
     Construct the packed available agents map from Configuration.
-
-    TODO: test
 
     @param config An instance of Configuration
 
@@ -113,8 +107,6 @@ AvailableAgents available_agents(const Configuration& config)
 
 /**
     Construct the packed dependency map from Tasks.
-
-    TODO: test
 
     @param tasks Array of Tasks
 
@@ -264,7 +256,7 @@ std::vector<StateItem> initial_state(const ScheduleInfo& info)
     return state;
 }
 
-ScheduleInfo to_schedule(const Configuration& config)
+ScheduleInfo to_schedule_info(const Configuration& config)
 {
     Expects(!config.agents.empty());
     Expects(!config.tasks.empty());

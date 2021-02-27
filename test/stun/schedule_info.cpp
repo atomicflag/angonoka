@@ -1,4 +1,5 @@
 #include "stun/schedule_info.h"
+#include "config/load.h"
 #include <catch2/catch.hpp>
 
 TEST_CASE("ScheduleInfo type traits")
@@ -248,4 +249,46 @@ TEST_CASE("Initial state")
             {.task_id = 2, .agent_id = 2},
             {.task_id = 1, .agent_id = 1},
             {.task_id = 0, .agent_id = 0}});
+}
+
+TEST_CASE("ScheduleInfo from Configuration")
+{
+    using namespace angonoka::stun;
+    // clang-format off
+    constexpr auto text = 
+        "agents:\n"
+        "  Bob:\n"
+        "    performance:\n"
+        "      min: 0.5\n"
+        "      max: 1.5\n"
+        "  Jack:\n"
+        "    groups:\n"
+        "      - A\n"
+        "tasks:\n"
+        "  - name: Task 1\n"
+        "    duration: 1h\n"
+        "    id: 1\n"
+        "    group: A\n"
+        "  - name: Task 2\n"
+        "    duration: 1h\n"
+        "    depends_on: 1";
+    // clang-format on
+    const auto config = angonoka::load_text(text);
+
+    // TODO: Should this be a constructor instead?
+    const auto info = to_schedule_info(config);
+
+    REQUIRE(info.agent_performance.size() == 2);
+    REQUIRE(info.agent_performance[0] == Approx(1.F));
+    REQUIRE(info.task_duration.size() == 2);
+    REQUIRE(info.task_duration[0] == Approx(1.F));
+    REQUIRE(info.available_agents.size() == 2);
+    // Both agents
+    REQUIRE(info.available_agents[0u].size() == 2);
+    // Only Jack due to group A constraint
+    REQUIRE(info.available_agents[1u].size() == 1);
+    REQUIRE(info.dependencies.size() == 2);
+    REQUIRE(info.dependencies[0u].empty());
+    REQUIRE(info.dependencies[1u].size() == 1);
+    REQUIRE(info.dependencies[1u][0] == 0);
 }

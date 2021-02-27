@@ -112,11 +112,9 @@ std::vector<StateItem> initial_state(const ScheduleInfo& info);
 /**
     Construct ScheduleInfo from Configuration.
 
-    TODO: test
-
     @param config An instance of Configuration
 
     @return ScheduleInfo
 */
-ScheduleInfo to_schedule(const Configuration& config);
+ScheduleInfo to_schedule_info(const Configuration& config);
 } // namespace angonoka::stun
