@@ -275,7 +275,6 @@ TEST_CASE("ScheduleInfo from Configuration")
     // clang-format on
     const auto config = angonoka::load_text(text);
 
-    // TODO: Should this be a constructor instead?
     const auto info = to_schedule_info(config);
 
     REQUIRE(info.agent_performance.size() == 2);

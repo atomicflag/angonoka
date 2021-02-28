@@ -72,6 +72,9 @@ std::vector<stun::StateItem> optimize(const stun::ScheduleInfo& info)
 
     // TODO: track progress via progress bar
     // TODO: return the Result, not just the state
+    // TODO: How do we track progress? atomic int from 0 to 100?
+    // Add a new class that encapsulates stun and adds
+    // stopping condition and has an update method.
     return state;
 }
 #pragma clang diagnostic pop
