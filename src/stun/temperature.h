@@ -53,6 +53,7 @@ enum class RestartPeriod : std::size_t;
 
     https://arxiv.org/pdf/physics/9903008.pdf
 */
+// NOLINTNEXTLINE: bugprone-exception-escape
 class Temperature {
 public:
     /**

@@ -74,12 +74,18 @@ public:
     */
     StochasticTunneling(const STUNOptions& options, State state);
 
+    // TODO: copy constructor
+
     /**
         Reset stochastic tunneling algorithm to a new state.
+
+        TODO: do we need this function?
 
         @param state Initial schedule
     */
     void reset(State state);
+
+    // TODO: should we add options(const STUNOptions& options)?
 
     /**
         Update the internal state according to stochastic

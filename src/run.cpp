@@ -57,27 +57,32 @@ public:
     /**
         TODO: doc, test, expects
     */
-    void reset() { stun.reset(initial_state(*info)); }
+    void reset()
+    {
+        stun.reset(initial_state(*info));
+        temperature
+            = {Beta{initial_beta},
+               BetaScale{beta_scale},
+               StunWindow{stun_window},
+               RestartPeriod{restart_period}};
+    }
 
 private:
     static constexpr auto beta_scale = 1e-4F;
     static constexpr auto stun_window = 10000;
     static constexpr auto gamma = .5F;
     static constexpr auto restart_period = 1 << 20;
+    static constexpr auto initial_beta = 1.0F;
 
     gsl::not_null<const ScheduleInfo*> info;
-
-    float beta = 1.0F;
-
     RandomUtils random_utils;
     Mutator mutator{*info, random_utils};
     Makespan makespan{*info};
     Temperature temperature{
-        Beta{beta},
+        Beta{initial_beta},
         BetaScale{beta_scale},
         StunWindow{stun_window},
         RestartPeriod{restart_period}};
-
     StochasticTunneling stun{
         {.mutator{&mutator},
          .random{&random_utils},
