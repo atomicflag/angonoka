@@ -19,9 +19,73 @@
 #include <vector>
 
 namespace angonoka {
+using namespace angonoka::stun;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
+
+// TODO: doc, test, expects
+class Optimizer {
+public:
+    // TODO: doc, test, expects
+    Optimizer(const ScheduleInfo& info)
+        : info{&info}
+    {
+    }
+
+    // TODO: doc, test, expects
+    void update() noexcept { stun.update(); }
+
+    /**
+        The best schedule so far.
+
+        TODO: doc, test, expects
+
+        @return A schedule.
+    */
+    [[nodiscard]] State state() const { return stun.state(); }
+
+    /**
+        The best makespan so far.
+
+        TODO: doc, test, expects
+
+        @return Makespan.
+    */
+    [[nodiscard]] float energy() const { return stun.energy(); }
+
+    /**
+        TODO: doc, test, expects
+    */
+    void reset() { stun.reset(initial_state(*info)); }
+
+private:
+    static constexpr auto beta_scale = 1e-4F;
+    static constexpr auto stun_window = 10000;
+    static constexpr auto gamma = .5F;
+    static constexpr auto restart_period = 1 << 20;
+
+    gsl::not_null<const ScheduleInfo*> info;
+
+    float beta = 1.0F;
+
+    RandomUtils random_utils;
+    Mutator mutator{*info, random_utils};
+    Makespan makespan{*info};
+    Temperature temperature{
+        Beta{beta},
+        BetaScale{beta_scale},
+        StunWindow{stun_window},
+        RestartPeriod{restart_period}};
+
+    StochasticTunneling stun{
+        {.mutator{&mutator},
+         .random{&random_utils},
+         .makespan{&makespan},
+         .temp{&temperature},
+         .gamma{gamma}},
+        initial_state(*info)};
+};
 
 /**
     Find the optimal schedule.
@@ -42,32 +106,10 @@ std::vector<stun::StateItem> optimize(const stun::ScheduleInfo& info)
 
     using namespace angonoka::stun;
 
-    auto state = initial_state(info);
-    float beta = 1.0F;
-    constexpr auto number_of_epochs = 10;
-    constexpr auto beta_scale = 1e-4F;
-    constexpr auto stun_window = 10000;
-    constexpr auto gamma = .5F;
-    const auto restart_period = 1 << 20;
+    constexpr auto number_of_epochs = 10 * 10000;
 
-    RandomUtils random_utils;
-    Mutator mutator{info, random_utils};
-    Makespan makespan{info};
-    Temperature temperature{
-        Beta{beta},
-        BetaScale{beta_scale},
-        StunWindow{stun_window},
-        RestartPeriod{restart_period}};
-
-    StochasticTunneling stun{
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{gamma}},
-        state};
-    for (int i{0}; i < number_of_epochs * restart_period; ++i)
-        stun.update();
+    Optimizer optimizer{info};
+    for (int i{0}; i < number_of_epochs; ++i) optimizer.update();
     // state = stun.state();
 
     // TODO: track progress via progress bar
@@ -75,7 +117,7 @@ std::vector<stun::StateItem> optimize(const stun::ScheduleInfo& info)
     // TODO: How do we track progress? atomic int from 0 to 100?
     // Add a new class that encapsulates stun and adds
     // stopping condition and has an update method.
-    return state;
+    return ranges::to<std::vector<StateItem>>(optimizer.state());
 }
 #pragma clang diagnostic pop
 
