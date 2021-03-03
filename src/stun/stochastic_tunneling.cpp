@@ -179,4 +179,34 @@ StochasticTunneling::StochasticTunneling(
     Expects(!state.empty());
     reset(state);
 }
+
+StochasticTunneling::StochasticTunneling(
+    const StochasticTunneling& other)
+    : mutator{other.mutator}
+    , random{other.random}
+    , makespan{other.makespan}
+    , temp{other.temp}
+    , state_buffer{other.state_buffer}
+    , current_e{other.current_e}
+    , lowest_e{other.lowest_e}
+    , target_e{other.target_e}
+    , gamma{other.gamma}
+    , current_s{other.current_s}
+    , target_s{other.target_s}
+{
+    prepare_state_spans(other.best_state.size());
+}
+
+StochasticTunneling&
+StochasticTunneling::operator=(const StochasticTunneling& other)
+{
+    *this = StochasticTunneling{other};
+    return *this;
+}
+
+StochasticTunneling::~StochasticTunneling() noexcept = default;
+StochasticTunneling::StochasticTunneling(
+    StochasticTunneling&& other) noexcept = default;
+StochasticTunneling& StochasticTunneling::operator=(
+    StochasticTunneling&& other) noexcept = default;
 } // namespace angonoka::stun

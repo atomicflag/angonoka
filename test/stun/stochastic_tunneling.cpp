@@ -113,3 +113,60 @@ TEST_CASE("Stochastic tunneling")
         REQUIRE(stun.state().size() == 3);
     }
 }
+
+TEST_CASE("StochasticTunneling special member functions")
+{
+    using namespace angonoka::stun;
+
+    RandomUtilsMock random_utils;
+    MakespanMock makespan;
+    TemperatureMock temperature;
+    MutatorMock mutator;
+    std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
+
+    REQUIRE_CALL(makespan, call(state)).RETURN(1.F);
+
+    StochasticTunneling stun{
+        {.mutator{&mutator},
+         .random{&random_utils},
+         .makespan{&makespan},
+         .temp{&temperature},
+         .gamma{.5F}},
+        state};
+
+    SECTION("Copy assignment")
+    {
+        // TODO
+    }
+
+    SECTION("Move assignment")
+    {
+        // TODO
+    }
+
+    SECTION("Copy ctor")
+    {
+        // TODO
+    }
+
+    SECTION("Move ctor")
+    {
+        // TODO
+    }
+
+    SECTION("Self copy"){
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+    // TODO
+#pragma clang diagnostic pop
+
+    }
+
+    SECTION("Self move")
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-move"
+        // TODO
+#pragma clang diagnostic pop
+    }
+}

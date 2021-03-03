@@ -74,7 +74,12 @@ public:
     */
     StochasticTunneling(const STUNOptions& options, State state);
 
-    // TODO: copy constructor
+    StochasticTunneling(const StochasticTunneling& other);
+    StochasticTunneling(StochasticTunneling&& other) noexcept;
+    StochasticTunneling& operator=(const StochasticTunneling& other);
+    StochasticTunneling&
+    operator=(StochasticTunneling&& other) noexcept;
+    ~StochasticTunneling() noexcept;
 
     /**
         Reset stochastic tunneling algorithm to a new state.
