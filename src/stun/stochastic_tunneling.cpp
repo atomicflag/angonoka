@@ -194,7 +194,8 @@ StochasticTunneling::StochasticTunneling(
     , current_s{other.current_s}
     , target_s{other.target_s}
 {
-    prepare_state_spans(other.best_state.size());
+    if (!other.best_state.empty())
+        prepare_state_spans(other.best_state.size());
 }
 
 StochasticTunneling&
@@ -207,6 +208,26 @@ StochasticTunneling::operator=(const StochasticTunneling& other)
 StochasticTunneling::~StochasticTunneling() noexcept = default;
 StochasticTunneling::StochasticTunneling(
     StochasticTunneling&& other) noexcept = default;
-StochasticTunneling& StochasticTunneling::operator=(
-    StochasticTunneling&& other) noexcept = default;
+StochasticTunneling&
+StochasticTunneling::operator=(StochasticTunneling&& other) noexcept
+{
+    if (&other == this) return *this;
+
+    mutator = std::move(other.mutator);
+    random = std::move(other.random);
+    makespan = std::move(other.makespan);
+    temp = std::move(other.temp);
+    state_buffer = std::move(other.state_buffer);
+    best_state = other.best_state;
+    current_state = other.current_state;
+    target_state = other.target_state;
+    current_e = other.current_e;
+    lowest_e = other.lowest_e;
+    target_e = other.target_e;
+    gamma = other.gamma;
+    current_s = other.current_s;
+    target_s = other.target_s;
+
+    return *this;
+}
 } // namespace angonoka::stun

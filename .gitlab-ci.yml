@@ -9,7 +9,7 @@ variables:
   CCACHE_COMPRESSLEVEL: "9"
 
 default:
-  image: registry.gitlab.com/signal9/cpp-env:squashed
+  image: registry.gitlab.com/signal9/cpp-env:11.1.0
   cache:
     key: "$CI_COMMIT_REF_SLUG"
     paths:

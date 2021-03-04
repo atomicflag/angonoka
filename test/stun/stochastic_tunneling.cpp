@@ -117,56 +117,71 @@ TEST_CASE("Stochastic tunneling")
 TEST_CASE("StochasticTunneling special member functions")
 {
     using namespace angonoka::stun;
+    using trompeloeil::_;
 
     RandomUtilsMock random_utils;
     MakespanMock makespan;
     TemperatureMock temperature;
     MutatorMock mutator;
     std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
+    std::vector<StateItem> state2{{3, 3}, {4, 4}, {5, 5}};
 
-    REQUIRE_CALL(makespan, call(state)).RETURN(1.F);
+    ALLOW_CALL(makespan, call(_)).RETURN(1.F);
 
-    StochasticTunneling stun{
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{.5F}},
-        state};
+    STUNOptions options{
+        .mutator{&mutator},
+        .random{&random_utils},
+        .makespan{&makespan},
+        .temp{&temperature},
+        .gamma{.5F}};
+
+    StochasticTunneling stun{options, state};
 
     SECTION("Copy assignment")
     {
-        // TODO
+        StochasticTunneling stun2{options, state2};
+        stun = stun2;
+
+        REQUIRE(stun.state()[0].agent_id == 3);
     }
 
     SECTION("Move assignment")
     {
-        // TODO
+        StochasticTunneling stun2{options, state2};
+        stun = std::move(stun2);
+
+        REQUIRE(stun.state()[0].agent_id == 3);
     }
 
     SECTION("Copy ctor")
     {
-        // TODO
+        StochasticTunneling stun2{stun};
+
+        REQUIRE(stun2.state()[1].agent_id == 1);
     }
 
     SECTION("Move ctor")
     {
-        // TODO
+        StochasticTunneling stun2{std::move(stun)};
+
+        REQUIRE(stun2.state()[1].agent_id == 1);
     }
 
-    SECTION("Self copy"){
+    SECTION("Self copy")
+    {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
-    // TODO
+        stun = stun;
 #pragma clang diagnostic pop
-
+        REQUIRE(stun.state()[1].agent_id == 1);
     }
 
     SECTION("Self move")
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
-        // TODO
+        stun = std::move(stun);
 #pragma clang diagnostic pop
+        REQUIRE(stun.state()[1].agent_id == 1);
     }
 }
