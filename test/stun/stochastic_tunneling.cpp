@@ -128,7 +128,7 @@ TEST_CASE("StochasticTunneling special member functions")
 
     ALLOW_CALL(makespan, call(_)).RETURN(1.F);
 
-    STUNOptions options{
+    StochasticTunneling::Options options{
         .mutator{&mutator},
         .random{&random_utils},
         .makespan{&makespan},

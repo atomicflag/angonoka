@@ -21,35 +21,6 @@ using MutatorT = struct MutatorStub;
 #endif // UNIT_TEST
 
 /**
-    Result of a stochastic tunneling pass.
-
-    @var state          State that had the lowest energy
-    @var energy         Lowest energy achieved so far
-    @var temperature    Final temperature
-*/
-struct STUNResult {
-    std::vector<StateItem> state;
-    float energy;
-    float temperature;
-};
-
-/**
-    STUN auxiliary data and utilities.
-    @var mutator    Instance of Mutator
-    @var random     Instance of RandomUtils
-    @var makespan   Instance of Makespan
-    @var temp       Instance of Temperature
-    @var gamma      Tunneling parameter
-*/
-struct STUNOptions {
-    gsl::not_null<const MutatorT*> mutator;
-    gsl::not_null<RandomUtilsT*> random;
-    gsl::not_null<MakespanT*> makespan;
-    gsl::not_null<TemperatureT*> temp;
-    float gamma;
-};
-
-/**
     Stochastic tunneling algorithm.
 
     The internal state can be updated as many times as needed.
@@ -57,22 +28,52 @@ struct STUNOptions {
 class StochasticTunneling {
 public:
     /**
+        Result of a stochastic tunneling pass.
+
+        @var state          State that had the lowest energy
+        @var energy         Lowest energy achieved so far
+        @var temperature    Final temperature
+    */
+    struct Result {
+        std::vector<StateItem> state;
+        float energy;
+        float temperature;
+    };
+
+    /**
+        STUN auxiliary data and utilities.
+
+        @var mutator    Instance of Mutator
+        @var random     Instance of RandomUtils
+        @var makespan   Instance of Makespan
+        @var temp       Instance of Temperature
+        @var gamma      Tunneling parameter
+    */
+    struct Options {
+        gsl::not_null<const MutatorT*> mutator;
+        gsl::not_null<RandomUtilsT*> random;
+        gsl::not_null<MakespanT*> makespan;
+        gsl::not_null<TemperatureT*> temp;
+        float gamma;
+    };
+
+    /**
         Default constructor.
 
         The object will be in an uninitialized state. User must call
         reset to set the initial schedule.
 
-        @param options Instance of STUNOptions
+        @param options Instance of StochasticTunneling::Options
     */
-    StochasticTunneling(const STUNOptions& options);
+    StochasticTunneling(const Options& options);
 
     /**
         Constructor.
 
-        @param options  Instance of STUNOptions
+        @param options  Instance of StochasticTunneling::Options
         @param state    Initial schedule
     */
-    StochasticTunneling(const STUNOptions& options, State state);
+    StochasticTunneling(const Options& options, State state);
 
     StochasticTunneling(const StochasticTunneling& other);
     StochasticTunneling(StochasticTunneling&& other) noexcept;
@@ -84,13 +85,15 @@ public:
     /**
         Reset stochastic tunneling algorithm to a new state.
 
-        TODO: do we need this function?
-
         @param state Initial schedule
     */
     void reset(State state);
 
-    // TODO: should we add options(const STUNOptions& options)?
+    // TODO: doc, test, expects
+    void options(const Options& options);
+
+    // TODO: doc, test, expects
+    [[nodiscard]] Options options() const;
 
     /**
         Update the internal state according to stochastic

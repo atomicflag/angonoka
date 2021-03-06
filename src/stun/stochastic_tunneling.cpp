@@ -162,7 +162,7 @@ float StochasticTunneling::energy() const
     return lowest_e;
 }
 
-StochasticTunneling::StochasticTunneling(const STUNOptions& options)
+StochasticTunneling::StochasticTunneling(const Options& options)
     : mutator{options.mutator}
     , random{options.random}
     , makespan{options.makespan}
@@ -172,7 +172,7 @@ StochasticTunneling::StochasticTunneling(const STUNOptions& options)
 }
 
 StochasticTunneling::StochasticTunneling(
-    const STUNOptions& options,
+    const Options& options,
     State state)
     : StochasticTunneling{options}
 {
@@ -229,5 +229,27 @@ StochasticTunneling::operator=(StochasticTunneling&& other) noexcept
     target_s = other.target_s;
 
     return *this;
+}
+
+void StochasticTunneling::options(const Options& options)
+{
+    mutator = options.mutator;
+    random = options.random;
+    makespan = options.makespan;
+    temp = options.temp;
+    gamma = options.gamma;
+}
+
+StochasticTunneling::Options StochasticTunneling::options() const
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wbraced-scalar-init"
+    return {
+        .mutator{mutator},
+        .random{random},
+        .makespan{makespan},
+        .temp{temp},
+        .gamma{gamma}};
+#pragma clang diagnostic pop
 }
 } // namespace angonoka::stun
