@@ -89,10 +89,18 @@ public:
     */
     void reset(State state);
 
-    // TODO: doc, test, expects
+    /**
+        Set stochastic tunneling options.
+
+        @param options Instance of Options
+    */
     void options(const Options& options);
 
-    // TODO: doc, test, expects
+    /**
+        Get stochastic tunneling options.
+
+        @return Stochastic tunneling options.
+    */
     [[nodiscard]] Options options() const;
 
     /**

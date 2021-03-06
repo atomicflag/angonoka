@@ -114,6 +114,38 @@ TEST_CASE("Stochastic tunneling")
     }
 }
 
+TEST_CASE("StochasticTunneling options")
+{
+    using namespace angonoka::stun;
+    using trompeloeil::_;
+
+    RandomUtilsMock random_utils;
+    MakespanMock makespan;
+    TemperatureMock temperature;
+    MutatorMock mutator;
+    std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
+
+    ALLOW_CALL(makespan, call(_)).RETURN(1.F);
+
+    StochasticTunneling::Options options{
+        .mutator{&mutator},
+        .random{&random_utils},
+        .makespan{&makespan},
+        .temp{&temperature},
+        .gamma{.5F}};
+
+    StochasticTunneling stun{options, state};
+
+    REQUIRE(stun.options().makespan == &makespan);
+
+    MakespanMock makespan2;
+
+    options.makespan = &makespan2;
+    stun.options(options);
+
+    REQUIRE(stun.options().makespan == &makespan2);
+}
+
 TEST_CASE("StochasticTunneling special member functions")
 {
     using namespace angonoka::stun;
