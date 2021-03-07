@@ -45,4 +45,16 @@ void Temperature::update(float stun) noexcept
 
     Ensures(value >= 0.F);
 }
+
+Temperature& Temperature::operator=(Temperature&& other) noexcept
+{
+    value = other.value;
+    try {
+        acc = other.acc;
+    } catch (...) {
+    }
+    beta_scale = other.beta_scale;
+    restart_period_mask = other.restart_period_mask;
+    return *this;
+}
 } // namespace angonoka::stun

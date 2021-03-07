@@ -8,8 +8,8 @@ TEST_CASE("Temperature type traits")
     STATIC_REQUIRE(!std::is_default_constructible_v<Temperature>);
     STATIC_REQUIRE(std::is_copy_constructible_v<Temperature>);
     STATIC_REQUIRE(std::is_copy_assignable_v<Temperature>);
-    STATIC_REQUIRE(std::is_move_constructible_v<Temperature>);
-    STATIC_REQUIRE(std::is_move_assignable_v<Temperature>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Temperature>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Temperature>);
 }
 
 TEST_CASE("Temperature update")

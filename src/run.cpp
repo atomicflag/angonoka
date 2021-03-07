@@ -36,6 +36,9 @@ public:
     // TODO: doc, test, expects
     void update() noexcept { stun.update(); }
 
+    // TODO: doc, test, expects
+    // bool done() noexcept { return true; }
+
     /**
         The best schedule so far.
 
@@ -66,6 +69,30 @@ public:
                StunWindow{stun_window},
                RestartPeriod{restart_period}};
     }
+
+    Optimizer(const Optimizer& other)
+        : info{other.info}
+        , random_utils{other.random_utils}
+        , mutator{other.mutator}
+        , makespan{other.makespan}
+        , temperature{other.temperature}
+        , stun{other.stun}
+    {
+        stun.options(
+            {.mutator{&mutator},
+             .random{&random_utils},
+             .makespan{&makespan},
+             .temp{&temperature},
+             .gamma{gamma}});
+    }
+    Optimizer(Optimizer&& other) noexcept = default;
+    Optimizer& operator=(const Optimizer& other)
+    {
+        *this = Optimizer{other};
+        return *this;
+    }
+    Optimizer& operator=(Optimizer&& other) noexcept = default;
+    ~Optimizer() noexcept = default;
 
 private:
     static constexpr auto beta_scale = 1e-4F;
