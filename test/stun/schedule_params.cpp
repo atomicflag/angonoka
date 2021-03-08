@@ -1,25 +1,25 @@
-#include "stun/schedule_info.h"
+#include "stun/schedule_params.h"
 #include "config/load.h"
 #include <catch2/catch.hpp>
 
-TEST_CASE("ScheduleInfo type traits")
+TEST_CASE("ScheduleParams type traits")
 {
-    using angonoka::stun::ScheduleInfo;
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<ScheduleInfo>);
+    using angonoka::stun::ScheduleParams;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<ScheduleParams>);
     STATIC_REQUIRE(
-        std::is_nothrow_default_constructible_v<ScheduleInfo>);
-    STATIC_REQUIRE(std::is_copy_constructible_v<ScheduleInfo>);
-    STATIC_REQUIRE(std::is_copy_assignable_v<ScheduleInfo>);
+        std::is_nothrow_default_constructible_v<ScheduleParams>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<ScheduleParams>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<ScheduleParams>);
     STATIC_REQUIRE(
-        std::is_nothrow_move_constructible_v<ScheduleInfo>);
-    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<ScheduleInfo>);
+        std::is_nothrow_move_constructible_v<ScheduleParams>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<ScheduleParams>);
 }
 
-TEST_CASE("ScheduleInfo special memeber functions")
+TEST_CASE("ScheduleParams special memeber functions")
 {
     using namespace angonoka::stun;
 
-    ScheduleInfo info{
+    ScheduleParams params{
         .agent_performance{1.F, 2.F, 3.F},
         .task_duration{3.F, 2.F, 1.F}};
 
@@ -31,7 +31,7 @@ TEST_CASE("ScheduleInfo special memeber functions")
         };
         std::vector<span<int16>> available_agents
             = {n(1), n(2), n(3)};
-        info.available_agents
+        params.available_agents
             = {std::move(available_agents_data),
                std::move(available_agents)};
     }
@@ -42,44 +42,44 @@ TEST_CASE("ScheduleInfo special memeber functions")
             return {std::exchange(p, std::next(p, s)), s};
         };
         std::vector<span<int16>> dependencies = {n(0), n(1), n(2)};
-        info.dependencies
+        params.dependencies
             = {std::move(dependencies_data), std::move(dependencies)};
     }
 
     SECTION("Move ctor")
     {
-        ScheduleInfo other{std::move(info)};
+        ScheduleParams other{std::move(params)};
 
-        REQUIRE(info.dependencies.empty());
+        REQUIRE(params.dependencies.empty());
         REQUIRE_FALSE(other.dependencies.empty());
         REQUIRE(other.dependencies[2u][1] == 1);
     }
 
     SECTION("Move assignment")
     {
-        ScheduleInfo other;
-        other = std::move(info);
+        ScheduleParams other;
+        other = std::move(params);
 
-        REQUIRE(info.dependencies.empty());
+        REQUIRE(params.dependencies.empty());
         REQUIRE_FALSE(other.dependencies.empty());
         REQUIRE(other.dependencies[2u][1] == 1);
     }
 
     SECTION("Copy ctor")
     {
-        ScheduleInfo other{info};
+        ScheduleParams other{params};
 
-        info.dependencies.clear();
+        params.dependencies.clear();
 
         REQUIRE(other.dependencies[2u][1] == 1);
     }
 
     SECTION("Copy assignment")
     {
-        ScheduleInfo other;
-        other = info;
+        ScheduleParams other;
+        other = params;
 
-        info.dependencies.clear();
+        params.dependencies.clear();
 
         REQUIRE(other.dependencies[2u][1] == 1);
     }
@@ -88,20 +88,20 @@ TEST_CASE("ScheduleInfo special memeber functions")
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
-        info = info;
+        params = params;
 #pragma clang diagnostic pop
 
-        REQUIRE(info.dependencies[2u][1] == 1);
+        REQUIRE(params.dependencies[2u][1] == 1);
     }
 
     SECTION("Self move")
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
-        info = std::move(info);
+        params = std::move(params);
 #pragma clang diagnostic pop
 
-        REQUIRE(info.dependencies[2u][1] == 1);
+        REQUIRE(params.dependencies[2u][1] == 1);
     }
 }
 
@@ -228,7 +228,7 @@ TEST_CASE("Initial state")
 {
     using namespace angonoka::stun;
 
-    const ScheduleInfo info{
+    const ScheduleParams params{
         .agent_performance{1.F, 1.F, 1.F},
         .task_duration{1.F, 1.F, 1.F, 1.F, 1.F, 1.F},
         .available_agents{
@@ -238,7 +238,7 @@ TEST_CASE("Initial state")
             std::vector<int16>{1, 2, 3, 4, 5},
             std::vector<int16>{1, 1, 1, 1, 1, 0}}};
 
-    const auto state = initial_state(info);
+    const auto state = initial_state(params);
 
     REQUIRE(
         state
@@ -251,7 +251,7 @@ TEST_CASE("Initial state")
             {.task_id = 0, .agent_id = 0}});
 }
 
-TEST_CASE("ScheduleInfo from Configuration")
+TEST_CASE("ScheduleParams from Configuration")
 {
     using namespace angonoka::stun;
     // clang-format off
@@ -275,19 +275,19 @@ TEST_CASE("ScheduleInfo from Configuration")
     // clang-format on
     const auto config = angonoka::load_text(text);
 
-    const auto info = to_schedule_info(config);
+    const auto params = to_schedule_params(config);
 
-    REQUIRE(info.agent_performance.size() == 2);
-    REQUIRE(info.agent_performance[0] == Approx(1.F));
-    REQUIRE(info.task_duration.size() == 2);
-    REQUIRE(info.task_duration[0] == Approx(1.F));
-    REQUIRE(info.available_agents.size() == 2);
+    REQUIRE(params.agent_performance.size() == 2);
+    REQUIRE(params.agent_performance[0] == Approx(1.F));
+    REQUIRE(params.task_duration.size() == 2);
+    REQUIRE(params.task_duration[0] == Approx(1.F));
+    REQUIRE(params.available_agents.size() == 2);
     // Both agents
-    REQUIRE(info.available_agents[0u].size() == 2);
+    REQUIRE(params.available_agents[0u].size() == 2);
     // Only Jack due to group A constraint
-    REQUIRE(info.available_agents[1u].size() == 1);
-    REQUIRE(info.dependencies.size() == 2);
-    REQUIRE(info.dependencies[0u].empty());
-    REQUIRE(info.dependencies[1u].size() == 1);
-    REQUIRE(info.dependencies[1u][0] == 0);
+    REQUIRE(params.available_agents[1u].size() == 1);
+    REQUIRE(params.dependencies.size() == 2);
+    REQUIRE(params.dependencies[0u].empty());
+    REQUIRE(params.dependencies[1u].size() == 1);
+    REQUIRE(params.dependencies[1u][0] == 0);
 }

@@ -7,7 +7,7 @@
 
 namespace angonoka::stun {
 using ranges::span;
-struct ScheduleInfo;
+struct ScheduleParams;
 
 /**
     Makespan estimator.
@@ -20,11 +20,11 @@ public:
     /**
         Constructor.
 
-        @param info         An instance of ScheduleInfo
+        @param params       An instance of ScheduleParams
         @param tasks_count  Total number of tasks
         @param agents_count Total number of agents
     */
-    Makespan(const ScheduleInfo& info);
+    Makespan(const ScheduleParams& params);
 
     Makespan(const Makespan& other);
     Makespan& operator=(const Makespan& other) noexcept;
@@ -42,7 +42,7 @@ public:
     float operator()(State state) noexcept;
 
 private:
-    gsl::not_null<const ScheduleInfo*> info;
+    gsl::not_null<const ScheduleParams*> params;
     std::vector<float> sum_buffer;
     span<float> task_done;
     span<float> work_done;
@@ -93,10 +93,10 @@ public:
     /**
         Constructor.
 
-        @param info   An instance of ScheduleInfo
+        @param params An instance of ScheduleParams
         @param random An instance of RandomUtils
     */
-    Mutator(const ScheduleInfo& info, RandomUtils& random);
+    Mutator(const ScheduleParams& params, RandomUtils& random);
 
     /**
         Mutates the scheduling configuration in-place.
@@ -106,7 +106,7 @@ public:
     void operator()(MutState state) const noexcept;
 
 private:
-    gsl::not_null<const ScheduleInfo*> info;
+    gsl::not_null<const ScheduleParams*> params;
     gsl::not_null<RandomUtils*> random;
 
     /**

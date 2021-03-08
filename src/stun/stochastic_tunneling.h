@@ -7,7 +7,7 @@
 
 namespace angonoka::stun {
 
-struct ScheduleInfo;
+struct ScheduleParams;
 #ifndef UNIT_TEST
 using TemperatureT = class Temperature;
 using MakespanT = class Makespan;

@@ -16,7 +16,7 @@ test_exe = executable(
     'stun/mutate.cpp',
     'stun/common.cpp',
     'stun/temperature.cpp',
-    'stun/schedule_info.cpp',
+    'stun/schedule_params.cpp',
     'stun/stochastic_tunneling.cpp',
     'load_tasks.cpp',
     'parse_duration.cpp',

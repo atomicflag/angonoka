@@ -1,34 +1,34 @@
 #include "utils.h"
 #include "random_utils.h"
-#include "schedule_info.h"
+#include "schedule_params.h"
 #include <range/v3/algorithm/binary_search.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/max.hpp>
 #include <range/v3/view/transform.hpp>
 
 namespace angonoka::stun {
-Makespan::Makespan(const ScheduleInfo& info)
-    : info{&info}
+Makespan::Makespan(const ScheduleParams& params)
+    : params{&params}
     , sum_buffer(
-          info.task_duration.size() + info.agent_performance.size())
-    , task_done{sum_buffer.data(), static_cast<int>(info.task_duration.size())}
+          params.task_duration.size() + params.agent_performance.size())
+    , task_done{sum_buffer.data(), static_cast<int>(params.task_duration.size())}
     , work_done{
           task_done.end(),
-          static_cast<int>(info.agent_performance.size())}
+          static_cast<int>(params.agent_performance.size())}
 {
-    Expects(!info.agent_performance.empty());
-    Expects(!info.task_duration.empty());
+    Expects(!params.agent_performance.empty());
+    Expects(!params.task_duration.empty());
     Ensures(!sum_buffer.empty());
     Ensures(
         task_done.size()
-        == static_cast<int>(info.task_duration.size()));
+        == static_cast<int>(params.task_duration.size()));
     Ensures(
         work_done.size()
-        == static_cast<int>(info.agent_performance.size()));
+        == static_cast<int>(params.agent_performance.size()));
 }
 
 Makespan::Makespan(const Makespan& other)
-    : Makespan{*other.info}
+    : Makespan{*other.params}
 {
     Ensures(sum_buffer.size() == other.sum_buffer.size());
 }
@@ -45,7 +45,7 @@ Makespan& Makespan::operator=(Makespan&& other) noexcept
 {
     if (&other == this) return *this;
 
-    info = std::move(other.info);
+    params = std::move(other.params);
     sum_buffer = std::move(other.sum_buffer);
     task_done = other.task_done;
     work_done = other.work_done;
@@ -81,7 +81,7 @@ Makespan::dependencies_done(int16 task_id) const noexcept
 
     using ranges::views::transform;
     const auto deps
-        = info->dependencies[static_cast<gsl::index>(task_id)];
+        = params->dependencies[static_cast<gsl::index>(task_id)];
     if (deps.empty()) return 0.F;
     return ranges::max(deps | transform([&](const auto& dep_id) {
                            return task_done[dep_id];
@@ -93,8 +93,9 @@ Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
 {
     Expects(task_id >= 0);
     Expects(agent_id >= 0);
-    return info->task_duration[static_cast<gsl::index>(task_id)]
-        / info->agent_performance[static_cast<gsl::index>(agent_id)];
+    return params->task_duration[static_cast<gsl::index>(task_id)]
+        / params
+              ->agent_performance[static_cast<gsl::index>(agent_id)];
 }
 
 void Mutator::try_swap(MutState state) const noexcept
@@ -113,19 +114,19 @@ Mutator::is_swappable(int16 task, int16 predecessor) const noexcept
 {
     Expects(task >= 0);
     Expects(
-        static_cast<gsl::index>(task) < info->dependencies.size());
+        static_cast<gsl::index>(task) < params->dependencies.size());
     Expects(predecessor >= 0);
     Expects(
         static_cast<gsl::index>(predecessor)
-        < info->dependencies.size());
+        < params->dependencies.size());
     Expects(task != predecessor);
     return !ranges::binary_search(
-        info->dependencies[static_cast<gsl::index>(task)],
+        params->dependencies[static_cast<gsl::index>(task)],
         predecessor);
 }
 
-Mutator::Mutator(const ScheduleInfo& info, RandomUtils& random)
-    : info{&info}
+Mutator::Mutator(const ScheduleParams& params, RandomUtils& random)
+    : params{&params}
     , random{&random}
 {
 }
@@ -142,12 +143,12 @@ void Mutator::update_agent(MutState state) const noexcept
     Expects(!state.empty());
     Expects(
         static_cast<gsl::index>(state.size())
-        == info->available_agents.size());
+        == params->available_agents.size());
     const auto task_index = random->uniform_int(state.size() - 1);
     const auto task_id
         = static_cast<gsl::index>(state[task_index].task_id);
     const auto new_agent_id = random->uniform_int(
-        info->available_agents[task_id].size() - 1);
+        params->available_agents[task_id].size() - 1);
     state[task_index].agent_id = new_agent_id;
 }
 } // namespace angonoka::stun

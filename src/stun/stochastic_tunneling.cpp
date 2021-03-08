@@ -1,6 +1,6 @@
 #include "stochastic_tunneling.h"
 #include "random_utils.h"
-#include "schedule_info.h"
+#include "schedule_params.h"
 #include "temperature.h"
 #include "utils.h"
 #include <range/v3/algorithm/copy.hpp>

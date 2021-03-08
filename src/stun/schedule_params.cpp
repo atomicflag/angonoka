@@ -1,4 +1,4 @@
-#include "schedule_info.h"
+#include "schedule_params.h"
 #include "../configuration.h"
 #include <boost/container/flat_set.hpp>
 #include <range/v3/action/insert.hpp>
@@ -11,11 +11,11 @@
 namespace {
 using namespace angonoka;
 
-using stun::ScheduleInfo;
-using AgentPerformance = decltype(ScheduleInfo::agent_performance);
-using TaskDuration = decltype(ScheduleInfo::task_duration);
-using AvailableAgents = decltype(ScheduleInfo::available_agents);
-using Dependencies = decltype(ScheduleInfo::dependencies);
+using stun::ScheduleParams;
+using AgentPerformance = decltype(ScheduleParams::agent_performance);
+using TaskDuration = decltype(ScheduleParams::task_duration);
+using AvailableAgents = decltype(ScheduleParams::available_agents);
+using Dependencies = decltype(ScheduleParams::dependencies);
 
 using ranges::to;
 using ranges::actions::insert;
@@ -214,49 +214,51 @@ Vector2D::~Vector2D() noexcept = default;
     @param state        Partially formed schedule
     @param tasks        Set of unexplored tasks
     @param task_index   Index of the current task
-    @param info         An instance of ScheduleInfo
+    @param params       An instance of ScheduleParams
 */
 void push_task(
     std::vector<StateItem>& state,
     flat_set<int16>& tasks,
     int16 task_index,
-    const ScheduleInfo& info)
+    const ScheduleParams& params)
 {
     Expects(!tasks.empty());
-    Expects(tasks.size() + state.size() == info.task_duration.size());
+    Expects(
+        tasks.size() + state.size() == params.task_duration.size());
 
     if (!tasks.contains(task_index)) return;
     const auto idx = static_cast<std::size_t>(task_index);
-    for (auto&& dep_index : info.dependencies[idx])
-        push_task(state, tasks, dep_index, info);
+    for (auto&& dep_index : params.dependencies[idx])
+        push_task(state, tasks, dep_index, params);
     state.emplace_back(StateItem{
         .task_id = task_index,
-        .agent_id = info.available_agents[idx][0]});
+        .agent_id = params.available_agents[idx][0]});
     tasks.erase(task_index);
 
-    Ensures(tasks.size() + state.size() == info.task_duration.size());
+    Ensures(
+        tasks.size() + state.size() == params.task_duration.size());
 }
 
-std::vector<StateItem> initial_state(const ScheduleInfo& info)
+std::vector<StateItem> initial_state(const ScheduleParams& params)
 {
     using ranges::front;
     using ranges::views::iota;
 
-    Expects(!info.task_duration.empty());
+    Expects(!params.task_duration.empty());
 
     std::vector<StateItem> state;
-    state.reserve(info.task_duration.size());
-    auto tasks = iota(0L, std::ssize(info.task_duration))
+    state.reserve(params.task_duration.size());
+    auto tasks = iota(0L, std::ssize(params.task_duration))
         | ranges::to<flat_set<int16>>();
     while (!tasks.empty())
-        push_task(state, tasks, front(tasks), info);
+        push_task(state, tasks, front(tasks), params);
 
-    Ensures(state.size() == info.task_duration.size());
+    Ensures(state.size() == params.task_duration.size());
 
     return state;
 }
 
-ScheduleInfo to_schedule_info(const Configuration& config)
+ScheduleParams to_schedule_params(const Configuration& config)
 {
     Expects(!config.agents.empty());
     Expects(!config.tasks.empty());

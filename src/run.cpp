@@ -2,7 +2,7 @@
 #include "config/load.h"
 #include "stun/common.h"
 #include "stun/random_utils.h"
-#include "stun/schedule_info.h"
+#include "stun/schedule_params.h"
 #include "stun/stochastic_tunneling.h"
 #include "stun/temperature.h"
 #include "stun/utils.h"
@@ -24,12 +24,18 @@ using namespace angonoka::stun;
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
 
-// TODO: doc, test, expects
+/**
+    Optimization algorithm based on stochastic tunneling.
+*/
 class Optimizer {
 public:
-    // TODO: doc, test, expects
-    Optimizer(const ScheduleInfo& info)
-        : info{&info}
+    /**
+        Constructor.
+
+        @param params Scheduling parameters
+    */
+    Optimizer(const ScheduleParams& params)
+        : params{&params}
     {
     }
 
@@ -62,7 +68,7 @@ public:
     */
     void reset()
     {
-        stun.reset(initial_state(*info));
+        stun.reset(initial_state(*params));
         temperature
             = {Beta{initial_beta},
                BetaScale{beta_scale},
@@ -71,7 +77,7 @@ public:
     }
 
     Optimizer(const Optimizer& other)
-        : info{other.info}
+        : params{other.params}
         , random_utils{other.random_utils}
         , mutator{other.mutator}
         , makespan{other.makespan}
@@ -101,10 +107,10 @@ private:
     static constexpr auto restart_period = 1 << 20;
     static constexpr auto initial_beta = 1.0F;
 
-    gsl::not_null<const ScheduleInfo*> info;
+    gsl::not_null<const ScheduleParams*> params;
     RandomUtils random_utils;
-    Mutator mutator{*info, random_utils};
-    Makespan makespan{*info};
+    Mutator mutator{*params, random_utils};
+    Makespan makespan{*params};
     Temperature temperature{
         Beta{initial_beta},
         BetaScale{beta_scale},
@@ -116,7 +122,7 @@ private:
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}},
-        initial_state(*info)};
+        initial_state(*params)};
 };
 
 /**
@@ -124,23 +130,25 @@ private:
 
     TODO: test, expects
 
-    @param info Instance of ScheduleInfo
+    @param params Instance of ScheduleParams
 
     @return Optimal schedule.
 */
-std::vector<stun::StateItem> optimize(const stun::ScheduleInfo& info)
+std::vector<stun::StateItem>
+optimize(const stun::ScheduleParams& params)
 {
-    Expects(!info.agent_performance.empty());
-    Expects(!info.task_duration.empty());
-    Expects(!info.available_agents.empty());
+    Expects(!params.agent_performance.empty());
+    Expects(!params.task_duration.empty());
+    Expects(!params.available_agents.empty());
     Expects(
-        info.available_agents.size() == info.task_duration.size());
+        params.available_agents.size()
+        == params.task_duration.size());
 
     using namespace angonoka::stun;
 
     constexpr auto number_of_epochs = 10 * 10000;
 
-    Optimizer optimizer{info};
+    Optimizer optimizer{params};
     for (int i{0}; i < number_of_epochs; ++i) optimizer.update();
     // state = stun.state();
 
@@ -159,8 +167,8 @@ void run(std::string_view tasks_yml)
 
     // TODO: Handle YAML exceptions
     const auto config = load_file(tasks_yml);
-    const auto schedule_info = to_schedule_info(config);
-    const auto state = optimize(schedule_info);
+    const auto schedule_params = to_schedule_params(config);
+    const auto state = optimize(schedule_params);
     fmt::print("{}\n", state);
 }
 } // namespace angonoka

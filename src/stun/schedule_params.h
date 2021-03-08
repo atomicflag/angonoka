@@ -93,7 +93,7 @@ private:
     @var available_agents       Which agents can perform each task
     @var dependencies           Task's dependent sub-tasks
 */
-struct ScheduleInfo {
+struct ScheduleParams {
     std::vector<float> agent_performance;
     std::vector<float> task_duration;
     Vector2D available_agents;
@@ -103,18 +103,18 @@ struct ScheduleInfo {
 /**
     Construct a valid but naive schedule.
 
-    @param ScheduleInfo An instance of ScheduleInfo
+    @param ScheduleParams An instance of ScheduleParams
 
     @return A valid schedule
 */
-std::vector<StateItem> initial_state(const ScheduleInfo& info);
+std::vector<StateItem> initial_state(const ScheduleParams& params);
 
 /**
-    Construct ScheduleInfo from Configuration.
+    Construct ScheduleParams from Configuration.
 
     @param config An instance of Configuration
 
-    @return ScheduleInfo
+    @return ScheduleParams
 */
-ScheduleInfo to_schedule_info(const Configuration& config);
+ScheduleParams to_schedule_params(const Configuration& config);
 } // namespace angonoka::stun
