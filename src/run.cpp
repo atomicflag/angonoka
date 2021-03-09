@@ -24,6 +24,12 @@ using namespace angonoka::stun;
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
 
+// TODO: doc
+enum class BatchSize : std::int_fast32_t;
+
+// TODO: doc
+enum class MaxIdleIters : std::int_fast32_t;
+
 /**
     Optimization algorithm based on stochastic tunneling.
 */
@@ -32,18 +38,34 @@ public:
     /**
         Constructor.
 
+        TODO: doc, expects
+
         @param params Scheduling parameters
+        @param batch_size
+        @param max_idle_iters
     */
-    Optimizer(const ScheduleParams& params)
+    Optimizer(
+        const ScheduleParams& params,
+        BatchSize batch_size,
+        MaxIdleIters max_idle_iters)
         : params{&params}
+        , batch_size{static_cast<std::int_fast32_t>(batch_size)}
+        , max_idle_iters{
+              static_cast<std::int_fast32_t>(max_idle_iters)}
     {
     }
 
     // TODO: doc, test, expects
+    // TODO: add batched work
     void update() noexcept { stun.update(); }
 
     // TODO: doc, test, expects
     // bool done() noexcept { return true; }
+
+    // TODO: doc, test, expects
+    // TODO: avg(cur_iter/max_idle_iters,
+    // last_change_iter/max_idle_iters) float estimated_progress()
+    // noexcept { return 1.F; }
 
     /**
         The best schedule so far.
@@ -78,6 +100,8 @@ public:
 
     Optimizer(const Optimizer& other)
         : params{other.params}
+        , batch_size{other.batch_size}
+        , max_idle_iters{other.max_idle_iters}
         , random_utils{other.random_utils}
         , mutator{other.mutator}
         , makespan{other.makespan}
@@ -108,6 +132,8 @@ private:
     static constexpr auto initial_beta = 1.0F;
 
     gsl::not_null<const ScheduleParams*> params;
+    int16 batch_size;
+    int16 max_idle_iters;
     RandomUtils random_utils;
     Mutator mutator{*params, random_utils};
     Makespan makespan{*params};
@@ -147,8 +173,13 @@ optimize(const stun::ScheduleParams& params)
     using namespace angonoka::stun;
 
     constexpr auto number_of_epochs = 10 * 10000;
+    constexpr auto batch_size = 1000;
+    constexpr auto max_idle_iters = 100'000;
 
-    Optimizer optimizer{params};
+    Optimizer optimizer{
+        params,
+        BatchSize{batch_size},
+        MaxIdleIters{max_idle_iters}};
     for (int i{0}; i < number_of_epochs; ++i) optimizer.update();
     // state = stun.state();
 
