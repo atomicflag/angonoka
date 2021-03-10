@@ -18,6 +18,14 @@
 #include <utility>
 #include <vector>
 
+#ifndef NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define TO_FLOAT(x) static_cast<float>(base_value(x))
+#else // NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define TO_FLOAT(x) static_cast<float>(x)
+#endif // NDEBUG
+
 namespace angonoka {
 using namespace angonoka::stun;
 #pragma clang diagnostic push
@@ -56,16 +64,30 @@ public:
     }
 
     // TODO: doc, test, expects
-    // TODO: add batched work
-    void update() noexcept { stun.update(); }
+    void update() noexcept
+    {
+        for (int32 i{0}; i < batch_size; ++i) stun.update();
+        idle_iters += batch_size;
+        if (stun.energy() == last_energy) return;
+        last_energy = stun.energy();
+        last_progress = estimated_progress();
+        idle_iters = 0;
+    }
 
     // TODO: doc, test, expects
-    // bool done() noexcept { return true; }
+    [[nodiscard]] bool is_complete() const noexcept
+    {
+        return idle_iters >= max_idle_iters;
+    }
 
     // TODO: doc, test, expects
-    // TODO: avg(cur_iter/max_idle_iters,
-    // last_change_iter/max_idle_iters) float estimated_progress()
-    // noexcept { return 1.F; }
+    [[nodiscard]] float estimated_progress() const noexcept
+    {
+        const auto batch_progress
+            = TO_FLOAT(idle_iters) / TO_FLOAT(max_idle_iters);
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+        return (batch_progress + last_progress) / 2.F;
+    }
 
     /**
         The best schedule so far.
@@ -102,6 +124,9 @@ public:
         : params{other.params}
         , batch_size{other.batch_size}
         , max_idle_iters{other.max_idle_iters}
+        , idle_iters{other.idle_iters}
+        , last_progress{other.last_progress}
+        , last_energy{other.last_energy}
         , random_utils{other.random_utils}
         , mutator{other.mutator}
         , makespan{other.makespan}
@@ -134,6 +159,9 @@ private:
     gsl::not_null<const ScheduleParams*> params;
     int16 batch_size;
     int16 max_idle_iters;
+    int16 idle_iters{0};
+    float last_progress{0.F};
+    float last_energy{0.F};
     RandomUtils random_utils;
     Mutator mutator{*params, random_utils};
     Makespan makespan{*params};
@@ -172,7 +200,6 @@ optimize(const stun::ScheduleParams& params)
 
     using namespace angonoka::stun;
 
-    constexpr auto number_of_epochs = 10 * 10000;
     constexpr auto batch_size = 1000;
     constexpr auto max_idle_iters = 100'000;
 
@@ -180,12 +207,10 @@ optimize(const stun::ScheduleParams& params)
         params,
         BatchSize{batch_size},
         MaxIdleIters{max_idle_iters}};
-    for (int i{0}; i < number_of_epochs; ++i) optimizer.update();
-    // state = stun.state();
+    while (!optimizer.is_complete()) optimizer.update();
 
     // TODO: track progress via progress bar
     // TODO: return the Result, not just the state
-    // TODO: How do we track progress? atomic int from 0 to 100?
     // Add a new class that encapsulates stun and adds
     // stopping condition and has an update method.
     return ranges::to<std::vector<StateItem>>(optimizer.state());
@@ -203,3 +228,5 @@ void run(std::string_view tasks_yml)
     fmt::print("{}\n", state);
 }
 } // namespace angonoka
+
+#undef TO_FLOAT
