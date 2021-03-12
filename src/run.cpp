@@ -32,10 +32,16 @@ using namespace angonoka::stun;
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
 
-// TODO: doc
+/**
+    How many stochastic tunneling iterations to go through
+    during each update.
+*/
 enum class BatchSize : std::int_fast32_t;
 
-// TODO: doc
+/**
+    How many iterations without improvement before
+    considering optimization complete.
+*/
 enum class MaxIdleIters : std::int_fast32_t;
 
 /**
