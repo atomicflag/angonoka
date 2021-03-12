@@ -52,11 +52,9 @@ public:
     /**
         Constructor.
 
-        TODO: doc, expects
-
-        @param params Scheduling parameters
-        @param batch_size
-        @param max_idle_iters
+        @param params           Scheduling parameters
+        @param batch_size       Number of iterations per update
+        @param max_idle_iters   Stopping condition
     */
     Optimizer(
         const ScheduleParams& params,
@@ -67,22 +65,43 @@ public:
         , max_idle_iters{
               static_cast<std::int_fast32_t>(max_idle_iters)}
     {
+        Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
+        Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
     }
 
-    // TODO: doc, test, expects
+    /**
+        Run stochastic tunneling optimization batch.
+
+        Does batch_size number of iterations and adjusts the estimated
+        progress accordingly.
+
+        TODO: test
+    */
     void update() noexcept
     {
+        Expects(batch_size > 0);
+
         for (int32 i{0}; i < batch_size; ++i) stun.update();
         idle_iters += batch_size;
         if (stun.energy() == last_energy) return;
         last_energy = stun.energy();
         last_progress = estimated_progress();
         idle_iters = 0;
+
+        Ensures(last_progress > 0.F);
     }
 
-    // TODO: doc, test, expects
+    /**
+        Checks if the stopping condition has been met.
+
+        // TODO: test
+
+        @return True when further improvements are unlikely
+    */
     [[nodiscard]] bool is_complete() const noexcept
     {
+        Expects(max_idle_iters > 0);
+
         return idle_iters >= max_idle_iters;
     }
 
