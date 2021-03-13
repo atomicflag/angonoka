@@ -105,9 +105,17 @@ public:
         return idle_iters >= max_idle_iters;
     }
 
-    // TODO: doc, test, expects
+    /**
+        Estimated optimization progress from 0.0 to 1.0.
+
+        // TODO: test, expects
+
+        @return Progress from 0.0 to 1.0
+    */
     [[nodiscard]] float estimated_progress() const noexcept
     {
+        Expects(idle_iters >= 0);
+
         const auto batch_progress
             = TO_FLOAT(idle_iters) / TO_FLOAT(max_idle_iters);
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
@@ -117,7 +125,7 @@ public:
     /**
         The best schedule so far.
 
-        TODO: doc, test, expects
+        TODO: test
 
         @return A schedule.
     */
@@ -126,17 +134,22 @@ public:
     /**
         The best makespan so far.
 
-        TODO: doc, test, expects
+        TODO: test
 
         @return Makespan.
     */
     [[nodiscard]] float energy() const { return stun.energy(); }
 
     /**
-        TODO: doc, test, expects
+        Reset the optimization to initial state.
+
+        TODO: test
     */
     void reset()
     {
+        Expects(max_idle_iters > 0);
+        Expects(batch_size > 0);
+
         stun.reset(initial_state(*params));
         temperature
             = {Beta{initial_beta},
