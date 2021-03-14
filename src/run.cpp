@@ -108,18 +108,19 @@ public:
     /**
         Estimated optimization progress from 0.0 to 1.0.
 
-        // TODO: test, expects
+        // TODO: test
 
         @return Progress from 0.0 to 1.0
     */
     [[nodiscard]] float estimated_progress() const noexcept
     {
         Expects(idle_iters >= 0);
+        Expects(max_idle_iters > 0);
 
+        const auto remaining = 1.F - last_progress;
         const auto batch_progress
             = TO_FLOAT(idle_iters) / TO_FLOAT(max_idle_iters);
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-        return (batch_progress + last_progress) / 2.F;
+        return last_progress + batch_progress * remaining;
     }
 
     /**
@@ -238,14 +239,17 @@ optimize(const stun::ScheduleParams& params)
 
     using namespace angonoka::stun;
 
-    constexpr auto batch_size = 1000;
-    constexpr auto max_idle_iters = 100'000;
+    constexpr auto batch_size = 10000;
+    constexpr auto max_idle_iters = 1'000'000;
 
     Optimizer optimizer{
         params,
         BatchSize{batch_size},
         MaxIdleIters{max_idle_iters}};
-    while (!optimizer.is_complete()) optimizer.update();
+    while (!optimizer.is_complete()) {
+        optimizer.update();
+        fmt::print("{}\n", optimizer.estimated_progress());
+    }
 
     // TODO: track progress via progress bar
     // TODO: return the Result, not just the state
