@@ -21,6 +21,7 @@ common_lib = static_library(
     'stun/temperature.cpp',
     'stun/random_utils.cpp',
     'stun/schedule_params.cpp',
+    'stun/optimizer.cpp',
     ragel.process('config/parse_duration.rl.cpp')
   ],
   include_directories : include,
