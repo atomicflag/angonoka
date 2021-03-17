@@ -18,6 +18,7 @@ using TemperatureT = struct TemperatureStub;
 using MakespanT = struct MakespanStub;
 using RandomUtilsT = struct RandomUtilsStub;
 using MutatorT = struct MutatorStub;
+inline namespace stub { // to avoid ODR
 #endif // UNIT_TEST
 
 /**
@@ -178,4 +179,9 @@ private:
     */
     void init_states(State source_state) const;
 };
+
+#ifdef UNIT_TEST
+} // namespace stub
+#endif // UNIT_TEST
+
 } // namespace angonoka::stun

@@ -24,10 +24,7 @@ test_exe = executable(
     'system.cpp',
     'validation.cpp',
   ] + stubs,
-  dependencies : [
-    common,
-    test_deps
-  ],
+  dependencies : [ common, test_deps ],
   cpp_args: ['-DUNIT_TEST']
 )
 test('catch', test_exe)
