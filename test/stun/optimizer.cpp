@@ -22,26 +22,23 @@ TEST_CASE("Basic Optimizer operations")
     constexpr auto text = 
         "agents:\n"
         "  Bob:\n"
-        "    performance:\n"
-        "      min: 0.5\n"
-        "      max: 1.5\n"
         "  Jack:\n"
-        "    groups:\n"
-        "      - A\n"
         "tasks:\n"
         "  - name: Task 1\n"
         "    duration: 1h\n"
-        "    id: 1\n"
-        "    group: A\n"
         "  - name: Task 2\n"
-        "    duration: 1h\n"
-        "    depends_on: 1";
+        "    duration: 1h";
     // clang-format on
     const auto config = angonoka::load_text(text);
 
     const auto params = to_schedule_params(config);
     const auto schedule_params = to_schedule_params(config);
-    Optimizer optimizer{params, BatchSize{1}, MaxIdleIters{1}};
+    Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
-    // TODO: test basic ops
+    REQUIRE(optimizer.energy() == 2.F);
+
+    while (!optimizer.has_converged()) optimizer.update();
+
+    // Might be non-deterministic
+    REQUIRE(optimizer.energy() == 1.F);
 }

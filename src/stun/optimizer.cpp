@@ -40,7 +40,7 @@ void Optimizer::update() noexcept
     Ensures(last_progress > 0.F);
 }
 
-[[nodiscard]] bool Optimizer::is_complete() const noexcept
+[[nodiscard]] bool Optimizer::has_converged() const noexcept
 {
     Expects(max_idle_iters > 0);
 

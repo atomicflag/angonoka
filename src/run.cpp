@@ -41,7 +41,7 @@ optimize(const stun::ScheduleParams& params)
         params,
         BatchSize{batch_size},
         MaxIdleIters{max_idle_iters}};
-    while (!optimizer.is_complete()) {
+    while (!optimizer.has_converged()) {
         optimizer.update();
         fmt::print("{}\n", optimizer.estimated_progress());
     }

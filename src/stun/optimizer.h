@@ -53,7 +53,7 @@ public:
 
         @return True when further improvements are unlikely
     */
-    [[nodiscard]] bool is_complete() const noexcept;
+    [[nodiscard]] bool has_converged() const noexcept;
 
     /**
         Estimated optimization progress from 0.0 to 1.0.
