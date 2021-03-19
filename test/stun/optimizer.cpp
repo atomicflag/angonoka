@@ -41,4 +41,96 @@ TEST_CASE("Basic Optimizer operations")
 
     // Might be non-deterministic
     REQUIRE(optimizer.energy() == 1.F);
+
+    optimizer.reset();
+
+    REQUIRE(optimizer.energy() == 2.F);
+}
+
+TEST_CASE("Optimizer special memeber functions")
+{
+    using namespace angonoka::stun;
+    //
+    // clang-format off
+    constexpr auto text = 
+        "agents:\n"
+        "  Bob:\n"
+        "  Jack:\n"
+        "tasks:\n"
+        "  - name: Task 1\n"
+        "    duration: 1h\n"
+        "  - name: Task 2\n"
+        "    duration: 1h";
+    // clang-format on
+    const auto config = angonoka::load_text(text);
+
+    const auto params = to_schedule_params(config);
+    const auto schedule_params = to_schedule_params(config);
+    Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
+
+    SECTION("Copy ctor")
+    {
+        Optimizer other{optimizer};
+
+        REQUIRE(other.energy() == 2.F);
+
+        while (!optimizer.has_converged()) optimizer.update();
+
+        REQUIRE(other.energy() == 2.F);
+    }
+
+    SECTION("Copy assignment")
+    {
+        Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
+        other = optimizer;
+
+        REQUIRE(other.energy() == 2.F);
+
+        while (!optimizer.has_converged()) optimizer.update();
+
+        REQUIRE(other.energy() == 2.F);
+    }
+
+    SECTION("Move ctor")
+    {
+        Optimizer other{std::move(optimizer)};
+
+        REQUIRE(other.energy() == 2.F);
+
+        while (!other.has_converged()) other.update();
+
+        REQUIRE(other.energy() == 1.F);
+    }
+
+    SECTION("Move assignment")
+    {
+        Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
+        other = std::move(optimizer);
+
+        REQUIRE(other.energy() == 2.F);
+
+        while (!other.has_converged()) other.update();
+
+        REQUIRE(other.energy() == 1.F);
+    }
+
+    SECTION("Self copy")
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+        optimizer = optimizer;
+#pragma clang diagnostic pop
+
+        REQUIRE(optimizer.energy() == 2.F);
+    }
+
+    SECTION("Self move")
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-move"
+        optimizer = std::move(optimizer);
+#pragma clang diagnostic pop
+
+        REQUIRE(optimizer.energy() == 2.F);
+    }
 }

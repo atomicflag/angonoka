@@ -98,13 +98,54 @@ Optimizer::Optimizer(const Optimizer& other)
          .temp{&temperature},
          .gamma{gamma}});
 }
-Optimizer::Optimizer(Optimizer&& other) noexcept = default;
+Optimizer::Optimizer(Optimizer&& other) noexcept
+    : params{std::move(other.params)}
+    , batch_size{other.batch_size}
+    , max_idle_iters{other.max_idle_iters}
+    , idle_iters{other.idle_iters}
+    , last_progress{other.last_progress}
+    , last_energy{other.last_energy}
+    , random_utils{other.random_utils}
+    , mutator{std::move(other.mutator)}
+    , makespan{std::move(other.makespan)}
+    , temperature{std::move(other.temperature)}
+    , stun{std::move(other.stun)}
+{
+    stun.options(
+        {.mutator{&mutator},
+         .random{&random_utils},
+         .makespan{&makespan},
+         .temp{&temperature},
+         .gamma{gamma}});
+}
 Optimizer& Optimizer::operator=(const Optimizer& other)
 {
+    if (&other == this) return *this;
     *this = Optimizer{other};
     return *this;
 }
-Optimizer& Optimizer::operator=(Optimizer&& other) noexcept = default;
+Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
+{
+    if (&other == this) return *this;
+    params = other.params;
+    batch_size = other.batch_size;
+    max_idle_iters = other.max_idle_iters;
+    idle_iters = other.idle_iters;
+    last_progress = other.last_progress;
+    last_energy = other.last_energy;
+    random_utils = other.random_utils;
+    mutator = std::move(other.mutator);
+    makespan = std::move(other.makespan);
+    temperature = std::move(other.temperature);
+    stun = std::move(other.stun);
+    stun.options(
+        {.mutator{&mutator},
+         .random{&random_utils},
+         .makespan{&makespan},
+         .temp{&temperature},
+         .gamma{gamma}});
+    return *this;
+}
 Optimizer::~Optimizer() noexcept = default;
 } // namespace angonoka::stun
 
