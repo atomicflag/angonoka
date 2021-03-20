@@ -76,6 +76,9 @@ void Optimizer::reset()
            BetaScale{beta_scale},
            StunWindow{stun_window},
            RestartPeriod{restart_period}};
+    idle_iters = 0;
+    last_progress = 0.F;
+    last_energy = 0.F;
 }
 
 Optimizer::Optimizer(const Optimizer& other)

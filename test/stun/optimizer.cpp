@@ -36,15 +36,22 @@ TEST_CASE("Basic Optimizer operations")
     Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
     REQUIRE(optimizer.energy() == 2.F);
+    REQUIRE(optimizer.estimated_progress() == 0.F);
+
+    optimizer.update();
+
+    REQUIRE(optimizer.estimated_progress() > 0.F);
 
     while (!optimizer.has_converged()) optimizer.update();
 
     // Might be non-deterministic
     REQUIRE(optimizer.energy() == 1.F);
+    REQUIRE(optimizer.estimated_progress() == 1.F);
 
     optimizer.reset();
 
     REQUIRE(optimizer.energy() == 2.F);
+    REQUIRE(optimizer.estimated_progress() == 0.F);
 }
 
 TEST_CASE("Optimizer special memeber functions")

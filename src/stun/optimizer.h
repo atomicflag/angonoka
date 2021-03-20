@@ -41,15 +41,11 @@ public:
 
         Does batch_size number of iterations and adjusts the estimated
         progress accordingly.
-
-        TODO: test
     */
     void update() noexcept;
 
     /**
         Checks if the stopping condition has been met.
-
-        // TODO: test
 
         @return True when further improvements are unlikely
     */
@@ -57,8 +53,6 @@ public:
 
     /**
         Estimated optimization progress from 0.0 to 1.0.
-
-        // TODO: test
 
         @return Progress from 0.0 to 1.0
     */
@@ -76,16 +70,12 @@ public:
     /**
         The best makespan so far.
 
-        TODO: test
-
         @return Makespan.
     */
     [[nodiscard]] float energy() const;
 
     /**
         Reset the optimization to initial state.
-
-        TODO: test
     */
     void reset();
 
