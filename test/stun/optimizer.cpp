@@ -37,6 +37,7 @@ TEST_CASE("Basic Optimizer operations")
 
     REQUIRE(optimizer.energy() == 2.F);
     REQUIRE(optimizer.estimated_progress() == 0.F);
+    REQUIRE(optimizer.state()[1].agent_id == 0);
 
     optimizer.update();
 
@@ -47,6 +48,10 @@ TEST_CASE("Basic Optimizer operations")
     // Might be non-deterministic
     REQUIRE(optimizer.energy() == 1.F);
     REQUIRE(optimizer.estimated_progress() == 1.F);
+    // Each task has a different agent
+    REQUIRE(
+        optimizer.state()[1].agent_id
+        != optimizer.state()[0].agent_id);
 
     optimizer.reset();
 

@@ -61,8 +61,6 @@ public:
     /**
         The best schedule so far.
 
-        TODO: test
-
         @return A schedule.
     */
     [[nodiscard]] State state() const;
