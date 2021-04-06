@@ -60,7 +60,19 @@ private:
 };
 } // namespace angonoka::stun
 
-// TODO: type traits tests
+TEST_CASE("ExpCurveFitter type traits")
+{
+    using angonoka::stun::ExpCurveFitter;
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<ExpCurveFitter>);
+    STATIC_REQUIRE(
+        std::is_nothrow_default_constructible_v<ExpCurveFitter>);
+    STATIC_REQUIRE(
+        std::is_nothrow_copy_constructible_v<ExpCurveFitter>);
+    STATIC_REQUIRE(std::is_nothrow_copy_assignable_v<ExpCurveFitter>);
+    STATIC_REQUIRE(
+        std::is_nothrow_move_constructible_v<ExpCurveFitter>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<ExpCurveFitter>);
+}
 
 TEST_CASE("ExpCurveFitter basic operations")
 {
