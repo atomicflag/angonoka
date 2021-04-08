@@ -1,4 +1,5 @@
 #include "stun/common.h"
+#include "stun/exp_curve_fitter.h"
 #include "stun/random_utils.h"
 #include "stun/schedule_params.h"
 #include "stun/stochastic_tunneling.h"
@@ -115,5 +116,6 @@ private:
          .gamma{gamma}},
         initial_state(*params)};
 #pragma clang diagnostic pop
+    ExpCurveFitter exp_curve;
 };
 } // namespace angonoka::stun

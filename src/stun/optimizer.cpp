@@ -52,6 +52,7 @@ void Optimizer::update() noexcept
     Expects(idle_iters >= 0);
     Expects(max_idle_iters > 0);
 
+    // TODO: User ExpCurveFitter
     const auto remaining = 1.F - last_progress;
     const auto batch_progress
         = TO_FLOAT(idle_iters) / TO_FLOAT(max_idle_iters);
@@ -79,6 +80,7 @@ void Optimizer::reset()
     idle_iters = 0;
     last_progress = 0.F;
     last_energy = 0.F;
+    exp_curve.reset();
 }
 
 Optimizer::Optimizer(const Optimizer& other)
@@ -93,6 +95,7 @@ Optimizer::Optimizer(const Optimizer& other)
     , makespan{other.makespan}
     , temperature{other.temperature}
     , stun{other.stun}
+    , exp_curve{other.exp_curve}
 {
     stun.options(
         {.mutator{&mutator},
@@ -101,6 +104,7 @@ Optimizer::Optimizer(const Optimizer& other)
          .temp{&temperature},
          .gamma{gamma}});
 }
+
 Optimizer::Optimizer(Optimizer&& other) noexcept
     : params{std::move(other.params)}
     , batch_size{other.batch_size}
@@ -113,6 +117,7 @@ Optimizer::Optimizer(Optimizer&& other) noexcept
     , makespan{std::move(other.makespan)}
     , temperature{std::move(other.temperature)}
     , stun{std::move(other.stun)}
+    , exp_curve{other.exp_curve}
 {
     stun.options(
         {.mutator{&mutator},
@@ -121,12 +126,14 @@ Optimizer::Optimizer(Optimizer&& other) noexcept
          .temp{&temperature},
          .gamma{gamma}});
 }
+
 Optimizer& Optimizer::operator=(const Optimizer& other)
 {
     if (&other == this) return *this;
     *this = Optimizer{other};
     return *this;
 }
+
 Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
 {
     if (&other == this) return *this;
@@ -147,8 +154,10 @@ Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
+    exp_curve = other.exp_curve;
     return *this;
 }
+
 Optimizer::~Optimizer() noexcept = default;
 } // namespace angonoka::stun
 
