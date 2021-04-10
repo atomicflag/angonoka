@@ -95,6 +95,7 @@ private:
     int16 batch_size;
     int16 max_idle_iters;
     int16 idle_iters{0};
+    int16 epochs{0};
     float last_progress{0.F};
     float last_energy{0.F};
     RandomUtils random_utils;

@@ -41,7 +41,7 @@ TEST_CASE("Basic Optimizer operations")
 
     optimizer.update();
 
-    REQUIRE(optimizer.estimated_progress() > 0.F);
+    REQUIRE(optimizer.estimated_progress() == 0.F);
 
     while (!optimizer.has_converged()) optimizer.update();
 

@@ -34,10 +34,16 @@ void Optimizer::update() noexcept
     idle_iters += batch_size;
     if (stun.energy() == last_energy) return;
     last_energy = stun.energy();
-    last_progress = estimated_progress();
+    epochs += 1;
+    last_progress = std::min(
+        exp_curve(
+            TO_FLOAT(epochs),
+            TO_FLOAT(idle_iters) / TO_FLOAT(max_idle_iters)),
+        1.F);
     idle_iters = 0;
 
-    Ensures(last_progress > 0.F);
+    Ensures(epochs > 0);
+    Ensures(last_progress >= 0.F);
 }
 
 [[nodiscard]] bool Optimizer::has_converged() const noexcept
@@ -52,11 +58,8 @@ void Optimizer::update() noexcept
     Expects(idle_iters >= 0);
     Expects(max_idle_iters > 0);
 
-    // TODO: User ExpCurveFitter
-    const auto remaining = 1.F - last_progress;
-    const auto batch_progress
-        = TO_FLOAT(idle_iters) / TO_FLOAT(max_idle_iters);
-    return last_progress + batch_progress * remaining;
+    if (has_converged()) return 1.F;
+    return last_progress;
 }
 
 [[nodiscard]] State Optimizer::state() const { return stun.state(); }
@@ -78,6 +81,7 @@ void Optimizer::reset()
            StunWindow{stun_window},
            RestartPeriod{restart_period}};
     idle_iters = 0;
+    epochs = 0;
     last_progress = 0.F;
     last_energy = 0.F;
     exp_curve.reset();
@@ -88,6 +92,7 @@ Optimizer::Optimizer(const Optimizer& other)
     , batch_size{other.batch_size}
     , max_idle_iters{other.max_idle_iters}
     , idle_iters{other.idle_iters}
+    , epochs{other.epochs}
     , last_progress{other.last_progress}
     , last_energy{other.last_energy}
     , random_utils{other.random_utils}
@@ -110,6 +115,7 @@ Optimizer::Optimizer(Optimizer&& other) noexcept
     , batch_size{other.batch_size}
     , max_idle_iters{other.max_idle_iters}
     , idle_iters{other.idle_iters}
+    , epochs{other.epochs}
     , last_progress{other.last_progress}
     , last_energy{other.last_energy}
     , random_utils{other.random_utils}
@@ -141,6 +147,7 @@ Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
     batch_size = other.batch_size;
     max_idle_iters = other.max_idle_iters;
     idle_iters = other.idle_iters;
+    epochs = other.epochs;
     last_progress = other.last_progress;
     last_energy = other.last_energy;
     random_utils = other.random_utils;
