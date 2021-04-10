@@ -125,6 +125,8 @@ public:
     [[nodiscard]] float energy() const;
 
 private:
+    struct Impl;
+
     using index = MutState::index_type;
 
     gsl::not_null<const MutatorT*> mutator;
@@ -143,41 +145,6 @@ private:
     float gamma;
     float current_s;
     float target_s;
-
-    /**
-        Creates a new (mutated) state from the current state.
-    */
-    void get_new_neighbor() noexcept;
-
-    /**
-        Updates the lowest energy and best state if the
-        target state is better.
-    */
-    bool neighbor_is_better() noexcept;
-
-    /**
-        Perform Monte Carlo sampling on the STUN-adjusted energy.
-    */
-    void perform_stun() noexcept;
-
-    /**
-        Init energies and STUN-adjusted energies.
-    */
-    void init_energies();
-
-    /**
-        Recreate state spans over the state buffer object.
-
-        @param state_size Size of the state
-    */
-    void prepare_state_spans(index state_size);
-
-    /**
-        Init all states with the source state.
-
-        @param source_state Source state
-    */
-    void init_states(State source_state) const;
 };
 
 #ifdef UNIT_TEST
