@@ -42,35 +42,11 @@ public:
     float operator()(State state) noexcept;
 
 private:
+    struct Impl;
     gsl::not_null<const ScheduleParams*> params;
     std::vector<float> sum_buffer;
     span<float> task_done;
     span<float> work_done;
-
-    /**
-        The time when the last dependency of a given task will be
-        completed.
-
-        @param task_id Task's index
-
-        @return Time in seconds
-    */
-    [[nodiscard]] float
-    dependencies_done(int16 task_id) const noexcept;
-
-    /**
-        How long it will take for a given agent to complete a given
-        task.
-
-        Factors in agent's performace.
-
-        @param task_id Task's index
-        @param agent_id Agent's index
-
-        @return Time in seconds
-    */
-    [[nodiscard]] float
-    task_duration(int16 task_id, int16 agent_id) const noexcept;
 };
 
 #ifdef UNIT_TEST
@@ -106,34 +82,9 @@ public:
     void operator()(MutState state) const noexcept;
 
 private:
+    struct Impl;
     gsl::not_null<const ScheduleParams*> params;
     gsl::not_null<RandomUtils*> random;
-
-    /**
-        Checks if the task can be swapped with it's predecessor.
-
-        The function checks if a predecessor is a child of a given
-        task. Tasks without direct relations to each other can be
-        swapped without causing scheduling conflicts.
-
-        @param task         First task
-        @param predecessor  Second task, predecessor
-
-        @return True if tasks can be swapped
-    */
-    [[nodiscard]] bool
-    is_swappable(int16 task, int16 predecessor) const noexcept;
-
-    /**
-        Attempts to swap two random adjacent tasks within the
-        schedule.
-    */
-    void try_swap(MutState state) const noexcept;
-
-    /**
-        Assigns a new agent to a random task.
-    */
-    void update_agent(MutState state) const noexcept;
 };
 
 #ifdef UNIT_TEST

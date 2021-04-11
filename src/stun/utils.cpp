@@ -7,6 +7,58 @@
 #include <range/v3/view/transform.hpp>
 
 namespace angonoka::stun {
+/**
+    Implementation details.
+*/
+struct Makespan::Impl {
+    /**
+        The time when the last dependency of a given task will be
+        completed.
+
+        @param task_id Task's index
+
+        @return Time in seconds
+    */
+    [[nodiscard]] static float
+    dependencies_done(Makespan& self, int16 task_id) noexcept
+    {
+        Expects(task_id >= 0);
+
+        using ranges::views::transform;
+        const auto deps
+            = self.params
+                  ->dependencies[static_cast<gsl::index>(task_id)];
+        if (deps.empty()) return 0.F;
+        return ranges::max(deps | transform([&](const auto& dep_id) {
+                               return self.task_done[dep_id];
+                           }));
+    }
+
+    /**
+        How long it will take for a given agent to complete a given
+        task.
+
+        Factors in agent's performace.
+
+        @param task_id Task's index
+        @param agent_id Agent's index
+
+        @return Time in seconds
+    */
+    [[nodiscard]] static float task_duration(
+        Makespan& self,
+        int16 task_id,
+        int16 agent_id) noexcept
+    {
+        Expects(task_id >= 0);
+        Expects(agent_id >= 0);
+        return self.params
+                   ->task_duration[static_cast<gsl::index>(task_id)]
+            / self.params->agent_performance[static_cast<gsl::index>(
+                agent_id)];
+    }
+};
+
 Makespan::Makespan(const ScheduleParams& params)
     : params{&params}
     , sum_buffer(
@@ -66,64 +118,84 @@ float Makespan::operator()(State state) noexcept
     ranges::fill(sum_buffer, 0.F);
     for (auto [task_id, agent_id] : state) {
         const auto done = std::max(
-                              dependencies_done(task_id),
+                              Impl::dependencies_done(*this, task_id),
                               work_done[agent_id])
-            + task_duration(task_id, agent_id);
+            + Impl::task_duration(*this, task_id, agent_id);
         work_done[agent_id] = task_done[task_id] = done;
     }
     return ranges::max(work_done);
 }
 
-[[nodiscard]] float
-Makespan::dependencies_done(int16 task_id) const noexcept
-{
-    Expects(task_id >= 0);
+/**
+    Implementation details.
+*/
+struct Mutator::Impl {
+    /**
+        Checks if the task can be swapped with it's predecessor.
 
-    using ranges::views::transform;
-    const auto deps
-        = params->dependencies[static_cast<gsl::index>(task_id)];
-    if (deps.empty()) return 0.F;
-    return ranges::max(deps | transform([&](const auto& dep_id) {
-                           return task_done[dep_id];
-                       }));
-}
+        The function checks if a predecessor is a child of a given
+        task. Tasks without direct relations to each other can be
+        swapped without causing scheduling conflicts.
 
-[[nodiscard]] float
-Makespan::task_duration(int16 task_id, int16 agent_id) const noexcept
-{
-    Expects(task_id >= 0);
-    Expects(agent_id >= 0);
-    return params->task_duration[static_cast<gsl::index>(task_id)]
-        / params
-              ->agent_performance[static_cast<gsl::index>(agent_id)];
-}
+        @param task         First task
+        @param predecessor  Second task, predecessor
 
-void Mutator::try_swap(MutState state) const noexcept
-{
-    Expects(!state.empty());
-    if (state.size() == 1) return;
-    const auto swap_index = 1 + random->uniform_int(state.size() - 2);
-    auto& task_a = state[swap_index].task_id;
-    auto& task_b = state[swap_index - 1].task_id;
-    if (!is_swappable(task_a, task_b)) return;
-    std::swap(task_a, task_b);
-}
+        @return True if tasks can be swapped
+    */
+    [[nodiscard]] static bool is_swappable(
+        const Mutator& self,
+        int16 task,
+        int16 predecessor) noexcept
+    {
+        Expects(task >= 0);
+        Expects(
+            static_cast<gsl::index>(task)
+            < self.params->dependencies.size());
+        Expects(predecessor >= 0);
+        Expects(
+            static_cast<gsl::index>(predecessor)
+            < self.params->dependencies.size());
+        Expects(task != predecessor);
+        return !ranges::binary_search(
+            self.params->dependencies[static_cast<gsl::index>(task)],
+            predecessor);
+    }
 
-[[nodiscard]] bool
-Mutator::is_swappable(int16 task, int16 predecessor) const noexcept
-{
-    Expects(task >= 0);
-    Expects(
-        static_cast<gsl::index>(task) < params->dependencies.size());
-    Expects(predecessor >= 0);
-    Expects(
-        static_cast<gsl::index>(predecessor)
-        < params->dependencies.size());
-    Expects(task != predecessor);
-    return !ranges::binary_search(
-        params->dependencies[static_cast<gsl::index>(task)],
-        predecessor);
-}
+    /**
+        Attempts to swap two random adjacent tasks within the
+        schedule.
+    */
+    static void try_swap(const Mutator& self, MutState state) noexcept
+    {
+        Expects(!state.empty());
+        if (state.size() == 1) return;
+        const auto swap_index
+            = 1 + self.random->uniform_int(state.size() - 2);
+        auto& task_a = state[swap_index].task_id;
+        auto& task_b = state[swap_index - 1].task_id;
+        if (!is_swappable(self, task_a, task_b)) return;
+        std::swap(task_a, task_b);
+    }
+
+    /**
+        Assigns a new agent to a random task.
+    */
+    static void
+    update_agent(const Mutator& self, MutState state) noexcept
+    {
+        Expects(!state.empty());
+        Expects(
+            static_cast<gsl::index>(state.size())
+            == self.params->available_agents.size());
+        const auto task_index
+            = self.random->uniform_int(state.size() - 1);
+        const auto task_id
+            = static_cast<gsl::index>(state[task_index].task_id);
+        const auto new_agent_id = self.random->uniform_int(
+            self.params->available_agents[task_id].size() - 1);
+        state[task_index].agent_id = new_agent_id;
+    }
+};
 
 Mutator::Mutator(const ScheduleParams& params, RandomUtils& random)
     : params{&params}
@@ -134,21 +206,7 @@ Mutator::Mutator(const ScheduleParams& params, RandomUtils& random)
 void Mutator::operator()(MutState state) const noexcept
 {
     Expects(!state.empty());
-    try_swap(state);
-    update_agent(state);
-}
-
-void Mutator::update_agent(MutState state) const noexcept
-{
-    Expects(!state.empty());
-    Expects(
-        static_cast<gsl::index>(state.size())
-        == params->available_agents.size());
-    const auto task_index = random->uniform_int(state.size() - 1);
-    const auto task_id
-        = static_cast<gsl::index>(state[task_index].task_id);
-    const auto new_agent_id = random->uniform_int(
-        params->available_agents[task_id].size() - 1);
-    state[task_index].agent_id = new_agent_id;
+    Impl::try_swap(*this, state);
+    Impl::update_agent(*this, state);
 }
 } // namespace angonoka::stun
