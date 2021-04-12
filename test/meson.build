@@ -15,18 +15,17 @@ test_exe = executable(
     'stun/makespan.cpp',
     'stun/mutate.cpp',
     'stun/common.cpp',
+    'stun/optimizer.cpp',
+    'stun/exp_curve_fitter.cpp',
     'stun/temperature.cpp',
-    'stun/schedule_info.cpp',
+    'stun/schedule_params.cpp',
     'stun/stochastic_tunneling.cpp',
     'load_tasks.cpp',
     'parse_duration.cpp',
     'system.cpp',
     'validation.cpp',
   ] + stubs,
-  dependencies : [
-    common,
-    test_deps
-  ],
+  dependencies : [ common, test_deps ],
   cpp_args: ['-DUNIT_TEST']
 )
 test('catch', test_exe)

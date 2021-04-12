@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../system.h"
+#include "../configuration.h"
 #include <chrono>
 #include <gsl/gsl-lite.hpp>
 #include <string_view>
@@ -9,23 +9,32 @@
 
 namespace angonoka {
 /**
-    Load System from a YAML string.
+    Load Configuration from a YAML string.
 
     @param text Null-terminated string
 
-    @return An instance of System
+    @return An instance of Configuration
 */
-System load_text(gsl::czstring text);
+Configuration load_text(gsl::czstring text);
+
+/**
+    Load Configuration from a YAML file.
+
+    @param path YAML configuration location
+
+    @return An instance of Configuration
+*/
+Configuration load_file(std::string_view path);
 } // namespace angonoka
 
 namespace angonoka::detail {
 /**
-    Finds or inserts a group into System.groups.
+    Finds or inserts a group into Configuration.groups.
 
-    @param sys    System instance
-    @param groups An array of Groups
+    @param groups   An array of Groups
+    @param group    Group name
 
-    @return The index of the group in System.groups
+    @return The index of the group in Configuration.groups
     and whether the insertion took place.
 */
 std::pair<GroupIndex, bool>
@@ -55,10 +64,10 @@ std::chrono::seconds parse_duration(std::string_view text);
       agent 1:
       agent 2:
 
-    @param node   "agents" node
-    @param sys    An instance of System
+    @param node     "agents" node
+    @param config   An instance of Configuration
 */
-void parse_agents(const YAML::Node& node, System& sys);
+void parse_agents(const YAML::Node& node, Configuration& config);
 
 /**
     Parses tasks blocks.
@@ -73,8 +82,8 @@ void parse_agents(const YAML::Node& node, System& sys);
       - name: task 2
         duration: 2h
 
-    @param node   "tasks" node
-    @param sys    An instance of System
+    @param node     "tasks" node
+    @param config   An instance of Configuration
 */
-void parse_tasks(const YAML::Node& node, System& sys);
+void parse_tasks(const YAML::Node& node, Configuration& config);
 } // namespace angonoka::detail

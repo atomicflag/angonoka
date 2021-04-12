@@ -4,6 +4,31 @@ from random import sample, choice, uniform, randint
 from itertools import groupby, chain
 from pprint import pprint
 from pickle import dump
+import names
+import humanize
+from datetime import timedelta as td
+from essential_generators import DocumentGenerator
+from stringcase import sentencecase
+import string
+
+def to_letter(n):
+    l = string.ascii_uppercase
+    s = ''
+    for i in reversed(range(0, 6)):
+        v = n // 26**i
+        if s or v > 0:
+            s += l[v - 1 if i > 0 else v]
+            n -= v*26**i
+    return s or 'A'
+
+# print(to_letter(0+0*26**1+1*26**2))
+# print(to_letter(1))
+# print(to_letter(0))
+# print(to_letter(1*26**1))
+# print(to_letter(25))
+# print(to_letter(26))
+# exit()
+gen = DocumentGenerator()
 # import networkx as nx
 # import matplotlib.pyplot as plt
 # from graphviz import Digraph
@@ -84,45 +109,48 @@ add_dependencies(tasks)
 # tasks = sort(tasks)
 # validate(tasks)
 
+print("agents:", end='')
+groups = ['Design', 'Backend', 'Frontend']
 agent_perfs = [uniform(.5,1.5) for i in range(10)]
+for ap in agent_perfs:
+    s = uniform(.1,.4)
+    x = (ap-s, ap+s)
+    grps = sample(groups, k=randint(0, 2))
+    print(f"""
+  {names.get_full_name()}:
+    performance:
+      min: {x[0]:.2f}
+      max: {x[1]:.2f}""", end='')
+    if grps:
+        print("""
+    groups:""", end='')
+        for g in grps:
+            print(f"""
+      - {g}""", end='')
 
-agent_performance = ",".join(str(a)+'F' for a in agent_perfs)
-task_duration = ",".join(str(t.dur)+'F' for t in tasks)
-available_agents_data = ",".join(map(str,chain(*(sorted(t.agents) for t in tasks))))
-available_agents = ",".join(f'n({len(a.agents)})' for a in tasks)
-dependencies_data = ",".join(map(str,chain(*(sorted(t.deps) for t in tasks))))
-dependencies = ",".join(f'n({len(a.deps)})' for a in tasks)
-state = ",".join(f'{{{t.id},{t.agents[0]}}}' for t in tasks)
-print(f'''
-std::vector<int16> available_agents_data{{{available_agents_data}}};
-std::vector<int16> dependencies_data{{{dependencies_data}}};
-
-std::vector<span<int16>> available_agents = [&] () -> std::vector<span<int16>> {{
-    auto* h = available_agents_data.data();
-    const auto n = [&](auto s) {{
-        return span<int16>{{std::exchange(h, std::next(h, s)), s}};
-    }};
-    return {{{available_agents}}};
-}}();
-
-std::vector<span<int16>> dependencies = [&] () -> std::vector<span<int16>> {{
-    auto* h = dependencies_data.data();
-    const auto n = [&](auto s) {{
-        return span<int16>{{std::exchange(h, std::next(h, s)), s}};
-    }};
-    return {{{dependencies}}};
-}}();
-
-ScheduleInfo info{{
-    .agent_performance{{{agent_performance}}},
-    .task_duration{{{task_duration}}},
-    .available_agents{{std::move(available_agents_data),std::move(available_agents)}},
-    .dependencies{{std::move(dependencies_data), std::move(dependencies)}}
-}};
-
-std::vector<StateItem> state{{{state}}};
-''')
-to_save = [agent_perfs, tasks]
-with open("info.pickle", "bw") as f:
-    dump(to_save, f)
-exit()
+print("\ntasks:", end='')
+for t in tasks:
+    s = uniform(1,1.5)
+    d = t.dur*3*60
+    d_min = humanize.precisedelta(td(minutes=d/s), minimum_unit='minutes', format='%0.0f')
+    d_max = humanize.precisedelta(td(minutes=d*s), minimum_unit='minutes', format='%0.0f')
+    g = choice([None, *groups])
+    name = gen.sentence()
+    name = ''.join(n for n in name if n in string.ascii_letters+string.digits+' ')
+    name = [s.encode('ascii').decode().strip() for s in name.split()]
+    # print(name)
+    name = ' '.join(filter(None,name))
+    # name = sentencecase(name)
+    print(f"""
+  - name: {name}
+    id: {to_letter(t.id)}
+    duration:
+      min: {d_min}
+      max: {d_max}""", end='')
+    if g:
+        print(f"""
+    group: {g}""", end='')
+    if t.deps:
+        deps = ', '.join([f'"{to_letter(i)}"' for i in t.deps])
+        print(f"""
+    depends_on: [{deps}]""", end='')

@@ -9,14 +9,14 @@ variables:
   CCACHE_COMPRESSLEVEL: "9"
 
 default:
-  image: registry.gitlab.com/signal9/cpp-env:squashed
+  image: registry.gitlab.com/signal9/cpp-env:11.1.0
   cache:
     key: "$CI_COMMIT_REF_SLUG"
     paths:
       - .conan
       - .ccache
   before_script:
-    - conan remote add signal9 https://api.bintray.com/conan/signal9/conan --insert
+    - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
 
 test:

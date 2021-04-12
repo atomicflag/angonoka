@@ -1,7 +1,7 @@
 project(
   'angonoka',
   'cpp',
-  version : '0.1.0',
+  version : '0.2.0',
   default_options : ['warning_level=3', 'cpp_std=c++2a']
 )
 
@@ -40,6 +40,7 @@ dependencies = [
   dependency('range-v3'),
   dependency('gsl-lite'),
   dependency('pcg-cpp'),
+  dependency('indicators'),
   dependency('boost', include_type : 'system')
 ]
 

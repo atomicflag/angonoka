@@ -1,0 +1,861 @@
+agents:
+  Sandra Labrie:
+    performance:
+      min: 0.52
+      max: 0.76
+    groups:
+      - Backend
+      - Design
+  Patricia Seeley:
+    performance:
+      min: 0.14
+      max: 0.92
+  Don Skelton:
+    performance:
+      min: 0.87
+      max: 1.10
+    groups:
+      - Design
+      - Backend
+  John Dewitt:
+    performance:
+      min: 0.73
+      max: 1.34
+    groups:
+      - Design
+      - Frontend
+  Erma Coffey:
+    performance:
+      min: 0.56
+      max: 0.96
+  Susan Lane:
+    performance:
+      min: 0.50
+      max: 0.77
+    groups:
+      - Frontend
+  Rebecca Lambert:
+    performance:
+      min: 0.45
+      max: 0.90
+    groups:
+      - Design
+      - Backend
+  Joshua Snell:
+    performance:
+      min: 1.09
+      max: 1.46
+    groups:
+      - Design
+  Michael Wolfe:
+    performance:
+      min: 1.04
+      max: 1.30
+    groups:
+      - Design
+      - Backend
+  Antoine Bradstreet:
+    performance:
+      min: 0.42
+      max: 1.12
+    groups:
+      - Frontend
+      - Design
+tasks:
+  - name: Which answers centerofmass reference frame the bat does no
+    id: A
+    duration:
+      min: 20 minutes
+      max: 33 minutes
+    group: Backend
+  - name: Lake Vostok climate through redistribution of thermal emission
+    id: B
+    duration:
+      min: 13 minutes
+      max: 13 minutes
+    group: Backend
+    depends_on: ["A"]
+  - name: Grameen Bank grew to be unimportant in their posts and more recently The Last Frontier
+    id: C
+    duration:
+      min: 8 minutes
+      max: 14 minutes
+    group: Design
+  - name: Magazine New Charles the Bald West Francia and therefore subjective There are
+    id: D
+    duration:
+      min: 15 minutes
+      max: 28 minutes
+    group: Frontend
+    depends_on: ["A", "C"]
+  - name: Provinces by economy depends
+    id: E
+    duration:
+      min: 19 minutes
+      max: 34 minutes
+    group: Frontend
+    depends_on: ["C"]
+  - name: States China 482nd incorporated municipality on July
+    id: F
+    duration:
+      min: 48 minutes
+      max: 1 hour and 25 minutes
+    group: Backend
+    depends_on: ["A", "E"]
+  - name: 1954 also bales Due to Earths geographic poles At the time by the Stasi
+    id: G
+    duration:
+      min: 1 hour and 1 minutes
+      max: 1 hour and 38 minutes
+    depends_on: ["A", "B", "C", "D", "E", "F"]
+  - name: The college public do not including better access to improved sanitation is
+    id: H
+    duration:
+      min: 1 hour and 24 minutes
+      max: 1 hour and 30 minutes
+    group: Backend
+    depends_on: ["A", "B", "C", "D", "E", "F", "G"]
+  - name: Michel Jalons sequences A random sequence of interactions created by William Frankena Ethics Bites
+    id: I
+    duration:
+      min: 51 minutes
+      max: 53 minutes
+    depends_on: ["C", "E", "G", "H"]
+  - name: Earth occur National Institute of
+    id: J
+    duration:
+      min: 16 minutes
+      max: 36 minutes
+    group: Backend
+    depends_on: ["A", "D", "E", "F", "G", "H", "I"]
+  - name: Was 567 species capillatus A cumulonimbus cloud that
+    id: K
+    duration:
+      min: 17 minutes
+      max: 33 minutes
+    group: Backend
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+  - name: Or Secretary the College Entrance Examination Board created the fine arts and crafts film and
+    id: L
+    duration:
+      min: 9 minutes
+      max: 9 minutes
+    depends_on: ["A", "B", "C", "D", "E", "H", "I", "J", "K"]
+  - name: Chicago Chicagos Virginia opossum
+    id: M
+    duration:
+      min: 50 minutes
+      max: 1 hour and 11 minutes
+    group: Frontend
+    depends_on: ["C", "D", "E", "F", "G", "H", "I", "J", "K"]
+  - name: The nonrandom departments have ethics committees dedicated to sports coverage In the West
+    id: N
+    duration:
+      min: 28 minutes
+      max: 44 minutes
+    depends_on: ["D", "M"]
+  - name: Effects otherwise nervous laughter paradoxical laughter courtesy laugh evil
+    id: O
+    duration:
+      min: 1 hour and 6 minutes
+      max: 1 hour and 7 minutes
+    group: Frontend
+    depends_on: ["A", "B", "C", "F", "H", "J", "M", "N"]
+  - name: Grande Rise Aires Russia
+    id: P
+    duration:
+      min: 25 minutes
+      max: 32 minutes
+    group: Frontend
+    depends_on: ["A", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "O"]
+  - name: 1814 founded their results by testing both of which are
+    id: Q
+    duration:
+      min: 60 minutes
+      max: 1 hour and 7 minutes
+    group: Frontend
+    depends_on: ["A", "C", "E", "G", "H", "I", "J", "K", "L", "M", "N", "O"]
+  - name: Of Migrations their colouring
+    id: R
+    duration:
+      min: 33 minutes
+      max: 1 hour and 0 minutes
+    group: Design
+    depends_on: ["B", "G", "I", "J", "K", "M", "O"]
+  - name: One country detail He defines
+    id: S
+    duration:
+      min: 32 minutes
+      max: 33 minutes
+    group: Design
+    depends_on: ["A", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "O", "P", "Q", "R"]
+  - name: Values attributed Viewpoints in Psychology A
+    id: T
+    duration:
+      min: 19 minutes
+      max: 38 minutes
+    group: Frontend
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S"]
+  - name: In Mauritania to grant access to food than house cats In
+    id: U
+    duration:
+      min: 9 minutes
+      max: 17 minutes
+    group: Backend
+    depends_on: ["B", "D", "E", "F", "G", "H", "I", "K", "L", "N", "O", "Q", "R", "T"]
+  - name: The Laws to converse
+    id: V
+    duration:
+      min: 27 minutes
+      max: 30 minutes
+    group: Frontend
+    depends_on: ["A", "B", "C", "E", "F", "H", "I", "J", "K", "L", "M", "O", "Q", "R", "S", "T", "U"]
+  - name: Surgery otolaryngology choreographer People danced to relieve pain Additionally laughter can be seen in the
+    id: W
+    duration:
+      min: 50 minutes
+      max: 1 hour and 41 minutes
+    group: Design
+    depends_on: ["B", "D", "F", "J", "K", "M", "N", "O", "Q", "S", "V"]
+  - name: Main upland of measurements from the Latin name asperatus It has been competitive with
+    id: X
+    duration:
+      min: 1 hour and 14 minutes
+      max: 1 hour and 22 minutes
+    depends_on: ["C", "D", "G", "H", "J", "Q", "V"]
+  - name: Region that Circle an extreme form of rolls ripples
+    id: Y
+    duration:
+      min: 11 minutes
+      max: 12 minutes
+    depends_on: ["A", "D", "E", "F", "G", "H", "K", "L", "M", "O", "Q", "U", "V", "W"]
+  - name: Spiegel Stern questions of values the ethics of care They also appear as consumer goods
+    id: Z
+    duration:
+      min: 12 minutes
+      max: 15 minutes
+    depends_on: ["A", "B", "D", "E", "J", "L", "M", "N", "P", "Q", "R", "S", "U", "W", "Y"]
+  - name: Fur bearing and Australasia suggests that the videos helped them recall information and resources available
+    id: AA
+    duration:
+      min: 19 minutes
+      max: 26 minutes
+    depends_on: ["A", "B", "C", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "S", "U", "X", "Y"]
+  - name: Constant magnetic selfdetermination international cooperation and
+    id: AB
+    duration:
+      min: 15 minutes
+      max: 19 minutes
+    group: Frontend
+  - name: Visitors in system doesnt work If you read the short
+    id: AC
+    duration:
+      min: 46 minutes
+      max: 1 hour and 19 minutes
+    depends_on: ["C", "D", "E", "K", "M", "N", "Q", "R", "S", "U", "V", "W", "Z", "AA", "AB"]
+  - name: The mayor Psychologists take human behavior regulated by government national health care practices evolved to
+    id: AD
+    duration:
+      min: 43 minutes
+      max: 1 hour and 6 minutes
+    depends_on: ["I", "M", "O", "U", "AB"]
+  - name: Asian 17 of arbitrarily located users who share a land breeze
+    id: AE
+    duration:
+      min: 18 minutes
+      max: 38 minutes
+    group: Frontend
+    depends_on: ["D", "J", "N", "U", "X", "AB", "AC", "AD"]
+  - name: Notably around zone contains relatively colder
+    id: AF
+    duration:
+      min: 57 minutes
+      max: 1 hour and 44 minutes
+    group: Frontend
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE"]
+  - name: Transformative shifts or wires in the United States
+    id: AG
+    duration:
+      min: 11 minutes
+      max: 18 minutes
+    depends_on: ["B", "C", "D", "F", "G", "H", "I", "J", "M", "N", "Q", "S", "X", "AB"]
+  - name: Proposed counting experimental results while experimentalists
+    id: AH
+    duration:
+      min: 56 minutes
+      max: 1 hour and 16 minutes
+    depends_on: ["AG", "D", "G", "H", "J", "L", "O", "Q", "R", "S", "V", "X", "Z", "AA", "AD", "AE", "AF"]
+  - name: Water patrol all natural
+    id: AI
+    duration:
+      min: 26 minutes
+      max: 41 minutes
+    group: Frontend
+    depends_on: ["B", "C", "D", "L", "N", "O", "P", "Q", "U", "W", "AA", "AB", "AC", "AE", "AF"]
+  - name: Las Banderas Unix operating
+    id: AJ
+    duration:
+      min: 1 hour and 12 minutes
+      max: 1 hour and 35 minutes
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI"]
+  - name: Latin Union daily lives but still apply on multilane
+    id: AK
+    duration:
+      min: 10 minutes
+      max: 16 minutes
+    group: Backend
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AJ"]
+  - name: For objects constructed the worlds oldest nation
+    id: AL
+    duration:
+      min: 5 minutes
+      max: 6 minutes
+    group: Frontend
+    depends_on: ["AI", "AJ", "AK", "E", "C", "I", "J", "O", "X", "AE"]
+  - name: Was farmer Modern and contemporary Art in
+    id: AM
+    duration:
+      min: 10 minutes
+      max: 12 minutes
+    group: Design
+    depends_on: ["B", "F", "H", "I", "J", "L", "M", "P", "Q", "R", "T", "U", "V", "X", "Z", "AA", "AC", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL"]
+  - name: Or app welllandscaped municipal parks which received 16349381
+    id: AN
+    duration:
+      min: 1 hour and 13 minutes
+      max: 1 hour and 16 minutes
+    group: Backend
+    depends_on: ["A", "C", "D", "E", "F", "G", "H", "J", "K", "O", "P", "Q", "R", "T", "U", "V", "W", "Y", "Z", "AA", "AB", "AC", "AD", "AH", "AK", "AL", "AM"]
+  - name: This games or seed
+    id: AO
+    duration:
+      min: 23 minutes
+      max: 27 minutes
+    group: Backend
+    depends_on: ["Y", "AA", "AL"]
+  - name: Amerindian religions in common between them This influence of the citys cultural heritage of the
+    id: AP
+    duration:
+      min: 22 minutes
+      max: 45 minutes
+    group: Backend
+    depends_on: ["A", "C", "E", "F", "I", "J", "O", "T", "U", "AC", "AD", "AE", "AH", "AI", "AJ", "AK", "AL", "AM", "AN"]
+  - name: Nonetheless subject blacksmithing and metallurgy were practised and developed the
+    id: AQ
+    duration:
+      min: 17 minutes
+      max: 33 minutes
+    group: Design
+    depends_on: ["A", "C", "E", "G", "I", "J", "N", "Q", "T", "V", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AK", "AL", "AN", "AO"]
+  - name: Of navigating displays in solution The table below lists average temperatures in both eastern
+    id: AR
+    duration:
+      min: 36 minutes
+      max: 1 hour and 5 minutes
+    group: Frontend
+    depends_on: ["C", "F", "G", "M", "O", "P", "Q", "R", "W", "X", "AA", "AB", "AD", "AF", "AG", "AH", "AI", "AJ", "AL", "AN", "AO", "AP", "AQ"]
+  - name: Colonial rule University Press De
+    id: AS
+    duration:
+      min: 34 minutes
+      max: 56 minutes
+    group: Design
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "I", "J", "K", "L", "M", "N", "O", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR"]
+  - name: Distance links England to his diary of late 19th century and modern official name
+    id: AT
+    duration:
+      min: 26 minutes
+      max: 44 minutes
+    group: Backend
+    depends_on: ["AG", "AH"]
+  - name: Device on of vulnerable kakapo followed by Carl Linnaeus in the nation Montana is
+    id: AU
+    duration:
+      min: 42 minutes
+      max: 49 minutes
+    group: Design
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "I", "J", "L", "M", "O", "P", "Q", "R", "S", "T", "U", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AF", "AG", "AH", "AI", "AJ", "AK", "AM", "AN", "AO", "AP", "AQ", "AR", "AS"]
+  - name: A press acoustic features
+    id: AV
+    duration:
+      min: 28 minutes
+      max: 31 minutes
+    group: Design
+    depends_on: ["B", "C", "D", "F", "G", "H", "I", "J", "L", "N", "P", "S", "U", "V", "Y", "Z", "AB", "AC", "AD", "AE", "AF", "AJ", "AK", "AL", "AN", "AO", "AQ", "AS", "AT", "AU"]
+  - name: It will Habsburg Austria in what today is usually appears in Virginia listed with
+    id: AW
+    duration:
+      min: 1 hour and 7 minutes
+      max: 1 hour and 36 minutes
+    group: Design
+    depends_on: ["AI", "AM", "M", "AT", "W", "AB"]
+  - name: Taxable value womens role as
+    id: AX
+    duration:
+      min: 20 minutes
+      max: 32 minutes
+    group: Backend
+    depends_on: ["H", "K", "L", "M", "Q", "T", "Y", "AC", "AD", "AE", "AH", "AK", "AL", "AN", "AP", "AQ", "AT", "AU", "AV"]
+  - name: Third parties agriculture media
+    id: AY
+    duration:
+      min: 11 minutes
+      max: 21 minutes
+    group: Backend
+    depends_on: ["AH", "AJ", "AK", "H", "J", "R", "AX", "Y", "AA"]
+  - name: Galaxy the Andersen 18051875 the philosophical study of reality and
+    id: AZ
+    duration:
+      min: 41 minutes
+      max: 52 minutes
+    depends_on: ["AI", "AL", "H", "L", "N", "AT", "AW", "AX", "AY", "AD"]
+  - name: And damage Pennant and
+    id: BA
+    duration:
+      min: 1 hour and 0 minutes
+      max: 1 hour and 42 minutes
+    depends_on: ["C", "D", "H", "K", "L", "P", "Q", "R", "S", "W", "Y", "AB", "AC", "AE", "AG", "AJ", "AK", "AN", "AO", "AP", "AR", "AT", "AV", "AW", "AX", "AZ"]
+  - name: More wins hunting because many species of parrot Importation of wildcaught parrots
+    id: BB
+    duration:
+      min: 37 minutes
+      max: 38 minutes
+    depends_on: ["A", "B", "AG", "D", "H", "I", "M", "O", "P", "AX", "AA", "AD", "AE"]
+  - name: Or find rhetoric and logic and of themselves Immanuel Kants theory
+    id: BC
+    duration:
+      min: 13 minutes
+      max: 18 minutes
+    group: Backend
+    depends_on: ["A", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "O", "P", "Q", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB"]
+  - name: 2015 the word sense and led to the creation of
+    id: BD
+    duration:
+      min: 49 minutes
+      max: 1 hour and 20 minutes
+    depends_on: ["AH", "AJ", "K", "AQ", "AR", "N", "AT", "L", "AW", "Q", "AY", "AZ", "AU", "BC"]
+  - name: Might fix 040 km2 of
+    id: BE
+    duration:
+      min: 22 minutes
+      max: 40 minutes
+    group: Frontend
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AJ", "AK", "AL", "AM", "AN", "AO", "AQ", "AR", "AS", "AU", "AV", "AW", "AX", "AY", "AZ", "BB", "BC", "BD"]
+  - name: Miles 40 construction museum that will house the largest lake in the
+    id: BF
+    duration:
+      min: 37 minutes
+      max: 58 minutes
+    group: Backend
+    depends_on: ["D", "E", "H", "I", "J", "N", "O", "U", "V", "X", "Z", "AE", "AF", "AH", "AK", "AN", "AR", "AX", "BA", "BC", "BE"]
+  - name: The Emerging Italian colonies in the north and east extending the border
+    id: BG
+    duration:
+      min: 52 minutes
+      max: 1 hour and 50 minutes
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AV", "AX", "AY", "AZ", "BA", "BB", "BC", "BE", "BF"]
+  - name: Religious paintings 387 of the Finnish population died
+    id: BH
+    duration:
+      min: 38 minutes
+      max: 46 minutes
+    depends_on: ["B", "C", "D", "F", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R", "S", "T", "U", "V", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AF", "AG", "AH", "AJ", "AK", "AL", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG"]
+  - name: Survive the leftist and
+    id: BI
+    duration:
+      min: 32 minutes
+      max: 54 minutes
+    group: Frontend
+    depends_on: ["A", "B", "D", "E", "F", "H", "I", "J", "L", "M", "N", "O", "P", "R", "T", "W", "X", "Y", "AA", "AB", "AC", "AD", "AE", "AG", "AI", "AJ", "AK", "AL", "AM", "AN", "AQ", "AS", "AT", "AU", "AW", "AX", "AY", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH"]
+  - name: Construct learned with emergency powers and skills The Stetson University College of
+    id: BJ
+    duration:
+      min: 8 minutes
+      max: 15 minutes
+    group: Backend
+    depends_on: ["A", "B", "D", "I", "K", "M", "N", "O", "P", "S", "T", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AE", "AG", "AI", "AN", "AQ", "AU", "AZ", "BA", "BD", "BE", "BH", "BI"]
+  - name: Placebehind Switzerland sand cement straw wood or strands of secondary particles which carry
+    id: BK
+    duration:
+      min: 50 minutes
+      max: 1 hour and 1 minutes
+    group: Backend
+    depends_on: ["C", "AM"]
+  - name: Time in being the head
+    id: BL
+    duration:
+      min: 9 minutes
+      max: 19 minutes
+    depends_on: ["A", "B", "D", "E", "F", "G", "I", "J", "L", "M", "O", "R", "U", "W", "X", "AA", "AB", "AE", "AF", "AG", "AH", "AK", "AN", "AP", "AR", "AS", "AX", "BA", "BC", "BD", "BE", "BF", "BH", "BJ", "BK"]
+  - name: Storm Field raised his hand and told the
+    id: BM
+    duration:
+      min: 53 minutes
+      max: 54 minutes
+    group: Frontend
+    depends_on: ["A", "B", "C", "E", "F", "G", "H", "I", "J", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "W", "X", "Y", "Z", "AA", "AB", "AC", "AF", "AI", "AJ", "AK", "AL", "AM", "AO", "AP", "AS", "AT", "AU", "AW", "AX", "AY", "BB", "BC", "BD", "BF", "BH", "BI", "BJ", "BL"]
+  - name: And historical Club International
+    id: BN
+    duration:
+      min: 38 minutes
+      max: 48 minutes
+    group: Frontend
+    depends_on: ["A", "B", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "Q", "S", "T", "U", "Y", "Z", "AA", "AC", "AD", "AE", "AF", "AG", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AU", "AV", "AX", "AY", "AZ", "BB", "BD", "BE", "BG", "BH", "BI", "BJ", "BK", "BL", "BM"]
+  - name: Possibly idealized elaborate system of chemical reactions The phase of any borough
+    id: BO
+    duration:
+      min: 15 minutes
+      max: 23 minutes
+    depends_on: ["BN", "B", "AK", "AO", "L", "M", "AT", "P", "AW", "AX", "T", "U", "V"]
+  - name: Espaol de and researchers have mostly produced only parts
+    id: BP
+    duration:
+      min: 10 minutes
+      max: 20 minutes
+    group: Frontend
+    depends_on: ["A", "B", "C", "D", "G", "I", "M", "N", "Q", "S", "T", "U", "Y", "Z", "AD", "AE", "AF", "AG", "AJ", "AL", "AM", "AN", "AP", "AQ", "AR", "AT", "AU", "AV", "AW", "AX", "AY", "BA", "BB", "BD", "BE", "BF", "BG", "BI", "BJ", "BM", "BN"]
+  - name: Summer solstice psychologists may
+    id: BQ
+    duration:
+      min: 7 minutes
+      max: 13 minutes
+    group: Design
+  - name: Escaped from left the
+    id: BR
+    duration:
+      min: 24 minutes
+      max: 34 minutes
+    group: Design
+    depends_on: ["BO", "BP", "AM", "AN", "I", "AP", "K", "AO", "AT", "AV", "Q", "BA", "BF", "BI", "AE"]
+  - name: Or assertions print The online
+    id: BS
+    duration:
+      min: 15 minutes
+      max: 17 minutes
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR"]
+  - name: Films include between 250 and 500 million
+    id: BT
+    duration:
+      min: 15 minutes
+      max: 27 minutes
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS"]
+  - name: Although Billings is market
+    id: BU
+    duration:
+      min: 36 minutes
+      max: 57 minutes
+    depends_on: ["AG", "BQ", "AM", "AQ", "AT", "BC", "X", "BF", "AA", "BK", "AF"]
+  - name: Of reaching including Chechen Avar and Lezgin
+    id: BV
+    duration:
+      min: 22 minutes
+      max: 27 minutes
+    depends_on: ["B", "C", "D", "F", "H", "I", "J", "K", "L", "M", "O", "R", "T", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AG", "AH", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AS", "AT", "AV", "AX", "AY", "AZ", "BB", "BD", "BF", "BI", "BJ", "BL", "BM", "BO", "BP", "BS", "BT"]
+  - name: Ideological differences square miles
+    id: BW
+    duration:
+      min: 47 minutes
+      max: 1 hour and 2 minutes
+    group: Frontend
+    depends_on: ["BN", "AX", "AE", "G"]
+  - name: The declaration activity as rivers
+    id: BX
+    duration:
+      min: 52 minutes
+      max: 1 hour and 56 minutes
+    group: Design
+    depends_on: ["A", "E", "J", "K", "O", "Q", "R", "S", "T", "V", "W", "Y", "AA", "AD", "AF", "AG", "AI", "AK", "AM", "AP", "AT", "AV", "AW", "AZ", "BA", "BE", "BF", "BG", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BV", "BW"]
+  - name: A combination Smith 1998 ISBN 0674107454 Random Measures
+    id: BY
+    duration:
+      min: 51 minutes
+      max: 1 hour and 49 minutes
+    group: Frontend
+    depends_on: ["D", "K", "M", "R", "U", "Y", "AA", "AE", "AJ", "AN", "AQ", "AU", "AX", "AZ", "BA", "BC", "BJ", "BQ", "BS"]
+  - name: Central cause albeit by a wide array of
+    id: BZ
+    duration:
+      min: 1 hour
+      max: 1 hour and 8 minutes
+    group: Frontend
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "M", "N", "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AC", "AD", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AO", "AP", "AQ", "AS", "AT", "AU", "AV", "AX", "AY", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BP", "BQ", "BR", "BS", "BU", "BV", "BW", "BX", "BY"]
+  - name: Test will Africas population has access to technical tools
+    id: CA
+    duration:
+      min: 1 hour and 2 minutes
+      max: 1 hour and 28 minutes
+    group: Design
+    depends_on: ["BF", "BW", "BR", "BT"]
+  - name: Militia and Henri Vieuxtemps Eugne Ysae and Arthur Grumiaux while Adolphe
+    id: CB
+    duration:
+      min: 58 minutes
+      max: 1 hour and 39 minutes
+    depends_on: ["A", "C", "E", "I", "J", "L", "N", "P", "Q", "R", "T", "U", "V", "X", "Y", "Z", "AB", "AC", "AF", "AK", "AN", "AO", "AQ", "AR", "AU", "AW", "AX", "BB", "BC", "BF", "BH", "BJ", "BL", "BR", "BU", "BW", "BX"]
+  - name: Largest lakes a constitutional popular monarchy and its supporters
+    id: CC
+    duration:
+      min: 19 minutes
+      max: 19 minutes
+    group: Backend
+    depends_on: ["A", "B", "D", "E", "F", "G", "I", "J", "M", "O", "P", "S", "T", "U", "Y", "AA", "AB", "AC", "AE", "AF", "AG", "AH", "AI", "AK", "AL", "AN", "AO", "AP", "AQ", "AV", "AW", "AX", "AY", "BA", "BC", "BD", "BE", "BF", "BH", "BI", "BJ", "BL", "BO", "BP", "BQ", "BS", "BT", "BV", "BW", "BX", "BY", "BZ", "CA", "CB"]
+  - name: Not had Manitou on Manitoulin
+    id: CD
+    duration:
+      min: 12 minutes
+      max: 14 minutes
+    group: Backend
+    depends_on: ["B", "C", "D", "E", "I", "K", "L", "N", "O", "P", "R", "S", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AF", "AH", "AI", "AJ", "AK", "AL", "AO", "AP", "AQ", "AS", "AU", "AW", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BH", "BN", "BO", "BQ", "BR", "BT", "BV", "BZ"]
+  - name: Labor history growth Many business offices began moving out west where
+    id: CE
+    duration:
+      min: 42 minutes
+      max: 1 hour and 22 minutes
+    group: Backend
+    depends_on: ["AG", "D", "AM", "L", "AR", "O", "P", "CC", "AU", "BJ", "Y", "BH", "BI", "AD"]
+  - name: Develop Psychology Becher Hanne Darboven HansPeter
+    id: CF
+    duration:
+      min: 39 minutes
+      max: 1 hour and 22 minutes
+    group: Design
+    depends_on: ["AG", "BN", "AI", "BM", "AK", "H", "J", "AP", "AU", "P", "CE", "U", "BD", "BK", "BF", "BG", "AE"]
+  - name: Adrian ed communication field is generated by the
+    id: CG
+    duration:
+      min: 44 minutes
+      max: 1 hour and 36 minutes
+    group: Backend
+    depends_on: ["A", "B", "C", "F", "G", "H", "K", "M", "N", "O", "P", "Q", "S", "T", "U", "V", "W", "Z", "AB", "AC", "AD", "AE", "AF", "AI", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AW", "AY", "AZ", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BL", "BM", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ", "CA", "CB", "CD", "CE", "CF"]
+  - name: The Interamerican ISBN 9780330472050
+    id: CH
+    duration:
+      min: 10 minutes
+      max: 15 minutes
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ", "CA", "CB", "CC", "CD", "CE", "CF", "CG"]
+  - name: 2002 Belgium Website of the population of 15
+    id: CI
+    duration:
+      min: 38 minutes
+      max: 57 minutes
+    depends_on: ["B", "C", "K", "L", "O", "AB", "AI", "AN", "AR", "AT", "AV", "AY", "BF", "BG", "BK", "BL", "BN", "BV", "BX", "CB", "CD", "CH"]
+  - name: Dichotomy developed epazote camote jcama nopal zucchini tejocote huitlacoche sapote mamey sapote
+    id: CJ
+    duration:
+      min: 16 minutes
+      max: 29 minutes
+    depends_on: ["Y", "J", "CH", "AM"]
+  - name: Proprietary programming The 1745 atlas published by CNN The survey also revealed
+    id: CK
+    duration:
+      min: 40 minutes
+      max: 1 hour and 4 minutes
+    depends_on: ["O", "S", "V", "Z", "AB", "AE", "AF", "AO", "AP", "AT", "BA", "BB", "BC", "BD", "BH", "BP", "BT", "BU", "BX", "CB", "CD"]
+  - name: The priorit a Vietnamese Baptist Church Tampa also ranks as the Aquitaine basin in the
+    id: CL
+    duration:
+      min: 34 minutes
+      max: 53 minutes
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BV", "BW", "BX", "BY", "BZ", "CB", "CC", "CD", "CE", "CF", "CG", "CH", "CI", "CJ", "CK"]
+  - name: By sea Montana east of China Vietnam and North Germanic languages Most German vocabulary
+    id: CM
+    duration:
+      min: 7 minutes
+      max: 10 minutes
+    group: Frontend
+    depends_on: ["C", "E", "F", "G", "I", "J", "K", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AK", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AX", "AY", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BL", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BV", "BW", "BX", "BY", "BZ", "CB", "CC", "CD", "CE", "CG", "CJ"]
+  - name: Greece alongside Between 1993 and 2010 the citys waterfront at Pier 57 next to garlicky
+    id: CN
+    duration:
+      min: 25 minutes
+      max: 36 minutes
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "P", "Q", "R", "T", "U", "V", "W", "X", "Y", "Z", "AB", "AC", "AD", "AE", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BY", "CA", "CB", "CC", "CD", "CE", "CG", "CH", "CI", "CJ", "CK", "CL", "CM"]
+  - name: Ocean from a sixyear
+    id: CO
+    duration:
+      min: 56 minutes
+      max: 1 hour and 59 minutes
+    group: Backend
+    depends_on: ["A", "B", "D", "H", "Q", "S", "T", "U", "V", "W", "Y", "Z", "AA", "AB", "AC", "AE", "AF", "AH", "AI", "AM", "AN", "AO", "AQ", "AV", "AW", "AY", "BA", "BD", "BE", "BF", "BG", "BI", "BK", "BN", "BP", "BQ", "BU", "BV", "BW", "CA", "CB", "CG", "CJ", "CK", "CL", "CM"]
+  - name: Issues regarding Cockatoo species have encroached on
+    id: CP
+    duration:
+      min: 1 hour and 3 minutes
+      max: 1 hour and 60 minutes
+    group: Design
+    depends_on: ["BW", "CA", "CD", "R", "AZ"]
+  - name: Than fly set agenda This is an
+    id: CQ
+    duration:
+      min: 28 minutes
+      max: 38 minutes
+    group: Backend
+    depends_on: ["A", "G", "H", "K", "R", "U", "Y", "AA", "AC", "AE", "AR", "AS", "BI", "BK", "BN", "BV", "BW", "CJ", "CM", "CO"]
+  - name: Inadequate water deliver future hypotheses that will eventually confirm each
+    id: CR
+    duration:
+      min: 1 hour and 16 minutes
+      max: 1 hour and 25 minutes
+    group: Design
+    depends_on: ["A", "B", "C", "E", "F", "G", "H", "I", "J", "K", "N", "O", "P", "Q", "S", "T", "U", "V", "W", "X", "Z", "AA", "AB", "AC", "AF", "AG", "AH", "AI", "AL", "AN", "AP", "AR", "AS", "AW", "AZ", "BA", "BB", "BC", "BD", "BG", "BJ", "BL", "BM", "BO", "BP", "BQ", "BR", "BS", "BT", "BW", "BX", "BY", "BZ", "CA", "CD", "CF", "CG", "CH", "CI", "CK", "CM", "CN", "CO", "CP", "CQ"]
+  - name: Of management The Virgin of Lujn is Argentinas major industrial centres the occupation
+    id: CS
+    duration:
+      min: 7 minutes
+      max: 9 minutes
+    group: Backend
+    depends_on: ["E", "G", "H", "P", "S", "T", "V", "Y", "AA", "AI", "AM", "AO", "BA", "BK", "BO", "BQ", "BT", "BV", "BX", "CC", "CF", "CG", "CN", "CR"]
+  - name: Maya performed include impressionism and naturalism Anna Klindt Srensen 18991985 expressionism Franciska Clausen 18991986 Neue
+    id: CT
+    duration:
+      min: 1 hour and 1 minutes
+      max: 1 hour and 52 minutes
+    depends_on: ["C", "E", "F", "H", "I", "J", "K", "L", "M", "P", "Q", "R", "T", "V", "W", "Y", "Z", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AS", "AW", "AX", "AY", "AZ", "BB", "BC", "BD", "BF", "BG", "BH", "BI", "BK", "BL", "BM", "BN", "BQ", "BR", "BS", "BT", "BU", "BZ", "CA", "CB", "CE", "CH", "CI", "CK", "CM", "CN", "CQ", "CS"]
+  - name: collge and road construction collisions and debris in the Atlantic Ocean in
+    id: CU
+    duration:
+      min: 52 minutes
+      max: 1 hour and 22 minutes
+    group: Backend
+    depends_on: ["B", "F", "H", "J", "K", "L", "M", "T", "AD", "AH", "AR", "AT", "AW", "AX", "BC", "BD", "BE", "BF", "BH", "BO", "BQ", "CA", "CI", "CK", "CO", "CS"]
+  - name: 5 2013 channels known as
+    id: CV
+    duration:
+      min: 7 minutes
+      max: 13 minutes
+    depends_on: ["CS", "CT", "BO", "A", "E", "D", "BQ", "AV", "CC", "AX", "CG", "BF", "BK"]
+  - name: The Albigensian northern Interior region are Athabaskan
+    id: CW
+    duration:
+      min: 29 minutes
+      max: 54 minutes
+    group: Design
+    depends_on: ["B", "C", "D", "F", "J", "O", "P", "R", "S", "T", "U", "V", "X", "Y", "Z", "AA", "AC", "AE", "AH", "AJ", "AK", "AL", "AP", "AQ", "AS", "AT", "AU", "AW", "AX", "AY", "BE", "BG", "BK", "BL", "BP", "BQ", "BU", "BW", "BY", "BZ", "CA", "CB", "CC", "CD", "CF", "CI", "CJ", "CK", "CN", "CO", "CP", "CR", "CS", "CT", "CU", "CV"]
+  - name: Way into flash radiography eg DARHT at LANL and have fewer than a
+    id: CX
+    duration:
+      min: 1 hour and 4 minutes
+      max: 2 hours and 6 minutes
+    depends_on: ["AG", "BN", "CU", "BP", "E", "F", "CM", "BO", "BT", "CO", "AX", "CG", "BG", "CN", "BI"]
+  - name: By 6th approximately 6580
+    id: CY
+    duration:
+      min: 20 minutes
+      max: 31 minutes
+    group: Frontend
+    depends_on: ["A", "B", "C", "E", "G", "H", "L", "N", "P", "Q", "R", "T", "X", "Z", "AA", "AB", "AC", "AG", "AH", "AI", "AJ", "AM", "AN", "AO", "AP", "AR", "AS", "AU", "AW", "AY", "BB", "BC", "BD", "BE", "BF", "BG", "BI", "BJ", "BK", "BL", "BO", "BS", "BW", "CC", "CD", "CF", "CG", "CH", "CI", "CJ", "CM", "CN", "CO", "CQ", "CR", "CV", "CX"]
+  - name: Evanescence can million out of a system When an isolated frontier outpost The sparse
+    id: CZ
+    duration:
+      min: 49 minutes
+      max: 1 hour and 10 minutes
+    group: Backend
+    depends_on: ["CN", "BQ"]
+  - name: 7619 mi 1881 into the Protectorate of Bohemia and
+    id: DA
+    duration:
+      min: 1 hour and 6 minutes
+      max: 1 hour and 54 minutes
+    group: Backend
+    depends_on: ["A", "B", "E", "F", "G", "I", "J", "K", "L", "M", "N", "O", "R", "S", "U", "W", "X", "AD", "AF", "AH", "AJ", "AK", "AL", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BI", "BK", "BL", "BN", "BO", "BQ", "BR", "BS", "BT", "BU", "BZ", "CA", "CB", "CC", "CD", "CE", "CH", "CK", "CL", "CM", "CN", "CP", "CR", "CT", "CU", "CV", "CY", "CZ"]
+  - name: Series Game or Stop sign Although the United
+    id: DB
+    duration:
+      min: 28 minutes
+      max: 1 hour and 1 minutes
+    depends_on: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "M", "N", "O", "Q", "R", "T", "U", "W", "X", "Y", "Z", "AA", "AB", "AC", "AE", "AF", "AG", "AI", "AK", "AM", "AO", "AS", "AT", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BN", "BO", "BQ", "BR", "BS", "BT", "BU", "BW", "BX", "BY", "CB", "CE", "CF", "CG", "CH", "CJ", "CK", "CL", "CM", "CN", "CO", "CP", "CQ", "CR", "CT", "CU", "CV", "CW", "CX", "CZ", "DA"]
+  - name: Other hand often surface variables such as on mobile devices that
+    id: DC
+    duration:
+      min: 29 minutes
+      max: 57 minutes
+    group: Frontend
+    depends_on: ["B", "C", "D", "F", "G", "H", "I", "J", "K", "L", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "Y", "Z", "AA", "AC", "AD", "AF", "AH", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AY", "AZ", "BA", "BC", "BD", "BE", "BF", "BG", "BI", "BJ", "BK", "BL", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BZ", "CA", "CB", "CE", "CF", "CG", "CH", "CI", "CJ", "CL", "CM", "CN", "CO", "CQ", "CR", "CS", "CT", "CU", "CV", "CX", "CY", "CZ", "DA", "DB"]
+  - name: Training but trees The
+    id: DD
+    duration:
+      min: 24 minutes
+      max: 48 minutes
+    depends_on: ["AJ", "AU", "AZ", "V", "BE", "BI"]
+  - name: Flogic developments are nearing completion in the German hydrologist Albert Brahms empirically observed
+    id: DE
+    duration:
+      min: 33 minutes
+      max: 1 hour and 2 minutes
+    group: Design
+    depends_on: ["CQ", "BD"]
+  - name: Is stored and mouse
+    id: DF
+    duration:
+      min: 47 minutes
+      max: 1 hour and 13 minutes
+    group: Backend
+    depends_on: ["A", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ", "CA", "CB", "CC", "CD", "CE", "CF", "CG", "CH", "CI", "CJ", "CK", "CL", "CM", "CN", "CO", "CP", "CQ", "CR", "CS", "CT", "CU", "CV", "CW", "CX", "CY", "CZ", "DA", "DB", "DC", "DE"]
+  - name: 2015 Lay Atlanta Journal and The Stranger both consider themselves
+    id: DG
+    duration:
+      min: 43 minutes
+      max: 1 hour and 25 minutes
+    group: Frontend
+    depends_on: ["C", "H", "J", "M", "O", "Q", "U", "Z", "AA", "AB", "AF", "AJ", "AL", "AN", "AO", "AP", "AS", "AW", "AX", "AY", "AZ", "BC", "BE", "BF", "BI", "BK", "BL", "BP", "BS", "BT", "BY", "CC", "CF", "CM", "CP", "CS", "CU", "CZ", "DB", "DC", "DD", "DF"]
+  - name: Studies of in mountainous and that is the
+    id: DH
+    duration:
+      min: 48 minutes
+      max: 1 hour and 25 minutes
+    group: Frontend
+    depends_on: ["A", "C", "F", "H", "J", "L", "M", "N", "W", "X", "Z", "AA", "AE", "AF", "AH", "AJ", "AM", "AQ", "AS", "AX", "AY", "BC", "BD", "BF", "BG", "BI", "BL", "BO", "BP", "BR", "BS", "BU", "BV", "BW", "BX", "BZ", "CC", "CD", "CE", "CF", "CH", "CI", "CM", "CQ", "CT", "CU", "CV", "CW", "CX", "DA", "DB", "DC", "DF"]
+  - name: Atlantic Current bonds they bought after its capital while West Germany
+    id: DI
+    duration:
+      min: 52 minutes
+      max: 1 hour and 33 minutes
+    group: Frontend
+    depends_on: ["C", "D", "M", "P", "Q", "W", "X", "Z", "AG", "AK", "AN", "AP", "AQ", "AS", "AV", "AX", "AY", "BB", "BE", "BF", "BJ", "BK", "BN", "BP", "BQ", "BR", "BT", "BW", "BZ", "CB", "CD", "CH", "CJ", "CK", "CN", "CO", "CQ", "CT", "CZ", "DC", "DD", "DE", "DG", "DH"]
+  - name: Wins The of royalty
+    id: DJ
+    duration:
+      min: 23 minutes
+      max: 38 minutes
+    group: Backend
+    depends_on: ["D", "E", "F", "G", "H", "I", "J", "L", "M", "N", "O", "P", "R", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AD", "AF", "AG", "AI", "AJ", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ", "CA", "CB", "CC", "CD", "CF", "CG", "CH", "CI", "CJ", "CK", "CL", "CM", "CN", "CO", "CP", "CQ", "CR", "CS", "CT", "CU", "CW", "CX", "CY", "CZ", "DA", "DB", "DC", "DE", "DF", "DG", "DH", "DI"]
+  - name: Midwest The education system
+    id: DK
+    duration:
+      min: 16 minutes
+      max: 32 minutes
+    group: Design
+    depends_on: ["C", "D", "E", "G", "H", "I", "J", "L", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "AA", "AB", "AF", "AG", "AH", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AS", "AU", "AW", "AZ", "BA", "BC", "BD", "BE", "BF", "BJ", "BK", "BN", "BO", "BP", "BR", "BT", "BW", "BX", "BY", "BZ", "CA", "CB", "CD", "CG", "CH", "CJ", "CK", "CM", "CN", "CO", "CP", "CQ", "CT", "CU", "CW", "CX", "CY", "CZ", "DB", "DD", "DE", "DF", "DG"]
+  - name: C and of daytoday or yeartoyear
+    id: DL
+    duration:
+      min: 45 minutes
+      max: 55 minutes
+    group: Design
+    depends_on: ["A", "B", "C", "D", "E", "F", "H", "I", "J", "K", "M", "O", "P", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AC", "AD", "AE", "AF", "AI", "AJ", "AK", "AL", "AM", "AN", "AP", "AQ", "AS", "AT", "AU", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BI", "BK", "BL", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ", "CA", "CB", "CC", "CD", "CE", "CI", "CJ", "CK", "CL", "CM", "CN", "CO", "CP", "CQ", "CR", "CS", "CT", "CU", "CV", "CW", "CX", "CY", "DA", "DE", "DF", "DG", "DH", "DI", "DJ", "DK"]
+  - name: EquationThe activation January averages 435 F
+    id: DM
+    duration:
+      min: 1 hour and 15 minutes
+      max: 1 hour and 15 minutes
+    depends_on: ["A", "B", "C", "D", "F", "J", "M", "R", "W", "X", "Y", "Z", "AC", "AE", "AK", "AN", "AQ", "AS", "AT", "AY", "BB", "BE", "BF", "BH", "BK", "BL", "BR", "BT", "BV", "BY", "CC", "CE", "CF", "CL", "CO", "CP", "CQ", "CS", "CV", "CW", "CX", "CZ", "DC", "DF", "DL"]
+  - name: Extracting their situation is laughable
+    id: DN
+    duration:
+      min: 55 minutes
+      max: 1 hour and 18 minutes
+    group: Backend
+    depends_on: ["B", "C", "D", "K", "M", "N", "P", "Q", "AD", "AG", "AJ", "AL", "AM", "AN", "AP", "AR", "AS", "AT", "AU", "AV", "AX", "BA", "BC", "BD", "BF", "BH", "BN", "BO", "BP", "BQ", "BU", "BX", "BY", "BZ", "CA", "CC", "CD", "CI", "CM", "CO", "CT", "DB", "DC", "DD", "DF", "DG", "DI", "DJ", "DK", "DL", "DM"]
+  - name: This union The 1935 uprising
+    id: DO
+    duration:
+      min: 29 minutes
+      max: 45 minutes
+    depends_on: ["A", "C", "D", "G", "H", "I", "J", "M", "N", "O", "S", "U", "Z", "AB", "AC", "AD", "AH", "AI", "AL", "AN", "AO", "AP", "AS", "AV", "AW", "AX", "BE", "BF", "BH", "BI", "BJ", "BL", "BN", "BO", "BP", "BU", "BV", "BW", "BY", "CA", "CB", "CG", "CK", "CM", "CN", "CO", "CR", "CW", "CY", "DA", "DF", "DG", "DH", "DI", "DL", "DM"]
+  - name: Of Buddhists users Observers
+    id: DP
+    duration:
+      min: 1 hour and 8 minutes
+      max: 1 hour and 57 minutes
+    group: Frontend
+    depends_on: ["Y", "AD", "AI", "AV", "AW", "BC", "BH", "BI", "CC", "CE", "CH", "CJ", "CL", "CO", "CR", "CV", "DA", "DB", "DH"]

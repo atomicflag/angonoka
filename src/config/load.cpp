@@ -78,22 +78,35 @@ void validate_configuration(const YAML::Node& node)
     if (const auto r = schema(node); !r)
         throw angonoka::SchemaError{r.error()};
 }
+
+angonoka::Configuration parse_yaml(const YAML::Node& root)
+{
+    using namespace angonoka;
+
+    validate_configuration(root);
+    Configuration config;
+    detail::parse_agents(root["agents"], config);
+    detail::parse_tasks(root["tasks"], config);
+
+    Ensures(!config.tasks.empty());
+    Ensures(!config.agents.empty());
+    return config;
+}
 } // namespace
 
 namespace angonoka {
-System load_text(gsl::czstring text)
+Configuration load_text(gsl::czstring text)
 {
     Expects(text != nullptr);
 
-    const auto node = YAML::Load(text);
-    validate_configuration(node);
-    System system;
-    detail::parse_agents(node["agents"], system);
-    detail::parse_tasks(node["tasks"], system);
+    return parse_yaml(YAML::Load(text));
+}
 
-    Ensures(!system.tasks.empty());
-    Ensures(!system.agents.empty());
-    return system;
+Configuration load_file(std::string_view path)
+{
+    Expects(!path.empty());
+
+    return parse_yaml(YAML::LoadFile(std::string{path}));
 }
 } // namespace angonoka
 

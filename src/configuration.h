@@ -17,10 +17,10 @@ using TaskIndices = flat_set<TaskIndex>;
 /**
     Agent that performs Tasks.
 
-    Agent::group_ids refer to Group indices in the System::groups. The
-    lower the performance parameter the slower an agent will
-    perform any given task. An agent can only perform tasks belonging
-    to groups in group_ids.
+    Agent::group_ids refer to Group indices in the
+   Configuration::groups. The lower the performance parameter the
+   slower an agent will perform any given task. An agent can only
+   perform tasks belonging to groups in group_ids.
 
     @var name           Agent's name
     @var group_ids      flat_set of Group ids
@@ -30,10 +30,16 @@ struct Agent {
     std::string name;
     GroupIndices group_ids;
     struct Performance {
-        static constexpr float default_min = .5F;
-        static constexpr float default_max = 1.5F;
-        float min = default_min;
-        float max = default_max;
+        static constexpr float default_performance = 1.F;
+        float min = default_performance;
+        float max = default_performance;
+
+        /**
+            Calculates average (expected) performance.
+
+            @return Expected performance.
+        */
+        [[nodiscard]] float average() const;
     };
     Performance performance;
 };
@@ -78,22 +84,39 @@ struct Task {
     TaskIndices dependencies;
     struct Duration {
         std::chrono::seconds min, max;
+        /**
+            Calculates average (expected) duration.
+
+            @return Expected duration in seconds.
+        */
+        [[nodiscard]] std::chrono::seconds average() const;
     };
     Duration duration;
 };
+
+/**
+    Checks if the agent can work on a given task.
+
+    @param agent Agent
+    @param task Task
+
+    @return True if the agent can work on this task.
+*/
+[[nodiscard]] bool
+can_work_on(const Agent& agent, const Task& task) noexcept;
 
 using Groups = std::vector<std::string>;
 using Agents = std::vector<Agent>;
 using Tasks = std::vector<Task>;
 
 /**
-    System that represents Tasks and Agents.
+    Configuration that represents Tasks and Agents.
 
     @var groups   Task groups
     @var agents   Agents that perform tasks
     @var tasks    All of the tasks
 */
-struct System {
+struct Configuration {
     Groups groups;
     Agents agents;
     Tasks tasks;
@@ -104,10 +127,10 @@ struct System {
 
     A "universal" agent is an agent that can perform any task.
 
-    @param system System
+    @param config Configuration
 
     @return True if there is at least 1 universal agent.
 */
 [[nodiscard]] bool
-has_universal_agents(const System& system) noexcept;
+has_universal_agents(const Configuration& config) noexcept;
 } // namespace angonoka

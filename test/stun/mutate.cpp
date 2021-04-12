@@ -1,5 +1,5 @@
 #include "stun/random_utils.h"
-#include "stun/schedule_info.h"
+#include "stun/schedule_params.h"
 #include "stun/utils.h"
 #include <catch2/catch.hpp>
 #include <range/v3/action/push_back.hpp>
@@ -9,20 +9,20 @@ TEST_CASE("Mutate state")
 {
     using namespace angonoka::stun;
 
-    ScheduleInfo info;
-    info.agent_performance = {1.F, 2.F, 3.F};
-    info.task_duration = {1.F, 2.F, 3.F};
+    ScheduleParams params;
+    params.agent_performance = {1.F, 2.F, 3.F};
+    params.task_duration = {1.F, 2.F, 3.F};
     {
         std::vector<int16> available_agents_data = {0, 1, 2};
         std::vector<span<int16>> available_agents
             = {available_agents_data,
                available_agents_data,
                available_agents_data};
-        info.available_agents
+        params.available_agents
             = {std::move(available_agents_data),
                std::move(available_agents)};
     }
-    info.dependencies
+    params.dependencies
         = {std::vector<int16>{},
            std::vector<span<int16>>{{}, {}, {}}};
 
@@ -32,7 +32,7 @@ TEST_CASE("Mutate state")
 
         std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
 
-        Mutator mut{info, random};
+        Mutator mut{params, random};
         mut(state);
 
         REQUIRE(
@@ -51,14 +51,14 @@ TEST_CASE("Mutate state")
         std::vector<int16> dependencies_data = {0, 1};
         std::vector<span<int16>> dependencies{{}};
         push_back(dependencies, dependencies_data | chunk(1));
-        info.dependencies
+        params.dependencies
             = {std::move(dependencies_data), std::move(dependencies)};
 
         RandomUtils random{1};
 
         std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
 
-        Mutator mut{info, random};
+        Mutator mut{params, random};
         mut(state);
 
         REQUIRE(
@@ -72,14 +72,14 @@ TEST_CASE("Mutate state")
 
     SECTION("Single task")
     {
-        info.dependencies
+        params.dependencies
             = {std::vector<int16>{}, std::vector<span<int16>>{{}}};
 
         {
             std::vector<int16> available_agents_data = {0, 1, 2};
             std::vector<span<int16>> available_agents
                 = {available_agents_data};
-            info.available_agents
+            params.available_agents
                 = {std::move(available_agents_data),
                    std::move(available_agents)};
         }
@@ -88,7 +88,7 @@ TEST_CASE("Mutate state")
 
         std::vector<StateItem> state{{0, 0}};
 
-        Mutator mut{info, random};
+        Mutator mut{params, random};
         mut(state);
 
         REQUIRE(state == std::vector<StateItem>{{0, 2}});
