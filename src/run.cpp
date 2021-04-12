@@ -34,7 +34,7 @@ optimize(const stun::ScheduleParams& params)
 
     using namespace angonoka::stun;
 
-    constexpr auto batch_size = 10000;
+    constexpr auto batch_size = 10'000;
     constexpr auto max_idle_iters = 1'000'000;
 
     Optimizer optimizer{

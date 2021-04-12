@@ -14,7 +14,7 @@ Celero/2.6.0@signal9/stable
 indicators/2.0
 
 [build_requires]
-meson/0.56.0
+meson/0.57.2
 ragel/6.10
 
 [generators]
