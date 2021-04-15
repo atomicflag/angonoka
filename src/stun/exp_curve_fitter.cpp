@@ -27,10 +27,10 @@ float ExpCurveFitter::operator()(float x, float y) noexcept
     xy += xy1;
     xylogy += x * ylogy1;
     sumy += y;
-    const auto divisor = sumy * xxy - std::pow(xy, 2.F);
+    const auto divisor = std::fma(sumy, xxy, -std::pow(xy, 2.F));
     if (divisor == 0.F) return 0.F;
     const auto a = (xxy * ylogy - xy * xylogy) / divisor;
     const auto b = (sumy * xylogy - xy * ylogy) / divisor;
-    return std::exp(b * x + a);
+    return std::exp(std::fma(b, x, a));
 }
 } // namespace angonoka::stun
