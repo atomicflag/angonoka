@@ -23,6 +23,7 @@ test_exe = executable(
     'load_tasks.cpp',
     'parse_duration.cpp',
     'system.cpp',
+    'predict.cpp',
     'validation.cpp',
   ] + stubs,
   dependencies : [ common, test_deps ],
