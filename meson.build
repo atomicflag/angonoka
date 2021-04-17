@@ -41,6 +41,7 @@ dependencies = [
   dependency('gsl-lite'),
   dependency('pcg-cpp'),
   dependency('indicators'),
+  dependency('readerwriterqueue'),
   dependency('boost', include_type : 'system')
 ]
 

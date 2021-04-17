@@ -12,6 +12,7 @@ pcg-cpp/0.98.1@signal9/stable
 trompeloeil/v39@rollbear/stable
 Celero/2.6.0@signal9/stable
 indicators/2.0
+readerwriterqueue/1.0.3
 
 [build_requires]
 meson/0.57.2
