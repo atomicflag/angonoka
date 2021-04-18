@@ -48,6 +48,8 @@ std::vector<stun::StateItem> optimize(
     constexpr auto max_idle_iters = 1'000'000;
 
     // TODO: Dependency inversion?
+    // Should this be a function object? Or 
+    // should Optimizer be conditionally-mockable?
     Optimizer optimizer{
         params,
         BatchSize{batch_size},
