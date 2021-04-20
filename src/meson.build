@@ -4,21 +4,11 @@ ragel = generator(
   arguments : ['@INPUT@', '-G2', '-e', '-o@OUTPUT@']
 )
 
-# We need to compile 2 versions of the same TUs:
-# One with abstract interfaces for unit testing
-# and one with concrete classes for integration
-# testing. TUs are guarded with inline namespaces
-# to avoid ODR violations.
-# When UNIT_TEST macro is defined TUs use
-# abstract interfaces.
-stubs = files([
-    'stun/stochastic_tunneling.cpp',
-])
-
-common_lib = static_library(
-  'common',
+base_lib = static_library(
+  'base',
   [
     'config/agents.cpp',
+    'stun/stochastic_tunneling.cpp',
     'config/load.cpp',
     'config/tasks.cpp',
     'configuration.cpp',
@@ -31,13 +21,13 @@ common_lib = static_library(
     'stun/schedule_params.cpp',
     'stun/optimizer.cpp',
     ragel.process('config/parse_duration.rl.cpp')
-  ] + stubs,
+  ],
   include_directories : include,
   dependencies : dependencies,
 )
 
-common = declare_dependency(
-  link_with : common_lib,
+base = declare_dependency(
+  link_with : base_lib,
   dependencies : dependencies,
   include_directories : include
 )
@@ -45,15 +35,7 @@ common = declare_dependency(
 angonoka_exe = executable(
   meson.project_name()+'-'+target_machine.cpu_family(),
   ['angonoka.cpp'],
-  dependencies : common,
-  install : true,
-  install_rpath : '$ORIGIN/../lib64'
-)
-
-stun_exe = executable(
-  meson.project_name()+'-stun',
-  ['stun.cpp', 'run.cpp'],
-  dependencies : common,
+  dependencies : base,
   install : true,
   install_rpath : '$ORIGIN/../lib64'
 )

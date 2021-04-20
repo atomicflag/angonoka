@@ -5,7 +5,7 @@
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/view/chunk.hpp>
 
-"Mutate state"_test = [] {
+TEST_CASE("Mutate state")
 {
     using namespace angonoka::stun;
 
@@ -26,7 +26,7 @@
         = {std::vector<int16>{},
            std::vector<span<int16>>{{}, {}, {}}};
 
-    "No dependencies"_test = [] {
+    SECTION("No dependencies")
     {
         RandomUtils random{0};
 
@@ -35,16 +35,16 @@
         Mutator mut{params, random};
         mut(state);
 
-        expect(
+        REQUIRE(
             state == std::vector<StateItem>{{0, 0}, {2, 1}, {1, 2}});
 
         for (int i{0}; i < 100; ++i) mut(state);
 
-        expect(
+        REQUIRE(
             state == std::vector<StateItem>{{1, 2}, {0, 0}, {2, 2}});
     }
 
-    "With dependencies"_test = [] {
+    SECTION("With dependencies")
     {
         using ranges::actions::push_back;
         using ranges::views::chunk;
@@ -61,16 +61,16 @@
         Mutator mut{params, random};
         mut(state);
 
-        expect(
+        REQUIRE(
             state == std::vector<StateItem>{{0, 0}, {1, 0}, {2, 2}});
 
         for (int i{0}; i < 100; ++i) mut(state);
 
-        expect(
+        REQUIRE(
             state == std::vector<StateItem>{{0, 0}, {1, 0}, {2, 1}});
     }
 
-    "Single task"_test = [] {
+    SECTION("Single task")
     {
         params.dependencies
             = {std::vector<int16>{}, std::vector<span<int16>>{{}}};
@@ -91,21 +91,21 @@
         Mutator mut{params, random};
         mut(state);
 
-        expect(state == std::vector<StateItem>{{0, 2}});
+        REQUIRE(state == std::vector<StateItem>{{0, 2}});
 
         for (int i{0}; i < 100; ++i) mut(state);
 
-        expect(state == std::vector<StateItem>{{0, 0}});
+        REQUIRE(state == std::vector<StateItem>{{0, 0}});
     }
 }
 
-"Mutator type traits"_test = [] {
+TEST_CASE("Mutator type traits")
 {
     using angonoka::stun::Mutator;
-    expect(std::is_nothrow_destructible_v<Mutator>);
-    expect(!std::is_default_constructible_v<Mutator>);
-    expect(std::is_copy_constructible_v<Mutator>);
-    expect(std::is_copy_assignable_v<Mutator>);
-    expect(std::is_nothrow_move_constructible_v<Mutator>);
-    expect(std::is_nothrow_move_assignable_v<Mutator>);
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<Mutator>);
+    STATIC_REQUIRE(!std::is_default_constructible_v<Mutator>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<Mutator>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<Mutator>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Mutator>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Mutator>);
 }

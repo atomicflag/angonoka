@@ -58,12 +58,10 @@ build/build.ninja: build/conaninfo.txt
 .PHONY: test
 test:
 	export LLVM_PROFILE_FILE=angonoka.profraw
-	build/test/angonoka_test
-
-# TEMP
-.PHONY: stun
-stun:
-	build/src/angonoka-stun
+	for t in $$(find build -name '*_test'); do
+		printf "$$t:\n  "
+		eval $$t
+	done
 
 # .PHONY: benchmark
 # benchmark:

@@ -100,7 +100,7 @@ predict(const Configuration& config)
 }
 } // namespace angonoka
 
-"Basic prediction"_test = [] {
+TEST_CASE("Basic prediction")
 {
     using namespace angonoka;
 
@@ -108,6 +108,6 @@ predict(const Configuration& config)
     auto [prediction_future, events] = predict(config);
     prediction_future.get();
 
-    expect(events->size_approx() == 1);
+    REQUIRE(events->size_approx() == 1);
     // TODO: implement
 }

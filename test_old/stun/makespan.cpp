@@ -32,18 +32,18 @@ ScheduleParams make_test_schedule_params()
 }
 } // namespace
 
-"Makespan type traits"_test = [] {
+TEST_CASE("Makespan type traits")
 {
     using angonoka::stun::Makespan;
-    expect(std::is_nothrow_destructible_v<Makespan>);
-    expect(!std::is_default_constructible_v<Makespan>);
-    expect(std::is_copy_constructible_v<Makespan>);
-    expect(std::is_copy_assignable_v<Makespan>);
-    expect(std::is_nothrow_move_constructible_v<Makespan>);
-    expect(std::is_nothrow_move_assignable_v<Makespan>);
+    STATIC_REQUIRE(std::is_nothrow_destructible_v<Makespan>);
+    STATIC_REQUIRE(!std::is_default_constructible_v<Makespan>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<Makespan>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<Makespan>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Makespan>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Makespan>);
 }
 
-"Makespan special member functions"_test = [] {
+TEST_CASE("Makespan special member functions")
 {
     using namespace angonoka::stun;
 
@@ -51,7 +51,7 @@ ScheduleParams make_test_schedule_params()
     const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
     Makespan makespan{params};
 
-    expect(makespan(state) == 3._d);
+    REQUIRE(makespan(state) == Approx(3.F));
 
     auto params2 = make_test_schedule_params();
     params2.agent_performance.resize(2);
@@ -59,59 +59,59 @@ ScheduleParams make_test_schedule_params()
     const std::vector<StateItem> state2{{0, 0}, {1, 1}};
     Makespan makespan2{params2};
 
-    expect(makespan2(state2) == 2._d);
+    REQUIRE(makespan2(state2) == Approx(2.F));
 
-    "Copy assignment"_test = [] {
+    SECTION("Copy assignment")
     {
         makespan2 = makespan;
-        expect(makespan(state) == 3._d);
-        expect(makespan2(state) == 3._d);
+        REQUIRE(makespan(state) == Approx(3.F));
+        REQUIRE(makespan2(state) == Approx(3.F));
     }
 
-    "Move assignment"_test = [] {
+    SECTION("Move assignment")
     {
         makespan2 = std::move(makespan);
-        expect(makespan2(state) == 3._d);
+        REQUIRE(makespan2(state) == Approx(3.F));
     }
 
-    "Copy ctor"_test = [] {
+    SECTION("Copy ctor")
     {
         Makespan makespan3{makespan2};
-        expect(makespan2(state2) == 2._d);
-        expect(makespan3(state2) == 2._d);
+        REQUIRE(makespan2(state2) == Approx(2.F));
+        REQUIRE(makespan3(state2) == Approx(2.F));
     }
 
-    "Move ctor"_test = [] {
+    SECTION("Move ctor")
     {
         Makespan makespan4{std::move(makespan2)};
-        expect(makespan4(state2) == 2._d);
+        REQUIRE(makespan4(state2) == Approx(2.F));
     }
 
-    "Self copy"_test = [] {
+    SECTION("Self copy")
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
         makespan = makespan;
 #pragma clang diagnostic pop
 
-        expect(makespan(state) == 3._d);
+        REQUIRE(makespan(state) == Approx(3.F));
     }
 
-    "Self move"_test = [] {
+    SECTION("Self move")
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
         makespan = std::move(makespan);
 #pragma clang diagnostic pop
 
-        expect(makespan(state) == 3._d);
+        REQUIRE(makespan(state) == Approx(3.F));
     }
 }
 
-"Makespan estimation"_test = [] {
+TEST_CASE("Makespan estimation")
 {
     const auto params = make_test_schedule_params();
     Makespan makespan{params};
     const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
-    expect(makespan(state) == 3._d);
+    REQUIRE(makespan(state) == Approx(3.F));
 }

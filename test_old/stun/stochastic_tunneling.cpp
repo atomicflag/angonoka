@@ -41,22 +41,22 @@ struct TemperatureMock final : TemperatureStub {
 };
 } // namespace
 
-"StochasticTunneling type traits"_test = [] {
+TEST_CASE("StochasticTunneling type traits")
 {
     using angonoka::stun::StochasticTunneling;
-    expect(
+    STATIC_REQUIRE(
         std::is_nothrow_destructible_v<StochasticTunneling>);
-    expect(
+    STATIC_REQUIRE(
         !std::is_default_constructible_v<StochasticTunneling>);
-    expect(std::is_copy_constructible_v<StochasticTunneling>);
-    expect(std::is_copy_assignable_v<StochasticTunneling>);
-    expect(
+    STATIC_REQUIRE(std::is_copy_constructible_v<StochasticTunneling>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<StochasticTunneling>);
+    STATIC_REQUIRE(
         std::is_nothrow_move_constructible_v<StochasticTunneling>);
-    expect(
+    STATIC_REQUIRE(
         std::is_nothrow_move_assignable_v<StochasticTunneling>);
 }
 
-"Stochastic tunneling"_test = [] {
+TEST_CASE("Stochastic tunneling")
 {
     using namespace angonoka::stun;
     using trompeloeil::_;
@@ -69,21 +69,21 @@ struct TemperatureMock final : TemperatureStub {
 
     trompeloeil::sequence seq;
 
-    expect_CALL(makespan, call(state)).RETURN(1.F).IN_SEQUENCE(seq);
-    expect_CALL(mutator, call(_)).IN_SEQUENCE(seq);
-    expect_CALL(makespan, call(_)).RETURN(1.F).IN_SEQUENCE(seq);
-    expect_CALL(temperature, to_float())
+    REQUIRE_CALL(makespan, call(state)).RETURN(1.F).IN_SEQUENCE(seq);
+    REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
+    REQUIRE_CALL(makespan, call(_)).RETURN(1.F).IN_SEQUENCE(seq);
+    REQUIRE_CALL(temperature, to_float())
         .RETURN(.5F)
         .IN_SEQUENCE(seq);
-    expect_CALL(random_utils, uniform_01())
+    REQUIRE_CALL(random_utils, uniform_01())
         .RETURN(.1F)
         .IN_SEQUENCE(seq);
-    expect_CALL(temperature, update(_)).IN_SEQUENCE(seq);
+    REQUIRE_CALL(temperature, update(_)).IN_SEQUENCE(seq);
 
-    expect_CALL(mutator, call(_)).IN_SEQUENCE(seq);
-    expect_CALL(makespan, call(_)).RETURN(.1F).IN_SEQUENCE(seq);
+    REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
+    REQUIRE_CALL(makespan, call(_)).RETURN(.1F).IN_SEQUENCE(seq);
 
-    "Simple"_test = [] {
+    SECTION("Simple")
     {
         StochasticTunneling stun{
             {.mutator{&mutator},
@@ -94,11 +94,11 @@ struct TemperatureMock final : TemperatureStub {
             state};
         for (int i{0}; i < 2; ++i) stun.update();
 
-        expect(stun.energy() == .1_d);
-        expect(stun.state().size() == 3);
+        REQUIRE(stun.energy() == Approx(.1F));
+        REQUIRE(stun.state().size() == 3);
     }
 
-    "Two phase construction"_test = [] {
+    SECTION("Two phase construction")
     {
         StochasticTunneling stun{
             {.mutator{&mutator},
@@ -109,12 +109,12 @@ struct TemperatureMock final : TemperatureStub {
         stun.reset(state);
         for (int i{0}; i < 2; ++i) stun.update();
 
-        expect(stun.energy() == .1_d);
-        expect(stun.state().size() == 3);
+        REQUIRE(stun.energy() == Approx(.1F));
+        REQUIRE(stun.state().size() == 3);
     }
 }
 
-"StochasticTunneling options"_test = [] {
+TEST_CASE("StochasticTunneling options")
 {
     using namespace angonoka::stun;
     using trompeloeil::_;
@@ -136,17 +136,17 @@ struct TemperatureMock final : TemperatureStub {
 
     StochasticTunneling stun{options, state};
 
-    expect(stun.options().makespan == &makespan);
+    REQUIRE(stun.options().makespan == &makespan);
 
     MakespanMock makespan2;
 
     options.makespan = &makespan2;
     stun.options(options);
 
-    expect(stun.options().makespan == &makespan2);
+    REQUIRE(stun.options().makespan == &makespan2);
 }
 
-"StochasticTunneling special member functions"_test = [] {
+TEST_CASE("StochasticTunneling special member functions")
 {
     using namespace angonoka::stun;
     using trompeloeil::_;
@@ -169,51 +169,51 @@ struct TemperatureMock final : TemperatureStub {
 
     StochasticTunneling stun{options, state};
 
-    "Copy assignment"_test = [] {
+    SECTION("Copy assignment")
     {
         StochasticTunneling stun2{options, state2};
         stun = stun2;
 
-        expect(stun.state()[0].agent_id == 3);
+        REQUIRE(stun.state()[0].agent_id == 3);
     }
 
-    "Move assignment"_test = [] {
+    SECTION("Move assignment")
     {
         StochasticTunneling stun2{options, state2};
         stun = std::move(stun2);
 
-        expect(stun.state()[0].agent_id == 3);
+        REQUIRE(stun.state()[0].agent_id == 3);
     }
 
-    "Copy ctor"_test = [] {
+    SECTION("Copy ctor")
     {
         StochasticTunneling stun2{stun};
 
-        expect(stun2.state()[1].agent_id == 1);
+        REQUIRE(stun2.state()[1].agent_id == 1);
     }
 
-    "Move ctor"_test = [] {
+    SECTION("Move ctor")
     {
         StochasticTunneling stun2{std::move(stun)};
 
-        expect(stun2.state()[1].agent_id == 1);
+        REQUIRE(stun2.state()[1].agent_id == 1);
     }
 
-    "Self copy"_test = [] {
+    SECTION("Self copy")
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
         stun = stun;
 #pragma clang diagnostic pop
-        expect(stun.state()[1].agent_id == 1);
+        REQUIRE(stun.state()[1].agent_id == 1);
     }
 
-    "Self move"_test = [] {
+    SECTION("Self move")
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
         stun = std::move(stun);
 #pragma clang diagnostic pop
-        expect(stun.state()[1].agent_id == 1);
+        REQUIRE(stun.state()[1].agent_id == 1);
     }
 }
