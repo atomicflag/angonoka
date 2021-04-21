@@ -16,6 +16,10 @@ base_test = executable(
     'parse_duration.cpp',
     'configuration.cpp',
     'validation.cpp',
+    'stun/common.cpp',
+    'stun/exp_curve_fitter.cpp',
+    'stun/makespan.cpp',
+    'stun/mutate.cpp'
   ],
   dependencies : [ base, test_deps ]
 )
