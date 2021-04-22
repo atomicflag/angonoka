@@ -18,6 +18,7 @@ default:
   before_script:
     - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
+    - sed -i 's/"11"/"12"/g' ~/.conan/settings.yml # sigh...
 
 test:
   stage: test
