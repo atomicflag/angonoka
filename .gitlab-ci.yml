@@ -18,7 +18,33 @@ default:
   before_script:
     - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
-    - sed -i 's/"11"/"12"/g' ~/.conan/settings.yml # sigh...
+    - >-
+      echo "\
+      H4sIAAAAAAACA9VX3W/bNhB/919BuA99qOKYkizZecuSdigQp0A9NBsGw5AlxmImSxpJ2U
+      7/+p14JKUU8jJsHbAZMH/Hjzse74vU6A35VBbP5LESJBWVlGTb8CLj5c4jbyu50b3LRKQ5
+      km8Jl0TljMhnqdgeyEQR0ZSS3FRlUo4syxX59YGXWXWUHjHESlWCeeSOl83JI8skrWDug2
+      Dsh9WtR1ZN+WnlkeuPP69H3XYg5jSPPALNJgo9Utdp4G+ZITREYcEM4ZFE7A8zVhgif0Qi
+      QogN2OFYGvwNcW5g00rW1CTwiKxBHQOHhUf2vJbY6g0PAuaCxRRbOJjMQaH1aNQzrDWpsX
+      Ba7WteJIpXJVFVVUg0tUrEjim0NdLfGhtkgdhjztNcD2tmsmMlE4liIDdjIyeo74GXNr8u
+      M1HxzCO8tfgxUWneEurQtgMOgUZkDS8rj9yzRgmgjI/cTv83JyVyP3mS7eHlvu+yz0wqUj
+      2i0ZlS4DQJuzAyziupxm7sCtZekA/g2xL8eGDOxZcvk+iKPOQM2Ft5Bd+KRDxf1qLaiWRP
+      jrwo2tSZOFmvxUlfWn8JEz1hFShH4Gecj532J5stxhH4674qwR/p8+7IS7ATjGMLNj3KYt
+      0XoNO2k3JgQoJCIGM8n9CxR8Z0OpmOX7DcvO/W13AAiFvY9Pr+lyEpM+AGKRFCjDB3InXo
+      ojgdvkOa4GlaRSKjUGxwbnBhkE4tYVWnviUCS4Rma5Mn3Y5JzTcFO7CiOwyk0KBtYnscao
+      +jwfR8BL3jAucWOLfAucUkcKY1Whm06uI8NfPUzFMzT918qNE363xYh4czaT+ofIirQxQa
+      oswQRRp3zZygtmwMSvkHypkihGJ1IUISipEhsCB1+26rRGSdW97vZSp4rViJS2zdGlQ0Qj
+      2iyQwhsoGIVe7vlDcL/L9b7WzpQJPIprxI06vhBKXW5dSgb9BEhMsYHQ+5YEkmXVrWleSn
+      bhqqYHo6wSwQN1LBLQQEIAwasqgrodzwu3fIuzujnQvSEGGGECHECHMEqAJORPcbz2xAaz
+      BnM0cLEWbDnBEGDEXwEQKEcJgl7pWFGFnilmVo7fxM0Rhau7BFZNjUaMqeVSl9xWUQLrwM
+      /DV54+o6WfLyxwfHxk4pq1W/BGfHRDxCpMqn4glalrfcw8xpXYMijnMBkb4rmxYo1WQLNE
+      QSgMZIAvhTTfpTPMEXLpukICvVZLyX4HAZKr5nsMMSXjPLn9o/RNvyNlsPXmbaflhcsTph
+      TdIt1ikdJzTqx3p7K+sHEJ7i0CbdgU51S027OdUt4U+xbbsDDjzQUC8I7Xog0iIpd5sUDH
+      p392V5cZD+lL7snBHWrQj6ywMtuuuHLzqvyor7y2OrJsXWdXtaQ9dfn/O4dap1o2YbTPEA
+      UyrAZAwwxQNM8QBTPMAUD/Ci1/fXYKYPvTV0Mp5Nv6GQ+Msppjt6EJqNzOElmRlawbsuXf
+      8L6ZDUdcEuzluzd4F3pohsQZq6gvTtq+XlO8W9TKh7qf2JPVwV/75H/f3snRDa6j2gmr5p
+      djWEa2qai1aPJE3rtjVdpicZduHbQL/NN+q5Zk7zW7Zt4DP5MytYIpkmHrjKYfhj+QgfS1
+      DwVvwrg2G4bb/HoQlU01tWC5bC5x4EUiOZ+wKY4A6jPwBm3usU0Q8AAA=="
+      | base64 -d | gzip -d > ~/.conan/settings.yml
 
 test:
   stage: test
