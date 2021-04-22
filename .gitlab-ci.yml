@@ -9,7 +9,7 @@ variables:
   CCACHE_COMPRESSLEVEL: "9"
 
 default:
-  image: registry.gitlab.com/signal9/cpp-env:11.1.0
+  image: registry.gitlab.com/signal9/cpp-env:12.0.0
   cache:
     key: "$CI_COMMIT_REF_SLUG"
     paths:
@@ -22,11 +22,14 @@ default:
 test:
   stage: test
   script:
-    - make check/format
-    - make build/cov
-    - make check/tidy
+    # - make check/format
+    # - make build/cov
+    # - make check/tidy
+    # - make test
+    # - make check/cov
+    - make build
+    - make check
     - make test
-    - make check/cov
 
 build:
   stage: build

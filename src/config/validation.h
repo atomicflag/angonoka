@@ -23,8 +23,9 @@ concept Check
 template <typename T>
 concept Attribute = std::is_convertible_v<
     decltype(std::declval<T>().name),
-    std::string_view>&& Check<T>;
-template <typename T> concept AttrOrStr = String<T> || Attribute<T>;
+    std::string_view> && Check<T>;
+template <typename T>
+concept AttrOrStr = String<T> || Attribute<T>;
 
 /**
     YAML scalar.

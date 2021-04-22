@@ -9,8 +9,8 @@
 define RELEASE_CXXFLAGS =
 -pipe \
 -O3 \
--march=x86-64 \
--mtune=intel \
+-march=haswell \
+-mtune=haswell \
 -fomit-frame-pointer \
 -ffunction-sections \
 -fdata-sections \

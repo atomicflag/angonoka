@@ -1,4 +1,4 @@
-# conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan
+# conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
 
 [requires]
 boost/1.74.0
