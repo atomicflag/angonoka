@@ -19,7 +19,8 @@ base_test = executable(
     'stun/common.cpp',
     'stun/exp_curve_fitter.cpp',
     'stun/makespan.cpp',
-    'stun/mutate.cpp'
+    'stun/mutate.cpp',
+    'stun/optimizer.cpp'
   ],
   dependencies : [ base, test_deps ]
 )
