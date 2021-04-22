@@ -18,7 +18,7 @@ default:
   before_script:
     - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
-    - >-
+    - |-
       echo "\
       H4sIAAAAAAACA9VX3W/bNhB/919BuA99qOKYkizZecuSdigQp0A9NBsGw5AlxmImSxpJ2U
       7/+p14JKUU8jJsHbAZMH/Hjzse74vU6A35VBbP5LESJBWVlGTb8CLj5c4jbyu50b3LRKQ5
@@ -43,7 +43,7 @@ default:
       UyrAZAwwxQNM8QBTPMAUD/Ci1/fXYKYPvTV0Mp5Nv6GQ+Msppjt6EJqNzOElmRlawbsuXf
       8L6ZDUdcEuzluzd4F3pohsQZq6gvTtq+XlO8W9TKh7qf2JPVwV/75H/f3snRDa6j2gmr5p
       djWEa2qai1aPJE3rtjVdpicZduHbQL/NN+q5Zk7zW7Zt4DP5MytYIpkmHrjKYfhj+QgfS1
-      DwVvwrg2G4bb/HoQlU01tWC5bC5x4EUiOZ+wKY4A6jPwBm3usU0Q8AAA=="
+      DwVvwrg2G4bb/HoQlU01tWC5bC5x4EUiOZ+wKY4A6jPwBm3usU0Q8AAA==" \
       | base64 -d | gzip -d > ~/.conan/settings.yml
 
 test:
