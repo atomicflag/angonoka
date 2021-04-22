@@ -27,7 +27,7 @@ test:
     # - make check/tidy
     # - make test
     # - make check/cov
-    - make build
+    - make
     - make check
     - make test
 
