@@ -156,10 +156,12 @@ Vector2D::Vector2D(const Vector2D& other)
     if (other.empty()) return;
     data = other.data;
     spans = other.spans;
-    auto* const front_ptr = other.spans.front().data();
+    if (data.empty()) return;
+    const auto* const front_ptr = other.data.data();
     for (auto& s : spans) {
         if (s.empty()) continue;
-        const auto d = std::distance(front_ptr, s.data());
+        const auto* const p = s.data();
+        const auto d = std::distance(front_ptr, p);
         s = {std::next(data.data(), d), s.size()};
     }
 
