@@ -57,10 +57,9 @@ build/build.ninja: build/conaninfo.txt
 
 .PHONY: test
 test:
-	export LLVM_PROFILE_FILE=angonoka.profraw
 	for t in $$(find build -name '*_test'); do
 		printf "$$t:\n  "
-		eval $$t
+		LLVM_PROFILE_FILE=$$t.profraw $$t
 	done
 
 # .PHONY: benchmark
@@ -116,13 +115,14 @@ plain: ninja
 
 .PHONY: build/cov
 build/cov: MESON_ARGS=--buildtype debug -Dtests=enabled
-build/cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping
+build/cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping -DANGONOKA_COVERAGE
 build/cov: ninja
 
 .PHONY: check/cov
 check/cov: build/cov
 	llvm-profdata merge \
-		-sparse angonoka.profraw \
+		-sparse \
+		$$(find . -name '*.profraw') \
 		-o angonoka.profdata
 	llvm-cov report \
 		build/test/angonoka_test \

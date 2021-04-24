@@ -21,7 +21,8 @@ base_test = executable(
     'stun/makespan.cpp',
     'stun/mutate.cpp',
     'stun/optimizer.cpp',
-    'stun/schedule_params.cpp'
+    'stun/schedule_params.cpp',
+    'stun/temperature.cpp'
   ],
   dependencies : [ base, test_deps ]
 )
