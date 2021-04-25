@@ -1,10 +1,5 @@
-#include <catch2/catch.hpp>
-
 #include "config/load.h"
 #include "configuration.h"
-#ifndef UNIT_TEST
-#include "stun/optimizer.h"
-#endif // UNIT_TEST
 #include "stun/common.h"
 #include "stun/schedule_params.h"
 #include <boost/variant.hpp>
@@ -34,7 +29,6 @@ struct ScheduleOptimizationEvent {
 using ProgressEvent
     = boost::variant<SimpleProgressEvent, ScheduleOptimizationEvent>;
 
-#ifdef UNIT_TEST
 enum class BatchSize : std::int_fast32_t;
 enum class MaxIdleIters : std::int_fast32_t;
 struct OptimizerStub {
@@ -45,9 +39,6 @@ struct OptimizerStub {
     stun::State state() { return {}; }
 };
 using OptimizerT = OptimizerStub;
-#else
-using OptimizerT = Optimizer;
-#endif
 
 // TODO: doc, test, expects
 std::vector<stun::StateItem> optimize(

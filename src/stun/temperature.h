@@ -109,13 +109,4 @@ private:
     float beta_scale;
     std::size_t restart_period_mask;
 };
-
-#ifdef UNIT_TEST
-struct TemperatureStub {
-    virtual operator float() noexcept = 0;
-    virtual void update(float stun) noexcept = 0;
-    [[nodiscard]] virtual float average_stun() const noexcept = 0;
-    virtual ~TemperatureStub() noexcept = default;
-};
-#endif // UNIT_TEST
 } // namespace angonoka::stun

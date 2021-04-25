@@ -58,7 +58,8 @@ build/build.ninja: build/conaninfo.txt
 .PHONY: test
 test:
 	for t in $$(find build -name '*_test'); do
-		printf "$$t:\n  "
+		test_name=$$(basename $$t)
+		printf "$$test_name:\n  "
 		LLVM_PROFILE_FILE=$$t.profraw $$t
 	done
 
@@ -160,7 +161,7 @@ check/tidy:
 		data = json.load(open('compile_commands.json'))
 		def keep(f): return 'meson-generated' \
 			not in f['output'] and \
-			'angonoka_test' not in f['output']
+			not f['output'].endswith('_test')
 		data = tuple(filter(keep, data))
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF

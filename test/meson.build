@@ -27,3 +27,5 @@ base_test = executable(
   dependencies : [ base, test_deps ]
 )
 test('Unit tests', base_test)
+
+subdir('stun/stochastic_tunneling')
