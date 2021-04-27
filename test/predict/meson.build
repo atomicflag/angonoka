@@ -4,10 +4,11 @@ predict_test = executable(
   [
     'main.cpp',
     'predict.cpp',
-    '../../src/stun/schedule_params.cpp',
     '../../src/configuration.cpp',
+    '../../src/predict.cpp',
   ],
   dependencies : [ test_deps, dependencies ],
-  include_directories : ['.', include]
+  include_directories : ['.', include],
+  cpp_args: ['-DUNIT_TEST']
 )
 test('Predict unit test', stochastic_tunneling_test)

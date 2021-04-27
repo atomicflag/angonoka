@@ -1,8 +1,8 @@
 #include "stun/stochastic_tunneling.h"
-#include "stun/random_utils.h"
+#include "stub/random_utils.h"
+#include "stub/temperature.h"
+#include "stub/utils.h"
 #include "stun/schedule_params.h"
-#include "stun/temperature.h"
-#include "stun/utils.h"
 #include <boost/ut.hpp>
 #include <trompeloeil.hpp>
 

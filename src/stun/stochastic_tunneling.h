@@ -2,11 +2,17 @@
 
 #include "common.h"
 #include "detail.h"
-#include "stun/random_utils.h"
-#include "stun/temperature.h"
-#include "stun/utils.h"
 #include <gsl/gsl-lite.hpp>
 #include <vector>
+#ifndef UNIT_TEST
+#include "random_utils.h"
+#include "temperature.h"
+#include "utils.h"
+#else // UNIT_TEST
+#include "stub/random_utils.h"
+#include "stub/temperature.h"
+#include "stub/utils.h"
+#endif // UNIT_TEST
 
 namespace angonoka::stun {
 

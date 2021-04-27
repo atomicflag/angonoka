@@ -1,10 +1,12 @@
-#include "stun/common.h"
-#include "stun/exp_curve_fitter.h"
-#include "stun/random_utils.h"
-#include "stun/schedule_params.h"
-#include "stun/stochastic_tunneling.h"
-#include "stun/temperature.h"
-#include "stun/utils.h"
+#pragma once
+
+#include "common.h"
+#include "exp_curve_fitter.h"
+#include "random_utils.h"
+#include "schedule_params.h"
+#include "stochastic_tunneling.h"
+#include "temperature.h"
+#include "utils.h"
 #include <gsl/gsl-lite.hpp>
 
 namespace angonoka::stun {

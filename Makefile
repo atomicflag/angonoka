@@ -161,7 +161,7 @@ check/tidy:
 		data = json.load(open('compile_commands.json'))
 		def keep(f): return 'meson-generated' \
 			not in f['output'] and \
-			not f['output'].endswith('_test')
+			not f['output'].startswith('test')
 		data = tuple(filter(keep, data))
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF

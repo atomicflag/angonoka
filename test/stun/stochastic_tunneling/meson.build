@@ -8,6 +8,7 @@ stochastic_tunneling_test = executable(
     '../../../src/stun/common.cpp',
   ],
   dependencies : [ test_deps, dependencies ],
-  include_directories : ['.', include]
+  include_directories : ['.', include],
+  cpp_args: ['-DUNIT_TEST']
 )
 test('Stochastic tunneling unit test', stochastic_tunneling_test)
