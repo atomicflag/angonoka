@@ -51,7 +51,8 @@ build/build.ninja: build/conaninfo.txt
 			'-Dgsl_CONFIG_CONTRACT_CHECKING_OFF '
 			'-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME '
 			'-DNDEBUG '
-			'-isystem', 1)
+			'-isystem', 1) \
+			.replace('-DUNIT_TEST', '')
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
 

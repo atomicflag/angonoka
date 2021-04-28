@@ -16,11 +16,16 @@ template <typename... Ts>
 using Queue = moodycamel::ReaderWriterQueue<Ts...>;
 
 // TODO: doc, test, expects
-enum class SimpleProgressEvent { Start, Done };
+enum class SimpleProgressEvent {
+    ScheduleOptimizationStart,
+    ScheduleOptimizationDone,
+    Finished
+};
 
 // TODO: doc, test, expects
 struct ScheduleOptimizationEvent {
     float progress;
+    float makespan;
 };
 
 using ProgressEvent

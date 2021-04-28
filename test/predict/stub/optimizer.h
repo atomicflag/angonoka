@@ -12,6 +12,7 @@ struct Optimizer {
     void update();
     State state();
     float estimated_progress();
+    float energy();
 
     int steps{0};
 };

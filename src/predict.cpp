@@ -37,7 +37,9 @@ std::vector<stun::StateItem> optimize(
     while (!optimizer.has_converged()) {
         optimizer.update();
         events.enqueue(ScheduleOptimizationEvent{
-            .progress = optimizer.estimated_progress()});
+            .progress = optimizer.estimated_progress(),
+            .makespan
+            = optimizer.energy() * params.duration_multiplier});
     }
 
     return ranges::to<std::vector<StateItem>>(optimizer.state());
@@ -53,11 +55,13 @@ predict(const Configuration& config)
     auto events
         = std::make_shared<Queue<ProgressEvent>>(event_queue_size);
     auto future = std::async(std::launch::async, [=] {
-        events->enqueue(SimpleProgressEvent::Start);
+        events->enqueue(
+            SimpleProgressEvent::ScheduleOptimizationStart);
         // TODO: stub to_schedule, etc
         const auto schedule_params = stun::to_schedule_params(config);
         const auto state = optimize(schedule_params, *events);
-        events->enqueue(SimpleProgressEvent::Done);
+        events->enqueue(
+            SimpleProgressEvent::ScheduleOptimizationDone);
         return Prediction{};
     });
     return {std::move(future), std::move(events)};
