@@ -13,7 +13,14 @@
 namespace {
 using namespace angonoka;
 
-// TODO: doc, test, expects
+/**
+    Find the optimal schedule.
+
+    @param params Schedule parameters
+    @param event Event queue
+
+    @return Optimal schedule
+*/
 std::vector<stun::StateItem> optimize(
     const stun::ScheduleParams& params,
     Queue<ProgressEvent>& events)
@@ -45,6 +52,7 @@ std::vector<stun::StateItem> optimize(
     return ranges::to<std::vector<StateItem>>(optimizer.state());
 }
 } // namespace
+
 namespace angonoka {
 std::tuple<
     std::future<Prediction>,
