@@ -65,7 +65,6 @@ predict(const Configuration& config)
     auto future = std::async(std::launch::async, [=] {
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationStart);
-        // TODO: stub to_schedule, etc
         const auto schedule_params = stun::to_schedule_params(config);
         const auto state = optimize(schedule_params, *events);
         events->enqueue(
