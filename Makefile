@@ -49,7 +49,7 @@ build/build.ninja: build/conaninfo.txt
 		for f in data: f['command'] = f['command'] \
 			.replace(' -isystem', ' $(CLANG_BUILTIN) '
 			'-Dgsl_CONFIG_CONTRACT_CHECKING_OFF '
-			'-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME '
+			'-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ELIDE '
 			'-DNDEBUG '
 			'-isystem', 1) \
 			.replace('-DUNIT_TEST', '')

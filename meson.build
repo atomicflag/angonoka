@@ -2,7 +2,7 @@ project(
   'angonoka',
   'cpp',
   version : '0.3.0',
-  default_options : ['warning_level=3', 'cpp_std=c++2a']
+  default_options : ['warning_level=3', 'cpp_std=c++20']
 )
 
 compiler = meson.get_compiler('cpp')
