@@ -1,193 +1,186 @@
-#include <catch2/catch.hpp>
-
 #include "config/validation.h"
+#include <boost/ut.hpp>
 #include <yaml-cpp/yaml.h>
 
-TEST_CASE("General validation")
-{
-    using namespace angonoka::validation;
+using namespace boost::ut;
 
-    SECTION("Basic map")
-    {
-        // clang-format off
-        constexpr auto schema = attributes(
-            required("map", attributes(
-                required("val1"),
-                required("val2")
-            ))
-        );
-        // clang-format on
+suite validation = [] {
+    "general validation"_test = [] {
+        using namespace angonoka::validation;
 
-        // clang-format off
-        const auto node = YAML::Load(
-            "map:\n"
-            "  val1: 1\n"
-            "  val2: 2\n"
-        );
-        // clang-format on
-        REQUIRE(schema(node));
-    }
-
-    SECTION("Implicit required")
-    {
-        // clang-format off
-        constexpr auto schema = attributes(
-            required("map", attributes(
-                "val1",
-                "val2",
-                optional("val3")
-            ))
-        );
-        // clang-format on
-
-        // clang-format off
-        const auto node = YAML::Load(
-            "map:\n"
-            "  val1: 1\n"
-            "  val2: 2\n"
-            "  val3: 3\n"
-        );
-        // clang-format on
-        REQUIRE(schema(node));
-    }
-
-    SECTION("Basic map with extra arg")
-    {
-        // clang-format off
-        constexpr auto schema = attributes(
-            required("map", attributes(
-                required("val1"),
-                required("val2")
-            ))
-        );
-        // clang-format on
-
-        // clang-format off
-        const auto node = YAML::Load(
-            "map:\n"
-            "  val1: 1\n"
-            "  val2: 2\n"
-            "  val3: 3\n"
-        );
-        // clang-format on
-        const auto result = schema(node);
-        REQUIRE_FALSE(result);
-        REQUIRE(
-            result.error()
-            == R"(Unexpected attribute "val3" in "map")");
-    }
-
-    SECTION("Empty attributes")
-    {
-        // clang-format off
-        constexpr auto schema = attributes(
-            required("foobar", attributes(
-                required("val1")
-            ))
-        );
-        // clang-format on
-
-        // clang-format off
-        const auto node = YAML::Load(
-            "foobar:\n"
-            "  val1: 3\n"
-            "  : 3\n"
-        );
-        // clang-format on
-        const auto result = schema(node);
-        REQUIRE_FALSE(result);
-        REQUIRE(result.error() == R"(Empty attribute in "foobar")");
-    }
-
-    SECTION("Map values")
-    {
-        // clang-format off
-        constexpr auto schema = attributes(
-            required("map",
-                values(scalar())
-            )
-        );
-        // clang-format on
-
-        // clang-format off
-        const auto node = YAML::Load(
-            "map:\n"
-            "  val1: 1\n"
-            "  val2: 2\n"
-            "  val3: 3\n"
-        );
-        // clang-format on
-        REQUIRE(schema(node));
-    }
-}
-
-TEST_CASE("any_of validation")
-{
-    using namespace angonoka::validation;
-
-    // clang-format off
-    constexpr auto schema = attributes(
-        required("map", any_of(
-            attributes(
-                required("val3", attributes(
+        "basic map"_test = [] {
+            // clang-format off
+            constexpr auto schema = attributes(
+                required("map", attributes(
                     required("val1"),
                     required("val2")
                 ))
-            ),
-            attributes(
-                required("val3")
-            )
-        ))
-    );
-    // clang-format on
+            );
+            // clang-format on
 
-    SECTION("First variant")
-    {
+            // clang-format off
+            const auto node = YAML::Load(
+                "map:\n"
+                "  val1: 1\n"
+                "  val2: 2\n"
+            );
+            // clang-format on
+            expect(static_cast<bool>(schema(node)));
+        };
+
+        "implicit required"_test = [] {
+            // clang-format off
+            constexpr auto schema = attributes(
+                required("map", attributes(
+                    "val1",
+                    "val2",
+                    optional("val3")
+                ))
+            );
+            // clang-format on
+
+            // clang-format off
+            const auto node = YAML::Load(
+                "map:\n"
+                "  val1: 1\n"
+                "  val2: 2\n"
+                "  val3: 3\n"
+            );
+            // clang-format on
+            expect(static_cast<bool>(schema(node)));
+        };
+
+        "basic map with extra arg"_test = [] {
+            // clang-format off
+            constexpr auto schema = attributes(
+                required("map", attributes(
+                    required("val1"),
+                    required("val2")
+                ))
+            );
+            // clang-format on
+
+            // clang-format off
+            const auto node = YAML::Load(
+                "map:\n"
+                "  val1: 1\n"
+                "  val2: 2\n"
+                "  val3: 3\n"
+            );
+            // clang-format on
+            const auto result = schema(node);
+            expect(!result);
+            expect(
+                result.error()
+                == R"(Unexpected attribute "val3" in "map")");
+        };
+
+        "empty attributes"_test = [] {
+            // clang-format off
+            constexpr auto schema = attributes(
+                required("foobar", attributes(
+                    required("val1")
+                ))
+            );
+            // clang-format on
+
+            // clang-format off
+            const auto node = YAML::Load(
+                "foobar:\n"
+                "  val1: 3\n"
+                "  : 3\n"
+            );
+            // clang-format on
+            const auto result = schema(node);
+            expect(!result);
+            expect(
+                result.error() == R"(Empty attribute in "foobar")");
+        };
+
+        "map values"_test = [] {
+            // clang-format off
+            constexpr auto schema = attributes(
+                required("map",
+                    values(scalar())
+                )
+            );
+            // clang-format on
+
+            // clang-format off
+            const auto node = YAML::Load(
+                "map:\n"
+                "  val1: 1\n"
+                "  val2: 2\n"
+                "  val3: 3\n"
+            );
+            // clang-format on
+            expect(static_cast<bool>(schema(node)));
+        };
+    };
+
+    "any_of validation"_test = [] {
+        using namespace angonoka::validation;
+
         // clang-format off
-        const auto node = YAML::Load(
-            "map:\n"
-            "  val3:\n"
-            "    val1: 1\n"
-            "    val2: 2\n"
+        constexpr auto schema = attributes(
+            required("map", any_of(
+                attributes(
+                    required("val3", attributes(
+                        required("val1"),
+                        required("val2")
+                    ))
+                ),
+                attributes(
+                    required("val3")
+                )
+            ))
         );
         // clang-format on
-        REQUIRE(schema(node));
-    }
 
-    SECTION("Second variant")
-    {
-        // clang-format off
-        const auto node = YAML::Load(
-            "map:\n"
-            "  val3: 3\n"
-        );
-        // clang-format on
-        REQUIRE(schema(node));
-    }
+        "first variant"_test = [&] {
+            // clang-format off
+            const auto node = YAML::Load(
+                "map:\n"
+                "  val3:\n"
+                "    val1: 1\n"
+                "    val2: 2\n"
+            );
+            // clang-format on
+            expect(static_cast<bool>(schema(node)));
+        };
 
-    SECTION("No attributes")
-    {
-        const auto node = YAML::Load("map:\n");
-        const auto result = schema(node);
-        REQUIRE_FALSE(result);
-        REQUIRE(
-            result.error()
-            == R"("map" is missing a "val3" attribute)");
-    }
+        "second variant"_test = [&] {
+            // clang-format off
+            const auto node = YAML::Load(
+                "map:\n"
+                "  val3: 3\n"
+            );
+            // clang-format on
+            expect(static_cast<bool>(schema(node)));
+        };
 
-    SECTION("Extra args")
-    {
-        // clang-format off
-        const auto node = YAML::Load(
-            "map:\n"
-            "  val3: 3\n"
-            "  val2: 2\n"
-        );
-        // clang-format on
-        const auto result = schema(node);
-        REQUIRE_FALSE(result);
-        REQUIRE(
-            result.error()
-            == R"(Unexpected attribute "val2" in "map")");
-    }
-}
+        "no attributes"_test = [&] {
+            const auto node = YAML::Load("map:\n");
+            const auto result = schema(node);
+            expect(!result);
+            expect(
+                result.error()
+                == R"("map" is missing a "val3" attribute)");
+        };
+
+        "extra args"_test = [&] {
+            // clang-format off
+            const auto node = YAML::Load(
+                "map:\n"
+                "  val3: 3\n"
+                "  val2: 2\n"
+            );
+            // clang-format on
+            const auto result = schema(node);
+            expect(!result);
+            expect(
+                result.error()
+                == R"(Unexpected attribute "val2" in "map")");
+        };
+    };
+};

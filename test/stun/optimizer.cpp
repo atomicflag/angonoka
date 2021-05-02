@@ -1,148 +1,142 @@
-#undef UNIT_TEST
 #include "stun/optimizer.h"
 #include "config/load.h"
-#include <catch2/catch.hpp>
+#include <boost/ut.hpp>
 
-TEST_CASE("Optimizer type traits")
-{
-    using angonoka::stun::Optimizer;
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<Optimizer>);
-    STATIC_REQUIRE(!std::is_default_constructible_v<Optimizer>);
-    STATIC_REQUIRE(std::is_copy_constructible_v<Optimizer>);
-    STATIC_REQUIRE(std::is_copy_assignable_v<Optimizer>);
-    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Optimizer>);
-    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Optimizer>);
-}
+using namespace boost::ut;
 
-TEST_CASE("Basic Optimizer operations")
-{
-    using namespace angonoka::stun;
+suite optimizer = [] {
+    "Optimizer type traits"_test = [] {
+        using angonoka::stun::Optimizer;
+        expect(std::is_nothrow_destructible_v<Optimizer>);
+        expect(!std::is_default_constructible_v<Optimizer>);
+        expect(std::is_copy_constructible_v<Optimizer>);
+        expect(std::is_copy_assignable_v<Optimizer>);
+        expect(std::is_nothrow_move_constructible_v<Optimizer>);
+        expect(std::is_nothrow_move_assignable_v<Optimizer>);
+    };
 
-    // clang-format off
-    constexpr auto text = 
-        "agents:\n"
-        "  Bob:\n"
-        "  Jack:\n"
-        "tasks:\n"
-        "  - name: Task 1\n"
-        "    duration: 1h\n"
-        "  - name: Task 2\n"
-        "    duration: 1h";
-    // clang-format on
-    const auto config = angonoka::load_text(text);
+    "basic Optimizer operations"_test = [] {
+        using namespace angonoka::stun;
 
-    const auto params = to_schedule_params(config);
-    const auto schedule_params = to_schedule_params(config);
-    Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
+        // clang-format off
+        constexpr auto text = 
+            "agents:\n"
+            "  Bob:\n"
+            "  Jack:\n"
+            "tasks:\n"
+            "  - name: Task 1\n"
+            "    duration: 1h\n"
+            "  - name: Task 2\n"
+            "    duration: 1h";
+        // clang-format on
+        const auto config = angonoka::load_text(text);
 
-    REQUIRE(optimizer.energy() == 2.F);
-    REQUIRE(optimizer.estimated_progress() == 0.F);
-    REQUIRE(optimizer.state()[1].agent_id == 0);
+        const auto params = to_schedule_params(config);
+        const auto schedule_params = to_schedule_params(config);
+        Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
-    optimizer.update();
+        expect(optimizer.energy() == 2.F);
+        expect(optimizer.estimated_progress() == 0.F);
+        expect(optimizer.state()[1].agent_id == 0);
 
-    REQUIRE(optimizer.estimated_progress() == 0.F);
+        optimizer.update();
 
-    while (!optimizer.has_converged()) optimizer.update();
-
-    // Might be non-deterministic
-    REQUIRE(optimizer.energy() == 1.F);
-    REQUIRE(optimizer.estimated_progress() == 1.F);
-    // Each task has a different agent
-    REQUIRE(
-        optimizer.state()[1].agent_id
-        != optimizer.state()[0].agent_id);
-
-    optimizer.reset();
-
-    REQUIRE(optimizer.energy() == 2.F);
-    REQUIRE(optimizer.estimated_progress() == 0.F);
-}
-
-TEST_CASE("Optimizer special memeber functions")
-{
-    using namespace angonoka::stun;
-    //
-    // clang-format off
-    constexpr auto text = 
-        "agents:\n"
-        "  Bob:\n"
-        "  Jack:\n"
-        "tasks:\n"
-        "  - name: Task 1\n"
-        "    duration: 1h\n"
-        "  - name: Task 2\n"
-        "    duration: 1h";
-    // clang-format on
-    const auto config = angonoka::load_text(text);
-
-    const auto params = to_schedule_params(config);
-    const auto schedule_params = to_schedule_params(config);
-    Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
-
-    SECTION("Copy ctor")
-    {
-        Optimizer other{optimizer};
-
-        REQUIRE(other.energy() == 2.F);
+        expect(optimizer.estimated_progress() == 0.F);
 
         while (!optimizer.has_converged()) optimizer.update();
 
-        REQUIRE(other.energy() == 2.F);
-    }
+        // Might be non-deterministic
+        expect(optimizer.energy() == 1.F);
+        expect(optimizer.estimated_progress() == 1.F);
+        // Each task has a different agent
+        expect(
+            optimizer.state()[1].agent_id
+            != optimizer.state()[0].agent_id);
 
-    SECTION("Copy assignment")
-    {
-        Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
-        other = optimizer;
+        optimizer.reset();
 
-        REQUIRE(other.energy() == 2.F);
+        expect(optimizer.energy() == 2.F);
+        expect(optimizer.estimated_progress() == 0.F);
+    };
 
-        while (!optimizer.has_converged()) optimizer.update();
+    "Optimizer special memeber functions"_test = [] {
+        using namespace angonoka::stun;
 
-        REQUIRE(other.energy() == 2.F);
-    }
+        // clang-format off
+        constexpr auto text = 
+            "agents:\n"
+            "  Bob:\n"
+            "  Jack:\n"
+            "tasks:\n"
+            "  - name: Task 1\n"
+            "    duration: 1h\n"
+            "  - name: Task 2\n"
+            "    duration: 1h";
+        // clang-format on
+        const auto config = angonoka::load_text(text);
 
-    SECTION("Move ctor")
-    {
-        Optimizer other{std::move(optimizer)};
+        const auto params = to_schedule_params(config);
+        const auto schedule_params = to_schedule_params(config);
+        Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
-        REQUIRE(other.energy() == 2.F);
+        should("copy ctor") = [=]() mutable {
+            Optimizer other{optimizer};
 
-        while (!other.has_converged()) other.update();
+            expect(other.energy() == 2.F);
 
-        REQUIRE(other.energy() == 1.F);
-    }
+            while (!optimizer.has_converged()) optimizer.update();
 
-    SECTION("Move assignment")
-    {
-        Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
-        other = std::move(optimizer);
+            expect(other.energy() == 2.F);
+        };
 
-        REQUIRE(other.energy() == 2.F);
+        should("copy assignment") = [=]() mutable {
+            Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
+            other = optimizer;
 
-        while (!other.has_converged()) other.update();
+            expect(other.energy() == 2.F);
 
-        REQUIRE(other.energy() == 1.F);
-    }
+            while (!optimizer.has_converged()) optimizer.update();
 
-    SECTION("Self copy")
-    {
+            expect(other.energy() == 2.F);
+        };
+
+        should("move ctor") = [=]() mutable {
+            Optimizer other{std::move(optimizer)};
+
+            expect(other.energy() == 2.F);
+
+            while (!other.has_converged()) other.update();
+
+            expect(other.energy() == 1.F);
+        };
+
+        should("move assignment") = [=]() mutable {
+            Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
+            other = std::move(optimizer);
+
+            expect(other.energy() == 2.F);
+
+            while (!other.has_converged()) other.update();
+
+            expect(other.energy() == 1.F);
+        };
+
+        should("self copy") = [=]() mutable {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
-        optimizer = optimizer;
+            optimizer = optimizer;
 #pragma clang diagnostic pop
 
-        REQUIRE(optimizer.energy() == 2.F);
-    }
+            expect(optimizer.energy() == 2.F);
+        };
 
-    SECTION("Self move")
-    {
+        should("self move") = [=]() mutable {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
-        optimizer = std::move(optimizer);
+            optimizer = std::move(optimizer);
 #pragma clang diagnostic pop
 
-        REQUIRE(optimizer.energy() == 2.F);
-    }
-}
+            expect(optimizer.energy() == 2.F);
+        };
+    };
+};

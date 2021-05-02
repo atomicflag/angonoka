@@ -48,9 +48,10 @@ AgentPerformance agent_performance(const Agents& agents)
     @param tasks        Array of Tasks
     @param agent_count  Total number of agents
 
-    @return Task duration map
+    @return Task duration map and a duration multiplier
 */
-TaskDuration task_duration(const Tasks& tasks, int agent_count)
+std::tuple<TaskDuration, float>
+task_duration(const Tasks& tasks, int agent_count)
 {
     Expects(!tasks.empty());
     Expects(agent_count > 0);
@@ -69,7 +70,7 @@ TaskDuration task_duration(const Tasks& tasks, int agent_count)
 
     Ensures(durations.size() == tasks.size());
 
-    return durations;
+    return {std::move(durations), average_duration};
 }
 
 /**
@@ -156,10 +157,12 @@ Vector2D::Vector2D(const Vector2D& other)
     if (other.empty()) return;
     data = other.data;
     spans = other.spans;
-    auto* const front_ptr = other.spans.front().data();
+    if (data.empty()) return;
+    const auto* const front_ptr = other.data.data();
     for (auto& s : spans) {
         if (s.empty()) continue;
-        const auto d = std::distance(front_ptr, s.data());
+        const auto* const p = s.data();
+        const auto d = std::distance(front_ptr, p);
         s = {std::next(data.data(), d), s.size()};
     }
 
@@ -263,12 +266,17 @@ ScheduleParams to_schedule_params(const Configuration& config)
     Expects(!config.agents.empty());
     Expects(!config.tasks.empty());
 
+    auto&& [task_duration_, duration_multiplier] = task_duration(
+        config.tasks,
+        static_cast<int>(config.agents.size()));
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wbraced-scalar-init"
     return {
         .agent_performance{agent_performance(config.agents)},
-        .task_duration{task_duration(
-            config.tasks,
-            static_cast<int>(config.agents.size()))},
+        .task_duration{std::move(task_duration_)},
         .available_agents{available_agents(config)},
-        .dependencies{dependencies(config.tasks)}};
+        .dependencies{dependencies(config.tasks)},
+        .duration_multiplier{duration_multiplier}};
+#pragma clang diagnostic pop
 }
 } // namespace angonoka::stun

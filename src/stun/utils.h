@@ -49,13 +49,6 @@ private:
     span<float> work_done;
 };
 
-#ifdef UNIT_TEST
-struct MakespanStub {
-    virtual float operator()(State state) noexcept = 0;
-    virtual ~MakespanStub() noexcept = default;
-};
-#endif // UNIT_TEST
-
 class RandomUtils;
 
 /**
@@ -86,11 +79,4 @@ private:
     gsl::not_null<const ScheduleParams*> params;
     gsl::not_null<RandomUtils*> random;
 };
-
-#ifdef UNIT_TEST
-struct MutatorStub {
-    virtual void operator()(MutState state) const noexcept = 0;
-    virtual ~MutatorStub() noexcept = default;
-};
-#endif // UNIT_TEST
 } // namespace angonoka::stun

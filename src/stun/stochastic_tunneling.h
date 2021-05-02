@@ -4,23 +4,19 @@
 #include "detail.h"
 #include <gsl/gsl-lite.hpp>
 #include <vector>
+#ifndef UNIT_TEST
+#include "random_utils.h"
+#include "temperature.h"
+#include "utils.h"
+#else // UNIT_TEST
+#include "stub/random_utils.h"
+#include "stub/temperature.h"
+#include "stub/utils.h"
+#endif // UNIT_TEST
 
 namespace angonoka::stun {
 
 struct ScheduleParams;
-#ifndef UNIT_TEST
-using TemperatureT = class Temperature;
-using MakespanT = class Makespan;
-using RandomUtilsT = class RandomUtils;
-using MutatorT = class Mutator;
-#else // UNIT_TEST
-using TemperatureT = struct TemperatureStub;
-using MakespanT = struct MakespanStub;
-using RandomUtilsT = struct RandomUtilsStub;
-using MutatorT = struct MutatorStub;
-inline namespace stub { // to avoid ODR
-#endif // UNIT_TEST
-
 /**
     Stochastic tunneling algorithm.
 
@@ -51,10 +47,10 @@ public:
         @var gamma      Tunneling parameter
     */
     struct Options {
-        gsl::not_null<const MutatorT*> mutator;
-        gsl::not_null<RandomUtilsT*> random;
-        gsl::not_null<MakespanT*> makespan;
-        gsl::not_null<TemperatureT*> temp;
+        gsl::not_null<const Mutator*> mutator;
+        gsl::not_null<RandomUtils*> random;
+        gsl::not_null<Makespan*> makespan;
+        gsl::not_null<Temperature*> temp;
         float gamma;
     };
 
@@ -129,10 +125,10 @@ private:
 
     using index = MutState::index_type;
 
-    gsl::not_null<const MutatorT*> mutator;
-    gsl::not_null<RandomUtilsT*> random;
-    gsl::not_null<MakespanT*> makespan;
-    gsl::not_null<TemperatureT*> temp;
+    gsl::not_null<const Mutator*> mutator;
+    gsl::not_null<RandomUtils*> random;
+    gsl::not_null<Makespan*> makespan;
+    gsl::not_null<Temperature*> temp;
     std::vector<StateItem> state_buffer;
     MutState best_state;
     MutState current_state;
@@ -146,9 +142,5 @@ private:
     float current_s;
     float target_s;
 };
-
-#ifdef UNIT_TEST
-} // namespace stub
-#endif // UNIT_TEST
 
 } // namespace angonoka::stun

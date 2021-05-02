@@ -1,9 +1,11 @@
 #include "stun/schedule_params.h"
 #include "stun/utils.h"
-#include <catch2/catch.hpp>
+#include <boost/ut.hpp>
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/chunk.hpp>
+
+using namespace boost::ut;
 
 namespace {
 using namespace angonoka::stun;
@@ -32,86 +34,79 @@ ScheduleParams make_test_schedule_params()
 }
 } // namespace
 
-TEST_CASE("Makespan type traits")
-{
-    using angonoka::stun::Makespan;
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<Makespan>);
-    STATIC_REQUIRE(!std::is_default_constructible_v<Makespan>);
-    STATIC_REQUIRE(std::is_copy_constructible_v<Makespan>);
-    STATIC_REQUIRE(std::is_copy_assignable_v<Makespan>);
-    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Makespan>);
-    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Makespan>);
-}
+suite stun_makespan = [] {
+    "Makespan type traits"_test = [] {
+        using angonoka::stun::Makespan;
+        expect(std::is_nothrow_destructible_v<Makespan>);
+        expect(!std::is_default_constructible_v<Makespan>);
+        expect(std::is_copy_constructible_v<Makespan>);
+        expect(std::is_copy_assignable_v<Makespan>);
+        expect(std::is_nothrow_move_constructible_v<Makespan>);
+        expect(std::is_nothrow_move_assignable_v<Makespan>);
+    };
 
-TEST_CASE("Makespan special member functions")
-{
-    using namespace angonoka::stun;
+    "Makespan special member functions"_test = [] {
+        using namespace angonoka::stun;
 
-    const auto params = make_test_schedule_params();
-    const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
-    Makespan makespan{params};
+        const auto params = make_test_schedule_params();
+        const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
+        Makespan makespan{params};
 
-    REQUIRE(makespan(state) == Approx(3.F));
+        expect(makespan(state) == 3._d);
 
-    auto params2 = make_test_schedule_params();
-    params2.agent_performance.resize(2);
-    params2.task_duration.resize(2);
-    const std::vector<StateItem> state2{{0, 0}, {1, 1}};
-    Makespan makespan2{params2};
+        auto params2 = make_test_schedule_params();
+        params2.agent_performance.resize(2);
+        params2.task_duration.resize(2);
+        const std::vector<StateItem> state2{{0, 0}, {1, 1}};
+        Makespan makespan2{params2};
 
-    REQUIRE(makespan2(state2) == Approx(2.F));
+        expect(makespan2(state2) == 2._d);
 
-    SECTION("Copy assignment")
-    {
-        makespan2 = makespan;
-        REQUIRE(makespan(state) == Approx(3.F));
-        REQUIRE(makespan2(state) == Approx(3.F));
-    }
+        should("copy assignment") = [=]() mutable {
+            makespan2 = makespan;
+            expect(makespan(state) == 3._d);
+            expect(makespan2(state) == 3._d);
+        };
 
-    SECTION("Move assignment")
-    {
-        makespan2 = std::move(makespan);
-        REQUIRE(makespan2(state) == Approx(3.F));
-    }
+        should("move assignment") = [=]() mutable {
+            makespan2 = std::move(makespan);
+            expect(makespan2(state) == 3._d);
+        };
 
-    SECTION("Copy ctor")
-    {
-        Makespan makespan3{makespan2};
-        REQUIRE(makespan2(state2) == Approx(2.F));
-        REQUIRE(makespan3(state2) == Approx(2.F));
-    }
+        should("copy ctor") = [=]() mutable {
+            Makespan makespan3{makespan2};
+            expect(makespan2(state2) == 2._d);
+            expect(makespan3(state2) == 2._d);
+        };
 
-    SECTION("Move ctor")
-    {
-        Makespan makespan4{std::move(makespan2)};
-        REQUIRE(makespan4(state2) == Approx(2.F));
-    }
+        should("move ctor") = [=]() mutable {
+            Makespan makespan4{std::move(makespan2)};
+            expect(makespan4(state2) == 2._d);
+        };
 
-    SECTION("Self copy")
-    {
+        should("self copy") = [=]() mutable {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
-        makespan = makespan;
+            makespan = makespan;
 #pragma clang diagnostic pop
 
-        REQUIRE(makespan(state) == Approx(3.F));
-    }
+            expect(makespan(state) == 3._d);
+        };
 
-    SECTION("Self move")
-    {
+        should("self move") = [=]() mutable {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
-        makespan = std::move(makespan);
+            makespan = std::move(makespan);
 #pragma clang diagnostic pop
 
-        REQUIRE(makespan(state) == Approx(3.F));
-    }
-}
+            expect(makespan(state) == 3._d);
+        };
+    };
 
-TEST_CASE("Makespan estimation")
-{
-    const auto params = make_test_schedule_params();
-    Makespan makespan{params};
-    const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
-    REQUIRE(makespan(state) == Approx(3.F));
-}
+    "Makespan estimation"_test = [] {
+        const auto params = make_test_schedule_params();
+        Makespan makespan{params};
+        const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
+        expect(makespan(state) == 3._d);
+    };
+};

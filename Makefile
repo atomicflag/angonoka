@@ -9,8 +9,8 @@
 define RELEASE_CXXFLAGS =
 -pipe \
 -O3 \
--march=x86-64 \
--mtune=intel \
+-march=haswell \
+-mtune=haswell \
 -fomit-frame-pointer \
 -ffunction-sections \
 -fdata-sections \
@@ -49,21 +49,20 @@ build/build.ninja: build/conaninfo.txt
 		for f in data: f['command'] = f['command'] \
 			.replace(' -isystem', ' $(CLANG_BUILTIN) '
 			'-Dgsl_CONFIG_CONTRACT_CHECKING_OFF '
-			'-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME '
+			'-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ELIDE '
 			'-DNDEBUG '
-			'-isystem', 1)
+			'-isystem', 1) \
+			.replace('-DUNIT_TEST', '')
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
 
 .PHONY: test
 test:
-	export LLVM_PROFILE_FILE=angonoka.profraw
-	build/test/angonoka_test
-
-# TEMP
-.PHONY: stun
-stun:
-	build/src/angonoka-stun
+	for t in $$(find build -name '*_test'); do
+		test_name=$$(basename $$t)
+		printf "$$test_name:\n  "
+		LLVM_PROFILE_FILE=$$t.profraw $$t
+	done
 
 # .PHONY: benchmark
 # benchmark:
@@ -118,13 +117,14 @@ plain: ninja
 
 .PHONY: build/cov
 build/cov: MESON_ARGS=--buildtype debug -Dtests=enabled
-build/cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping
+build/cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping -DANGONOKA_COVERAGE
 build/cov: ninja
 
 .PHONY: check/cov
 check/cov: build/cov
 	llvm-profdata merge \
-		-sparse angonoka.profraw \
+		-sparse \
+		$$(find . -name '*.profraw') \
 		-o angonoka.profdata
 	llvm-cov report \
 		build/test/angonoka_test \
@@ -162,7 +162,7 @@ check/tidy:
 		data = json.load(open('compile_commands.json'))
 		def keep(f): return 'meson-generated' \
 			not in f['output'] and \
-			'angonoka_test' not in f['output']
+			not f['output'].startswith('test')
 		data = tuple(filter(keep, data))
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF

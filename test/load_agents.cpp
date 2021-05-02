@@ -1,6 +1,8 @@
 #include "config/load.h"
 #include "exceptions.h"
-#include <catch2/catch.hpp>
+#include <boost/ut.hpp>
+
+using namespace boost::ut;
 
 #define ANGONOKA_COMMON_YAML                                         \
     "tasks:\n"                                                       \
@@ -9,73 +11,61 @@
     "      min: 1 day\n"                                             \
     "      max: 3 days\n"
 
-TEST_CASE("Loading agents")
-{
-    SECTION("No 'agents' section")
-    {
+suite loading_agents = [] {
+    "no 'agents' section"_test = [] {
         constexpr auto text = ANGONOKA_COMMON_YAML;
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Section 'agents' has an invalid type")
-    {
+    "section 'agents' has an invalid type"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents: 123";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Invalid agent spec")
-    {
+    "invalid agent spec"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1: 123";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Invalid group spec")
-    {
+    "invalid group spec"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
             "    groups: 123";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Extra attributes")
-    {
+    "extra attributes"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
             "    asdf: 123";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Parse groups")
-    {
+    "parse groups"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
@@ -88,22 +78,21 @@ TEST_CASE("Loading agents")
             "      - C\n";
         // clang-format on
         const auto config = angonoka::load_text(text);
-        REQUIRE(config.groups == angonoka::Groups{"A", "B", "C"});
-        REQUIRE(config.agents.size() == 2);
+        expect(config.groups == angonoka::Groups{"A", "B", "C"});
+        expect(config.agents.size() == 2_i);
         // Agent 1 has A(0) and B(1)
-        REQUIRE(
+        expect(
             config.agents[0].group_ids
             == angonoka::GroupIndices{0, 1});
         // Agent 2 has A(0) and C(2)
-        REQUIRE(
+        expect(
             config.agents[1].group_ids
             == angonoka::GroupIndices{0, 2});
-    }
+    };
 
-    SECTION("Universal agents")
-    {
+    "universal agents"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
@@ -114,62 +103,56 @@ TEST_CASE("Loading agents")
         // clang-format on
         const auto config = angonoka::load_text(text);
         // Agent 1 has A(0) and B(1)
-        REQUIRE(
+        expect(
             config.agents[0].group_ids
             == angonoka::GroupIndices{0, 1});
         // Agent 2 should be universal
-        REQUIRE(is_universal(config.agents[1]));
-        REQUIRE(can_work_on(config.agents[1], 0));
-        REQUIRE(can_work_on(config.agents[1], 1));
-    }
+        expect(is_universal(config.agents[1]));
+        expect(can_work_on(config.agents[1], 0));
+        expect(can_work_on(config.agents[1], 1));
+    };
 
-    SECTION("No groups")
-    {
+    "no groups"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
             "  agent 2:";
         // clang-format on
         const auto config = angonoka::load_text(text);
-        REQUIRE(config.agents[0].group_ids.empty());
-        REQUIRE(config.agents[1].group_ids.empty());
-    }
+        expect(config.agents[0].group_ids.empty());
+        expect(config.agents[1].group_ids.empty());
+    };
 
-    SECTION("Invalid performance section")
-    {
+    "invalid performance section"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
             "    performance:";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Missing performance value")
-    {
+    "missing performance value"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
             "    performance:\n"
             "      min: 1.0";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Invalid performance type, text")
-    {
+    "invalid performance type, text"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
@@ -177,13 +160,11 @@ TEST_CASE("Loading agents")
             "      min: text\n"
             "      max: text";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Invalid performance type, dict")
-    {
+    "invalid performance type, dict"_test = [] {
         // clang-format off
         constexpr auto text =
             ANGONOKA_COMMON_YAML
@@ -194,15 +175,13 @@ TEST_CASE("Loading agents")
             "      max:\n"
             "        - 2";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Invalid performance values")
-    {
+    "invalid performance values"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
@@ -210,15 +189,13 @@ TEST_CASE("Loading agents")
             "      min: 2.0\n"
             "      max: 1.0";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Parse performance")
-    {
+    "parse performance"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
@@ -229,46 +206,41 @@ TEST_CASE("Loading agents")
         // clang-format on
         const auto config = angonoka::load_text(text);
         const auto& agent1_performance = config.agents[0].performance;
-        REQUIRE(agent1_performance.min == Approx(.8f));
-        REQUIRE(agent1_performance.max == Approx(1.8f));
+        expect(agent1_performance.min == .8_d);
+        expect(agent1_performance.max == 1.8_d);
         const auto& agent2_performance = config.agents[1].performance;
-        REQUIRE(agent2_performance.min == Approx(1.f));
-        REQUIRE(agent2_performance.max == Approx(1.f));
-    }
+        expect(agent2_performance.min == 1._d);
+        expect(agent2_performance.max == 1._d);
+    };
 
-    SECTION("Duplicate agents")
-    {
+    "duplicate agents"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
             "  agent 1:";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Duplicate agent sections")
-    {
+    "duplicate agent sections"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
             "agents:\n"
             "  agent 2:";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
-    SECTION("Exact performance")
-    {
+    "exact performance"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
@@ -276,23 +248,21 @@ TEST_CASE("Loading agents")
         // clang-format on
         const auto config = angonoka::load_text(text);
         const auto& agent_performance = config.agents[0].performance;
-        REQUIRE(agent_performance.min == Approx(1.f));
-        REQUIRE(agent_performance.max == Approx(1.f));
-    }
+        expect(agent_performance.min == 1._d);
+        expect(agent_performance.max == 1._d);
+    };
 
-    SECTION("Agent performance validation")
-    {
+    "agent performance validation"_test = [] {
         // clang-format off
-        constexpr auto text = 
+        constexpr auto text =
             ANGONOKA_COMMON_YAML
             "agents:\n"
             "  agent 1:\n"
             "    performance: -1.0\n";
         // clang-format on
-        REQUIRE_THROWS_AS(
-            angonoka::load_text(text),
-            angonoka::ValidationError);
-    }
-}
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
+};
 
 #undef ANGONOKA_COMMON_YAML

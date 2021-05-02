@@ -50,12 +50,4 @@ private:
     boost::random::uniform_int_distribution<std::int_fast16_t>
         uniform_int_;
 };
-
-#ifdef UNIT_TEST
-struct RandomUtilsStub {
-    virtual float uniform_01() noexcept = 0;
-    virtual int16 uniform_int(std::int16_t max) noexcept = 0;
-    virtual ~RandomUtilsStub() noexcept = default;
-};
-#endif // UNIT_TEST
 } // namespace angonoka::stun

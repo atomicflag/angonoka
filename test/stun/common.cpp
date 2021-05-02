@@ -1,23 +1,25 @@
 #include "stun/common.h"
-#include <catch2/catch.hpp>
+#include <boost/ut.hpp>
 
-TEST_CASE("StateItem printing")
-{
-    using angonoka::stun::StateItem;
+using namespace boost::ut;
 
-    const StateItem item{42, 123};
+suite stun_common = [] {
+    "StateItem printing"_test = [] {
+        using angonoka::stun::StateItem;
 
-    REQUIRE(fmt::format("{}", item) == "(42, 123)");
-}
+        const StateItem item{42, 123};
 
-TEST_CASE("StateItem type traits")
-{
-    using angonoka::stun::StateItem;
-    STATIC_REQUIRE(std::is_nothrow_destructible_v<StateItem>);
-    STATIC_REQUIRE(std::is_default_constructible_v<StateItem>);
-    STATIC_REQUIRE(std::is_nothrow_copy_constructible_v<StateItem>);
-    STATIC_REQUIRE(std::is_nothrow_copy_assignable_v<StateItem>);
-    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<StateItem>);
-    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<StateItem>);
-    STATIC_REQUIRE(std::is_trivially_copyable_v<StateItem>);
-}
+        expect(fmt::format("{}", item) == "(42, 123)");
+    };
+
+    "StateItem type traits"_test = [] {
+        using angonoka::stun::StateItem;
+        expect(std::is_nothrow_destructible_v<StateItem>);
+        expect(std::is_default_constructible_v<StateItem>);
+        expect(std::is_nothrow_copy_constructible_v<StateItem>);
+        expect(std::is_nothrow_copy_assignable_v<StateItem>);
+        expect(std::is_nothrow_move_constructible_v<StateItem>);
+        expect(std::is_nothrow_move_assignable_v<StateItem>);
+        expect(std::is_trivially_copyable_v<StateItem>);
+    };
+};

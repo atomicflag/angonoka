@@ -92,12 +92,15 @@ private:
     @var task_duration          Task durations in seconds
     @var available_agents       Which agents can perform each task
     @var dependencies           Task's dependent sub-tasks
+    @var duration_multiplier    Multiply the makespan by this value
+                                to get the duration in seconds
 */
 struct ScheduleParams {
     std::vector<float> agent_performance;
     std::vector<float> task_duration;
     Vector2D available_agents;
     Vector2D dependencies;
+    float duration_multiplier;
 };
 
 /**
