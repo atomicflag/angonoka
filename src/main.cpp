@@ -1,15 +1,40 @@
 #include "config.h"
+#include "config/load.h"
+#include "exceptions.h"
 #include <clipp.h>
 #include <fmt/printf.h>
 #include <memory>
 #include <string>
 
 namespace {
+using namespace angonoka;
 enum class Mode { none, help, version };
 struct Options {
     std::string filename;
     Mode mode{Mode::none};
+    bool verbose{false};
 };
+int run(const Options& options)
+{
+    try {
+        const auto config = load_file(options.filename);
+    } catch (const YAML::BadFile& e) {
+        fmt::print(
+            "Error reading tasks and agents from file \"{}\".\n",
+            options.filename);
+        return 1;
+    } catch (const ValidationError& e) {
+        // TODO: Add more context to errors (see TODO in exceptions.h)
+        // TODO: Add full path to validation errors, i.e.
+        // agents.Bob.performance ...
+        fmt::print("Validation error: {}\n", e.what());
+        return 1;
+    } catch (const std::runtime_error& e) {
+        fmt::print("Unexpected error: {}\n", e.what());
+        return 1;
+    }
+    return 0;
+}
 } // namespace
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
@@ -21,9 +46,11 @@ int main(int argc, char** argv)
 
     const auto cli
         = (option("--version").set(options.mode, Mode::version)
-               % "Show version",
+               % "Show version.",
            option("-h", "--help").set(options.mode, Mode::help)
-               % "Show help",
+               % "Show help.",
+           option("-v", "--verbose").set(options.verbose)
+               % "Give more information during processing.",
            value("input file", options.filename));
 
     const auto print_help = [&] {
@@ -45,6 +72,5 @@ int main(int argc, char** argv)
         print_help();
         return 1;
     }
-
-    return 0;
+    return run(options);
 }
