@@ -853,7 +853,7 @@ tasks:
       max: 45 minutes
     depends_on: ["A", "C", "D", "G", "H", "I", "J", "M", "N", "O", "S", "U", "Z", "AB", "AC", "AD", "AH", "AI", "AL", "AN", "AO", "AP", "AS", "AV", "AW", "AX", "BE", "BF", "BH", "BI", "BJ", "BL", "BN", "BO", "BP", "BU", "BV", "BW", "BY", "CA", "CB", "CG", "CK", "CM", "CN", "CO", "CR", "CW", "CY", "DA", "DF", "DG", "DH", "DI", "DL", "DM"]
   - name: Of Buddhists users Observers
-    id: DP
+    id:
     duration:
       min: 1 hour and 8 minutes
       max: 1 hour and 57 minutes

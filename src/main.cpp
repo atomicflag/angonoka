@@ -2,6 +2,7 @@
 #include "config/load.h"
 #include "exceptions.h"
 #include <clipp.h>
+#include <fmt/color.h>
 #include <fmt/printf.h>
 #include <memory>
 #include <string>
@@ -16,20 +17,25 @@ struct Options {
 };
 int run(const Options& options)
 {
+    fmt::print("Parsing configuration... ");
     try {
         const auto config = load_file(options.filename);
+        fmt::print("Done.\n");
     } catch (const YAML::BadFile& e) {
+        fmt::print(fg(fmt::color::red), "Error.\n");
         fmt::print(
             "Error reading tasks and agents from file \"{}\".\n",
             options.filename);
         return 1;
     } catch (const ValidationError& e) {
+        fmt::print(fg(fmt::terminal_color::red), "Error.\n");
         // TODO: Add more context to errors (see TODO in exceptions.h)
-        // TODO: Add full path to validation errors, i.e.
-        // agents.Bob.performance ...
+        // TODO: Refactor messages into it's own class and add
+        // .die(string) method.
         fmt::print("Validation error: {}\n", e.what());
         return 1;
     } catch (const std::runtime_error& e) {
+        fmt::print(fg(fmt::color::red), "Error.\n");
         fmt::print("Unexpected error: {}\n", e.what());
         return 1;
     }
