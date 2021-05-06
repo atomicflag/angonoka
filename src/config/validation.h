@@ -77,7 +77,14 @@ namespace detail {
         }
     };
 
-    // TODO: doc
+    /**
+        Join YAML path parts.
+
+        @param a Root path
+        @param b New path
+
+        @return Concatenation of parts separated by a ".".
+    */
     template <String T1, String T2> std::string join(T1&& a, T2&& b)
     {
         if (std::empty(a)) return std::forward<T2>(b);

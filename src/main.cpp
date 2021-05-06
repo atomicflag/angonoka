@@ -9,34 +9,44 @@
 
 namespace {
 using namespace angonoka;
+
+// TODO: doc, test, expects
 enum class Mode { none, help, version };
+
+// TODO: doc, test, expects
 struct Options {
     std::string filename;
     Mode mode{Mode::none};
     bool verbose{false};
 };
+
+// TODO: doc, test, expects
+template <typename... Ts> void die(Ts&&... args)
+{
+    // TODO: detect if color can be used
+    fmt::print(fg(fmt::terminal_color::red), "Error\n");
+    fmt::print(
+        fg(fmt::terminal_color::red),
+        std::forward<Ts>(args)...);
+}
+
+// TODO: doc, test, expects
 int run(const Options& options)
 {
     fmt::print("Parsing configuration... ");
     try {
         const auto config = load_file(options.filename);
-        fmt::print("Done.\n");
+        fmt::print("OK\n");
     } catch (const YAML::BadFile& e) {
-        fmt::print(fg(fmt::color::red), "Error.\n");
-        fmt::print(
-            "Error reading tasks and agents from file \"{}\".\n",
+        die("Error reading tasks and agents from file \"{}\".\n",
             options.filename);
         return 1;
     } catch (const ValidationError& e) {
-        fmt::print(fg(fmt::terminal_color::red), "Error.\n");
+        die("Validation error: {}.\n", e.what());
         // TODO: Add more context to errors (see TODO in exceptions.h)
-        // TODO: Refactor messages into it's own class and add
-        // .die(string) method.
-        fmt::print("Validation error: {}\n", e.what());
         return 1;
     } catch (const std::runtime_error& e) {
-        fmt::print(fg(fmt::color::red), "Error.\n");
-        fmt::print("Unexpected error: {}\n", e.what());
+        die("Unexpected error: {}\n", e.what());
         return 1;
     }
     return 0;
