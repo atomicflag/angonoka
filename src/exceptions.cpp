@@ -3,8 +3,15 @@
 
 namespace angonoka {
 using namespace fmt::literals;
-InvalidDuration::InvalidDuration()
-    : ValidationError{"Invalid duration."}
+DurationParseError::DurationParseError(std::string_view text)
+    : text{text}
+{
+}
+InvalidDuration::InvalidDuration(
+    std::string_view where,
+    std::string_view what)
+    : ValidationError{
+        R"(Task "{}" has invalid duration "{}".)"_format(where, what)}
 {
 }
 InvalidAgentPerformance::InvalidAgentPerformance()

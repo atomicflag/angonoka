@@ -21,17 +21,17 @@ suite parsing_durations = [] {
     expect(parse_duration("1 min") == 1min);
     expect(parse_duration("5 mins") == 5min);
     expect(parse_duration("12 days 15s") == days{12} + 15s);
-    expect(throws<angonoka::ValidationError>(
+    expect(throws<angonoka::DurationParseError>(
         [&] { parse_duration(""); }));
 
-    expect(throws<angonoka::ValidationError>(
+    expect(throws<angonoka::DurationParseError>(
         [&] { parse_duration("asdf"); }));
 
     expect(parse_duration("5 min 1h") == 5min + 1h);
     expect(parse_duration("1h 5 min") == 1h + 5min);
     expect(parse_duration("1h and 5 min") == 1h + 5min);
-    expect(throws<angonoka::ValidationError>(
+    expect(throws<angonoka::DurationParseError>(
         [&] { parse_duration("-5 sec"); }));
-    expect(throws<angonoka::ValidationError>(
+    expect(throws<angonoka::DurationParseError>(
         [&] { parse_duration("s"); }));
 };

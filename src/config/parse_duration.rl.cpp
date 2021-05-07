@@ -35,7 +35,7 @@ namespace angonoka::detail {
 std::chrono::seconds parse_duration(std::string_view text)
 {
     using namespace std::chrono;
-    if (text.empty()) throw InvalidDuration{};
+    if (text.empty()) throw DurationParseError{text};
     int cs{0};
     gsl::zstring p = const_cast<char*>(text.data());
     gsl::czstring pe = text.end();
@@ -46,7 +46,8 @@ std::chrono::seconds parse_duration(std::string_view text)
     %% write init;
     %% write exec;
     // clang-format on
-    if (cs < duration_parser_first_final) throw InvalidDuration{};
+    if (cs < duration_parser_first_final)
+        throw DurationParseError{text};
     return v;
 }
 } // namespace angonoka::detail

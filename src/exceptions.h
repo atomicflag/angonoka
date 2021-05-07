@@ -11,8 +11,12 @@ struct Exception : std::runtime_error {
 struct ValidationError : Exception {
     using Exception::Exception;
 };
+struct DurationParseError : std::exception {
+    DurationParseError(std::string_view text);
+    std::string_view text;
+};
 struct InvalidDuration : ValidationError {
-    InvalidDuration();
+    InvalidDuration(std::string_view where, std::string_view what);
 };
 struct SchemaError : ValidationError {
     using ValidationError::ValidationError;

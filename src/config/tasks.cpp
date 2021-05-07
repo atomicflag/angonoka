@@ -18,19 +18,24 @@ using Dependencies = std::vector<std::vector<std::string_view>>;
       min: 1 day
       max: 3 days
 
-    @param duration  A map with min/max values or a scalar
-    @param task      Task object
+    @param duration A map with min/max values or a scalar
+    @param task     Task object
 */
-void parse_duration(const YAML::Node& duration, Task::Duration& dur)
+void parse_duration(const YAML::Node& duration, Task& task)
 {
     using detail::parse_duration;
-    if (duration.IsScalar()) {
-        const auto value = parse_duration(duration.Scalar());
-        dur.min = value;
-        dur.max = value;
-    } else {
-        dur.min = parse_duration(duration["min"].Scalar());
-        dur.max = parse_duration(duration["max"].Scalar());
+    auto& dur = task.duration;
+    try {
+        if (duration.IsScalar()) {
+            const auto value = parse_duration(duration.Scalar());
+            dur.min = value;
+            dur.max = value;
+        } else {
+            dur.min = parse_duration(duration["min"].Scalar());
+            dur.max = parse_duration(duration["max"].Scalar());
+        }
+    } catch (const DurationParseError& e) {
+        throw InvalidDuration(task.name, e.text);
     }
     if (dur.min > dur.max) throw TaskDurationMinMax{};
 }
@@ -234,7 +239,7 @@ void parse_task(
         parse_task_id(id_node, config.tasks, task);
     }
 
-    parse_duration(task_node["duration"], task.duration);
+    parse_duration(task_node["duration"], task);
 
     // Parse task.group
     if (const auto& group = task_node["group"]) {

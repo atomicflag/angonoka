@@ -11,6 +11,7 @@ using namespace boost::ut;
 suite loading_tasks = [] {
     using namespace std::chrono;
     using namespace std::literals::chrono_literals;
+    using namespace std::literals::string_view_literals;
 
     "no 'tasks' section"_test = [] {
         constexpr auto text = ANGONOKA_COMMON_YAML;
@@ -67,8 +68,16 @@ suite loading_tasks = [] {
             "      min: as\n"
             "      max: a";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::InvalidDuration>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::InvalidDuration& e) {
+                expect(
+                    e.what()
+                    == R"(Task "task 1" has invalid duration "as".)"sv);
+                throw;
+            }
+        }));
     };
 
     "invalid task duration"_test = [] {

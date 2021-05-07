@@ -42,7 +42,7 @@ int run(const Options& options)
             options.filename);
         return 1;
     } catch (const ValidationError& e) {
-        die("Validation error: {}.\n", e.what());
+        die("Validation error: {}\n", e.what());
         // TODO: Add more context to errors (see TODO in exceptions.h)
         return 1;
     } catch (const std::runtime_error& e) {
