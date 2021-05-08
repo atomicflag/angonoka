@@ -27,9 +27,10 @@ DuplicateAgentDefinition::DuplicateAgentDefinition()
     : ValidationError{"Duplicate agent definition"}
 {
 }
-TaskDurationMinMax::TaskDurationMinMax()
+TaskDurationMinMax::TaskDurationMinMax(std::string_view where)
     : ValidationError{
-        "Task's duration minimum can't be greater than maximum."}
+        R"(Task "{}" has min duration that is greater than max duration.)"_format(
+            where)}
 {
 }
 NoSuitableAgent::NoSuitableAgent(std::string_view task)

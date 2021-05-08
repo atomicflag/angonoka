@@ -30,9 +30,8 @@ struct AgentPerformanceMinMax : ValidationError {
 struct DuplicateAgentDefinition : ValidationError {
     DuplicateAgentDefinition();
 };
-// TODO: Add the task name to the error message
 struct TaskDurationMinMax : ValidationError {
-    TaskDurationMinMax();
+    TaskDurationMinMax(std::string_view where);
 };
 struct NoSuitableAgent : ValidationError {
     NoSuitableAgent(std::string_view task);

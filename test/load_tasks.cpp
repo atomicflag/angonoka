@@ -72,9 +72,9 @@ suite loading_tasks = [] {
             try {
                 angonoka::load_text(text);
             } catch (const angonoka::InvalidDuration& e) {
-                expect(
-                    e.what()
-                    == R"(Task "task 1" has invalid duration "as".)"sv);
+                expect(eq(
+                    e.what(),
+                    R"(Task "task 1" has invalid duration "as".)"sv));
                 throw;
             }
         }));
@@ -90,8 +90,16 @@ suite loading_tasks = [] {
             "      min: 5 days\n"
             "      max: 2 days";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::TaskDurationMinMax>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::TaskDurationMinMax& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Task "task 1" has min duration that is greater than max duration.)"sv));
+                throw;
+            }
+        }));
     };
 
     "missing task duration"_test = [] {

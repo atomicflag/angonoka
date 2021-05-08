@@ -37,7 +37,7 @@ void parse_duration(const YAML::Node& duration, Task& task)
     } catch (const DurationParseError& e) {
         throw InvalidDuration(task.name, e.text);
     }
-    if (dur.min > dur.max) throw TaskDurationMinMax{};
+    if (dur.min > dur.max) throw TaskDurationMinMax{task.name};
 }
 
 /**
