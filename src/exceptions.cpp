@@ -38,8 +38,9 @@ NoSuitableAgent::NoSuitableAgent(std::string_view task)
         R"_(No suitable agent for task "{}")_"_format(task)}
 {
 }
-DuplicateTaskDefinition::DuplicateTaskDefinition()
-    : ValidationError{"Duplicate task definition"}
+DuplicateTaskDefinition::DuplicateTaskDefinition(
+    std::string_view task_id)
+    : ValidationError{R"(Duplicate task id "{}".)"_format(task_id)}
 {
 }
 NegativePerformance::NegativePerformance()

@@ -78,7 +78,7 @@ void check_for_duplicates(const Tasks& tasks, std::string_view id)
     Expects(!id.empty());
     if (const auto a = ranges::find(tasks, id, &Task::id);
         a != tasks.end())
-        throw DuplicateTaskDefinition{};
+        throw DuplicateTaskDefinition{id};
 }
 
 /**

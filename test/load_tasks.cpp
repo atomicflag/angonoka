@@ -360,6 +360,30 @@ suite loading_tasks = [] {
             [&] { angonoka::load_text(text); }));
     };
 
+    "duplicate id"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    id: A\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    id: A\n"
+            "    duration: 1h";
+        // clang-format on
+
+        expect(throws<angonoka::DuplicateTaskDefinition>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::DuplicateTaskDefinition& e) {
+                expect(eq(e.what(), R"(Duplicate task id "A".)"sv));
+                throw;
+            }
+        }));
+    };
+
     "out of order dependencies"_test = [] {
         // clang-format off
         constexpr auto text =

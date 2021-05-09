@@ -37,7 +37,7 @@ struct NoSuitableAgent : ValidationError {
     NoSuitableAgent(std::string_view task);
 };
 struct DuplicateTaskDefinition : ValidationError {
-    DuplicateTaskDefinition();
+    DuplicateTaskDefinition(std::string_view task_id);
 };
 struct NegativePerformance : ValidationError {
     NegativePerformance();
