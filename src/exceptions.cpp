@@ -49,13 +49,13 @@ NegativePerformance::NegativePerformance()
 }
 
 CantBeEmpty::CantBeEmpty(std::string_view what)
-    : ValidationError{"{} can't be empty"_format(what)}
+    : ValidationError{"{} can't be empty."_format(what)}
 {
 }
 
 TaskNotFound::TaskNotFound(std::string_view task_id)
     : ValidationError{
-        R"_(Task with id "{}" doesn't exist)_"_format(task_id)}
+        R"_(Task with id "{}" doesn't exist.)_"_format(task_id)}
 {
 }
 

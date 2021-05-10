@@ -270,8 +270,16 @@ suite loading_tasks = [] {
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::CantBeEmpty>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::CantBeEmpty& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Task id for the task "task 1" can't be empty.)"sv));
+                throw;
+            }
+        }));
     };
 
     "missing name"_test = [] {
@@ -341,8 +349,16 @@ suite loading_tasks = [] {
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::CantBeEmpty>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::CantBeEmpty& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Dependency id of the task "task 1" can't be empty.)"sv));
+                throw;
+            }
+        }));
     };
 
     "invalid dependency id"_test = [] {
