@@ -37,13 +37,15 @@ void parse_agent_groups(
 /**
     Makes sure the performance is greater than 0.
 
-    @param performance Performance value
+    @param performance  Performance value
+    @param agent        Agent
 
     @return Performance value
 */
 float validate_performance(float performance)
 {
-    if (performance <= 0.F) throw NegativePerformance{};
+    if (performance <= 0.F)
+        throw std::domain_error{"Negative performance"};
     return performance;
 }
 
@@ -75,6 +77,8 @@ void parse_agent_performance(
             agent.performance.max = validate_performance(
                 performance["max"].as<float>());
         }
+    } catch (const std::domain_error&) {
+        throw NegativePerformance{agent.name};
     } catch (const YAML::Exception&) {
         throw InvalidAgentPerformance{};
     }

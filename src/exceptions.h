@@ -40,7 +40,7 @@ struct DuplicateTaskDefinition : ValidationError {
     DuplicateTaskDefinition(std::string_view task_id);
 };
 struct NegativePerformance : ValidationError {
-    NegativePerformance();
+    NegativePerformance(std::string_view who);
 };
 struct CantBeEmpty : ValidationError {
     CantBeEmpty(std::string_view what);

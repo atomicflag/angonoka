@@ -12,6 +12,8 @@ using namespace boost::ut;
     "      max: 3 days\n"
 
 suite loading_agents = [] {
+    using namespace std::literals::string_view_literals;
+
     "no 'agents' section"_test = [] {
         constexpr auto text = ANGONOKA_COMMON_YAML;
         expect(throws<angonoka::ValidationError>(
@@ -260,8 +262,16 @@ suite loading_agents = [] {
             "  agent 1:\n"
             "    performance: -1.0\n";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::NegativePerformance>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::NegativePerformance& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Agent "agent 1" can't have a negative performance value.)"sv));
+                throw;
+            }
+        }));
     };
 };
 

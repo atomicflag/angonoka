@@ -43,8 +43,10 @@ DuplicateTaskDefinition::DuplicateTaskDefinition(
     : ValidationError{R"(Duplicate task id "{}".)"_format(task_id)}
 {
 }
-NegativePerformance::NegativePerformance()
-    : ValidationError{"Agent's performance must be greater than 0"}
+NegativePerformance::NegativePerformance(std::string_view who)
+    : ValidationError{
+        R"(Agent "{}" can't have a negative performance value.)"_format(
+            who)}
 {
 }
 
