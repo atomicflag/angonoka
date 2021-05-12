@@ -162,8 +162,16 @@ suite loading_agents = [] {
             "      min: text\n"
             "      max: text";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::InvalidAgentPerformance>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::InvalidAgentPerformance& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Agent "agent 1" has invalid performance.)"sv));
+                throw;
+            }
+        }));
     };
 
     "invalid performance type, dict"_test = [] {

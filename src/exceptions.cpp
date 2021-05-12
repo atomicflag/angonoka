@@ -14,8 +14,9 @@ InvalidDuration::InvalidDuration(
         R"(Task "{}" has invalid duration "{}".)"_format(where, what)}
 {
 }
-InvalidAgentPerformance::InvalidAgentPerformance()
-    : ValidationError{"Invalid agent performance."}
+InvalidAgentPerformance::InvalidAgentPerformance(std::string_view who)
+    : ValidationError{
+        R"(Agent "{}" has invalid performance.)"_format(who)}
 {
 }
 AgentPerformanceMinMax::AgentPerformanceMinMax()

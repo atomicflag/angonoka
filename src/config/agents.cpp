@@ -80,7 +80,7 @@ void parse_agent_performance(
     } catch (const std::domain_error&) {
         throw NegativePerformance{agent.name};
     } catch (const YAML::Exception&) {
-        throw InvalidAgentPerformance{};
+        throw InvalidAgentPerformance{agent.name};
     }
     if (agent.performance.min > agent.performance.max)
         throw AgentPerformanceMinMax{};

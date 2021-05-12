@@ -22,7 +22,7 @@ struct SchemaError : ValidationError {
     using ValidationError::ValidationError;
 };
 struct InvalidAgentPerformance : ValidationError {
-    InvalidAgentPerformance();
+    InvalidAgentPerformance(std::string_view who);
 };
 struct AgentPerformanceMinMax : ValidationError {
     AgentPerformanceMinMax();

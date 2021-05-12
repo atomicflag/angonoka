@@ -16,9 +16,11 @@ define RELEASE_CXXFLAGS =
 -fdata-sections \
 -falign-functions=32 \
 -mllvm -polly -mllvm -polly-vectorizer=stripmine \
--fno-stack-protector
+-fno-stack-protector \
+-fno-semantic-interposition \
+-fPIC
 endef
-RELEASE_LDFLAGS := -Wl,--gc-sections
+RELEASE_LDFLAGS := -Wl,--gc-sections,-Bsymbolic-functions
 LLVM_ROOT := $(shell readlink -m $$(which clang-tidy)/../..)
 CLANG_BUILTIN := $(shell echo | clang -v -E -x c++ - 2>&1 \
 	| sed -nE 's@^ (/[^ ]*)@-isystem\1@p' | tr '\n' ' ')
