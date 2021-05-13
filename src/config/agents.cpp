@@ -83,7 +83,7 @@ void parse_agent_performance(
         throw InvalidAgentPerformance{agent.name};
     }
     if (agent.performance.min > agent.performance.max)
-        throw AgentPerformanceMinMax{};
+        throw AgentPerformanceMinMax{agent.name};
 }
 
 /**

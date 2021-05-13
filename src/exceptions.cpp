@@ -19,9 +19,10 @@ InvalidAgentPerformance::InvalidAgentPerformance(std::string_view who)
         R"(Agent "{}" has invalid performance.)"_format(who)}
 {
 }
-AgentPerformanceMinMax::AgentPerformanceMinMax()
+AgentPerformanceMinMax::AgentPerformanceMinMax(std::string_view who)
     : ValidationError{
-        "Agent's performance minimum can't be greater than maximum."}
+        R"(The minimum performance of the agent "{}" is greater than maximum.)"_format(
+            who)}
 {
 }
 DuplicateAgentDefinition::DuplicateAgentDefinition()

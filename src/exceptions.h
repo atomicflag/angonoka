@@ -25,7 +25,7 @@ struct InvalidAgentPerformance : ValidationError {
     InvalidAgentPerformance(std::string_view who);
 };
 struct AgentPerformanceMinMax : ValidationError {
-    AgentPerformanceMinMax();
+    AgentPerformanceMinMax(std::string_view who);
 };
 struct DuplicateAgentDefinition : ValidationError {
     DuplicateAgentDefinition();

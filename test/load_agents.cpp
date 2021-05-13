@@ -199,8 +199,16 @@ suite loading_agents = [] {
             "      min: 2.0\n"
             "      max: 1.0";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::AgentPerformanceMinMax>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::AgentPerformanceMinMax& e) {
+                expect(eq(
+                    e.what(),
+                    R"(The minimum performance of the agent "agent 1" is greater than maximum.)"sv));
+                throw;
+            }
+        }));
     };
 
     "parse performance"_test = [] {
