@@ -62,6 +62,7 @@ suite stun_makespan = [] {
 
         expect(makespan2(state2) == 2._d);
 
+        // TODO: Fix lambda capture
         should("copy assignment") = [=]() mutable {
             makespan2 = makespan;
             expect(makespan(state) == 3._d);

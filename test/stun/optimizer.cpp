@@ -79,6 +79,7 @@ suite optimizer = [] {
         const auto schedule_params = to_schedule_params(config);
         Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
+        // TODO: Fix lambda capture
         should("copy ctor") = [=]() mutable {
             Optimizer other{optimizer};
 

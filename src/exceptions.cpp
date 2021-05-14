@@ -25,8 +25,10 @@ AgentPerformanceMinMax::AgentPerformanceMinMax(std::string_view who)
             who)}
 {
 }
-DuplicateAgentDefinition::DuplicateAgentDefinition()
-    : ValidationError{"Duplicate agent definition"}
+DuplicateAgentDefinition::DuplicateAgentDefinition(
+    std::string_view who)
+    : ValidationError{
+        R"(Agent "{}" is specified more than once.)"_format(who)}
 {
 }
 TaskDurationMinMax::TaskDurationMinMax(std::string_view where)

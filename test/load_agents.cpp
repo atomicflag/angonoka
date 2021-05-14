@@ -239,8 +239,16 @@ suite loading_agents = [] {
             "  agent 1:\n"
             "  agent 1:";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::DuplicateAgentDefinition>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::DuplicateAgentDefinition& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Agent "agent 1" is specified more than once.)"sv));
+                throw;
+            }
+        }));
     };
 
     "duplicate agent sections"_test = [] {

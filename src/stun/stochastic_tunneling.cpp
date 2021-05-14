@@ -52,6 +52,8 @@ struct StochasticTunneling::Impl {
     /**
         Updates the lowest energy and best state if the
         target state is better.
+
+        @return True if target state is better than the current state.
     */
     static bool neighbor_is_better(StochasticTunneling& self) noexcept
     {

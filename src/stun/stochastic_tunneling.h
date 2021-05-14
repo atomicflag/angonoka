@@ -129,6 +129,8 @@ private:
     gsl::not_null<RandomUtils*> random;
     gsl::not_null<Makespan*> makespan;
     gsl::not_null<Temperature*> temp;
+
+    // TODO: Wrap this in a struct to avoid user-defined constructors
     std::vector<StateItem> state_buffer;
     MutState best_state;
     MutState current_state;

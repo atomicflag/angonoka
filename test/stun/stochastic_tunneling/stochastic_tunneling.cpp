@@ -183,6 +183,7 @@ suite stochastic_tunneling = [] {
 
         StochasticTunneling stun{options, state};
 
+        // TODO: Fix lambda capture
         "copy assignment"_test = [=]() mutable {
             StochasticTunneling stun2{options, state2};
             stun = stun2;

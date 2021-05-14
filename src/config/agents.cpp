@@ -98,7 +98,7 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
 
     if (const auto a = ranges::find(agents, name, &Agent::name);
         a != agents.end())
-        throw DuplicateAgentDefinition{};
+        throw DuplicateAgentDefinition{name};
 }
 
 /**

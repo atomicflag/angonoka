@@ -50,6 +50,7 @@ suite schedule_params = [] {
                    std::move(dependencies)};
         }
 
+        // TODO: Fix lambda capture
         should("move ctor") = [=]() mutable {
             ScheduleParams other{std::move(params)};
 
