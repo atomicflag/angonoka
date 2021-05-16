@@ -77,10 +77,12 @@ suite optimizer = [] {
 
         const auto params = to_schedule_params(config);
         const auto schedule_params = to_schedule_params(config);
-        Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
-        // TODO: Fix lambda capture
-        should("copy ctor") = [=]() mutable {
+        should("copy ctor") = [&] {
+            Optimizer optimizer{
+                params,
+                BatchSize{5},
+                MaxIdleIters{10}};
             Optimizer other{optimizer};
 
             expect(other.energy() == 2.F);
@@ -90,7 +92,11 @@ suite optimizer = [] {
             expect(other.energy() == 2.F);
         };
 
-        should("copy assignment") = [=]() mutable {
+        should("copy assignment") = [&] {
+            Optimizer optimizer{
+                params,
+                BatchSize{5},
+                MaxIdleIters{10}};
             Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
             other = optimizer;
 
@@ -101,7 +107,11 @@ suite optimizer = [] {
             expect(other.energy() == 2.F);
         };
 
-        should("move ctor") = [=]() mutable {
+        should("move ctor") = [&] {
+            Optimizer optimizer{
+                params,
+                BatchSize{5},
+                MaxIdleIters{10}};
             Optimizer other{std::move(optimizer)};
 
             expect(other.energy() == 2.F);
@@ -111,7 +121,11 @@ suite optimizer = [] {
             expect(other.energy() == 1.F);
         };
 
-        should("move assignment") = [=]() mutable {
+        should("move assignment") = [&] {
+            Optimizer optimizer{
+                params,
+                BatchSize{5},
+                MaxIdleIters{10}};
             Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
             other = std::move(optimizer);
 
@@ -122,7 +136,11 @@ suite optimizer = [] {
             expect(other.energy() == 1.F);
         };
 
-        should("self copy") = [=]() mutable {
+        should("self copy") = [&] {
+            Optimizer optimizer{
+                params,
+                BatchSize{5},
+                MaxIdleIters{10}};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             optimizer = optimizer;
@@ -131,7 +149,12 @@ suite optimizer = [] {
             expect(optimizer.energy() == 2.F);
         };
 
-        should("self move") = [=]() mutable {
+        should("self move") = [&] {
+            Optimizer optimizer{
+                params,
+                BatchSize{5},
+                MaxIdleIters{10}};
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             optimizer = std::move(optimizer);
