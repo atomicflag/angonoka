@@ -20,38 +20,39 @@ suite schedule_params = [] {
     "ScheduleParams special memeber functions"_test = [] {
         using namespace angonoka::stun;
 
-        ScheduleParams params{
-            .agent_performance{1.F, 2.F, 3.F},
-            .task_duration{3.F, 2.F, 1.F}};
+        constexpr auto setup = [](auto& params) {
+            {
+                std::vector<int16>
+                    available_agents_data{2, 1, 2, 0, 1, 2};
+                auto* p = available_agents_data.data();
+                const auto n = [&](auto s) -> span<int16> {
+                    return {std::exchange(p, std::next(p, s)), s};
+                };
+                std::vector<span<int16>> available_agents
+                    = {n(1), n(2), n(3)};
+                params.available_agents
+                    = {std::move(available_agents_data),
+                       std::move(available_agents)};
+            }
+            {
+                std::vector<int16> dependencies_data{0, 0, 1};
+                auto* p = dependencies_data.data();
+                const auto n = [&](auto s) -> span<int16> {
+                    return {std::exchange(p, std::next(p, s)), s};
+                };
+                std::vector<span<int16>> dependencies
+                    = {n(0), n(1), n(2)};
+                params.dependencies
+                    = {std::move(dependencies_data),
+                       std::move(dependencies)};
+            }
+        };
 
-        {
-            std::vector<int16>
-                available_agents_data{2, 1, 2, 0, 1, 2};
-            auto* p = available_agents_data.data();
-            const auto n = [&](auto s) -> span<int16> {
-                return {std::exchange(p, std::next(p, s)), s};
-            };
-            std::vector<span<int16>> available_agents
-                = {n(1), n(2), n(3)};
-            params.available_agents
-                = {std::move(available_agents_data),
-                   std::move(available_agents)};
-        }
-        {
-            std::vector<int16> dependencies_data{0, 0, 1};
-            auto* p = dependencies_data.data();
-            const auto n = [&](auto s) -> span<int16> {
-                return {std::exchange(p, std::next(p, s)), s};
-            };
-            std::vector<span<int16>> dependencies
-                = {n(0), n(1), n(2)};
-            params.dependencies
-                = {std::move(dependencies_data),
-                   std::move(dependencies)};
-        }
-
-        // TODO: Fix lambda capture
-        should("move ctor") = [=]() mutable {
+        should("move ctor") = [&] {
+            ScheduleParams params{
+                .agent_performance{1.F, 2.F, 3.F},
+                .task_duration{3.F, 2.F, 1.F}};
+            setup(params);
             ScheduleParams other{std::move(params)};
 
             expect(params.dependencies.empty());
@@ -59,7 +60,11 @@ suite schedule_params = [] {
             expect(other.dependencies[2u][1] == 1);
         };
 
-        should("move assignment") = [=]() mutable {
+        should("move assignment") = [&] {
+            ScheduleParams params{
+                .agent_performance{1.F, 2.F, 3.F},
+                .task_duration{3.F, 2.F, 1.F}};
+            setup(params);
             ScheduleParams other;
             other = std::move(params);
 
@@ -68,7 +73,11 @@ suite schedule_params = [] {
             expect(other.dependencies[2u][1] == 1);
         };
 
-        should("copy ctor") = [=]() mutable {
+        should("copy ctor") = [&] {
+            ScheduleParams params{
+                .agent_performance{1.F, 2.F, 3.F},
+                .task_duration{3.F, 2.F, 1.F}};
+            setup(params);
             ScheduleParams other{params};
 
             params.dependencies.clear();
@@ -76,7 +85,11 @@ suite schedule_params = [] {
             expect(other.dependencies[2u][1] == 1);
         };
 
-        should("copy assignment") = [=]() mutable {
+        should("copy assignment") = [&] {
+            ScheduleParams params{
+                .agent_performance{1.F, 2.F, 3.F},
+                .task_duration{3.F, 2.F, 1.F}};
+            setup(params);
             ScheduleParams other;
             other = params;
 
@@ -85,7 +98,11 @@ suite schedule_params = [] {
             expect(other.dependencies[2u][1] == 1);
         };
 
-        should("self copy") = [=]() mutable {
+        should("self copy") = [&] {
+            ScheduleParams params{
+                .agent_performance{1.F, 2.F, 3.F},
+                .task_duration{3.F, 2.F, 1.F}};
+            setup(params);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             params = params;
@@ -94,7 +111,11 @@ suite schedule_params = [] {
             expect(params.dependencies[2u][1] == 1);
         };
 
-        should("self move") = [=]() mutable {
+        should("self move") = [&] {
+            ScheduleParams params{
+                .agent_performance{1.F, 2.F, 3.F},
+                .task_duration{3.F, 2.F, 1.F}};
+            setup(params);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             params = std::move(params);
@@ -122,7 +143,7 @@ suite schedule_params = [] {
 
             expect(vspans.empty());
 
-            should("copy ctor") = [=]() mutable {
+            should("copy ctor") = [&] {
                 Vector2D other{vspans};
 
                 expect(other.empty());
@@ -130,18 +151,28 @@ suite schedule_params = [] {
         };
 
         "non-empty"_test = [] {
-            std::vector<int16> data{0, 1, 2};
-            auto* b = data.data();
-            const auto f = [&](auto s) -> span<int16> {
-                return {std::exchange(b, std::next(b, s)), s};
+            constexpr auto setup = [] {
+                std::vector<int16> data{0, 1, 2};
+                auto* b = data.data();
+                const auto f = [&](auto s) -> span<int16> {
+                    return {std::exchange(b, std::next(b, s)), s};
+                };
+                std::vector<span<int16>> spans{f(1), f(1), f(1)};
+                return std::make_tuple(
+                    std::move(data),
+                    std::move(spans));
             };
-            std::vector<span<int16>> spans{f(1), f(1), f(1)};
 
-            Vector2D vspans{std::move(data), std::move(spans)};
+            should("constructor") = [&] {
+                auto&& [data, spans] = setup();
+                Vector2D vspans{std::move(data), std::move(spans)};
 
-            expect(vspans.size() == 3_i);
+                expect(vspans.size() == 3_i);
+            };
 
-            should("copy ctor") = [=]() mutable {
+            should("copy ctor") = [&] {
+                auto&& [data, spans] = setup();
+                Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other{vspans};
                 vspans.clear();
 
@@ -149,7 +180,9 @@ suite schedule_params = [] {
                 expect(other[2u][0] == 2);
             };
 
-            should("copy assignment") = [=]() mutable {
+            should("copy assignment") = [&] {
+                auto&& [data, spans] = setup();
+                Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other;
                 other = vspans;
                 vspans.clear();
@@ -162,7 +195,9 @@ suite schedule_params = [] {
                 expect(other.empty());
             };
 
-            should("move ctor") = [=]() mutable {
+            should("move ctor") = [&] {
+                auto&& [data, spans] = setup();
+                Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other{std::move(vspans)};
 
                 expect(vspans.empty());
@@ -170,7 +205,9 @@ suite schedule_params = [] {
                 expect(other[2u][0] == 2);
             };
 
-            should("move assignment") = [=]() mutable {
+            should("move assignment") = [&] {
+                auto&& [data, spans] = setup();
+                Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other;
                 other = std::move(vspans);
 
@@ -179,7 +216,9 @@ suite schedule_params = [] {
                 expect(other[2u][0] == 2);
             };
 
-            should("self copy") = [=]() mutable {
+            should("self copy") = [&] {
+                auto&& [data, spans] = setup();
+                Vector2D vspans{std::move(data), std::move(spans)};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
                 vspans = vspans;
@@ -188,7 +227,9 @@ suite schedule_params = [] {
                 expect(vspans[2u][0] == 2);
             };
 
-            should("self move") = [=]() mutable {
+            should("self move") = [&] {
+                auto&& [data, spans] = setup();
+                Vector2D vspans{std::move(data), std::move(spans)};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
                 vspans = std::move(vspans);
