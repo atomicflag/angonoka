@@ -181,17 +181,16 @@ suite stochastic_tunneling = [] {
             .temp{&temperature},
             .gamma{.5F}};
 
-        StochasticTunneling stun{options, state};
-
-        // TODO: Fix lambda capture
-        "copy assignment"_test = [=]() mutable {
+        "copy assignment"_test = [&] {
+            StochasticTunneling stun{options, state};
             StochasticTunneling stun2{options, state2};
             stun = stun2;
 
             expect(stun.state()[0].agent_id == 3);
         };
 
-        "move assignment"_test = [=]() mutable {
+        "move assignment"_test = [&] {
+            StochasticTunneling stun{options, state};
             StochasticTunneling stun2{options, state2};
             stun = std::move(stun2);
 
@@ -199,18 +198,21 @@ suite stochastic_tunneling = [] {
         };
 
         "copy ctor"_test = [&] {
+            StochasticTunneling stun{options, state};
             StochasticTunneling stun2{stun};
 
             expect(stun2.state()[1].agent_id == 1);
         };
 
-        "move ctor"_test = [=]() mutable {
+        "move ctor"_test = [&] {
+            StochasticTunneling stun{options, state};
             StochasticTunneling stun2{std::move(stun)};
 
             expect(stun2.state()[1].agent_id == 1);
         };
 
-        "self copy"_test = [=]() mutable {
+        "self copy"_test = [&] {
+            StochasticTunneling stun{options, state};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             stun = stun;
@@ -218,7 +220,8 @@ suite stochastic_tunneling = [] {
             expect(stun.state()[1].agent_id == 1);
         };
 
-        "self move"_test = [=]() mutable {
+        "self move"_test = [&] {
+            StochasticTunneling stun{options, state};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             stun = std::move(stun);
