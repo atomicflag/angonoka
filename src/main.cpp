@@ -2,12 +2,18 @@
 #include "config/load.h"
 #include "exceptions.h"
 #include <clipp.h>
+#include <cstdio>
 #include <fmt/color.h>
 #include <fmt/printf.h>
 #include <memory>
 #include <string>
+#include <unistd.h>
 
 namespace {
+namespace detail {
+    // TODO: doc, test, expects
+    bool output_is_terminal() { return isatty(fileno(stdout)) == 1; }
+} // namespace detail
 using namespace angonoka;
 
 // TODO: doc, test, expects
@@ -18,16 +24,23 @@ struct Options {
     std::string filename;
     Mode mode{Mode::none};
     bool verbose{false};
+    bool color{detail::output_is_terminal()};
 };
 
 // TODO: doc, test, expects
-template <typename... Ts> void die(Ts&&... args)
+template <typename... Ts>
+void die(const Options& options, Ts&&... args)
 {
-    // TODO: detect if color can be used
-    fmt::print(fg(fmt::terminal_color::red), "Error\n");
-    fmt::print(
-        fg(fmt::terminal_color::red),
-        std::forward<Ts>(args)...);
+    // TODO: refactor this
+    if (options.color) {
+        fmt::print(fg(fmt::terminal_color::red), "Error\n");
+        fmt::print(
+            fg(fmt::terminal_color::red),
+            std::forward<Ts>(args)...);
+    } else {
+        fmt::print("Error\n");
+        fmt::print(std::forward<Ts>(args)...);
+    }
 }
 
 // TODO: doc, test, expects
@@ -38,15 +51,15 @@ int run(const Options& options)
         const auto config = load_file(options.filename);
         fmt::print("OK\n");
     } catch (const YAML::BadFile& e) {
-        die("Error reading tasks and agents from file \"{}\".\n",
+        die(options,
+            "Error reading tasks and agents from file \"{}\".\n",
             options.filename);
         return 1;
     } catch (const ValidationError& e) {
-        die("Validation error: {}\n", e.what());
-        // TODO: Add more context to errors (see TODO in exceptions.h)
+        die(options, "Validation error: {}\n", e.what());
         return 1;
     } catch (const std::runtime_error& e) {
-        die("Unexpected error: {}\n", e.what());
+        die(options, "Unexpected error: {}\n", e.what());
         return 1;
     }
     return 0;

@@ -39,7 +39,7 @@ TaskDurationMinMax::TaskDurationMinMax(std::string_view where)
 }
 NoSuitableAgent::NoSuitableAgent(std::string_view task)
     : ValidationError{
-        R"_(No suitable agent for task "{}")_"_format(task)}
+        R"_(No suitable agent for task "{}".)_"_format(task)}
 {
 }
 DuplicateTaskDefinition::DuplicateTaskDefinition(
@@ -66,7 +66,7 @@ TaskNotFound::TaskNotFound(std::string_view task_id)
 }
 
 DependencyCycle::DependencyCycle()
-    : ValidationError{"Dependency cycle detected"}
+    : ValidationError{"Dependency cycle detected."}
 {
 }
 } // namespace angonoka

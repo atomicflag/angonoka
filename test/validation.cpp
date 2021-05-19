@@ -72,7 +72,7 @@ suite validation = [] {
             expect(!result);
             expect(
                 result.error()
-                == R"(Unexpected attribute "val3" in "map")");
+                == R"(Unexpected attribute "val3" in "map".)");
         };
 
         "empty attributes"_test = [] {
@@ -94,7 +94,7 @@ suite validation = [] {
             const auto result = schema(node);
             expect(!result);
             expect(
-                result.error() == R"(Empty attribute in "foobar")");
+                result.error() == R"(Empty attribute in "foobar".)");
         };
 
         "map values"_test = [] {
@@ -165,7 +165,7 @@ suite validation = [] {
             expect(!result);
             expect(
                 result.error()
-                == R"("map" is missing a "val3" attribute)");
+                == R"("map" is missing a "val3" attribute.)");
         };
 
         "extra args"_test = [&] {
@@ -180,7 +180,7 @@ suite validation = [] {
             expect(!result);
             expect(
                 result.error()
-                == R"(Unexpected attribute "val2" in "map")");
+                == R"(Unexpected attribute "val2" in "map".)");
         };
     };
 
@@ -210,7 +210,7 @@ suite validation = [] {
             expect(!result);
             expect(
                 result.error()
-                == R"("first.second.third" has invalid type)");
+                == R"("first.second.third" has invalid type.)");
         };
 
         "shallow"_test = [&] {
@@ -224,7 +224,7 @@ suite validation = [] {
             expect(!result);
             expect(
                 result.error()
-                == R"(Unexpected attribute "a" in "first")");
+                == R"(Unexpected attribute "a" in "first".)");
         };
     };
 
@@ -245,7 +245,7 @@ suite validation = [] {
             // clang-format on
             const auto result = schema(node);
             expect(!result);
-            expect(result.error() == R"("attr" has invalid type)");
+            expect(result.error() == R"("attr" has invalid type.)");
         };
 
         "empty"_test = [&] {
@@ -256,7 +256,7 @@ suite validation = [] {
             // clang-format on
             const auto result = schema(node);
             expect(!result);
-            expect(result.error() == R"("attr" can't be empty)");
+            expect(result.error() == R"("attr" can't be empty.)");
         };
     };
 };
