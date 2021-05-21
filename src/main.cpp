@@ -28,20 +28,38 @@ struct Options {
 };
 
 // TODO: doc, test, expects
-template <typename... Ts>
-void die(const Options& options, Ts&&... args)
+constexpr auto red_text = [](auto&&... args) {
+    fmt::print(
+        fg(fmt::terminal_color::red),
+        std::forward<decltype(args)>(args)...);
+};
+
+// TODO: doc, test, expects
+constexpr auto colorless_text = [](auto&&... args) {
+    fmt::print(std::forward<decltype(args)>(args)...);
+};
+
+// TODO: doc, test, expects
+constexpr auto colorize(auto&& fn)
 {
-    // TODO: refactor this
-    if (options.color) {
-        fmt::print(fg(fmt::terminal_color::red), "Error\n");
-        fmt::print(
-            fg(fmt::terminal_color::red),
-            std::forward<Ts>(args)...);
-    } else {
-        fmt::print("Error\n");
-        fmt::print(std::forward<Ts>(args)...);
-    }
+    return [fn = std::forward<decltype(fn)>(fn)]<typename... Ts>(
+        const Options& options,
+        Ts&&... args)
+    {
+        if (options.color) {
+            fn(red_text, std::forward<Ts>(args)...);
+        } else {
+            fn(colorless_text, std::forward<Ts>(args)...);
+        }
+    };
 }
+
+// TODO: doc, test, expects
+// TODO: accept color as a parameter
+constexpr auto die = colorize([](auto&& print, auto&&... args) {
+    print("Error\n");
+    print(std::forward<decltype(args)>(args)...);
+});
 
 // TODO: doc, test, expects
 int run(const Options& options)
