@@ -40,14 +40,12 @@ constexpr auto colorless_text = [](auto&&... args) {
 };
 
 // TODO: doc, test, expects
-constexpr auto colorize(auto&& fn)
+constexpr auto colorize(auto&& color_fn, auto&& fn)
 {
-    return [fn = std::forward<decltype(fn)>(fn)]<typename... Ts>(
-        const Options& options,
-        Ts&&... args)
+    return [=]<typename... Ts>(const Options& options, Ts&&... args)
     {
         if (options.color) {
-            fn(red_text, std::forward<Ts>(args)...);
+            fn(color_fn, std::forward<Ts>(args)...);
         } else {
             fn(colorless_text, std::forward<Ts>(args)...);
         }
@@ -55,11 +53,11 @@ constexpr auto colorize(auto&& fn)
 }
 
 // TODO: doc, test, expects
-// TODO: accept color as a parameter
-constexpr auto die = colorize([](auto&& print, auto&&... args) {
-    print("Error\n");
-    print(std::forward<decltype(args)>(args)...);
-});
+constexpr auto die
+    = colorize(red_text, [](auto&& print, auto&&... args) {
+          print("Error\n");
+          print(std::forward<decltype(args)>(args)...);
+      });
 
 // TODO: doc, test, expects
 int run(const Options& options)
