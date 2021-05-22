@@ -10,21 +10,23 @@
 #include <unistd.h>
 
 namespace {
-namespace detail {
-    // TODO: doc, test, expects
-    bool output_is_terminal() { return isatty(fileno(stdout)) == 1; }
-} // namespace detail
 using namespace angonoka;
 
 // TODO: doc, test, expects
 enum class Mode { none, help, version };
 
 // TODO: doc, test, expects
+bool output_is_terminal() noexcept
+{
+    return isatty(fileno(stdout)) == 1;
+}
+
+// TODO: doc, test, expects
 struct Options {
     std::string filename;
     Mode mode{Mode::none};
     bool verbose{false};
-    bool color{detail::output_is_terminal()};
+    bool color{output_is_terminal()};
 };
 
 // TODO: doc, test, expects
@@ -60,7 +62,7 @@ constexpr auto die
       });
 
 // TODO: doc, test, expects
-int run(const Options& options)
+void run(const Options& options)
 {
     fmt::print("Parsing configuration... ");
     try {
@@ -70,15 +72,29 @@ int run(const Options& options)
         die(options,
             "Error reading tasks and agents from file \"{}\".\n",
             options.filename);
-        return 1;
+        throw;
     } catch (const ValidationError& e) {
         die(options, "Validation error: {}\n", e.what());
-        return 1;
+        throw;
     } catch (const std::runtime_error& e) {
         die(options, "Unexpected error: {}\n", e.what());
-        return 1;
+        throw;
     }
-    return 0;
+}
+
+// TODO: doc, test, expects
+void handle_modes(Mode mode, const clipp::man_page& man_page)
+{
+    switch (mode) {
+    case Mode::help: fmt::print("{}", man_page); return;
+    case Mode::version:
+        fmt::print(
+            "{} version {}\n",
+            ANGONOKA_NAME,
+            ANGONOKA_VERSION);
+        return;
+    default:;
+    }
 }
 } // namespace
 
@@ -98,24 +114,20 @@ int main(int argc, char** argv)
                % "Give more information during processing.",
            value("input file", options.filename));
 
-    const auto print_help = [&] {
-        fmt::print("{}", make_man_page(cli, ANGONOKA_NAME));
-    };
+    const auto man_page = make_man_page(cli, ANGONOKA_NAME);
     const auto cli_parse = parse(argc, argv, cli);
-
-    switch (options.mode) {
-    case Mode::help: print_help(); return 0;
-    case Mode::version:
-        fmt::print(
-            "{} version {}\n",
-            ANGONOKA_NAME,
-            ANGONOKA_VERSION);
+    if (options.mode != Mode::none) {
+        handle_modes(options.mode, man_page);
         return 0;
-    default:;
     }
     if (cli_parse.any_error()) {
-        print_help();
+        fmt::print("{}", man_page);
         return 1;
     }
-    return run(options);
+    try {
+        run(options);
+    } catch (...) {
+        return 1;
+    }
+    return 0;
 }
