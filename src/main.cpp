@@ -1,16 +1,26 @@
 #include "config.h"
 #include "config/load.h"
 #include "exceptions.h"
+#include "predict.h"
 #include <clipp.h>
 #include <cstdio>
 #include <fmt/color.h>
 #include <fmt/printf.h>
 #include <memory>
 #include <string>
+#include <thread>
 #include <unistd.h>
 
 namespace {
 using namespace angonoka;
+
+namespace detail {
+    // TODO: doc, test, expects
+    template <class... Ts> struct overloaded : Ts... {
+        using Ts::operator()...;
+    };
+    template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+} // namespace detail
 
 // TODO: doc, test, expects
 enum class Mode { none, help, version };
@@ -62,12 +72,52 @@ constexpr auto die
       });
 
 // TODO: doc, test, expects
-void run(const Options& options)
+void run_prediction(const Configuration& config)
+{
+    auto [prediction_future, event_queue] = predict(config);
+    constexpr auto event_timeout = 100;
+    ProgressEvent evt;
+    bool is_finished{false};
+    while (!is_finished) {
+        if (!event_queue->try_dequeue(evt)) {
+            prediction_future.wait_for(
+                std::chrono::milliseconds{event_timeout});
+            continue;
+        }
+        boost::apply_visitor(
+            detail::overloaded{
+                [&](const SimpleProgressEvent& e) {
+                    switch (e) {
+                    case SimpleProgressEvent::
+                        ScheduleOptimizationStart:
+                        fmt::print("Optimizing schedule...\n");
+                        // TODO: show an indicator
+                        return;
+                    case SimpleProgressEvent::
+                        ScheduleOptimizationDone:
+                        fmt::print("Done optimizing schedule.\n");
+                        return;
+                    case SimpleProgressEvent::Finished:
+                        fmt::print("Prediction complete.\n");
+                        is_finished = true;
+                        return;
+                    }
+                },
+                [](const ScheduleOptimizationEvent& /* e */) {},
+            },
+            evt);
+    }
+    prediction_future.get();
+}
+
+// TODO: doc, test, expects
+void parse_config(const Options& options)
 {
     fmt::print("Parsing configuration... ");
     try {
         const auto config = load_file(options.filename);
         fmt::print("OK\n");
+        run_prediction(config);
     } catch (const YAML::BadFile& e) {
         die(options,
             "Error reading tasks and agents from file \"{}\".\n",
@@ -83,7 +133,7 @@ void run(const Options& options)
 }
 
 // TODO: doc, test, expects
-void handle_modes(Mode mode, const clipp::man_page& man_page)
+void help_and_version(Mode mode, const clipp::man_page& man_page)
 {
     switch (mode) {
     case Mode::help: fmt::print("{}", man_page); return;
@@ -117,7 +167,7 @@ int main(int argc, char** argv)
     const auto man_page = make_man_page(cli, ANGONOKA_NAME);
     const auto cli_parse = parse(argc, argv, cli);
     if (options.mode != Mode::none) {
-        handle_modes(options.mode, man_page);
+        help_and_version(options.mode, man_page);
         return 0;
     }
     if (cli_parse.any_error()) {
@@ -125,7 +175,7 @@ int main(int argc, char** argv)
         return 1;
     }
     try {
-        run(options);
+        parse_config(options);
     } catch (...) {
         return 1;
     }
