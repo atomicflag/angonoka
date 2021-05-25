@@ -71,6 +71,9 @@ suite predict_test = [] {
         expect(
             pop<SimpleProgressEvent>(events)
             == SimpleProgressEvent::ScheduleOptimizationDone);
+        expect(
+            pop<SimpleProgressEvent>(events)
+            == SimpleProgressEvent::Finished);
         expect(events.empty());
         // TODO: implement
     };

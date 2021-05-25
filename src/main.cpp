@@ -2,6 +2,7 @@
 #include "config/load.h"
 #include "exceptions.h"
 #include "predict.h"
+#include <boost/hana/functional/overload.hpp>
 #include <clipp.h>
 #include <cstdio>
 #include <fmt/color.h>
@@ -13,14 +14,7 @@
 
 namespace {
 using namespace angonoka;
-
-namespace detail {
-    // TODO: doc, test, expects
-    template <class... Ts> struct overloaded : Ts... {
-        using Ts::operator()...;
-    };
-    template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-} // namespace detail
+using boost::hana::overload;
 
 // TODO: doc, test, expects
 enum class Mode { none, help, version };
@@ -72,41 +66,63 @@ constexpr auto die
       });
 
 // TODO: doc, test, expects
+auto on_simple_progress_event(const SimpleProgressEvent& e)
+{
+    switch (e) {
+    case SimpleProgressEvent::ScheduleOptimizationStart:
+        fmt::print("Optimizing schedule...\n");
+        // TODO: show an indicator
+        return;
+    case SimpleProgressEvent::ScheduleOptimizationDone:
+        fmt::print("Done optimizing schedule.\n");
+        return;
+    case SimpleProgressEvent::Finished:
+        fmt::print("Prediction complete.\n");
+        return;
+    }
+}
+
+// TODO: doc, test, expects
+void on_schedule_optimization_event(
+    const ScheduleOptimizationEvent& e)
+{
+    fmt::print("Optimization progress {}\n", e.progress);
+    // TODO: update progress bar
+}
+
+// TODO: doc, test, expects
+auto make_event_consumer(auto&&... callbacks)
+{
+    return [=](Queue<ProgressEvent>& queue,
+               std::future<Prediction>& prediction) {
+        constexpr auto event_timeout = 100;
+        ProgressEvent evt;
+        bool is_finished{false};
+        while (!is_finished) {
+            if (!queue.try_dequeue(evt)) {
+                prediction.wait_for(
+                    std::chrono::milliseconds{event_timeout});
+                continue;
+            }
+            if (auto* e = boost::get<SimpleProgressEvent>(&evt)) {
+                is_finished = *e == SimpleProgressEvent::Finished;
+            }
+            boost::apply_visitor(
+                overload(
+                    std::forward<decltype(callbacks)>(callbacks)...),
+                evt);
+        }
+    };
+}
+
+// TODO: doc, test, expects
 void run_prediction(const Configuration& config)
 {
     auto [prediction_future, event_queue] = predict(config);
-    constexpr auto event_timeout = 100;
-    ProgressEvent evt;
-    bool is_finished{false};
-    while (!is_finished) {
-        if (!event_queue->try_dequeue(evt)) {
-            prediction_future.wait_for(
-                std::chrono::milliseconds{event_timeout});
-            continue;
-        }
-        boost::apply_visitor(
-            detail::overloaded{
-                [&](const SimpleProgressEvent& e) {
-                    switch (e) {
-                    case SimpleProgressEvent::
-                        ScheduleOptimizationStart:
-                        fmt::print("Optimizing schedule...\n");
-                        // TODO: show an indicator
-                        return;
-                    case SimpleProgressEvent::
-                        ScheduleOptimizationDone:
-                        fmt::print("Done optimizing schedule.\n");
-                        return;
-                    case SimpleProgressEvent::Finished:
-                        fmt::print("Prediction complete.\n");
-                        is_finished = true;
-                        return;
-                    }
-                },
-                [](const ScheduleOptimizationEvent& /* e */) {},
-            },
-            evt);
-    }
+    auto consumer = make_event_consumer(
+        on_simple_progress_event,
+        on_schedule_optimization_event);
+    consumer(*event_queue, prediction_future);
     prediction_future.get();
 }
 

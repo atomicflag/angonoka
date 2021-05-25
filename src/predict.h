@@ -32,7 +32,7 @@ enum class SimpleProgressEvent {
 */
 struct ScheduleOptimizationEvent {
     float progress;
-    float makespan;
+    float makespan; // TODO: use std::chrono
 };
 
 /**

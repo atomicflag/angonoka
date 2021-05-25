@@ -69,6 +69,8 @@ predict(const Configuration& config)
         const auto state = optimize(schedule_params, *events);
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationDone);
+        // TODO: WIP do other stuff here
+        events->enqueue(SimpleProgressEvent::Finished);
         return Prediction{};
     });
     return {std::move(future), std::move(events)};

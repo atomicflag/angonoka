@@ -58,6 +58,9 @@ void Optimizer::update() noexcept
     Expects(idle_iters >= 0);
     Expects(max_idle_iters > 0);
 
+    // TODO: can we prevent a bunch of "1"s over the
+    // first few epochs?
+
     if (has_converged()) return 1.F;
     return last_progress;
 }
