@@ -17,7 +17,7 @@ using namespace angonoka;
 using boost::hana::overload;
 
 // TODO: doc, test, expects
-enum class Mode { none, help, version };
+enum class Mode { None, Help, Version };
 
 // TODO: doc, test, expects
 bool output_is_terminal() noexcept
@@ -28,7 +28,7 @@ bool output_is_terminal() noexcept
 // TODO: doc, test, expects
 struct Options {
     std::string filename;
-    Mode mode{Mode::none};
+    Mode mode{Mode::None};
     bool verbose{false};
     bool color{output_is_terminal()};
 };
@@ -46,7 +46,7 @@ constexpr auto colorless_text = [](auto&&... args) {
 };
 
 // TODO: doc, test, expects
-constexpr auto colorize(auto&& color_fn, auto&& fn)
+constexpr auto colorize(auto&& color_fn, auto&& fn) noexcept
 {
     return [=]<typename... Ts>(const Options& options, Ts&&... args)
     {
@@ -91,21 +91,25 @@ void on_schedule_optimization_event(
 }
 
 // TODO: doc, test, expects
-auto make_event_consumer(auto&&... callbacks)
+bool is_final_event(ProgressEvent& evt) noexcept
+{
+    if (auto* e = boost::get<SimpleProgressEvent>(&evt))
+        return *e == SimpleProgressEvent::Finished;
+    return false;
+}
+
+// TODO: doc, test, expects
+auto make_event_consumer(auto&&... callbacks) noexcept
 {
     return [=](Queue<ProgressEvent>& queue,
                std::future<Prediction>& prediction) {
-        constexpr auto event_timeout = 100;
+        using namespace std::literals::chrono_literals;
+        constexpr auto event_timeout = 100ms;
         ProgressEvent evt;
-        bool is_finished{false};
-        while (!is_finished) {
+        while (!is_final_event(evt)) {
             if (!queue.try_dequeue(evt)) {
-                prediction.wait_for(
-                    std::chrono::milliseconds{event_timeout});
+                prediction.wait_for(event_timeout);
                 continue;
-            }
-            if (auto* e = boost::get<SimpleProgressEvent>(&evt)) {
-                is_finished = *e == SimpleProgressEvent::Finished;
             }
             boost::apply_visitor(
                 overload(
@@ -152,8 +156,8 @@ void parse_config(const Options& options)
 void help_and_version(Mode mode, const clipp::man_page& man_page)
 {
     switch (mode) {
-    case Mode::help: fmt::print("{}", man_page); return;
-    case Mode::version:
+    case Mode::Help: fmt::print("{}", man_page); return;
+    case Mode::Version:
         fmt::print(
             "{} version {}\n",
             ANGONOKA_NAME,
@@ -172,17 +176,20 @@ int main(int argc, char** argv)
     Options options;
 
     const auto cli
-        = (option("--version").set(options.mode, Mode::version)
-               % "Show version.",
-           option("-h", "--help").set(options.mode, Mode::help)
-               % "Show help.",
+        = (option("--version").set(options.mode, Mode::Version)
+               % "Print the version number and exit.",
+           option("-h", "--help").set(options.mode, Mode::Help)
+               % "Print usage and exit.",
            option("-v", "--verbose").set(options.verbose)
-               % "Give more information during processing.",
+               % "Print debugging messages about prediction "
+                 "progress.",
+           option("--color").set(options.color)
+               % "Force colored output.", // TODO: add no-color
            value("input file", options.filename));
 
     const auto man_page = make_man_page(cli, ANGONOKA_NAME);
     const auto cli_parse = parse(argc, argv, cli);
-    if (options.mode != Mode::none) {
+    if (options.mode != Mode::None) {
         help_and_version(options.mode, man_page);
         return 0;
     }
