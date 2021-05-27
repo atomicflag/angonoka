@@ -1,6 +1,6 @@
 # Angonoka
 
-Angonoka is a time estimation software based on predictive modeling.
+Angonoka is a time estimation software based on statistical modeling.
 
 :warning: *The project is under heavy development and is not usable yet.* :warning:
 
@@ -11,7 +11,7 @@ Angonoka is a time estimation software based on predictive modeling.
 
 ```bash
 # WIP
-angonoka -c tasks.yaml
+angonoka tasks.yaml
 ```
 
 ## Table of Contents

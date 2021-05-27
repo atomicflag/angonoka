@@ -16,10 +16,16 @@ namespace {
 using namespace angonoka;
 using boost::hana::overload;
 
-// TODO: doc, test, expects
-enum class Mode { None, Help, Version };
+/**
+    CLI action that exits after printing some information.
+*/
+enum class SimpleAction { None, Help, Version };
 
-// TODO: doc, test, expects
+/**
+    Test if the output is a terminal.
+
+    @return True if the output is a terminal.
+*/
 bool output_is_terminal() noexcept
 {
     return isatty(fileno(stdout)) == 1;
@@ -28,7 +34,7 @@ bool output_is_terminal() noexcept
 // TODO: doc, test, expects
 struct Options {
     std::string filename;
-    Mode mode{Mode::None};
+    SimpleAction action{SimpleAction::None};
     bool verbose{false};
     bool color{output_is_terminal()};
 };
@@ -70,14 +76,14 @@ auto on_simple_progress_event(const SimpleProgressEvent& e)
 {
     switch (e) {
     case SimpleProgressEvent::ScheduleOptimizationStart:
-        fmt::print("Optimizing schedule...\n");
+        fmt::print("Optimizing the schedule...\n");
         // TODO: show an indicator
         return;
     case SimpleProgressEvent::ScheduleOptimizationDone:
-        fmt::print("Done optimizing schedule.\n");
+        fmt::print("Schedule optimization complete.\n");
         return;
     case SimpleProgressEvent::Finished:
-        fmt::print("Prediction complete.\n");
+        fmt::print("Probability estimation complete.\n");
         return;
     }
 }
@@ -153,11 +159,13 @@ void parse_config(const Options& options)
 }
 
 // TODO: doc, test, expects
-void help_and_version(Mode mode, const clipp::man_page& man_page)
+void help_and_version(
+    SimpleAction action,
+    const clipp::man_page& man_page)
 {
-    switch (mode) {
-    case Mode::Help: fmt::print("{}", man_page); return;
-    case Mode::Version:
+    switch (action) {
+    case SimpleAction::Help: fmt::print("{}", man_page); return;
+    case SimpleAction::Version:
         fmt::print(
             "{} version {}\n",
             ANGONOKA_NAME,
@@ -176,21 +184,23 @@ int main(int argc, char** argv)
     Options options;
 
     const auto cli
-        = (option("--version").set(options.mode, Mode::Version)
+        = (option("--version")
+                   .set(options.action, SimpleAction::Version)
                % "Print the version number and exit.",
-           option("-h", "--help").set(options.mode, Mode::Help)
+           option("-h", "--help")
+                   .set(options.action, SimpleAction::Help)
                % "Print usage and exit.",
            option("-v", "--verbose").set(options.verbose)
-               % "Print debugging messages about prediction "
-                 "progress.",
-           option("--color").set(options.color)
-               % "Force colored output.", // TODO: add no-color
+               % "Print debug messages about prediction progress.",
+           (option("--color").set(options.color, true)
+            | option("--no-color").set(options.color, false))
+               % "Force colored output.",
            value("input file", options.filename));
 
     const auto man_page = make_man_page(cli, ANGONOKA_NAME);
     const auto cli_parse = parse(argc, argv, cli);
-    if (options.mode != Mode::None) {
-        help_and_version(options.mode, man_page);
+    if (options.action != SimpleAction::None) {
+        help_and_version(options.action, man_page);
         return 0;
     }
     if (cli_parse.any_error()) {
