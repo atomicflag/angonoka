@@ -31,7 +31,14 @@ bool output_is_terminal() noexcept
     return isatty(fileno(stdout)) == 1;
 }
 
-// TODO: doc, test, expects
+/**
+    CLI options.
+
+    @var filename   Path to tasks.yaml file
+    @var action     Single-action command
+    @var verbose    Debug messages
+    @var color      Colored text
+*/
 struct Options {
     std::string filename;
     SimpleAction action{SimpleAction::None};
@@ -39,19 +46,33 @@ struct Options {
     bool color{output_is_terminal()};
 };
 
-// TODO: doc, test, expects
+/**
+    Prints red text.
+*/
 constexpr auto red_text = [](auto&&... args) {
     fmt::print(
         fg(fmt::terminal_color::red),
         std::forward<decltype(args)>(args)...);
 };
 
-// TODO: doc, test, expects
+/**
+    Prints colorless text.
+*/
 constexpr auto colorless_text = [](auto&&... args) {
     fmt::print(std::forward<decltype(args)>(args)...);
 };
 
-// TODO: doc, test, expects
+/**
+    Decorates a function with a specified color.
+
+    Falls back to colorless text when the colored output isn't
+    available.
+
+    @param color_fn Color function (red_text, etc)
+    @param fn       Function that prints the text
+
+    @return A function, decorated with the specified color.
+*/
 constexpr auto colorize(auto&& color_fn, auto&& fn) noexcept
 {
     return [=]<typename... Ts>(const Options& options, Ts&&... args)
@@ -64,15 +85,21 @@ constexpr auto colorize(auto&& color_fn, auto&& fn) noexcept
     };
 }
 
-// TODO: doc, test, expects
+/**
+    Critical error message.
+*/
 constexpr auto die
     = colorize(red_text, [](auto&& print, auto&&... args) {
           print("Error\n");
           print(std::forward<decltype(args)>(args)...);
       });
 
-// TODO: doc, test, expects
-auto on_simple_progress_event(const SimpleProgressEvent& e)
+/**
+    Handle simple progress events.
+
+    @param e Event
+*/
+void on_simple_progress_event(const SimpleProgressEvent& e)
 {
     switch (e) {
     case SimpleProgressEvent::ScheduleOptimizationStart:
@@ -88,7 +115,11 @@ auto on_simple_progress_event(const SimpleProgressEvent& e)
     }
 }
 
-// TODO: doc, test, expects
+/**
+    Handle schedule optimization events.
+
+    @param e Event
+*/
 void on_schedule_optimization_event(
     const ScheduleOptimizationEvent& e)
 {
@@ -96,7 +127,13 @@ void on_schedule_optimization_event(
     // TODO: update progress bar
 }
 
-// TODO: doc, test, expects
+/**
+    Check if an event is the final one.
+
+    @param evt Event
+
+    @return True if this is the final event.
+*/
 bool is_final_event(ProgressEvent& evt) noexcept
 {
     if (auto* e = boost::get<SimpleProgressEvent>(&evt))
