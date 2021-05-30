@@ -136,12 +136,22 @@ void on_schedule_optimization_event(
 */
 bool is_final_event(ProgressEvent& evt) noexcept
 {
+    using boost::mpl::front;
+    static_assert(std::is_same_v<
+                  front<ProgressEvent::types>::type,
+                  SimpleProgressEvent>);
+    static_assert(
+        SimpleProgressEvent{} != SimpleProgressEvent::Finished);
     if (auto* e = boost::get<SimpleProgressEvent>(&evt))
         return *e == SimpleProgressEvent::Finished;
     return false;
 }
 
-// TODO: doc, test, expects
+/**
+    Compose callbacks into an event consumer function.
+
+    @return Event consumer function.
+*/
 auto make_event_consumer(auto&&... callbacks) noexcept
 {
     return [=](Queue<ProgressEvent>& queue,
