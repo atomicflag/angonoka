@@ -8,6 +8,7 @@
 #include <fmt/color.h>
 #include <fmt/printf.h>
 #include <memory>
+#include <optional>
 #include <string>
 #include <thread>
 #include <unistd.h>
@@ -19,7 +20,7 @@ using boost::hana::overload;
 /**
     CLI action that exits after printing some information.
 */
-enum class SimpleAction { None, Help, Version };
+enum class SimpleAction { Help, Version };
 
 /**
     Test if the output is a terminal.
@@ -41,7 +42,7 @@ bool output_is_terminal() noexcept
 */
 struct Options {
     std::string filename;
-    SimpleAction action{SimpleAction::None};
+    std::optional<SimpleAction> action;
     bool verbose{false};
     bool color{output_is_terminal()};
 };
@@ -136,12 +137,6 @@ void on_schedule_optimization_event(
 */
 bool is_final_event(ProgressEvent& evt) noexcept
 {
-    using boost::mpl::front;
-    static_assert(std::is_same_v<
-                  front<ProgressEvent::types>::type,
-                  SimpleProgressEvent>);
-    static_assert(
-        SimpleProgressEvent{} != SimpleProgressEvent::Finished);
     if (auto* e = boost::get<SimpleProgressEvent>(&evt))
         return *e == SimpleProgressEvent::Finished;
     return false;
@@ -172,9 +167,16 @@ auto make_event_consumer(auto&&... callbacks) noexcept
     };
 }
 
-// TODO: doc, test, expects
+/**
+    Run the prediction algorithm on given configuration.
+
+    @param config Agent and tasks configuration
+*/
 void run_prediction(const Configuration& config)
 {
+    Expects(!config.tasks.empty());
+    Expects(!config.agents.empty());
+
     auto [prediction_future, event_queue] = predict(config);
     auto consumer = make_event_consumer(
         on_simple_progress_event,
@@ -183,7 +185,11 @@ void run_prediction(const Configuration& config)
     prediction_future.get();
 }
 
-// TODO: doc, test, expects
+/**
+    Parse the configuration YAML.
+
+    @param options CLI options
+*/
 void parse_config(const Options& options)
 {
     fmt::print("Parsing configuration... ");
@@ -205,7 +211,12 @@ void parse_config(const Options& options)
     }
 }
 
-// TODO: doc, test, expects
+/**
+    Print help/application version and exit.
+
+    @param action   Type of action
+    @param man_page Man page
+*/
 void help_and_version(
     SimpleAction action,
     const clipp::man_page& man_page)
@@ -218,7 +229,6 @@ void help_and_version(
             ANGONOKA_NAME,
             ANGONOKA_VERSION);
         return;
-    default:;
     }
 }
 } // namespace
@@ -231,12 +241,12 @@ int main(int argc, char** argv)
     Options options;
 
     const auto cli
-        = (option("--version")
-                   .set(options.action, SimpleAction::Version)
-               % "Print the version number and exit.",
-           option("-h", "--help")
-                   .set(options.action, SimpleAction::Help)
-               % "Print usage and exit.",
+        = (option("--version").call([&] {
+              options.action = SimpleAction::Version;
+          }) % "Print the version number and exit.",
+           option("-h", "--help").call([&] {
+               options.action = SimpleAction::Help;
+           }) % "Print usage and exit.",
            option("-v", "--verbose").set(options.verbose)
                % "Print debug messages about prediction progress.",
            (option("--color").set(options.color, true)
@@ -246,8 +256,8 @@ int main(int argc, char** argv)
 
     const auto man_page = make_man_page(cli, ANGONOKA_NAME);
     const auto cli_parse = parse(argc, argv, cli);
-    if (options.action != SimpleAction::None) {
-        help_and_version(options.action, man_page);
+    if (options.action) {
+        help_and_version(*options.action, man_page);
         return 0;
     }
     if (cli_parse.any_error()) {

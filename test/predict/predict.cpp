@@ -77,4 +77,14 @@ suite predict_test = [] {
         expect(events.empty());
         // TODO: implement
     };
+
+    "events"_test = [] {
+        using namespace angonoka;
+        using boost::mpl::front;
+        expect(std::is_same_v<
+               front<ProgressEvent::types>::type,
+               SimpleProgressEvent>);
+        expect(
+            SimpleProgressEvent{} != SimpleProgressEvent::Finished);
+    };
 };
