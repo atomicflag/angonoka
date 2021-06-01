@@ -3,7 +3,7 @@
 #include "exceptions.h"
 #include "predict.h"
 #include <boost/hana/functional/overload.hpp>
-#include <clipp.h>
+#include <CLI11.hpp>
 #include <cstdio>
 #include <fmt/color.h>
 #include <fmt/printf.h>
@@ -217,6 +217,7 @@ void parse_config(const Options& options)
     @param action   Type of action
     @param man_page Man page
 */
+/* Not needed, CLI11 has this built-in
 void help_and_version(
     SimpleAction action,
     const clipp::man_page& man_page)
@@ -231,15 +232,21 @@ void help_and_version(
         return;
     }
 }
+*/
 } // namespace
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, char** argv)
 {
-    using namespace clipp;
-
     Options options;
+    CLI::App app{"Angonoka is a time estimation software based on statistical modeling."};
 
+    app.set_version_flag("--version",
+            "{} version {}"_format(
+            ANGONOKA_NAME,
+            ANGONOKA_VERSION));
+
+    /*
     const auto cli
         = (option("--version").call([&] {
               options.action = SimpleAction::Version;
@@ -255,15 +262,11 @@ int main(int argc, char** argv)
            value("input file", options.filename));
 
     const auto man_page = make_man_page(cli, ANGONOKA_NAME);
-    const auto cli_parse = parse(argc, argv, cli);
-    if (options.action) {
-        help_and_version(*options.action, man_page);
-        return 0;
-    }
-    if (cli_parse.any_error()) {
-        fmt::print("{}", man_page);
-        return 1;
-    }
+    */
+
+    // TODO: WIP
+
+    CLI11_PARSE(app, argc, argv);
     try {
         parse_config(options);
     } catch (...) {
