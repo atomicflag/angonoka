@@ -2,13 +2,12 @@
 #include "config/load.h"
 #include "exceptions.h"
 #include "predict.h"
+#include <CLI/CLI.hpp>
 #include <boost/hana/functional/overload.hpp>
-#include <CLI11.hpp>
 #include <cstdio>
 #include <fmt/color.h>
 #include <fmt/printf.h>
 #include <memory>
-#include <optional>
 #include <string>
 #include <thread>
 #include <unistd.h>
@@ -16,11 +15,6 @@
 namespace {
 using namespace angonoka;
 using boost::hana::overload;
-
-/**
-    CLI action that exits after printing some information.
-*/
-enum class SimpleAction { Help, Version };
 
 /**
     Test if the output is a terminal.
@@ -42,7 +36,6 @@ bool output_is_terminal() noexcept
 */
 struct Options {
     std::string filename;
-    std::optional<SimpleAction> action;
     bool verbose{false};
     bool color{output_is_terminal()};
 };
@@ -189,14 +182,16 @@ void run_prediction(const Configuration& config)
     Parse the configuration YAML.
 
     @param options CLI options
+
+    @return Tasks and agents.
 */
-void parse_config(const Options& options)
+auto parse_config(const Options& options)
 {
     fmt::print("Parsing configuration... ");
     try {
-        const auto config = load_file(options.filename);
+        auto config = load_file(options.filename);
         fmt::print("OK\n");
-        run_prediction(config);
+        return config;
     } catch (const YAML::BadFile& e) {
         die(options,
             "Error reading tasks and agents from file \"{}\".\n",
@@ -205,72 +200,56 @@ void parse_config(const Options& options)
     } catch (const ValidationError& e) {
         die(options, "Validation error: {}\n", e.what());
         throw;
-    } catch (const std::runtime_error& e) {
+    } catch (const std::exception& e) {
         die(options, "Unexpected error: {}\n", e.what());
         throw;
     }
 }
-
-/**
-    Print help/application version and exit.
-
-    @param action   Type of action
-    @param man_page Man page
-*/
-/* Not needed, CLI11 has this built-in
-void help_and_version(
-    SimpleAction action,
-    const clipp::man_page& man_page)
-{
-    switch (action) {
-    case SimpleAction::Help: fmt::print("{}", man_page); return;
-    case SimpleAction::Version:
-        fmt::print(
-            "{} version {}\n",
-            ANGONOKA_NAME,
-            ANGONOKA_VERSION);
-        return;
-    }
-}
-*/
 } // namespace
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, char** argv)
 {
+    using namespace fmt::literals;
+
     Options options;
-    CLI::App app{"Angonoka is a time estimation software based on statistical modeling."};
+    CLI::App app{
+        "Angonoka is a time estimation software based on statistical "
+        "modeling.",
+        ANGONOKA_NAME};
 
-    app.set_version_flag("--version",
-            "{} version {}"_format(
-            ANGONOKA_NAME,
-            ANGONOKA_VERSION));
+    auto* version = app.add_flag(
+        "--version",
+        "Display program version information and exit");
 
-    /*
-    const auto cli
-        = (option("--version").call([&] {
-              options.action = SimpleAction::Version;
-          }) % "Print the version number and exit.",
-           option("-h", "--help").call([&] {
-               options.action = SimpleAction::Help;
-           }) % "Print usage and exit.",
-           option("-v", "--verbose").set(options.verbose)
-               % "Print debug messages about prediction progress.",
-           (option("--color").set(options.color, true)
-            | option("--no-color").set(options.color, false))
-               % "Force colored output.",
-           value("input file", options.filename));
+    app.add_flag(
+        "-v,--verbose",
+        options.verbose,
+        "Print debug messages about prediction progress");
+    app.add_flag(
+        "--color,!--no-color",
+        options.color,
+        "Force colored output");
+    app.add_option("input file", options.filename)->required();
 
-    const auto man_page = make_man_page(cli, ANGONOKA_NAME);
-    */
+    const auto version_requested = [&] {
+        if (version->count() > 0) {
+            fmt::print("{}\n", ANGONOKA_VERSION);
+            return true;
+        }
+        return false;
+    };
 
-    // TODO: WIP
-
-    CLI11_PARSE(app, argc, argv);
     try {
-        parse_config(options);
+        app.parse(argc, argv);
+        if (version_requested()) return 0;
+        const auto config = parse_config(options);
+        run_prediction(config);
+        return 0;
+    } catch (const CLI::ParseError& e) {
+        if (version_requested()) return 0;
+        return app.exit(e);
     } catch (...) {
         return 1;
     }
-    return 0;
 }

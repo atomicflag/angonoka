@@ -36,7 +36,7 @@ endif
 dependencies = [
   dependency('fmt'),
   dependency('yaml-cpp'),
-  dependency('clipp'),
+  dependency('cli11'),
   dependency('range-v3'),
   dependency('gsl-lite'),
   dependency('pcg-cpp'),

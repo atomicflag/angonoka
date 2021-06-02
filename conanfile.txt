@@ -15,7 +15,7 @@ boost-ext-ut/1.1.8
 cli11/1.9.1
 
 [build_requires]
-meson/0.57.2
+meson/0.58.0
 ragel/6.10
 
 [generators]

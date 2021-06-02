@@ -35,7 +35,7 @@ base = declare_dependency(
 
 configure_file(output : 'config.h',
   configuration : {
-    'ANGONOKA_VERSION' : '"'+meson.project_version()+'"',
+    'ANGONOKA_VERSION' : '"'+meson.project_name()+' version '+meson.project_version()+'"',
     'ANGONOKA_NAME' : '"'+meson.project_name()+'"'
   }
 )
