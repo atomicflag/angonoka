@@ -25,6 +25,7 @@ std::vector<stun::StateItem> optimize(
     const stun::ScheduleParams& params,
     Queue<ProgressEvent>& events)
 {
+    using seconds = std::chrono::seconds::rep;
     Expects(!params.agent_performance.empty());
     Expects(!params.task_duration.empty());
     Expects(!params.available_agents.empty());
@@ -43,10 +44,11 @@ std::vector<stun::StateItem> optimize(
         MaxIdleIters{max_idle_iters}};
     while (!optimizer.has_converged()) {
         optimizer.update();
+        const auto makespan = gsl::narrow<seconds>(std::trunc(
+            optimizer.energy() * params.duration_multiplier));
         events.enqueue(ScheduleOptimizationEvent{
             .progress = optimizer.estimated_progress(),
-            .makespan
-            = optimizer.energy() * params.duration_multiplier});
+            .makespan = std::chrono::seconds{makespan}});
     }
 
     return ranges::to<std::vector<StateItem>>(optimizer.state());

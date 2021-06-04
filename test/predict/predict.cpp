@@ -40,6 +40,7 @@ template <typename T> auto pop(auto& events)
 suite predict_test = [] {
     "basic prediction"_test = [] {
         using namespace angonoka;
+        using namespace std::literals::chrono_literals;
 
         Configuration config;
         auto [prediction_future, event_queue] = predict(config);
@@ -55,7 +56,7 @@ suite predict_test = [] {
         {
             const auto evt = pop<ScheduleOptimizationEvent>(events);
             expect(evt.progress == .2_d);
-            expect(evt.makespan == 50._d);
+            expect(evt.makespan == 50s);
         }
         expect(
             pop<ScheduleOptimizationEvent>(events).progress == .4_d);
@@ -66,7 +67,7 @@ suite predict_test = [] {
         {
             const auto evt = pop<ScheduleOptimizationEvent>(events);
             expect(evt.progress == 1._d);
-            expect(evt.makespan == 10._d);
+            expect(evt.makespan == 10s);
         }
         expect(
             pop<SimpleProgressEvent>(events)

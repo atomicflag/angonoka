@@ -2,6 +2,7 @@
 
 #include "configuration.h"
 #include <boost/variant.hpp>
+#include <chrono>
 #include <future>
 #include <memory>
 #include <readerwriterqueue/readerwriterqueue.h>
@@ -28,11 +29,11 @@ enum class SimpleProgressEvent {
     Emitted during the schedule optimization step.
 
     @var progress Optimization progress from 0.0 to 1.0
-    @var makespan The best makespan so far in seconds
+    @var makespan The best makespan so far
 */
 struct ScheduleOptimizationEvent {
     float progress;
-    float makespan; // TODO: use std::chrono
+    std::chrono::seconds makespan;
 };
 
 /**
