@@ -16,6 +16,10 @@ namespace {
 using namespace angonoka;
 using boost::hana::overload;
 
+// TODO: doc, test, expects
+struct OperationFailed : std::exception {
+};
+
 /**
     Test if the output is a terminal.
 
@@ -198,10 +202,10 @@ auto parse_config(const Options& options)
         die(options,
             "Error reading tasks and agents from file \"{}\".\n",
             options.filename);
-        throw;
+        throw OperationFailed{};
     } catch (const ValidationError& e) {
         die(options, "Validation error: {}\n", e.what());
-        throw;
+        throw OperationFailed{};
     } catch (const std::exception& e) {
         die(options, "Unexpected error: {}\n", e.what());
         throw;
@@ -247,11 +251,11 @@ int main(int argc, char** argv)
         if (version_requested()) return 0;
         const auto config = parse_config(options);
         run_prediction(config);
-        return 0;
+        return EXIT_SUCCESS;
     } catch (const CLI::ParseError& e) {
         if (version_requested()) return 0;
         return app.exit(e);
-    } catch (...) {
-        return 1;
+    } catch (const OperationFailed&) {
+        return EXIT_FAILURE;
     }
 }
