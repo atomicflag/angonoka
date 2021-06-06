@@ -130,7 +130,8 @@ void on_schedule_optimization_event(
 */
 bool is_final_event(ProgressEvent& evt) noexcept
 {
-    if (auto* e = boost::get<SimpleProgressEvent>(&evt))
+    using boost::variant2::get_if;
+    if (auto* e = get_if<SimpleProgressEvent>(&evt))
         return *e == SimpleProgressEvent::Finished;
     return false;
 }
@@ -145,6 +146,7 @@ auto make_event_consumer(auto&&... callbacks) noexcept
     return [=](Queue<ProgressEvent>& queue,
                std::future<Prediction>& prediction) {
         using namespace std::literals::chrono_literals;
+        using boost::variant2::visit;
         constexpr auto event_timeout = 100ms;
         ProgressEvent evt;
         while (!is_final_event(evt)) {
@@ -152,7 +154,7 @@ auto make_event_consumer(auto&&... callbacks) noexcept
                 prediction.wait_for(event_timeout);
                 continue;
             }
-            boost::apply_visitor(
+            visit(
                 overload(
                     std::forward<decltype(callbacks)>(callbacks)...),
                 evt);

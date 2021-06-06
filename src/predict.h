@@ -1,7 +1,7 @@
 #pragma once
 
 #include "configuration.h"
-#include <boost/variant.hpp>
+#include <boost/variant2/variant.hpp>
 #include <chrono>
 #include <future>
 #include <memory>
@@ -9,6 +9,9 @@
 #include <tuple>
 
 namespace angonoka {
+template <typename... Ts>
+using variant = boost::variant2::variant<Ts...>;
+
 // TODO: doc, test, expects
 struct Prediction {
 };
@@ -40,7 +43,7 @@ struct ScheduleOptimizationEvent {
     Prediction progress event.
 */
 using ProgressEvent
-    = boost::variant<SimpleProgressEvent, ScheduleOptimizationEvent>;
+    = variant<SimpleProgressEvent, ScheduleOptimizationEvent>;
 
 /**
     Predict likelihood of a given system configuration.

@@ -80,10 +80,10 @@ suite predict_test = [] {
     };
 
     "events"_test = [] {
+        using boost::variant2::variant_alternative;
         using namespace angonoka;
-        using boost::mpl::front;
         expect(std::is_same_v<
-               front<ProgressEvent::types>::type,
+               variant_alternative<0, ProgressEvent>::type,
                SimpleProgressEvent>);
         expect(
             SimpleProgressEvent{} != SimpleProgressEvent::Finished);
