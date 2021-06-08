@@ -42,10 +42,13 @@ std::vector<stun::StateItem> optimize(
         params,
         BatchSize{batch_size},
         MaxIdleIters{max_idle_iters}};
+    float last_energy = 0.F;
     while (!optimizer.has_converged()) {
         optimizer.update();
-        const auto makespan = gsl::narrow<seconds>(std::trunc(
-            optimizer.energy() * params.duration_multiplier));
+        if (optimizer.energy() == last_energy) continue;
+        last_energy = optimizer.energy();
+        const auto makespan = gsl::narrow<seconds>(
+            std::trunc(last_energy * params.duration_multiplier));
         events.enqueue(ScheduleOptimizationEvent{
             .progress = optimizer.estimated_progress(),
             .makespan = std::chrono::seconds{makespan}});

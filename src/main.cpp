@@ -95,34 +95,37 @@ constexpr auto die
 /**
     Handle simple progress events.
 
-    @param e Event
+    TODO: doc, test, expects
 */
-void on_simple_progress_event(const SimpleProgressEvent& e)
+auto on_simple_progress_event(auto& progress)
 {
-    switch (e) {
-    case SimpleProgressEvent::ScheduleOptimizationStart:
-        fmt::print("Optimizing the schedule...\n");
-        // TODO: show an indicator
-        return;
-    case SimpleProgressEvent::ScheduleOptimizationDone:
-        fmt::print("Schedule optimization complete.\n");
-        return;
-    case SimpleProgressEvent::Finished:
-        fmt::print("Probability estimation complete.\n");
-        return;
-    }
+    return [=](const SimpleProgressEvent& e) mutable {
+        switch (e) {
+        case SimpleProgressEvent::ScheduleOptimizationStart:
+            fmt::print("Optimizing the schedule...\n");
+            progress.start();
+            return;
+        case SimpleProgressEvent::ScheduleOptimizationDone:
+            progress.stop();
+            fmt::print("Schedule optimization complete.\n");
+            return;
+        case SimpleProgressEvent::Finished:
+            fmt::print("Probability estimation complete.\n");
+            return;
+        }
+    };
 }
 
 /**
     Handle schedule optimization events.
 
-    @param e Event
+    TODO: doc, test, expects
 */
-void on_schedule_optimization_event(
-    const ScheduleOptimizationEvent& e)
+auto on_schedule_optimization_event(auto& progress)
 {
-    fmt::print("Optimization progress {}\n", e.progress);
-    // TODO: update progress bar
+    return [=](const ScheduleOptimizationEvent& e) mutable {
+        progress.update(e.progress, "Optimization progress");
+    };
 }
 
 /**
@@ -148,7 +151,7 @@ bool is_final_event(ProgressEvent& evt) noexcept
 auto make_event_consumer(auto&&... callbacks) noexcept
 {
     return [=](Queue<ProgressEvent>& queue,
-               std::future<Prediction>& prediction) {
+               std::future<Prediction>& prediction) mutable {
         using namespace std::literals::chrono_literals;
         using boost::variant2::visit;
         constexpr auto event_timeout = 100ms;
@@ -166,22 +169,49 @@ auto make_event_consumer(auto&&... callbacks) noexcept
     };
 }
 
+// TODO: doc, test, expects
+struct TextProgress {
+    // TODO: doc, test, expects
+    static void start() { }
+
+    // TODO: doc, test, expects
+    static void update(float progress, std::string_view message)
+    {
+        fmt::print("{}: {:.2f}%\n", message, progress * 100.F);
+    }
+
+    // TODO: doc, test, expects
+    static void stop() { }
+};
+
 /**
     Run the prediction algorithm on given configuration.
 
     @param config Agent and tasks configuration
+
+    TODO: doc, test, expects
 */
-void run_prediction(const Configuration& config)
+void run_prediction(
+    const Configuration& config,
+    const Options& options)
 {
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());
 
-    auto [prediction_future, event_queue] = predict(config);
-    auto consumer = make_event_consumer(
-        on_simple_progress_event,
-        on_schedule_optimization_event);
-    consumer(*event_queue, prediction_future);
-    prediction_future.get();
+    const auto run = [=](auto progress) {
+        auto [prediction_future, event_queue] = predict(config);
+        auto consumer = make_event_consumer(
+            on_simple_progress_event(progress),
+            on_schedule_optimization_event(progress));
+        consumer(*event_queue, prediction_future);
+        prediction_future.get();
+    };
+
+    if (options.color) {
+        // TODO: Implement the progress bar
+    } else {
+        run(TextProgress{});
+    }
 }
 
 /**
@@ -250,7 +280,7 @@ int main(int argc, char** argv)
         app.parse(argc, argv);
         if (version_requested()) return 0;
         const auto config = parse_config(options);
-        run_prediction(config);
+        run_prediction(config, options);
         return EXIT_SUCCESS;
     } catch (const CLI::ParseError& e) {
         if (version_requested()) return 0;
