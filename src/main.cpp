@@ -18,8 +18,12 @@ namespace {
 using namespace angonoka;
 using boost::hana::overload;
 
-// TODO: doc, test, expects
-struct OperationFailed : std::exception {
+/**
+    Generic user error.
+
+    Will abort the CLI with EXIT_FAILURE code.
+*/
+struct UserError : std::exception {
 };
 
 /**
@@ -58,7 +62,7 @@ constexpr auto red_text = [](auto&&... args) {
 /**
     Prints colorless text.
 */
-constexpr auto colorless_text = [](auto&&... args) {
+constexpr auto default_text = [](auto&&... args) {
     fmt::print(std::forward<decltype(args)>(args)...);
 };
 
@@ -80,7 +84,7 @@ constexpr auto colorize(auto&& color_fn, auto&& fn) noexcept
         if (options.color) {
             fn(color_fn, std::forward<Ts>(args)...);
         } else {
-            fn(colorless_text, std::forward<Ts>(args)...);
+            fn(default_text, std::forward<Ts>(args)...);
         }
     };
 }
@@ -94,16 +98,15 @@ constexpr auto die
           print(std::forward<decltype(args)>(args)...);
       });
 
-// TODO: doc, test, expects
+/**
+    Progress updates for non-TTY outputs.
+*/
 struct ProgressText {
-    static void start() { }
-
     static void update(float progress, std::string_view message)
     {
+        Expects(progress >= 0.F && progress <= 1.F);
         fmt::print("{}: {:.2f}%\n", message, progress * 100.F);
     }
-
-    static void stop() { }
 };
 
 // TODO: doc, test, expects
@@ -131,25 +134,30 @@ using Progress = boost::variant2::variant<ProgressText, ProgressBar>;
 // TODO: doc, test, expects
 void start(Progress& p)
 {
-    boost::variant2::visit([](auto& v) { v.start(); }, p);
+    constexpr auto visitor = [](auto& v) {
+        if constexpr (requires { v.start(); }) v.start();
+    };
+    boost::variant2::visit(visitor, p);
 }
 
 // TODO: doc, test, expects
 void update(Progress& p, auto&&... args)
 {
-    boost::variant2::visit(
-        [&](auto& v) mutable {
-            // WTF? I think clang-tidy is having a stroke
-            // NOLINTNEXTLINE(modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-            v.update(std::forward<decltype(args)>(args)...);
-        },
-        p);
+    const auto visitor = [&](auto& v) {
+        // WTF? I think clang-tidy is having a stroke
+        // NOLINTNEXTLINE(modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+        v.update(std::forward<decltype(args)>(args)...);
+    };
+    boost::variant2::visit(visitor, p);
 }
 
 // TODO: doc, test, expects
 void stop(Progress& p)
 {
-    boost::variant2::visit([](auto& v) { v.stop(); }, p);
+    constexpr auto visitor = [](auto& v) {
+        if constexpr (requires { v.stop(); }) v.stop();
+    };
+    boost::variant2::visit(visitor, p);
 }
 
 /**
@@ -243,7 +251,6 @@ void run_prediction(
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());
 
-    // TODO: Is there a better way?
     Progress progress;
     if (options.color) progress = ProgressBar{};
 
@@ -273,10 +280,10 @@ auto parse_config(const Options& options)
         die(options,
             "Error reading tasks and agents from file \"{}\".\n",
             options.filename);
-        throw OperationFailed{};
+        throw UserError{};
     } catch (const ValidationError& e) {
         die(options, "Validation error: {}\n", e.what());
-        throw OperationFailed{};
+        throw UserError{};
     } catch (const std::exception& e) {
         die(options, "Unexpected error: {}\n", e.what());
         throw;
@@ -326,7 +333,7 @@ int main(int argc, char** argv)
     } catch (const CLI::ParseError& e) {
         if (version_requested()) return 0;
         return app.exit(e);
-    } catch (const OperationFailed&) {
+    } catch (const UserError&) {
         return EXIT_FAILURE;
     }
 }
