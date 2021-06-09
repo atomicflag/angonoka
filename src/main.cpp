@@ -12,6 +12,8 @@
 #include <thread>
 #include <unistd.h>
 
+// TODO: refactor into multiple files
+
 namespace {
 using namespace angonoka;
 using boost::hana::overload;
@@ -92,21 +94,79 @@ constexpr auto die
           print(std::forward<decltype(args)>(args)...);
       });
 
+// TODO: doc, test, expects
+struct ProgressText {
+    static void start() { }
+
+    static void update(float progress, std::string_view message)
+    {
+        fmt::print("{}: {:.2f}%\n", message, progress * 100.F);
+    }
+
+    static void stop() { }
+};
+
+// TODO: doc, test, expects
+struct ProgressBar {
+    void start()
+    {
+        // TODO: Implement
+    }
+
+    void update(float /* progress */, std::string_view /* message */)
+
+    {
+        // TODO: Implement
+    }
+
+    void stop()
+    {
+        // TODO: Implement
+    }
+};
+
+// TODO: doc, test, expects
+using Progress = boost::variant2::variant<ProgressText, ProgressBar>;
+
+// TODO: doc, test, expects
+void start(Progress& p)
+{
+    boost::variant2::visit([](auto& v) { v.start(); }, p);
+}
+
+// TODO: doc, test, expects
+void update(Progress& p, auto&&... args)
+{
+    boost::variant2::visit(
+        [&](auto& v) mutable {
+            // WTF? I think clang-tidy is having a stroke
+            // NOLINTNEXTLINE(modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+            v.update(std::forward<decltype(args)>(args)...);
+        },
+        p);
+}
+
+// TODO: doc, test, expects
+void stop(Progress& p)
+{
+    boost::variant2::visit([](auto& v) { v.stop(); }, p);
+}
+
 /**
     Handle simple progress events.
 
     TODO: doc, test, expects
 */
-auto on_simple_progress_event(auto& progress)
+auto on_simple_progress_event(Progress& progress)
 {
-    return [=](const SimpleProgressEvent& e) mutable {
+    return [&](const SimpleProgressEvent& e) mutable {
         switch (e) {
         case SimpleProgressEvent::ScheduleOptimizationStart:
             fmt::print("Optimizing the schedule...\n");
-            progress.start();
+            start(progress);
             return;
         case SimpleProgressEvent::ScheduleOptimizationDone:
-            progress.stop();
+            stop(progress);
             fmt::print("Schedule optimization complete.\n");
             return;
         case SimpleProgressEvent::Finished:
@@ -121,10 +181,10 @@ auto on_simple_progress_event(auto& progress)
 
     TODO: doc, test, expects
 */
-auto on_schedule_optimization_event(auto& progress)
+auto on_schedule_optimization_event(Progress& progress)
 {
-    return [=](const ScheduleOptimizationEvent& e) mutable {
-        progress.update(e.progress, "Optimization progress");
+    return [&](const ScheduleOptimizationEvent& e) mutable {
+        update(progress, e.progress, "Optimization progress");
     };
 }
 
@@ -150,7 +210,7 @@ bool is_final_event(ProgressEvent& evt) noexcept
 */
 auto make_event_consumer(auto&&... callbacks) noexcept
 {
-    return [=](Queue<ProgressEvent>& queue,
+    return [&](Queue<ProgressEvent>& queue,
                std::future<Prediction>& prediction) mutable {
         using namespace std::literals::chrono_literals;
         using boost::variant2::visit;
@@ -169,21 +229,6 @@ auto make_event_consumer(auto&&... callbacks) noexcept
     };
 }
 
-// TODO: doc, test, expects
-struct TextProgress {
-    // TODO: doc, test, expects
-    static void start() { }
-
-    // TODO: doc, test, expects
-    static void update(float progress, std::string_view message)
-    {
-        fmt::print("{}: {:.2f}%\n", message, progress * 100.F);
-    }
-
-    // TODO: doc, test, expects
-    static void stop() { }
-};
-
 /**
     Run the prediction algorithm on given configuration.
 
@@ -198,20 +243,16 @@ void run_prediction(
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());
 
-    const auto run = [=](auto progress) {
-        auto [prediction_future, event_queue] = predict(config);
-        auto consumer = make_event_consumer(
-            on_simple_progress_event(progress),
-            on_schedule_optimization_event(progress));
-        consumer(*event_queue, prediction_future);
-        prediction_future.get();
-    };
+    // TODO: Is there a better way?
+    Progress progress;
+    if (options.color) progress = ProgressBar{};
 
-    if (options.color) {
-        // TODO: Implement the progress bar
-    } else {
-        run(TextProgress{});
-    }
+    auto [prediction_future, event_queue] = predict(config);
+    auto consumer = make_event_consumer(
+        on_simple_progress_event(progress),
+        on_schedule_optimization_event(progress));
+    consumer(*event_queue, prediction_future);
+    prediction_future.get();
 }
 
 /**
