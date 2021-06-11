@@ -102,7 +102,12 @@ constexpr auto die
     Progress updates for non-TTY outputs.
 */
 struct ProgressText {
-    // TODO: doc, test, expects
+    /**
+        Print the progress update.
+
+        @param progress Progress value from 0.0 to 1.0
+        @param message  Status message
+    */
     static void update(float progress, std::string_view message)
     {
         Expects(progress >= 0.F && progress <= 1.F);
@@ -114,7 +119,11 @@ struct ProgressText {
     Graphical progress bar for TTY outputs.
 */
 struct ProgressBar {
-    // TODO: doc, test, expects
+    /**
+        Initialize the progress bar.
+
+        TODO: Expects, test
+    */
     void start()
     {
         // TODO: Implement
@@ -127,7 +136,11 @@ struct ProgressBar {
         // TODO: Implement
     }
 
-    // TODO: doc, test, expects
+    /**
+        Remove the progress bar.
+
+        TODO: Expects, test
+    */
     void stop()
     {
         // TODO: Implement
@@ -183,7 +196,11 @@ void stop(Progress& p)
 /**
     Handle simple progress events.
 
-    TODO: doc, test, expects
+    @param progress Text or graphical progress bar
+
+    // TODO: Expects, test
+
+    @return SimpleProgressEvent message handler.
 */
 auto on_simple_progress_event(Progress& progress)
 {
