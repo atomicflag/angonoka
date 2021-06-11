@@ -102,6 +102,7 @@ constexpr auto die
     Progress updates for non-TTY outputs.
 */
 struct ProgressText {
+    // TODO: doc, test, expects
     static void update(float progress, std::string_view message)
     {
         Expects(progress >= 0.F && progress <= 1.F);
@@ -109,29 +110,40 @@ struct ProgressText {
     }
 };
 
-// TODO: doc, test, expects
+/**
+    Graphical progress bar for TTY outputs.
+*/
 struct ProgressBar {
+    // TODO: doc, test, expects
     void start()
     {
         // TODO: Implement
     }
 
+    // TODO: doc, test, expects
     void update(float /* progress */, std::string_view /* message */)
 
     {
         // TODO: Implement
     }
 
+    // TODO: doc, test, expects
     void stop()
     {
         // TODO: Implement
     }
 };
 
-// TODO: doc, test, expects
+/**
+    Text or graphical progress depending on TTY.
+*/
 using Progress = boost::variant2::variant<ProgressText, ProgressBar>;
 
-// TODO: doc, test, expects
+/**
+    Initiate the progress output.
+
+    @param p Text or graphical progress
+*/
 void start(Progress& p)
 {
     constexpr auto visitor = [](auto& v) {
@@ -140,7 +152,11 @@ void start(Progress& p)
     boost::variant2::visit(visitor, p);
 }
 
-// TODO: doc, test, expects
+/**
+    Update the progress.
+
+    @param p Text or graphical progress
+*/
 void update(Progress& p, auto&&... args)
 {
     const auto visitor = [&](auto& v) {
@@ -151,7 +167,11 @@ void update(Progress& p, auto&&... args)
     boost::variant2::visit(visitor, p);
 }
 
-// TODO: doc, test, expects
+/**
+    Finalize the progress output.
+
+    @param p Text or graphical progress
+*/
 void stop(Progress& p)
 {
     constexpr auto visitor = [](auto& v) {
@@ -216,9 +236,11 @@ bool is_final_event(ProgressEvent& evt) noexcept
 
     @return Event consumer function.
 */
-auto make_event_consumer(auto&&... callbacks) noexcept
+template <typename... Ts>
+auto make_event_consumer(Ts&&... callbacks) noexcept
 {
-    return [&](Queue<ProgressEvent>& queue,
+    return [&... callbacks = std::forward<Ts>(callbacks)](
+               Queue<ProgressEvent>& queue,
                std::future<Prediction>& prediction) mutable {
         using namespace std::literals::chrono_literals;
         using boost::variant2::visit;
@@ -229,10 +251,7 @@ auto make_event_consumer(auto&&... callbacks) noexcept
                 prediction.wait_for(event_timeout);
                 continue;
             }
-            visit(
-                overload(
-                    std::forward<decltype(callbacks)>(callbacks)...),
-                evt);
+            visit(overload(callbacks...), evt);
         }
     };
 }
