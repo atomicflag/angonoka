@@ -129,7 +129,14 @@ struct ProgressBar {
         // TODO: Implement
     }
 
-    // TODO: doc, test, expects
+    /**
+        Update the progress bar.
+
+        @param progress Progress value from 0.0 to 1.0
+        @param message  Status message (Unused)
+
+        TODO: Expects, test
+    */
     void update(float /* progress */, std::string_view /* message */)
 
     {
@@ -198,8 +205,6 @@ void stop(Progress& p)
 
     @param progress Text or graphical progress bar
 
-    // TODO: Expects, test
-
     @return SimpleProgressEvent message handler.
 */
 auto on_simple_progress_event(Progress& progress)
@@ -224,11 +229,17 @@ auto on_simple_progress_event(Progress& progress)
 /**
     Handle schedule optimization events.
 
-    TODO: doc, test, expects
+    @param progress Text or graphical progress bar
+
+    TODO: test, expects
+
+    @return ScheduleOptimizationEvent message handler.
 */
 auto on_schedule_optimization_event(Progress& progress)
 {
     return [&](const ScheduleOptimizationEvent& e) mutable {
+        Expects(e.progress >= 0.F && e.progress <= 1.F);
+
         update(progress, e.progress, "Optimization progress");
     };
 }
