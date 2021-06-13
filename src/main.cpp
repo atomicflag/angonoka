@@ -7,6 +7,9 @@
 #include <cstdio>
 #include <fmt/color.h>
 #include <fmt/printf.h>
+#include <indicators/cursor_control.hpp>
+#include <indicators/progress_bar.hpp>
+#include <indicators/terminal_size.hpp>
 #include <memory>
 #include <string>
 #include <thread>
@@ -126,6 +129,9 @@ struct ProgressBar {
     */
     void start()
     {
+        // TODO: Show cursor on Ctrl+C
+        indicators::show_console_cursor(false);
+        bar.set_progress(0);
         // TODO: Implement
     }
 
@@ -137,9 +143,10 @@ struct ProgressBar {
 
         TODO: Expects, test
     */
-    void update(float /* progress */, std::string_view /* message */)
+    void update(float progress, std::string_view /* message */)
 
     {
+        bar.set_progress(static_cast<std::size_t>(progress * 100.F));
         // TODO: Implement
     }
 
@@ -148,10 +155,17 @@ struct ProgressBar {
 
         TODO: Expects, test
     */
-    void stop()
+    static void stop()
     {
+        indicators::show_console_cursor(true);
+        // TODO: refactor into a function
+        fmt::print("\033[A\33[2K\r");
         // TODO: Implement
     }
+
+    static constexpr auto padding = 4;
+    indicators::ProgressBar bar{indicators::option::BarWidth{
+        indicators::terminal_width() - padding}};
 };
 
 /**
@@ -205,9 +219,13 @@ void stop(Progress& p)
 
     @param progress Text or graphical progress bar
 
+    TODO: doc
+
     @return SimpleProgressEvent message handler.
 */
-auto on_simple_progress_event(Progress& progress)
+auto on_simple_progress_event(
+    Progress& progress,
+    const Options& options)
 {
     return [&](const SimpleProgressEvent& e) mutable {
         switch (e) {
@@ -217,7 +235,12 @@ auto on_simple_progress_event(Progress& progress)
             return;
         case SimpleProgressEvent::ScheduleOptimizationDone:
             stop(progress);
-            fmt::print("Schedule optimization complete.\n");
+            if (options.color) {
+                // TODO: refactor into a function
+                fmt::print("\033[A\rOptimizing the schedule... OK\n");
+            } else {
+                fmt::print("Schedule optimization complete.\n");
+            }
             return;
         case SimpleProgressEvent::Finished:
             fmt::print("Probability estimation complete.\n");
@@ -231,7 +254,7 @@ auto on_simple_progress_event(Progress& progress)
 
     @param progress Text or graphical progress bar
 
-    TODO: test, expects
+    TODO: test
 
     @return ScheduleOptimizationEvent message handler.
 */
@@ -287,9 +310,10 @@ auto make_event_consumer(Ts&&... callbacks) noexcept
 /**
     Run the prediction algorithm on given configuration.
 
-    @param config Agent and tasks configuration
+    @param config   Agent and tasks configuration
+    @param options  CLI options
 
-    TODO: doc, test, expects
+    TODO: test
 */
 void run_prediction(
     const Configuration& config,
@@ -299,11 +323,11 @@ void run_prediction(
     Expects(!config.agents.empty());
 
     Progress progress;
-    if (options.color) progress = ProgressBar{};
+    if (options.color) progress.emplace<ProgressBar>();
 
     auto [prediction_future, event_queue] = predict(config);
     auto consumer = make_event_consumer(
-        on_simple_progress_event(progress),
+        on_simple_progress_event(progress, options),
         on_schedule_optimization_event(progress));
     consumer(*event_queue, prediction_future);
     prediction_future.get();
