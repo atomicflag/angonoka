@@ -26,20 +26,26 @@ Optimizer::Optimizer(
     Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
 }
 
+// TODO: Refactor progress updates
 void Optimizer::update() noexcept
 {
     Expects(batch_size > 0);
 
     for (int32 i{0}; i < batch_size; ++i) stun.update();
     idle_iters += batch_size;
-    if (stun.energy() == last_energy) return;
+    const auto progress
+        = TO_FLOAT(idle_iters) / TO_FLOAT(max_idle_iters);
+    if (stun.energy() == last_energy) {
+        const auto next_expected = exp_curve.at(TO_FLOAT(epochs + 1));
+        last_progress = std::min(
+            exp_curve.at(TO_FLOAT(epochs) + progress / next_expected),
+            1.F);
+        return;
+    }
     last_energy = stun.energy();
     epochs += 1;
-    last_progress = std::min(
-        exp_curve(
-            TO_FLOAT(epochs),
-            TO_FLOAT(idle_iters) / TO_FLOAT(max_idle_iters)),
-        1.F);
+    last_progress
+        = std::min(exp_curve(TO_FLOAT(epochs), progress), 1.F);
     idle_iters = 0;
 
     Ensures(epochs > 0);

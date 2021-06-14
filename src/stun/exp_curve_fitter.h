@@ -28,11 +28,17 @@ public:
     */
     float operator()(float x, float y) noexcept;
 
+    // TODO: doc, test, expects
+    [[nodiscard]] float at(float x) const noexcept;
+
 private:
     float xxy = 0;
     float ylogy = 0;
     float xy = 0;
     float xylogy = 0;
     float sumy = 0;
+    float a = 0;
+    float b = 0;
+    float divisor = 0;
 };
 } // namespace angonoka::stun

@@ -42,15 +42,12 @@ std::vector<stun::StateItem> optimize(
         params,
         BatchSize{batch_size},
         MaxIdleIters{max_idle_iters}};
-    float last_progress = -1.F;
     while (!optimizer.has_converged()) {
         optimizer.update();
-        if (optimizer.estimated_progress() == last_progress) continue;
-        last_progress = optimizer.estimated_progress();
         const auto makespan = gsl::narrow<seconds>(std::trunc(
             optimizer.energy() * params.duration_multiplier));
         events.enqueue(ScheduleOptimizationEvent{
-            .progress = last_progress,
+            .progress = optimizer.estimated_progress(),
             .makespan = std::chrono::seconds{makespan}});
     }
 

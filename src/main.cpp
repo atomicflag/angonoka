@@ -3,12 +3,14 @@
 #include "exceptions.h"
 #include "predict.h"
 #include <CLI/CLI.hpp>
+#include <atomic>
 #include <boost/hana/functional/overload.hpp>
+#include <csignal>
 #include <cstdio>
 #include <fmt/color.h>
 #include <fmt/printf.h>
+#include <indicators/block_progress_bar.hpp>
 #include <indicators/cursor_control.hpp>
-#include <indicators/progress_bar.hpp>
 #include <indicators/terminal_size.hpp>
 #include <memory>
 #include <string>
@@ -17,9 +19,50 @@
 
 // TODO: refactor into multiple files
 
+extern "C" {
+// TODO: doc, test, expects
+void abort_handler(int signal)
+{
+    constexpr auto posix_offset = 128;
+    std::quick_exit(posix_offset + signal);
+}
+}
+
 namespace {
 using namespace angonoka;
 using boost::hana::overload;
+
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+constinit std::atomic_flag cursor_suppressed{};
+
+// TODO: doc, test, expects
+void erase_line() { fmt::print("\33[2K"); }
+
+// TODO: doc, test, expects
+void cursor_up() { fmt::print("\033[A\r"); }
+
+// TODO: doc, test, expects
+void hide_cursor()
+{
+    cursor_suppressed.test_and_set();
+    indicators::show_console_cursor(false);
+}
+
+// TODO: doc, test, expects
+void show_cursor()
+{
+    indicators::show_console_cursor(true);
+    cursor_suppressed.clear();
+}
+
+// TODO: doc, test, expects
+void at_exit()
+{
+    if (cursor_suppressed.test()) {
+        show_cursor();
+        std::fflush(stdout);
+    }
+}
 
 /**
     Generic user error.
@@ -113,6 +156,7 @@ struct ProgressText {
     */
     static void update(float progress, std::string_view message)
     {
+        // TODO: Throttle updates
         Expects(progress >= 0.F && progress <= 1.F);
         fmt::print("{}: {:.2f}%\n", message, progress * 100.F);
     }
@@ -129,10 +173,8 @@ struct ProgressBar {
     */
     void start()
     {
-        // TODO: Show cursor on Ctrl+C
-        indicators::show_console_cursor(false);
+        hide_cursor();
         bar.set_progress(0);
-        // TODO: Implement
     }
 
     /**
@@ -146,8 +188,7 @@ struct ProgressBar {
     void update(float progress, std::string_view /* message */)
 
     {
-        bar.set_progress(static_cast<std::size_t>(progress * 100.F));
-        // TODO: Implement
+        bar.set_progress(progress * 100.F);
     }
 
     /**
@@ -157,14 +198,12 @@ struct ProgressBar {
     */
     static void stop()
     {
-        indicators::show_console_cursor(true);
-        // TODO: refactor into a function
-        fmt::print("\033[A\33[2K\r");
-        // TODO: Implement
+        show_cursor();
+        erase_line();
     }
 
-    static constexpr auto padding = 4;
-    indicators::ProgressBar bar{indicators::option::BarWidth{
+    static constexpr auto padding = 9;
+    indicators::BlockProgressBar bar{indicators::option::BarWidth{
         indicators::terminal_width() - padding}};
 };
 
@@ -236,8 +275,8 @@ auto on_simple_progress_event(
         case SimpleProgressEvent::ScheduleOptimizationDone:
             stop(progress);
             if (options.color) {
-                // TODO: refactor into a function
-                fmt::print("\033[A\rOptimizing the schedule... OK\n");
+                cursor_up();
+                fmt::print("Optimizing the schedule... OK\n");
             } else {
                 fmt::print("Schedule optimization complete.\n");
             }
@@ -360,12 +399,22 @@ auto parse_config(const Options& options)
         throw;
     }
 }
+
+// TODO: doc, test, expects
+void register_abort_handlers()
+{
+    std::at_quick_exit(at_exit);
+    std::signal(SIGINT, abort_handler);
+    std::signal(SIGTERM, abort_handler);
+}
 } // namespace
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, char** argv)
 {
     using namespace fmt::literals;
+
+    register_abort_handlers();
 
     Options options;
     CLI::App app{
@@ -377,10 +426,6 @@ int main(int argc, char** argv)
         "--version",
         "Display program version information and exit");
 
-    app.add_flag(
-        "-v,--verbose",
-        options.verbose,
-        "Print debug messages about prediction progress");
     app.add_flag(
         "--color,!--no-color",
         options.color,
