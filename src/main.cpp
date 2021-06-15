@@ -20,7 +20,9 @@
 // TODO: refactor into multiple files
 
 extern "C" {
-// TODO: doc, test, expects
+/**
+    SIGTERM and SIGINT handler.
+*/
 void abort_handler(int signal)
 {
     constexpr auto posix_offset = 128;
@@ -35,27 +37,40 @@ using boost::hana::overload;
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 constinit std::atomic_flag cursor_suppressed{};
 
-// TODO: doc, test, expects
+/**
+    Erase the current TTY line.
+*/
 void erase_line() { fmt::print("\33[2K"); }
 
-// TODO: doc, test, expects
+/**
+    Move the TTY cursor up.
+*/
 void cursor_up() { fmt::print("\033[A\r"); }
 
-// TODO: doc, test, expects
+/**
+    Hide the TTY cursor.
+
+    The cursor state will be restored if the application is
+    terminated by SIGTERM or SIGINT.
+*/
 void hide_cursor()
 {
     cursor_suppressed.test_and_set();
     indicators::show_console_cursor(false);
 }
 
-// TODO: doc, test, expects
+/**
+    Show the TTY cursor.
+*/
 void show_cursor()
 {
     indicators::show_console_cursor(true);
     cursor_suppressed.clear();
 }
 
-// TODO: doc, test, expects
+/**
+    quick_exit handler.
+*/
 void at_exit()
 {
     if (cursor_suppressed.test()) {
