@@ -183,8 +183,6 @@ struct ProgressText {
 struct ProgressBar {
     /**
         Initialize the progress bar.
-
-        TODO: Expects, test
     */
     void start()
     {
@@ -197,8 +195,6 @@ struct ProgressBar {
 
         @param progress Progress value from 0.0 to 1.0
         @param message  Status message (Unused)
-
-        TODO: Expects, test
     */
     void update(float progress, std::string_view /* message */)
 
@@ -208,8 +204,6 @@ struct ProgressBar {
 
     /**
         Remove the progress bar.
-
-        TODO: Expects, test
     */
     static void stop()
     {
@@ -272,8 +266,7 @@ void stop(Progress& p)
     Handle simple progress events.
 
     @param progress Text or graphical progress bar
-
-    TODO: doc
+    @param options  CLI options
 
     @return SimpleProgressEvent message handler.
 */
@@ -307,8 +300,6 @@ auto on_simple_progress_event(
     Handle schedule optimization events.
 
     @param progress Text or graphical progress bar
-
-    TODO: test
 
     @return ScheduleOptimizationEvent message handler.
 */
@@ -366,8 +357,6 @@ auto make_event_consumer(Ts&&... callbacks) noexcept
 
     @param config   Agent and tasks configuration
     @param options  CLI options
-
-    TODO: test
 */
 void run_prediction(
     const Configuration& config,
@@ -415,7 +404,11 @@ auto parse_config(const Options& options)
     }
 }
 
-// TODO: doc, test, expects
+/**
+    Make sure the application cleans up after itself when terminating.
+
+    This includes showing TTY cursor if it was hidden.
+*/
 void register_abort_handlers()
 {
     std::at_quick_exit(at_exit);
