@@ -26,6 +26,9 @@ using uint64 = std::uint_fast64_t;
     The position of StateItem within State dictates
     the relative order of this task.
 
+    TODO: Rename State to Schedule
+    TODO: Rename StateItem to ScheduleItem
+
     @var task_id    Task's index
     @var agent_id   Agent's index
 */

@@ -13,6 +13,59 @@
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
 
 namespace angonoka::stun {
+/**
+    Implementation details.
+*/
+struct Optimizer::Impl {
+    /**
+        Current progress w.r.t the maximum number of idle iterations.
+
+        @return Progress between 0.0 and 1.0
+    */
+    static float progress(Optimizer& self) noexcept
+    {
+        Expects(self.max_idle_iters > 0);
+
+        return TO_FLOAT(self.idle_iters)
+            / TO_FLOAT(self.max_idle_iters);
+    }
+
+    /**
+        Interpolate the progress between the last epoch and the next.
+
+        Assuming the exponential curve estimation is correct,
+        synthesize the current progress value based on the progress
+        made so far.
+    */
+    static void interpolate_progress(Optimizer& self) noexcept
+    {
+        Expects(self.epochs >= 0);
+
+        const auto p = progress(self);
+        const auto next_expected
+            = self.exp_curve.at(TO_FLOAT(self.epochs + 1));
+        const auto next_epoch
+            = TO_FLOAT(self.epochs) + p / next_expected;
+        self.last_progress
+            = std::min(self.exp_curve.at(next_epoch), 1.F);
+    }
+
+    // TODO: doc, test, expects
+    static void estimate_progress(Optimizer& self) noexcept
+    {
+        Expects(self.epochs >= 0);
+
+        const auto p = progress(self);
+        self.last_energy = self.stun.energy();
+        self.epochs += 1;
+        self.last_progress
+            = std::min(self.exp_curve(TO_FLOAT(self.epochs), p), 1.F);
+        self.idle_iters = 0;
+
+        Ensures(self.epochs > 0);
+        Ensures(self.last_progress >= 0.F);
+    }
+};
 
 Optimizer::Optimizer(
     const ScheduleParams& params,
@@ -26,30 +79,19 @@ Optimizer::Optimizer(
     Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
 }
 
-// TODO: Refactor progress updates
 void Optimizer::update() noexcept
 {
     Expects(batch_size > 0);
 
     for (int32 i{0}; i < batch_size; ++i) stun.update();
     idle_iters += batch_size;
-    const auto progress
-        = TO_FLOAT(idle_iters) / TO_FLOAT(max_idle_iters);
+    // Make up a progress value just so that the user
+    // doesn't think that the process has stuck.
     if (stun.energy() == last_energy) {
-        const auto next_expected = exp_curve.at(TO_FLOAT(epochs + 1));
-        last_progress = std::min(
-            exp_curve.at(TO_FLOAT(epochs) + progress / next_expected),
-            1.F);
+        Impl::interpolate_progress(*this);
         return;
     }
-    last_energy = stun.energy();
-    epochs += 1;
-    last_progress
-        = std::min(exp_curve(TO_FLOAT(epochs), progress), 1.F);
-    idle_iters = 0;
-
-    Ensures(epochs > 0);
-    Ensures(last_progress >= 0.F);
+    Impl::estimate_progress(*this);
 }
 
 [[nodiscard]] bool Optimizer::has_converged() const noexcept

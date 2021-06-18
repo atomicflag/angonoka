@@ -24,6 +24,9 @@ enum class MaxIdleIters : std::int_fast32_t;
 
 /**
     Optimization algorithm based on stochastic tunneling.
+
+    This is the primary facade for doing stochastic tunneling
+    optimization.
 */
 class Optimizer {
 public:
@@ -87,6 +90,8 @@ public:
     ~Optimizer() noexcept;
 
 private:
+    struct Impl;
+
     static constexpr auto beta_scale = 1e-4F;
     static constexpr auto stun_window = 10000;
     static constexpr auto gamma = .5F;
