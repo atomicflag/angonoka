@@ -32,7 +32,12 @@ suite stun_exp_curve_fitter = [] {
         fit(7.F, .22313016014843F);
         fit(8.F, .367879441171442F);
         fit(9.F, .606530659712634F);
-        expect(fit(10.F, 1.F) == 1._d);
+        expect(fit(10.F, 1.F) == 1.0_d);
+
+        expect(fit.at(10.F) == 1.0_d);
+        expect(fit.at(0.F) == 0.0_d);
+        expect(fit.at(1.F) == 0.011109_d);
+
         fit.reset();
         expect(fit(0.F, 0.F) == 0._d);
     };

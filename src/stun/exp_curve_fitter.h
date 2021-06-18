@@ -28,7 +28,13 @@ public:
     */
     float operator()(float x, float y) noexcept;
 
-    // TODO: doc, test, expects
+    /**
+        Extrapolates the curve's value at a point x.
+
+        @param x Coordinate along the x axis
+
+        @return Value of f(x)
+    */
     [[nodiscard]] float at(float x) const noexcept;
 
 private:

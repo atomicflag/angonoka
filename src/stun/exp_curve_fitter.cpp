@@ -34,7 +34,7 @@ float ExpCurveFitter::operator()(float x, float y) noexcept
     if (divisor == 0.F) return 0.F;
     a = (xxy * ylogy - xy * xylogy) / divisor;
     b = (sumy * xylogy - xy * ylogy) / divisor;
-    return at(x);
+    return std::exp(std::fma(b, x, a));
 }
 
 [[nodiscard]] float ExpCurveFitter::at(float x) const noexcept
