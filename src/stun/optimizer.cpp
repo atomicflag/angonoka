@@ -63,7 +63,7 @@ struct Optimizer::Impl {
         Expects(self.epochs >= 0);
 
         const auto p = progress(self);
-        self.last_energy = self.stun.energy();
+        self.last_makespan = self.stun.normalized_makespan();
         self.epochs += 1;
         self.last_progress
             = std::min(self.exp_curve(TO_FLOAT(self.epochs), p), 1.F);
@@ -94,7 +94,7 @@ void Optimizer::update() noexcept
     idle_iters += batch_size;
     // Make up a progress value just so that the user
     // doesn't think that the optimizaton has halted.
-    if (stun.energy() == last_energy) {
+    if (stun.normalized_makespan() == last_makespan) {
         Impl::interpolate_progress(*this);
         return;
     }
@@ -119,11 +119,14 @@ void Optimizer::update() noexcept
     return last_progress;
 }
 
-[[nodiscard]] State Optimizer::state() const { return stun.state(); }
-
-[[nodiscard]] float Optimizer::energy() const
+[[nodiscard]] Schedule Optimizer::schedule() const
 {
-    return stun.energy();
+    return stun.schedule();
+}
+
+[[nodiscard]] float Optimizer::normalized_makespan() const
+{
+    return stun.normalized_makespan();
 }
 
 void Optimizer::reset()
@@ -131,7 +134,7 @@ void Optimizer::reset()
     Expects(max_idle_iters > 0);
     Expects(batch_size > 0);
 
-    stun.reset(initial_state(*params));
+    stun.reset(initial_schedule(*params));
     temperature
         = {Beta{initial_beta},
            BetaScale{beta_scale},
@@ -140,7 +143,7 @@ void Optimizer::reset()
     idle_iters = 0;
     epochs = 0;
     last_progress = 0.F;
-    last_energy = 0.F;
+    last_makespan = 0.F;
     exp_curve.reset();
 }
 
@@ -151,7 +154,7 @@ Optimizer::Optimizer(const Optimizer& other)
     , idle_iters{other.idle_iters}
     , epochs{other.epochs}
     , last_progress{other.last_progress}
-    , last_energy{other.last_energy}
+    , last_makespan{other.last_makespan}
     , random_utils{other.random_utils}
     , mutator{other.mutator}
     , makespan{other.makespan}
@@ -174,7 +177,7 @@ Optimizer::Optimizer(Optimizer&& other) noexcept
     , idle_iters{other.idle_iters}
     , epochs{other.epochs}
     , last_progress{other.last_progress}
-    , last_energy{other.last_energy}
+    , last_makespan{other.last_makespan}
     , random_utils{other.random_utils}
     , mutator{std::move(other.mutator)}
     , makespan{std::move(other.makespan)}
@@ -206,7 +209,7 @@ Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
     idle_iters = other.idle_iters;
     epochs = other.epochs;
     last_progress = other.last_progress;
-    last_energy = other.last_energy;
+    last_makespan = other.last_makespan;
     random_utils = other.random_utils;
     mutator = std::move(other.mutator);
     makespan = std::move(other.makespan);

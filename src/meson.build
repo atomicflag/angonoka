@@ -13,7 +13,7 @@ base_lib = static_library(
     'configuration.cpp',
     'exceptions.cpp',
     'predict.cpp',
-    'stun/common.cpp',
+    'stun/schedule.cpp',
     'stun/exp_curve_fitter.cpp',
     'stun/optimizer.cpp',
     'stun/random_utils.cpp',

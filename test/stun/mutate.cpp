@@ -8,7 +8,7 @@
 using namespace boost::ut;
 
 suite mutate = [] {
-    "Mutate state"_test = [] {
+    "Mutate schedule"_test = [] {
         using namespace angonoka::stun;
 
         ScheduleParams params;
@@ -31,20 +31,23 @@ suite mutate = [] {
         "no dependencies"_test = [&] {
             RandomUtils random{0};
 
-            std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
+            std::vector<ScheduleItem> schedule{
+                {0, 0},
+                {1, 1},
+                {2, 2}};
 
             Mutator mut{params, random};
-            mut(state);
+            mut(schedule);
 
             expect(
-                state
-                == std::vector<StateItem>{{0, 0}, {2, 1}, {1, 2}});
+                schedule
+                == std::vector<ScheduleItem>{{0, 0}, {2, 1}, {1, 2}});
 
-            for (int i{0}; i < 100; ++i) mut(state);
+            for (int i{0}; i < 100; ++i) mut(schedule);
 
             expect(
-                state
-                == std::vector<StateItem>{{1, 2}, {0, 0}, {2, 2}});
+                schedule
+                == std::vector<ScheduleItem>{{1, 2}, {0, 0}, {2, 2}});
         };
 
         "with dependencies"_test = [&] {
@@ -59,20 +62,23 @@ suite mutate = [] {
 
             RandomUtils random{1};
 
-            std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
+            std::vector<ScheduleItem> schedule{
+                {0, 0},
+                {1, 1},
+                {2, 2}};
 
             Mutator mut{params, random};
-            mut(state);
+            mut(schedule);
 
             expect(
-                state
-                == std::vector<StateItem>{{0, 0}, {1, 0}, {2, 2}});
+                schedule
+                == std::vector<ScheduleItem>{{0, 0}, {1, 0}, {2, 2}});
 
-            for (int i{0}; i < 100; ++i) mut(state);
+            for (int i{0}; i < 100; ++i) mut(schedule);
 
             expect(
-                state
-                == std::vector<StateItem>{{0, 0}, {1, 0}, {2, 1}});
+                schedule
+                == std::vector<ScheduleItem>{{0, 0}, {1, 0}, {2, 1}});
         };
 
         "single task"_test = [&] {
@@ -91,16 +97,16 @@ suite mutate = [] {
 
             RandomUtils random{0};
 
-            std::vector<StateItem> state{{0, 0}};
+            std::vector<ScheduleItem> schedule{{0, 0}};
 
             Mutator mut{params, random};
-            mut(state);
+            mut(schedule);
 
-            expect(state == std::vector<StateItem>{{0, 2}});
+            expect(schedule == std::vector<ScheduleItem>{{0, 2}});
 
-            for (int i{0}; i < 100; ++i) mut(state);
+            for (int i{0}; i < 100; ++i) mut(schedule);
 
-            expect(state == std::vector<StateItem>{{0, 0}});
+            expect(schedule == std::vector<ScheduleItem>{{0, 0}});
         };
     };
 

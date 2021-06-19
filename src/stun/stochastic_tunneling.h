@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
 #include "detail.h"
+#include "schedule.h"
 #include <gsl/gsl-lite.hpp>
 #include <vector>
 #ifndef UNIT_TEST
@@ -20,19 +20,20 @@ struct ScheduleParams;
 /**
     Stochastic tunneling algorithm.
 
-    The internal state can be updated as many times as needed.
+    The internal schedule can be updated as many times as
+    needed.
 */
 class StochasticTunneling {
 public:
     /**
         Result of a stochastic tunneling pass.
 
-        @var state          State that had the lowest energy
+        @var schedule       Schedule that had the lowest energy
         @var energy         Lowest energy achieved so far
         @var temperature    Final temperature
     */
     struct Result {
-        std::vector<StateItem> state;
+        std::vector<ScheduleItem> schedule;
         float energy;
         float temperature;
     };
@@ -68,9 +69,9 @@ public:
         Constructor.
 
         @param options  Instance of StochasticTunneling::Options
-        @param state    Initial schedule
+        @param schedule Initial schedule
     */
-    StochasticTunneling(const Options& options, State state);
+    StochasticTunneling(const Options& options, Schedule schedule);
 
     StochasticTunneling(const StochasticTunneling& other);
     StochasticTunneling(StochasticTunneling&& other) noexcept;
@@ -80,11 +81,12 @@ public:
     ~StochasticTunneling() noexcept;
 
     /**
-        Reset stochastic tunneling algorithm to a new state.
+        Reset stochastic tunneling algorithm to a new
+        schedule.
 
-        @param state Initial schedule
+        @param schedule Initial schedule
     */
-    void reset(State state);
+    void reset(Schedule schedule);
 
     /**
         Set stochastic tunneling options.
@@ -111,29 +113,29 @@ public:
 
         @return A schedule.
     */
-    [[nodiscard]] State state() const;
+    [[nodiscard]] Schedule schedule() const;
 
     /**
         The best makespan so far.
 
         @return Makespan.
     */
-    [[nodiscard]] float energy() const;
+    [[nodiscard]] float normalized_makespan() const;
 
 private:
     struct Impl;
 
-    using index = MutState::index_type;
+    using index = MutSchedule::index_type;
 
     gsl::not_null<const Mutator*> mutator;
     gsl::not_null<RandomUtils*> random;
     gsl::not_null<Makespan*> makespan;
     gsl::not_null<Temperature*> temp;
 
-    std::vector<StateItem> state_buffer;
-    MutState best_state;
-    MutState current_state;
-    MutState target_state;
+    std::vector<ScheduleItem> schedule_buffer;
+    MutSchedule best_schedule;
+    MutSchedule current_schedule;
+    MutSchedule target_schedule;
 
     float current_e;
     float lowest_e;

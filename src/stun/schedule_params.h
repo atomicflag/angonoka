@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "schedule.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
 #include <vector>
@@ -110,7 +110,8 @@ struct ScheduleParams {
 
     @return A valid schedule
 */
-std::vector<StateItem> initial_state(const ScheduleParams& params);
+std::vector<ScheduleItem>
+initial_schedule(const ScheduleParams& params);
 
 /**
     Construct ScheduleParams from Configuration.

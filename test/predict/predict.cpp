@@ -20,12 +20,15 @@ ScheduleParams to_schedule_params(const Configuration&)
 
 bool Optimizer::has_converged() { return steps >= 5; }
 void Optimizer::update() { steps += 1; }
-State Optimizer::state() { return {}; }
+Schedule Optimizer::schedule() { return {}; }
 float Optimizer::estimated_progress()
 {
     return static_cast<float>(steps) / 5.f;
 }
-float Optimizer::energy() { return 5.f / static_cast<float>(steps); }
+float Optimizer::normalized_makespan()
+{
+    return 5.f / static_cast<float>(steps);
+}
 } // namespace angonoka::stun
 
 namespace {

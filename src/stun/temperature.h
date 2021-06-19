@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
 #include "detail.h"
+#include "schedule.h"
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/count.hpp>
 #include <boost/accumulators/statistics/rolling_mean.hpp>

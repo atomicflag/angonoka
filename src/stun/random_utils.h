@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "schedule.h"
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <gsl/gsl-lite.hpp>

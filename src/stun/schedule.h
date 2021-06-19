@@ -23,41 +23,39 @@ using uint64 = std::uint_fast64_t;
 /**
     Scheduling information for the task.
 
-    The position of StateItem within State dictates
-    the relative order of this task.
-
-    TODO: Rename State to Schedule
-    TODO: Rename StateItem to ScheduleItem
+    The position of ScheduleItem within the Schedule
+    dictates the relative order of this task.
 
     @var task_id    Task's index
     @var agent_id   Agent's index
 */
-struct StateItem {
+struct ScheduleItem {
     int16 task_id;
     int16 agent_id;
 
-    bool operator==(const StateItem&) const noexcept = default;
+    bool operator==(const ScheduleItem&) const noexcept = default;
 
-// Needed for Catch diagnostics
+// Needed for trompeloeil diagnostics
 #ifndef NDEBUG
     friend std::ostream&
-    operator<<(std::ostream& os, const StateItem& item);
+    operator<<(std::ostream& os, const ScheduleItem& item);
 #endif // NDEBUG
 };
 
-using State = ranges::span<const StateItem>;
-using MutState = ranges::span<StateItem>;
+using Schedule = ranges::span<const ScheduleItem>;
+using MutSchedule = ranges::span<ScheduleItem>;
 } // namespace angonoka::stun
 
 namespace fmt {
-using angonoka::stun::StateItem;
-template <> struct fmt::formatter<StateItem> {
+using angonoka::stun::ScheduleItem;
+template <> struct fmt::formatter<ScheduleItem> {
     static constexpr auto parse(format_parse_context& ctx)
     {
         return ctx.end();
     }
     template <typename FormatContext>
-    constexpr auto format(const StateItem& item, FormatContext& ctx)
+    constexpr auto
+    format(const ScheduleItem& item, FormatContext& ctx)
     {
         return format_to(
             ctx.out(),

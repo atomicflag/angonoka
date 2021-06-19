@@ -21,7 +21,7 @@ using namespace angonoka;
 
     @return Optimal schedule
 */
-std::vector<stun::StateItem> optimize(
+std::vector<stun::ScheduleItem> optimize(
     const stun::ScheduleParams& params,
     Queue<ProgressEvent>& events)
 {
@@ -45,13 +45,15 @@ std::vector<stun::StateItem> optimize(
     while (!optimizer.has_converged()) {
         optimizer.update();
         const auto makespan = gsl::narrow<seconds>(std::trunc(
-            optimizer.energy() * params.duration_multiplier));
+            optimizer.normalized_makespan()
+            * params.duration_multiplier));
         events.enqueue(ScheduleOptimizationEvent{
             .progress = optimizer.estimated_progress(),
             .makespan = std::chrono::seconds{makespan}});
     }
 
-    return ranges::to<std::vector<StateItem>>(optimizer.state());
+    return ranges::to<std::vector<ScheduleItem>>(
+        optimizer.schedule());
 }
 } // namespace
 
@@ -68,7 +70,7 @@ predict(const Configuration& config)
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationStart);
         const auto schedule_params = stun::to_schedule_params(config);
-        const auto state = optimize(schedule_params, *events);
+        const auto schedule = optimize(schedule_params, *events);
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationDone);
         // TODO: WIP do other stuff here

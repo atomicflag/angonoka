@@ -35,25 +35,29 @@ namespace angonoka::stun {
 */
 struct StochasticTunneling::Impl {
     /**
-        Creates a new (mutated) state from the current state.
+        Creates a new (mutated) schedule from the current
+        schedule.
     */
     static void get_new_neighbor(StochasticTunneling& self) noexcept
     {
-        Expects(!self.current_state.empty());
-        Expects(!self.target_state.empty());
+        Expects(!self.current_schedule.empty());
+        Expects(!self.target_schedule.empty());
 
-        ranges::copy(self.current_state, self.target_state.begin());
-        (*self.mutator)(self.target_state);
-        self.target_e = (*self.makespan)(self.target_state);
+        ranges::copy(
+            self.current_schedule,
+            self.target_schedule.begin());
+        (*self.mutator)(self.target_schedule);
+        self.target_e = (*self.makespan)(self.target_schedule);
 
         Ensures(self.target_e >= 0.F);
     }
 
     /**
-        Updates the lowest energy and best state if the
-        target state is better.
+        Updates the lowest energy and best schedule if the
+        target schedule is better.
 
-        @return True if target state is better than the current state.
+        @return True if target schedule is better than the current
+       schedule.
     */
     static bool neighbor_is_better(StochasticTunneling& self) noexcept
     {
@@ -61,22 +65,22 @@ struct StochasticTunneling::Impl {
         Expects(self.current_e >= 0.F);
         Expects(self.lowest_e >= 0.F);
         Expects(self.current_e >= self.lowest_e);
-        Expects(!self.target_state.empty());
-        Expects(!self.current_state.empty());
-        Expects(!self.best_state.empty());
+        Expects(!self.target_schedule.empty());
+        Expects(!self.current_schedule.empty());
+        Expects(!self.best_schedule.empty());
 
         if (self.target_e < self.current_e) {
             if (self.target_e < self.lowest_e) {
                 self.lowest_e = self.target_e;
                 ranges::copy(
-                    self.target_state,
-                    self.best_state.begin());
+                    self.target_schedule,
+                    self.best_schedule.begin());
                 self.current_s = stun_fn(
                     self.lowest_e,
                     self.current_e,
                     self.gamma);
             }
-            std::swap(self.current_state, self.target_state);
+            std::swap(self.current_schedule, self.target_schedule);
             self.current_e = self.target_e;
             return true;
         }
@@ -91,8 +95,8 @@ struct StochasticTunneling::Impl {
         Expects(self.target_e >= 0.F);
         Expects(self.lowest_e >= 0.F);
         Expects(self.current_s >= 0.F);
-        Expects(!self.target_state.empty());
-        Expects(!self.current_state.empty());
+        Expects(!self.target_schedule.empty());
+        Expects(!self.current_schedule.empty());
 
         self.target_s
             = stun_fn(self.lowest_e, self.target_e, self.gamma);
@@ -100,7 +104,7 @@ struct StochasticTunneling::Impl {
         const auto pr
             = std::min(1.F, std::exp(-*self.temp * delta_s));
         if (pr >= self.random->uniform_01()) {
-            std::swap(self.current_state, self.target_state);
+            std::swap(self.current_schedule, self.target_schedule);
             self.current_e = self.target_e;
             self.current_s = self.target_s;
             self.temp->update(self.target_s);
@@ -115,9 +119,9 @@ struct StochasticTunneling::Impl {
     */
     static void init_energies(StochasticTunneling& self)
     {
-        Expects(!self.current_state.empty());
+        Expects(!self.current_schedule.empty());
 
-        self.current_e = (*self.makespan)(self.current_state);
+        self.current_e = (*self.makespan)(self.current_schedule);
         self.lowest_e = self.current_e;
         self.current_s
             = stun_fn(self.lowest_e, self.current_e, self.gamma);
@@ -128,74 +132,78 @@ struct StochasticTunneling::Impl {
     }
 
     /**
-        Recreate state spans over the state buffer object.
+        Recreate schedule spans over the schedule buffer object.
 
-        @param state_size Size of the state
+        @param schedule_size Size of the schedule
     */
     static void
-    prepare_state_spans(StochasticTunneling& self, index state_size)
+    prepare_schedules(StochasticTunneling& self, index schedule_size)
     {
-        Expects(state_size > 0);
+        Expects(schedule_size > 0);
 
-        self.state_buffer.resize(
-            static_cast<gsl::index>(state_size) * 3);
-        auto* data = self.state_buffer.data();
+        self.schedule_buffer.resize(
+            static_cast<gsl::index>(schedule_size) * 3);
+        auto* data = self.schedule_buffer.data();
         const auto next = [&] {
-            return std::exchange(data, std::next(data, state_size));
+            return std::exchange(
+                data,
+                std::next(data, schedule_size));
         };
-        self.best_state = {next(), state_size};
-        self.current_state = {next(), state_size};
-        self.target_state = {next(), state_size};
+        self.best_schedule = {next(), schedule_size};
+        self.current_schedule = {next(), schedule_size};
+        self.target_schedule = {next(), schedule_size};
 
-        Ensures(self.current_state.size() == state_size);
-        Ensures(self.target_state.size() == state_size);
-        Ensures(self.best_state.size() == state_size);
+        Ensures(self.current_schedule.size() == schedule_size);
+        Ensures(self.target_schedule.size() == schedule_size);
+        Ensures(self.best_schedule.size() == schedule_size);
     }
 
     /**
-        Init all states with the source state.
+        Init all schedules with the source schedule.
 
-        @param source_state Source state
+        @param source_schedule Initial schedule
     */
-    static void
-    init_states(StochasticTunneling& self, State source_state)
+    static void init_schedules(
+        StochasticTunneling& self,
+        Schedule source_schedule)
     {
-        Expects(source_state.size() == self.best_state.size());
-        Expects(source_state.size() == self.current_state.size());
-        Expects(!source_state.empty());
+        Expects(source_schedule.size() == self.best_schedule.size());
+        Expects(
+            source_schedule.size() == self.current_schedule.size());
+        Expects(!source_schedule.empty());
 
-        ranges::copy(source_state, self.best_state.begin());
-        ranges::copy(source_state, self.current_state.begin());
+        ranges::copy(source_schedule, self.best_schedule.begin());
+        ranges::copy(source_schedule, self.current_schedule.begin());
     }
 };
 
 void StochasticTunneling::update() noexcept
 {
-    Expects(!state_buffer.empty());
-    Expects(!current_state.empty());
+    Expects(!schedule_buffer.empty());
+    Expects(!current_schedule.empty());
     Impl::get_new_neighbor(*this);
     if (Impl::neighbor_is_better(*this)) return;
     Impl::perform_stun(*this);
 }
 
-void StochasticTunneling::reset(State state)
+void StochasticTunneling::reset(Schedule schedule)
 {
-    Expects(!state.empty());
-    Impl::prepare_state_spans(*this, state.size());
-    Impl::init_states(*this, state);
+    Expects(!schedule.empty());
+    Impl::prepare_schedules(*this, schedule.size());
+    Impl::init_schedules(*this, schedule);
     Impl::init_energies(*this);
 }
 
-State StochasticTunneling::state() const
+Schedule StochasticTunneling::schedule() const
 {
-    Expects(!state_buffer.empty());
-    Expects(!best_state.empty());
-    return best_state;
+    Expects(!schedule_buffer.empty());
+    Expects(!best_schedule.empty());
+    return best_schedule;
 }
 
-float StochasticTunneling::energy() const
+float StochasticTunneling::normalized_makespan() const
 {
-    Expects(!state_buffer.empty());
+    Expects(!schedule_buffer.empty());
     return lowest_e;
 }
 
@@ -210,11 +218,11 @@ StochasticTunneling::StochasticTunneling(const Options& options)
 
 StochasticTunneling::StochasticTunneling(
     const Options& options,
-    State state)
+    Schedule schedule)
     : StochasticTunneling{options}
 {
-    Expects(!state.empty());
-    reset(state);
+    Expects(!schedule.empty());
+    reset(schedule);
 }
 
 StochasticTunneling::StochasticTunneling(
@@ -223,7 +231,7 @@ StochasticTunneling::StochasticTunneling(
     , random{other.random}
     , makespan{other.makespan}
     , temp{other.temp}
-    , state_buffer{other.state_buffer}
+    , schedule_buffer{other.schedule_buffer}
     , current_e{other.current_e}
     , lowest_e{other.lowest_e}
     , target_e{other.target_e}
@@ -231,8 +239,8 @@ StochasticTunneling::StochasticTunneling(
     , current_s{other.current_s}
     , target_s{other.target_s}
 {
-    if (!other.best_state.empty())
-        Impl::prepare_state_spans(*this, other.best_state.size());
+    if (!other.best_schedule.empty())
+        Impl::prepare_schedules(*this, other.best_schedule.size());
 }
 
 StochasticTunneling&
@@ -254,10 +262,10 @@ StochasticTunneling::operator=(StochasticTunneling&& other) noexcept
     random = std::move(other.random);
     makespan = std::move(other.makespan);
     temp = std::move(other.temp);
-    state_buffer = std::move(other.state_buffer);
-    best_state = other.best_state;
-    current_state = other.current_state;
-    target_state = other.target_state;
+    schedule_buffer = std::move(other.schedule_buffer);
+    best_schedule = other.best_schedule;
+    current_schedule = other.current_schedule;
+    target_schedule = other.target_schedule;
     current_e = other.current_e;
     lowest_e = other.lowest_e;
     target_e = other.target_e;

@@ -64,6 +64,9 @@ task_duration(const Tasks& tasks, int agent_count)
         total += durations.back();
     }
     durations.shrink_to_fit();
+
+    // Average duration *per agent*, assuming every agent has the
+    // performance of 1.0 and all tasks can be evenly distributed.
     const auto average_duration
         = total / static_cast<float>(agent_count);
     for (auto& d : durations) d /= average_duration;
@@ -76,7 +79,7 @@ task_duration(const Tasks& tasks, int agent_count)
 /**
     Construct the packed available agents map from Configuration.
 
-    @param config An instance of Configuration
+    @param config High-level configuration
 
     @return Available agents map
 */
@@ -214,51 +217,59 @@ Vector2D::~Vector2D() noexcept = default;
 /**
     Walks the dependency tree recursively.
 
-    @param state        Partially formed schedule
+    As we construct the initial (naive) schedule we have to make sure
+    that we don't schedule tasks before their dependencies. This
+    function schedules task dependencies before their dependants,
+    recursively.
+
+    @param schedule     Partially formed schedule
     @param tasks        Set of unexplored tasks
     @param task_index   Index of the current task
     @param params       An instance of ScheduleParams
 */
 void push_task(
-    std::vector<StateItem>& state,
+    std::vector<ScheduleItem>& schedule,
     flat_set<int16>& tasks,
     int16 task_index,
     const ScheduleParams& params)
 {
     Expects(!tasks.empty());
     Expects(
-        tasks.size() + state.size() == params.task_duration.size());
+        tasks.size() + schedule.size()
+        == params.task_duration.size());
 
     if (!tasks.contains(task_index)) return;
     const auto idx = static_cast<std::size_t>(task_index);
     for (auto&& dep_index : params.dependencies[idx])
-        push_task(state, tasks, dep_index, params);
-    state.emplace_back(StateItem{
+        push_task(schedule, tasks, dep_index, params);
+    schedule.emplace_back(ScheduleItem{
         .task_id = task_index,
         .agent_id = params.available_agents[idx][0]});
     tasks.erase(task_index);
 
     Ensures(
-        tasks.size() + state.size() == params.task_duration.size());
+        tasks.size() + schedule.size()
+        == params.task_duration.size());
 }
 
-std::vector<StateItem> initial_state(const ScheduleParams& params)
+std::vector<ScheduleItem>
+initial_schedule(const ScheduleParams& params)
 {
     using ranges::front;
     using ranges::views::iota;
 
     Expects(!params.task_duration.empty());
 
-    std::vector<StateItem> state;
-    state.reserve(params.task_duration.size());
+    std::vector<ScheduleItem> schedule;
+    schedule.reserve(params.task_duration.size());
     auto tasks = iota(0L, std::ssize(params.task_duration))
         | ranges::to<flat_set<int16>>();
     while (!tasks.empty())
-        push_task(state, tasks, front(tasks), params);
+        push_task(schedule, tasks, front(tasks), params);
 
-    Ensures(state.size() == params.task_duration.size());
+    Ensures(schedule.size() == params.task_duration.size());
 
-    return state;
+    return schedule;
 }
 
 ScheduleParams to_schedule_params(const Configuration& config)

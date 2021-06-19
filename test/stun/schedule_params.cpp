@@ -251,7 +251,7 @@ suite schedule_params = [] {
         };
     };
 
-    "initial state"_test = [] {
+    "initial schedule"_test = [] {
         using namespace angonoka::stun;
 
         const ScheduleParams params{
@@ -264,11 +264,11 @@ suite schedule_params = [] {
                 std::vector<int16>{1, 2, 3, 4, 5},
                 std::vector<int16>{1, 1, 1, 1, 1, 0}}};
 
-        const auto state = initial_state(params);
+        const auto schedule = initial_schedule(params);
 
         expect(
-            state
-            == std::vector<StateItem>{
+            schedule
+            == std::vector<ScheduleItem>{
                 {.task_id = 5, .agent_id = 2},
                 {.task_id = 4, .agent_id = 1},
                 {.task_id = 3, .agent_id = 0},

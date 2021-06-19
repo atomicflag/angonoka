@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common.h"
 #include "exp_curve_fitter.h"
 #include "random_utils.h"
+#include "schedule.h"
 #include "schedule_params.h"
 #include "stochastic_tunneling.h"
 #include "temperature.h"
@@ -69,14 +69,14 @@ public:
 
         @return A schedule.
     */
-    [[nodiscard]] State state() const;
+    [[nodiscard]] Schedule schedule() const;
 
     /**
         The best makespan so far.
 
         @return Makespan.
     */
-    [[nodiscard]] float energy() const;
+    [[nodiscard]] float normalized_makespan() const;
 
     /**
         Reset the optimization to initial state.
@@ -104,7 +104,7 @@ private:
     int16 idle_iters{0};
     int16 epochs{0};
     float last_progress{0.F};
-    float last_energy{0.F};
+    float last_makespan{0.F};
     RandomUtils random_utils;
     Mutator mutator{*params, random_utils};
     Makespan makespan{*params};
@@ -122,7 +122,7 @@ private:
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}},
-        initial_state(*params)};
+        initial_schedule(*params)};
 #pragma clang diagnostic pop
     ExpCurveFitter exp_curve;
 };

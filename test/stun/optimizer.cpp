@@ -35,9 +35,9 @@ suite optimizer = [] {
         const auto schedule_params = to_schedule_params(config);
         Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
-        expect(optimizer.energy() == 2.F);
+        expect(optimizer.normalized_makespan() == 2.F);
         expect(optimizer.estimated_progress() == 0.F);
-        expect(optimizer.state()[1].agent_id == 0);
+        expect(optimizer.schedule()[1].agent_id == 0);
 
         optimizer.update();
 
@@ -46,16 +46,16 @@ suite optimizer = [] {
         while (!optimizer.has_converged()) optimizer.update();
 
         // Might be non-deterministic
-        expect(optimizer.energy() == 1.F);
+        expect(optimizer.normalized_makespan() == 1.F);
         expect(optimizer.estimated_progress() == 1.F);
         // Each task has a different agent
         expect(
-            optimizer.state()[1].agent_id
-            != optimizer.state()[0].agent_id);
+            optimizer.schedule()[1].agent_id
+            != optimizer.schedule()[0].agent_id);
 
         optimizer.reset();
 
-        expect(optimizer.energy() == 2.F);
+        expect(optimizer.normalized_makespan() == 2.F);
         expect(optimizer.estimated_progress() == 0.F);
     };
 
@@ -85,11 +85,11 @@ suite optimizer = [] {
                 MaxIdleIters{10}};
             Optimizer other{optimizer};
 
-            expect(other.energy() == 2.F);
+            expect(other.normalized_makespan() == 2.F);
 
             while (!optimizer.has_converged()) optimizer.update();
 
-            expect(other.energy() == 2.F);
+            expect(other.normalized_makespan() == 2.F);
         };
 
         should("copy assignment") = [&] {
@@ -100,11 +100,11 @@ suite optimizer = [] {
             Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
             other = optimizer;
 
-            expect(other.energy() == 2.F);
+            expect(other.normalized_makespan() == 2.F);
 
             while (!optimizer.has_converged()) optimizer.update();
 
-            expect(other.energy() == 2.F);
+            expect(other.normalized_makespan() == 2.F);
         };
 
         should("move ctor") = [&] {
@@ -114,11 +114,11 @@ suite optimizer = [] {
                 MaxIdleIters{10}};
             Optimizer other{std::move(optimizer)};
 
-            expect(other.energy() == 2.F);
+            expect(other.normalized_makespan() == 2.F);
 
             while (!other.has_converged()) other.update();
 
-            expect(other.energy() == 1.F);
+            expect(other.normalized_makespan() == 1.F);
         };
 
         should("move assignment") = [&] {
@@ -129,11 +129,11 @@ suite optimizer = [] {
             Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
             other = std::move(optimizer);
 
-            expect(other.energy() == 2.F);
+            expect(other.normalized_makespan() == 2.F);
 
             while (!other.has_converged()) other.update();
 
-            expect(other.energy() == 1.F);
+            expect(other.normalized_makespan() == 1.F);
         };
 
         should("self copy") = [&] {
@@ -146,7 +146,7 @@ suite optimizer = [] {
             optimizer = optimizer;
 #pragma clang diagnostic pop
 
-            expect(optimizer.energy() == 2.F);
+            expect(optimizer.normalized_makespan() == 2.F);
         };
 
         should("self move") = [&] {
@@ -160,7 +160,7 @@ suite optimizer = [] {
             optimizer = std::move(optimizer);
 #pragma clang diagnostic pop
 
-            expect(optimizer.energy() == 2.F);
+            expect(optimizer.normalized_makespan() == 2.F);
         };
     };
 };
