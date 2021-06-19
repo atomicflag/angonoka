@@ -20,6 +20,9 @@ struct Optimizer::Impl {
     /**
         Current progress w.r.t the maximum number of idle iterations.
 
+        This is *not* the overall progress of the optimization
+        process, this is an intra-epoch progress.
+
         @return Progress between 0.0 and 1.0
     */
     static float progress(Optimizer& self) noexcept
@@ -33,9 +36,8 @@ struct Optimizer::Impl {
     /**
         Interpolate the progress between the last epoch and the next.
 
-        Assuming the exponential curve estimation is correct,
-        synthesize the current progress value based on the progress
-        made so far.
+        Assuming the progress is exponential, synthesize the current
+        progress value based on the progress made so far.
     */
     static void interpolate_progress(Optimizer& self) noexcept
     {
@@ -50,7 +52,12 @@ struct Optimizer::Impl {
             = std::min(self.exp_curve.at(next_epoch), 1.F);
     }
 
-    // TODO: doc, test, expects
+    /**
+        Advance to the next epoch and fit the exponential curve.
+
+        Assuming the progress is exponential, try and find the
+        expected progress by fitting an exponential model.
+    */
     static void estimate_progress(Optimizer& self) noexcept
     {
         Expects(self.epochs >= 0);
@@ -86,7 +93,7 @@ void Optimizer::update() noexcept
     for (int32 i{0}; i < batch_size; ++i) stun.update();
     idle_iters += batch_size;
     // Make up a progress value just so that the user
-    // doesn't think that the process has stuck.
+    // doesn't think that the optimizaton has halted.
     if (stun.energy() == last_energy) {
         Impl::interpolate_progress(*this);
         return;
