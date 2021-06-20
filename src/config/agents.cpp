@@ -147,8 +147,13 @@ void parse_agent(
 namespace angonoka::detail {
 void parse_agents(const YAML::Node& node, Configuration& config)
 {
+    Expects(config.agents.empty());
+
+    if (node.size() == 0) throw CantBeEmpty{R"_("agents")_"};
     for (auto&& agent : node) {
         parse_agent(agent.first, agent.second, config);
     }
+
+    Ensures(!config.agents.empty());
 }
 } // namespace angonoka::detail

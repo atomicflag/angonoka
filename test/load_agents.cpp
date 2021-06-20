@@ -20,6 +20,16 @@ suite loading_agents = [] {
             [&] { angonoka::load_text(text); }));
     };
 
+    "empty section"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            ANGONOKA_COMMON_YAML
+            "agents: {}";
+        // clang-format on
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
+
     "section 'agents' has an invalid type"_test = [] {
         // clang-format off
         constexpr auto text =

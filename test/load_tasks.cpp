@@ -29,6 +29,16 @@ suite loading_tasks = [] {
             [&] { angonoka::load_text(text); }));
     };
 
+    "empty array"_test = [] {
+        // clang-format off
+        constexpr auto text = 
+            ANGONOKA_COMMON_YAML
+            "tasks: []";
+        // clang-format on
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
+
     "invalid 'tasks' format"_test = [] {
         // clang-format off
         constexpr auto text = 

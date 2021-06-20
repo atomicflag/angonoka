@@ -360,6 +360,7 @@ void parse_tasks(const YAML::Node& node, Configuration& config)
 {
     Expects(config.tasks.empty());
 
+    if (node.size() == 0) throw CantBeEmpty{R"_("tasks")_"};
     Dependencies deps;
     for (auto&& task : node) { parse_task(task, config, deps); }
     parse_dependencies_2nd_phase(config.tasks, deps);
