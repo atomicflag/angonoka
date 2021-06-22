@@ -163,18 +163,27 @@ constexpr auto die
     Progress updates for non-TTY outputs.
 */
 struct ProgressText {
+    using clock = std::chrono::steady_clock;
+
     /**
         Print the progress update.
+
+        Updates are throttled to be displayed only once per second.
 
         @param progress Progress value from 0.0 to 1.0
         @param message  Status message
     */
-    static void update(float progress, std::string_view message)
+    void update(float progress, std::string_view message)
     {
-        // TODO: Throttle updates
         Expects(progress >= 0.F && progress <= 1.F);
+        using namespace std::chrono_literals;
+        const auto now = clock::now();
+        if (now - last_update < 1s) return;
+        last_update = now;
         fmt::print("{}: {:.2f}%\n", message, progress * 100.F);
     }
+
+    clock::time_point last_update;
 };
 
 /**

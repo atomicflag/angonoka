@@ -26,19 +26,6 @@ struct ScheduleParams;
 class StochasticTunneling {
 public:
     /**
-        Result of a stochastic tunneling pass.
-
-        @var schedule       Schedule that had the lowest energy
-        @var energy         Lowest energy achieved so far
-        @var temperature    Final temperature
-    */
-    struct Result {
-        std::vector<ScheduleItem> schedule;
-        float energy;
-        float temperature;
-    };
-
-    /**
         STUN auxiliary data and utilities.
 
         @var mutator    Instance of Mutator
