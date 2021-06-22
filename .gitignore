@@ -1,4 +1,5 @@
 build
 dist
+debug
 *.profdata
 *.profraw

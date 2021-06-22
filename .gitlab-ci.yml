@@ -33,6 +33,7 @@ build:
   artifacts:
     paths:
       - dist
+      - debug
     expire_in: 1 day
   script:
     - make release

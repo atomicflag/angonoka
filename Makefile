@@ -92,6 +92,15 @@ install: release
 	)
 	mkdir -p dist/lib64
 	cp $$LIBS dist/lib64
+	mkdir -p debug
+	cd dist
+	for f in $$(find bin lib64 -type f); do
+		llvm-objcopy --only-keep-debug $$f $$f.dbg
+		DIR=../debug/$$(dirname $$f)
+		mkdir -p $$DIR
+		mv $$f.dbg $$DIR
+		llvm-strip --strip-unneeded $$f
+	done
 
 .PHONY: release
 release: MESON_ARGS=--prefix \
@@ -99,7 +108,7 @@ release: MESON_ARGS=--prefix \
 	--buildtype release \
 	-Db_lto=true \
 	-Db_ndebug=true \
-	-Dstrip=true
+	-Dstrip=false
 release: CXXFLAGS=$(RELEASE_CXXFLAGS)
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
