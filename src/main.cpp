@@ -109,55 +109,36 @@ struct Options {
     std::string filename;
     bool verbose{false};
     bool color{output_is_terminal()};
+    bool quiet{false};
 };
+
+// TODO: doc, test, expects
+void print(const Options& options, auto&&... args)
+{
+    if (options.quiet) return;
+    fmt::print(std::forward<decltype(args)>(args)...);
+}
 
 /**
     Prints red text.
 */
-constexpr auto red_text = [](auto&&... args) {
-    fmt::print(
-        fg(fmt::terminal_color::red),
-        std::forward<decltype(args)>(args)...);
+constexpr auto red_text = [](const Options& options, auto&&... args) {
+    if (options.color) {
+        fmt::print(
+            fg(fmt::terminal_color::red),
+            std::forward<decltype(args)>(args)...);
+    } else {
+        fmt::print(std::forward<decltype(args)>(args)...);
+    }
 };
-
-/**
-    Prints colorless text.
-*/
-constexpr auto default_text = [](auto&&... args) {
-    fmt::print(std::forward<decltype(args)>(args)...);
-};
-
-/**
-    Decorates a function with a specified color.
-
-    Falls back to colorless text when the colored output isn't
-    available.
-
-    @param color_fn Color function (red_text, etc)
-    @param fn       Function that prints the text
-
-    @return A function, decorated with the specified color.
-*/
-constexpr auto colorize(auto&& color_fn, auto&& fn) noexcept
-{
-    return [=]<typename... Ts>(const Options& options, Ts&&... args)
-    {
-        if (options.color) {
-            fn(color_fn, std::forward<Ts>(args)...);
-        } else {
-            fn(default_text, std::forward<Ts>(args)...);
-        }
-    };
-}
 
 /**
     Critical error message.
 */
-constexpr auto die
-    = colorize(red_text, [](auto&& print, auto&&... args) {
-          print("Error\n");
-          print(std::forward<decltype(args)>(args)...);
-      });
+constexpr auto die = [](const Options& options, auto&&... args) {
+    if (!options.quiet) red_text(options, "Error\n");
+    red_text(options, std::forward<decltype(args)>(args)...);
+};
 
 /**
     Progress updates for non-TTY outputs.
@@ -374,15 +355,32 @@ void run_prediction(
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());
 
-    Progress progress;
-    if (options.color) progress.emplace<ProgressBar>();
-
     auto [prediction_future, event_queue] = predict(config);
-    auto consumer = make_event_consumer(
-        on_simple_progress_event(progress, options),
-        on_schedule_optimization_event(progress));
-    consumer(*event_queue, prediction_future);
+
+    if (!options.quiet) {
+        Progress progress;
+        if (options.color) progress.emplace<ProgressBar>();
+        auto consumer = make_event_consumer(
+            on_simple_progress_event(progress, options),
+            on_schedule_optimization_event(progress));
+        consumer(*event_queue, prediction_future);
+    }
     prediction_future.get();
+    // TODO: implement
+    fmt::print("Done.\n");
+}
+
+// TODO: doc, test, expects
+void print_yaml_error(
+    const Options& options,
+    const YAML::Exception& e)
+{
+    red_text(
+        options,
+        "Error at line {}, column {}: {}\n",
+        e.mark.line + 1,
+        e.mark.column + 1,
+        e.msg);
 }
 
 /**
@@ -394,15 +392,19 @@ void run_prediction(
 */
 auto parse_config(const Options& options)
 {
-    fmt::print("Parsing configuration... ");
+    print(options, "Parsing configuration... ");
     try {
         auto config = load_file(options.filename);
-        fmt::print("OK\n");
+        print(options, "OK\n");
         return config;
     } catch (const YAML::BadFile& e) {
         die(options,
             "Error reading tasks and agents from file \"{}\".\n",
             options.filename);
+        throw UserError{};
+    } catch (const YAML::ParserException& e) {
+        die(options, "Error parsing YAML: ");
+        print_yaml_error(options, e);
         throw UserError{};
     } catch (const ValidationError& e) {
         die(options, "Validation error: {}\n", e.what());
@@ -447,6 +449,8 @@ int main(int argc, char** argv)
         "--color,!--no-color",
         options.color,
         "Force colored output");
+    app.add_flag("-q,--quiet", options.quiet, "Give less output");
+    app.add_flag("-v,--verbose", options.verbose, "Give more output");
     app.add_option("input file", options.filename)->required();
 
     const auto version_requested = [&] {
