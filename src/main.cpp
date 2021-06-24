@@ -101,9 +101,9 @@ bool output_is_terminal() noexcept
     CLI options.
 
     @var filename   Path to tasks.yaml file
-    @var action     Single-action command
     @var verbose    Debug messages
     @var color      Colored text
+    @var quiet      Suppress output
 */
 struct Options {
     std::string filename;
@@ -112,7 +112,11 @@ struct Options {
     bool quiet{false};
 };
 
-// TODO: doc, test, expects
+/**
+    Print text to stdout if not in quiet mode.
+
+    @param options CLI options
+*/
 void print(const Options& options, auto&&... args)
 {
     if (options.quiet) return;
@@ -121,8 +125,14 @@ void print(const Options& options, auto&&... args)
 
 /**
     Prints red text.
+
+    Conditionally disables the color depending on
+    CLI options.
+
+    @param options CLI options
 */
-constexpr auto red_text = [](const Options& options, auto&&... args) {
+void red_text(const Options& options, auto&&... args)
+{
     if (options.color) {
         fmt::print(
             fg(fmt::terminal_color::red),
@@ -130,15 +140,23 @@ constexpr auto red_text = [](const Options& options, auto&&... args) {
     } else {
         fmt::print(std::forward<decltype(args)>(args)...);
     }
-};
+}
 
 /**
     Critical error message.
+
+    Used for progress messages with ellipsis like
+
+    Progress message... <die()>Error
+    An error has occured.
+
+    @param options CLI options
 */
-constexpr auto die = [](const Options& options, auto&&... args) {
+void die(const Options& options, auto&&... args)
+{
     if (!options.quiet) red_text(options, "Error\n");
     red_text(options, std::forward<decltype(args)>(args)...);
-};
+}
 
 /**
     Progress updates for non-TTY outputs.
@@ -278,6 +296,7 @@ auto on_simple_progress_event(
             } else {
                 fmt::print("Schedule optimization complete.\n");
             }
+            // TODO: Print optimization results
             return;
         case SimpleProgressEvent::Finished:
             fmt::print("Probability estimation complete.\n");
@@ -370,7 +389,12 @@ void run_prediction(
     fmt::print("Done.\n");
 }
 
-// TODO: doc, test, expects
+/**
+    Pretty-print YAML library exception to stdout.
+
+    @param options  CLI options
+    @param e        YAML exception
+*/
 void print_yaml_error(
     const Options& options,
     const YAML::Exception& e)
