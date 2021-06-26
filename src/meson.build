@@ -10,6 +10,8 @@ base_lib = static_library(
     'config/agents.cpp',
     'config/load.cpp',
     'config/tasks.cpp',
+    'cli/utils.cpp',
+    'cli/progress.cpp',
     'configuration.cpp',
     'exceptions.cpp',
     'predict.cpp',

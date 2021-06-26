@@ -1,17 +1,13 @@
+#include "cli/progress.h"
+#include "cli/utils.h"
 #include "config.h"
 #include "config/load.h"
 #include "exceptions.h"
 #include "predict.h"
 #include <CLI/CLI.hpp>
-#include <atomic>
 #include <boost/hana/functional/overload.hpp>
-#include <csignal>
-#include <cstdio>
 #include <fmt/color.h>
 #include <fmt/printf.h>
-#include <indicators/block_progress_bar.hpp>
-#include <indicators/cursor_control.hpp>
-#include <indicators/terminal_size.hpp>
 #include <memory>
 #include <string>
 #include <thread>
@@ -19,65 +15,10 @@
 
 // TODO: refactor into multiple files
 
-extern "C" {
-/**
-    SIGTERM and SIGINT handler.
-*/
-void abort_handler(int signal)
-{
-    constexpr auto posix_offset = 128;
-    std::quick_exit(posix_offset + signal);
-}
-}
-
 namespace {
 using namespace angonoka;
+using namespace angonoka::cli;
 using boost::hana::overload;
-
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-constinit std::atomic_flag cursor_suppressed{};
-
-/**
-    Erase the current TTY line.
-*/
-void erase_line() { fmt::print("\33[2K"); }
-
-/**
-    Move the TTY cursor up.
-*/
-void cursor_up() { fmt::print("\033[A\r"); }
-
-/**
-    Hide the TTY cursor.
-
-    The cursor state will be restored if the application is
-    terminated by SIGTERM or SIGINT.
-*/
-void hide_cursor()
-{
-    cursor_suppressed.test_and_set();
-    indicators::show_console_cursor(false);
-}
-
-/**
-    Show the TTY cursor.
-*/
-void show_cursor()
-{
-    indicators::show_console_cursor(true);
-    cursor_suppressed.clear();
-}
-
-/**
-    quick_exit handler.
-*/
-void at_exit()
-{
-    if (cursor_suppressed.test()) {
-        show_cursor();
-        std::fflush(stdout);
-    }
-}
 
 /**
     Generic user error.
@@ -86,16 +27,6 @@ void at_exit()
 */
 struct UserError : std::exception {
 };
-
-/**
-    Test if the output is a terminal.
-
-    @return True if the output is a terminal.
-*/
-bool output_is_terminal() noexcept
-{
-    return isatty(fileno(stdout)) == 1;
-}
 
 /**
     CLI options.
@@ -156,118 +87,6 @@ void die(const Options& options, auto&&... args)
 {
     if (!options.quiet) red_text(options, "Error\n");
     red_text(options, std::forward<decltype(args)>(args)...);
-}
-
-/**
-    Progress updates for non-TTY outputs.
-*/
-struct ProgressText {
-    using clock = std::chrono::steady_clock;
-
-    /**
-        Print the progress update.
-
-        Updates are throttled to be displayed only once per second.
-
-        @param progress Progress value from 0.0 to 1.0
-        @param message  Status message
-    */
-    void update(float progress, std::string_view message)
-    {
-        Expects(progress >= 0.F && progress <= 1.F);
-        using namespace std::chrono_literals;
-        const auto now = clock::now();
-        if (now - last_update < 1s) return;
-        last_update = now;
-        fmt::print("{}: {:.2f}%\n", message, progress * 100.F);
-    }
-
-    clock::time_point last_update;
-};
-
-/**
-    Graphical progress bar for TTY outputs.
-*/
-struct ProgressBar {
-    /**
-        Initialize the progress bar.
-    */
-    void start()
-    {
-        hide_cursor();
-        bar.set_progress(0);
-    }
-
-    /**
-        Update the progress bar.
-
-        @param progress Progress value from 0.0 to 1.0
-        @param message  Status message (Unused)
-    */
-    void update(float progress, std::string_view /* message */)
-
-    {
-        bar.set_progress(progress * 100.F);
-    }
-
-    /**
-        Remove the progress bar.
-    */
-    static void stop()
-    {
-        show_cursor();
-        erase_line();
-    }
-
-    static constexpr auto padding = 9;
-    indicators::BlockProgressBar bar{indicators::option::BarWidth{
-        indicators::terminal_width() - padding}};
-};
-
-/**
-    Text or graphical progress depending on TTY.
-*/
-using Progress = boost::variant2::variant<ProgressText, ProgressBar>;
-
-/**
-    Initiate the progress output.
-
-    @param p Text or graphical progress
-*/
-void start(Progress& p)
-{
-    constexpr auto visitor = [](auto& v) {
-        if constexpr (requires { v.start(); }) v.start();
-    };
-    boost::variant2::visit(visitor, p);
-}
-
-/**
-    Update the progress.
-
-    @param p Text or graphical progress
-*/
-void update(Progress& p, auto&&... args)
-{
-    const auto visitor = [&](auto& v) {
-        // WTF? I think clang-tidy is having a stroke
-        // NOLINTNEXTLINE(modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-        v.update(std::forward<decltype(args)>(args)...);
-    };
-    boost::variant2::visit(visitor, p);
-}
-
-/**
-    Finalize the progress output.
-
-    @param p Text or graphical progress
-*/
-void stop(Progress& p)
-{
-    constexpr auto visitor = [](auto& v) {
-        if constexpr (requires { v.stop(); }) v.stop();
-    };
-    boost::variant2::visit(visitor, p);
 }
 
 /**
@@ -438,24 +257,13 @@ auto parse_config(const Options& options)
         throw;
     }
 }
-
-/**
-    Make sure the application cleans up after itself when terminating.
-
-    This includes showing TTY cursor if it was hidden.
-*/
-void register_abort_handlers()
-{
-    std::at_quick_exit(at_exit);
-    std::signal(SIGINT, abort_handler);
-    std::signal(SIGTERM, abort_handler);
-}
 } // namespace
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, char** argv)
 {
     using namespace fmt::literals;
+    using namespace angonoka::cli;
 
     register_abort_handlers();
 
