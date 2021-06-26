@@ -26,6 +26,7 @@ test:
     - make build/cov
     - make check/tidy
     - make test
+    - make test/functional
     - make check/cov
 
 build:

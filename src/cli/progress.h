@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/safe_numerics/safe_integer.hpp>
 #include <boost/variant2/variant.hpp>
 #include <chrono>
 #include <indicators/block_progress_bar.hpp>
@@ -7,6 +8,9 @@
 #include <string_view>
 
 namespace angonoka::cli {
+namespace sn = boost::safe_numerics;
+using int16 = sn::safe<std::int_fast16_t>;
+
 /**
     Progress updates for non-TTY outputs.
 */
@@ -25,6 +29,9 @@ struct ProgressText {
 
     clock::time_point last_update;
 };
+
+// TODO: doc, test, expects
+int16 terminal_width();
 
 /**
     Graphical progress bar for TTY outputs.
@@ -49,8 +56,8 @@ struct ProgressBar {
     static void stop();
 
     static constexpr auto padding = 9;
-    indicators::BlockProgressBar bar{indicators::option::BarWidth{
-        indicators::terminal_width() - padding}};
+    indicators::BlockProgressBar bar{
+        indicators::option::BarWidth{terminal_width() - padding}};
 };
 
 /**

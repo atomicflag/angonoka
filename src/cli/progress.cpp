@@ -14,6 +14,16 @@ void ProgressText::update(float progress, std::string_view message)
     fmt::print("{}: {:.2f}%\n", message, progress * 100.F);
 }
 
+int16 terminal_width()
+{
+    const auto width = indicators::terminal_width();
+    constexpr auto min_width = 5;
+    constexpr auto max_width = 9999;
+    constexpr auto default_width = 50;
+    if (width < min_width || width > max_width) return default_width;
+    return width;
+}
+
 void ProgressBar::start()
 {
     hide_cursor();

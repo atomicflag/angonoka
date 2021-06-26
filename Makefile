@@ -66,6 +66,10 @@ test:
 		LLVM_PROFILE_FILE=$$t.profraw $$t
 	done
 
+.PHONY: test/functional
+test/functional:
+	test/functional/suite.sh
+
 # .PHONY: benchmark
 # benchmark:
 # 	build/benchmark/angonoka_benchmark
@@ -127,7 +131,7 @@ plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
 .PHONY: build/cov
-build/cov: MESON_ARGS=--buildtype debug -Dtests=enabled
+build/cov: MESON_ARGS=--buildtype debugoptimized -Dtests=enabled
 build/cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping -DANGONOKA_COVERAGE
 build/cov: ninja
 
@@ -138,8 +142,16 @@ check/cov: build/cov
 		$$(find . -name '*.profraw') \
 		-o angonoka.profdata
 	llvm-cov report \
-		build/test/angonoka_test \
+		build/src/angonoka-x86_64 \
 		-instr-profile=angonoka.profdata \
+		src
+
+.PHONY: check/show
+check/show: check/cov
+	llvm-cov show \
+		build/src/angonoka-x86_64 \
+		-instr-profile=angonoka.profdata \
+		-format=html -o html \
 		src
 
 .PHONY: format

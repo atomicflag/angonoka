@@ -270,7 +270,7 @@ int main(int argc, char** argv)
     Options options;
     CLI::App app{
         "Angonoka is a time estimation software based on statistical "
-        "modeling.",
+        "modeling.\n",
         ANGONOKA_NAME};
 
     auto* version = app.add_flag(
@@ -295,12 +295,12 @@ int main(int argc, char** argv)
 
     try {
         app.parse(argc, argv);
-        if (version_requested()) return 0;
+        if (version_requested()) return EXIT_SUCCESS;
         const auto config = parse_config(options);
         run_prediction(config, options);
         return EXIT_SUCCESS;
     } catch (const CLI::ParseError& e) {
-        if (version_requested()) return 0;
+        if (version_requested()) return EXIT_SUCCESS;
         return app.exit(e);
     } catch (const UserError&) {
         return EXIT_FAILURE;
