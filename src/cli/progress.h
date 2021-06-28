@@ -30,7 +30,11 @@ struct ProgressText {
     clock::time_point last_update;
 };
 
-// TODO: doc, test, expects
+/**
+    Terminal width in columns, default 50.
+
+    @return Number of columns
+*/
 int16 terminal_width();
 
 /**
@@ -75,8 +79,9 @@ void start(Progress& p);
 /**
     Update the progress.
 
-    @param p Text or graphical progress
-    // TODO: doc
+    @param p        Text or graphical progress
+    @param progress Progress value from 0.0 to 1.0
+    @param message  Status message
 */
 void update(Progress& p, float progress, std::string_view message);
 
