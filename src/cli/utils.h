@@ -1,40 +1,53 @@
 #pragma once
 
+#include "options.h"
+#include <fmt/color.h>
+#include <fmt/printf.h>
+
 namespace angonoka::cli {
 /**
-    Make sure the application cleans up after itself when terminating.
+    Print text to stdout if not in quiet mode.
 
-    This includes showing TTY cursor if it was hidden.
+    @param options CLI options
 */
-void register_abort_handlers();
+void print(const Options& options, auto&&... args)
+{
+    if (options.quiet) return;
+    fmt::print(std::forward<decltype(args)>(args)...);
+}
 
 /**
-    Erase the current TTY line.
+    Prints red text.
+
+    Conditionally disables the color depending on
+    CLI options.
+
+    @param options CLI options
 */
-void erase_line();
+void red_text(const Options& options, auto&&... args)
+{
+    if (options.color) {
+        fmt::print(
+            fg(fmt::terminal_color::red),
+            std::forward<decltype(args)>(args)...);
+    } else {
+        fmt::print(std::forward<decltype(args)>(args)...);
+    }
+}
 
 /**
-    Move the TTY cursor up.
+    Critical error message.
+
+    Used for progress messages with ellipsis like
+
+    Progress message... <die()>Error
+    An error has occured.
+
+    @param options CLI options
 */
-void cursor_up();
-
-/**
-    Hide the TTY cursor.
-
-    The cursor state will be restored if the application is
-    terminated by SIGTERM or SIGINT.
-*/
-void hide_cursor();
-
-/**
-    Show the TTY cursor.
-*/
-void show_cursor();
-
-/**
-    Test if the output is a terminal.
-
-    @return True if the output is a terminal.
-*/
-bool output_is_terminal() noexcept;
+void die(const Options& options, auto&&... args)
+{
+    if (!options.quiet) red_text(options, "Error\n");
+    red_text(options, std::forward<decltype(args)>(args)...);
+}
 } // namespace angonoka::cli
