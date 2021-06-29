@@ -25,7 +25,7 @@ run() {
 }
 
 runc() {
-  base64 -d | bzip2 -d | run "$@"
+  base64 -d | bzip2 -d | run "$@" || exit
   TEST_INDEX=$(($TEST_INDEX + 1))
 }
 
@@ -108,10 +108,11 @@ require_status 0
 # Basic TTY output
 #
 runc --color tasks.yml <<EOF
-QlpoOTFBWSZTWX3p6zUAAnDfgAAQRgNyAKRKwQs/594wMADRAkqZTJ6TaQ9TNQ0B6mmnqPUE
-VCNRoaaDQaMhoAGGhkyBkYgxMmhpiKbUQZKohaKDkJig44fcCJTbCEKxQakQdyisiZAMsShE
-GmyOwr1kHVcgnAouQTmgk7gEnUWVMkExoBBmEJBihAtfJAjKpAiVlsX9s/jkCNJTNhkPPvXE
-aVsaE87DQnBquoMLYDqFLggipYXsPzHSHcY4FsRhC8rH0J8Gn8XckU4UJB96es1A
+QlpoOTFBWSZTWWEJDOMAHQ//gIAQCABGB3IApErBCz/n3jAACDAA+CCUqfpTR6TT1G0EAZMj
+DRqGGhkNMmgGIaaaNDRgUqU9RqnkRppozUep6maTaQ0xmZJF7SLukWKUhaSLAYyiUlvUXQ58
+vXk1NAlFs34xjrUWVF96VZaMG3U1yLZ2au11fZi+nGJwa+MTviacRNKi3PnusxOeSLQxk7ZF
+8OETjwkX5zE8tvTv6vDz/22Jl9gVHkcae+owkVgQw3GRB7EmiKSvGxIzA9DYlLlNVbeN6V0k
+tYo9xIcYmdDDeAIIgJ/F3JFOFCQYQkM4wA==
 EOF
 require_status 0
 
