@@ -68,7 +68,8 @@ test:
 
 .PHONY: test/functional
 test/functional:
-	test/functional/suite.sh
+	cd test/functional
+	pytest -qx suite.py
 
 # .PHONY: benchmark
 # benchmark:
