@@ -20,19 +20,19 @@ struct RandomUtilsMock final : RandomUtils {
 };
 
 struct MakespanMock final : Makespan {
-    float operator()(State state) noexcept override
+    float operator()(Schedule schedule) noexcept override
     {
-        return call(state);
+        return call(schedule);
     }
-    MAKE_MOCK1(call, float(State state), noexcept);
+    MAKE_MOCK1(call, float(Schedule schedule), noexcept);
 };
 
 struct MutatorMock final : Mutator {
-    void operator()(MutState state) const noexcept override
+    void operator()(MutSchedule schedule) const noexcept override
     {
-        return call(state);
+        return call(schedule);
     }
-    MAKE_MOCK1(call, void(MutState state), const noexcept);
+    MAKE_MOCK1(call, void(MutSchedule schedule), const noexcept);
 };
 
 struct TemperatureMock final : Temperature {
@@ -64,11 +64,11 @@ suite stochastic_tunneling = [] {
         MakespanMock makespan;
         TemperatureMock temperature;
         MutatorMock mutator;
-        std::vector<StateItem> state(3);
+        std::vector<ScheduleItem> schedule(3);
 
         trompeloeil::sequence seq;
 
-        REQUIRE_CALL(makespan, call(state))
+        REQUIRE_CALL(makespan, call(schedule))
             .RETURN(1.F)
             .IN_SEQUENCE(seq);
         REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
@@ -84,7 +84,12 @@ suite stochastic_tunneling = [] {
         REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
         REQUIRE_CALL(makespan, call(_)).RETURN(.1F).IN_SEQUENCE(seq);
 
-        test_fn(mutator, random_utils, makespan, temperature, state);
+        test_fn(
+            mutator,
+            random_utils,
+            makespan,
+            temperature,
+            schedule);
     };
 
     "stochastic tunneling"_test = [&] {
@@ -94,18 +99,18 @@ suite stochastic_tunneling = [] {
                         auto& random_utils,
                         auto& makespan,
                         auto& temperature,
-                        auto& state) {
+                        auto& schedule) {
                 StochasticTunneling stun{
                     {.mutator{&mutator},
                      .random{&random_utils},
                      .makespan{&makespan},
                      .temp{&temperature},
                      .gamma{.5F}},
-                    state};
+                    schedule};
                 for (int i{0}; i < 2; ++i) stun.update();
 
-                expect(stun.energy() == .1_d);
-                expect(stun.state().size() == 3);
+                expect(stun.normalized_makespan() == .1_d);
+                expect(stun.schedule().size() == 3);
             });
         };
 
@@ -114,18 +119,18 @@ suite stochastic_tunneling = [] {
                         auto& random_utils,
                         auto& makespan,
                         auto& temperature,
-                        auto& state) {
+                        auto& schedule) {
                 StochasticTunneling stun{
                     {.mutator{&mutator},
                      .random{&random_utils},
                      .makespan{&makespan},
                      .temp{&temperature},
                      .gamma{.5F}}};
-                stun.reset(state);
+                stun.reset(schedule);
                 for (int i{0}; i < 2; ++i) stun.update();
 
-                expect(stun.energy() == .1_d);
-                expect(stun.state().size() == 3);
+                expect(stun.normalized_makespan() == .1_d);
+                expect(stun.schedule().size() == 3);
             });
         };
     };
@@ -138,7 +143,7 @@ suite stochastic_tunneling = [] {
         MakespanMock makespan;
         TemperatureMock temperature;
         MutatorMock mutator;
-        std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
+        std::vector<ScheduleItem> schedule{{0, 0}, {1, 1}, {2, 2}};
 
         ALLOW_CALL(makespan, call(_)).RETURN(1.F);
 
@@ -149,7 +154,7 @@ suite stochastic_tunneling = [] {
             .temp{&temperature},
             .gamma{.5F}};
 
-        StochasticTunneling stun{options, state};
+        StochasticTunneling stun{options, schedule};
 
         expect(stun.options().makespan == &makespan);
 
@@ -169,8 +174,8 @@ suite stochastic_tunneling = [] {
         MakespanMock makespan;
         TemperatureMock temperature;
         MutatorMock mutator;
-        std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
-        std::vector<StateItem> state2{{3, 3}, {4, 4}, {5, 5}};
+        std::vector<ScheduleItem> schedule{{0, 0}, {1, 1}, {2, 2}};
+        std::vector<ScheduleItem> schedule2{{3, 3}, {4, 4}, {5, 5}};
 
         ALLOW_CALL(makespan, call(_)).RETURN(1.F);
 
@@ -181,48 +186,52 @@ suite stochastic_tunneling = [] {
             .temp{&temperature},
             .gamma{.5F}};
 
-        StochasticTunneling stun{options, state};
-
-        "copy assignment"_test = [=]() mutable {
-            StochasticTunneling stun2{options, state2};
+        "copy assignment"_test = [&] {
+            StochasticTunneling stun{options, schedule};
+            StochasticTunneling stun2{options, schedule2};
             stun = stun2;
 
-            expect(stun.state()[0].agent_id == 3);
+            expect(stun.schedule()[0].agent_id == 3);
         };
 
-        "move assignment"_test = [=]() mutable {
-            StochasticTunneling stun2{options, state2};
+        "move assignment"_test = [&] {
+            StochasticTunneling stun{options, schedule};
+            StochasticTunneling stun2{options, schedule2};
             stun = std::move(stun2);
 
-            expect(stun.state()[0].agent_id == 3);
+            expect(stun.schedule()[0].agent_id == 3);
         };
 
         "copy ctor"_test = [&] {
+            StochasticTunneling stun{options, schedule};
             StochasticTunneling stun2{stun};
 
-            expect(stun2.state()[1].agent_id == 1);
+            expect(stun2.schedule()[1].agent_id == 1);
         };
 
-        "move ctor"_test = [=]() mutable {
+        "move ctor"_test = [&] {
+            StochasticTunneling stun{options, schedule};
             StochasticTunneling stun2{std::move(stun)};
 
-            expect(stun2.state()[1].agent_id == 1);
+            expect(stun2.schedule()[1].agent_id == 1);
         };
 
-        "self copy"_test = [=]() mutable {
+        "self copy"_test = [&] {
+            StochasticTunneling stun{options, schedule};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             stun = stun;
 #pragma clang diagnostic pop
-            expect(stun.state()[1].agent_id == 1);
+            expect(stun.schedule()[1].agent_id == 1);
         };
 
-        "self move"_test = [=]() mutable {
+        "self move"_test = [&] {
+            StochasticTunneling stun{options, schedule};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             stun = std::move(stun);
 #pragma clang diagnostic pop
-            expect(stun.state()[1].agent_id == 1);
+            expect(stun.schedule()[1].agent_id == 1);
         };
     };
 };

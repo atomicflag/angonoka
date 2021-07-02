@@ -8,6 +8,7 @@
 
 namespace {
 using namespace angonoka;
+using namespace fmt::literals;
 using Dependencies = std::vector<std::vector<std::string_view>>;
 /**
     Parses task duration.
@@ -18,21 +19,26 @@ using Dependencies = std::vector<std::vector<std::string_view>>;
       min: 1 day
       max: 3 days
 
-    @param duration  A map with min/max values or a scalar
-    @param task      Task object
+    @param duration A map with min/max values or a scalar
+    @param task     Task object
 */
-void parse_duration(const YAML::Node& duration, Task::Duration& dur)
+void parse_duration(const YAML::Node& duration, Task& task)
 {
     using detail::parse_duration;
-    if (duration.IsScalar()) {
-        const auto value = parse_duration(duration.Scalar());
-        dur.min = value;
-        dur.max = value;
-    } else {
-        dur.min = parse_duration(duration["min"].Scalar());
-        dur.max = parse_duration(duration["max"].Scalar());
+    auto& dur = task.duration;
+    try {
+        if (duration.IsScalar()) {
+            const auto value = parse_duration(duration.Scalar());
+            dur.min = value;
+            dur.max = value;
+        } else {
+            dur.min = parse_duration(duration["min"].Scalar());
+            dur.max = parse_duration(duration["max"].Scalar());
+        }
+    } catch (const DurationParseError& e) {
+        throw InvalidDuration(task.name, e.text);
     }
-    if (dur.min > dur.max) throw TaskDurationMinMax{};
+    if (dur.min > dur.max) throw TaskDurationMinMax{task.name};
 }
 
 /**
@@ -73,7 +79,7 @@ void check_for_duplicates(const Tasks& tasks, std::string_view id)
     Expects(!id.empty());
     if (const auto a = ranges::find(tasks, id, &Task::id);
         a != tasks.end())
-        throw DuplicateTaskDefinition{};
+        throw DuplicateTaskDefinition{id};
 }
 
 /**
@@ -111,7 +117,10 @@ void parse_task_id(
     Task& task)
 {
     const auto& id = id_node.Scalar();
-    if (id.empty()) throw CantBeEmpty{"Task id"};
+    if (id.empty()) {
+        throw CantBeEmpty{
+            R"(Task id for the task "{}")"_format(task.name)};
+    }
     check_for_duplicates(tasks, id);
     task.id = id;
 
@@ -121,13 +130,18 @@ void parse_task_id(
 /**
     Validate a Task id.
 
-    @param task_id Task id
+    @param task_id  Task id
+    @param task     Task object
 
     @return A Task id, if validation succeeds
 */
-std::string_view validate_task_id(std::string_view task_id)
+std::string_view
+validate_task_id(std::string_view task_id, const Task& task)
 {
-    if (task_id.empty()) throw CantBeEmpty{"Dependency id"};
+    if (task_id.empty()) {
+        throw CantBeEmpty{
+            R"(Dependency id of the task "{}")"_format(task.name)};
+    }
     return task_id;
 }
 
@@ -145,18 +159,23 @@ std::string_view validate_task_id(std::string_view task_id)
 
     @param depends_on   A sequence or a scalar of dependencies
     @param task_deps    Array of Task dependencies
+    @param task         Task object
 */
 void parse_dependencies(
     const YAML::Node& depends_on,
-    std::vector<std::string_view>& task_deps)
+    std::vector<std::string_view>& task_deps,
+    const Task& task)
 {
     Expects(depends_on.IsSequence() || depends_on.IsScalar());
 
     if (depends_on.IsSequence()) {
-        for (const auto& d : depends_on)
-            task_deps.emplace_back(validate_task_id(d.Scalar()));
+        for (const auto& d : depends_on) {
+            task_deps.emplace_back(
+                validate_task_id(d.Scalar(), task));
+        }
     } else {
-        task_deps.emplace_back(validate_task_id(depends_on.Scalar()));
+        task_deps.emplace_back(
+            validate_task_id(depends_on.Scalar(), task));
     }
 
     Ensures(!task_deps.empty());
@@ -234,7 +253,7 @@ void parse_task(
         parse_task_id(id_node, config.tasks, task);
     }
 
-    parse_duration(task_node["duration"], task.duration);
+    parse_duration(task_node["duration"], task);
 
     // Parse task.group
     if (const auto& group = task_node["group"]) {
@@ -243,7 +262,7 @@ void parse_task(
 
     // Parse task.depends_on
     if (const auto& depends_on = task_node["depends_on"]) {
-        parse_dependencies(depends_on, task_deps);
+        parse_dependencies(depends_on, task_deps, task);
     }
 
     // Parse task.subtasks
@@ -341,6 +360,7 @@ void parse_tasks(const YAML::Node& node, Configuration& config)
 {
     Expects(config.tasks.empty());
 
+    if (node.size() == 0) throw CantBeEmpty{R"_("tasks")_"};
     Dependencies deps;
     for (auto&& task : node) { parse_task(task, config, deps); }
     parse_dependencies_2nd_phase(config.tasks, deps);

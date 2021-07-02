@@ -26,6 +26,8 @@ test:
     - make build/cov
     - make check/tidy
     - make test
+    - pip install --no-cache-dir pytest
+    - make test/functional
     - make check/cov
 
 build:
@@ -33,6 +35,7 @@ build:
   artifacts:
     paths:
       - dist
+      - debug
     expire_in: 1 day
   script:
     - make release

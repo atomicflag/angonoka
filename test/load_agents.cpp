@@ -12,8 +12,20 @@ using namespace boost::ut;
     "      max: 3 days\n"
 
 suite loading_agents = [] {
+    using namespace std::literals::string_view_literals;
+
     "no 'agents' section"_test = [] {
         constexpr auto text = ANGONOKA_COMMON_YAML;
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
+
+    "empty section"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            ANGONOKA_COMMON_YAML
+            "agents: {}";
+        // clang-format on
         expect(throws<angonoka::ValidationError>(
             [&] { angonoka::load_text(text); }));
     };
@@ -160,8 +172,16 @@ suite loading_agents = [] {
             "      min: text\n"
             "      max: text";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::InvalidAgentPerformance>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::InvalidAgentPerformance& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Agent "agent 1" has invalid performance.)"sv));
+                throw;
+            }
+        }));
     };
 
     "invalid performance type, dict"_test = [] {
@@ -189,8 +209,16 @@ suite loading_agents = [] {
             "      min: 2.0\n"
             "      max: 1.0";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::AgentPerformanceMinMax>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::AgentPerformanceMinMax& e) {
+                expect(eq(
+                    e.what(),
+                    R"(The minimum performance of the agent "agent 1" is greater than maximum.)"sv));
+                throw;
+            }
+        }));
     };
 
     "parse performance"_test = [] {
@@ -221,8 +249,16 @@ suite loading_agents = [] {
             "  agent 1:\n"
             "  agent 1:";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::DuplicateAgentDefinition>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::DuplicateAgentDefinition& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Agent "agent 1" is specified more than once.)"sv));
+                throw;
+            }
+        }));
     };
 
     "duplicate agent sections"_test = [] {
@@ -260,8 +296,16 @@ suite loading_agents = [] {
             "  agent 1:\n"
             "    performance: -1.0\n";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::NegativePerformance>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::NegativePerformance& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Agent "agent 1" can't have a negative performance value.)"sv));
+                throw;
+            }
+        }));
     };
 };
 

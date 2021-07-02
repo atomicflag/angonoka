@@ -108,15 +108,15 @@ Makespan& Makespan::operator=(Makespan&& other) noexcept
 
 Makespan::~Makespan() noexcept = default;
 
-float Makespan::operator()(State state) noexcept
+float Makespan::operator()(Schedule schedule) noexcept
 {
-    Expects(!state.empty());
-    Expects(state.size() == task_done.size());
+    Expects(!schedule.empty());
+    Expects(schedule.size() == task_done.size());
     Expects(!sum_buffer.empty());
     Expects(task_done.data() == sum_buffer.data());
 
     ranges::fill(sum_buffer, 0.F);
-    for (auto [task_id, agent_id] : state) {
+    for (auto [task_id, agent_id] : schedule) {
         const auto done = std::max(
                               Impl::dependencies_done(*this, task_id),
                               work_done[agent_id])
@@ -165,14 +165,15 @@ struct Mutator::Impl {
         Attempts to swap two random adjacent tasks within the
         schedule.
     */
-    static void try_swap(const Mutator& self, MutState state) noexcept
+    static void
+    try_swap(const Mutator& self, MutSchedule schedule) noexcept
     {
-        Expects(!state.empty());
-        if (state.size() == 1) return;
+        Expects(!schedule.empty());
+        if (schedule.size() == 1) return;
         const auto swap_index
-            = 1 + self.random->uniform_int(state.size() - 2);
-        auto& task_a = state[swap_index].task_id;
-        auto& task_b = state[swap_index - 1].task_id;
+            = 1 + self.random->uniform_int(schedule.size() - 2);
+        auto& task_a = schedule[swap_index].task_id;
+        auto& task_b = schedule[swap_index - 1].task_id;
         if (!is_swappable(self, task_a, task_b)) return;
         std::swap(task_a, task_b);
     }
@@ -181,19 +182,19 @@ struct Mutator::Impl {
         Assigns a new agent to a random task.
     */
     static void
-    update_agent(const Mutator& self, MutState state) noexcept
+    update_agent(const Mutator& self, MutSchedule schedule) noexcept
     {
-        Expects(!state.empty());
+        Expects(!schedule.empty());
         Expects(
-            static_cast<gsl::index>(state.size())
+            static_cast<gsl::index>(schedule.size())
             == self.params->available_agents.size());
         const auto task_index
-            = self.random->uniform_int(state.size() - 1);
+            = self.random->uniform_int(schedule.size() - 1);
         const auto task_id
-            = static_cast<gsl::index>(state[task_index].task_id);
+            = static_cast<gsl::index>(schedule[task_index].task_id);
         const auto new_agent_id = self.random->uniform_int(
             self.params->available_agents[task_id].size() - 1);
-        state[task_index].agent_id = new_agent_id;
+        schedule[task_index].agent_id = new_agent_id;
     }
 };
 
@@ -203,10 +204,10 @@ Mutator::Mutator(const ScheduleParams& params, RandomUtils& random)
 {
 }
 
-void Mutator::operator()(MutState state) const noexcept
+void Mutator::operator()(MutSchedule schedule) const noexcept
 {
-    Expects(!state.empty());
-    Impl::try_swap(*this, state);
-    Impl::update_agent(*this, state);
+    Expects(!schedule.empty());
+    Impl::try_swap(*this, schedule);
+    Impl::update_agent(*this, schedule);
 }
 } // namespace angonoka::stun

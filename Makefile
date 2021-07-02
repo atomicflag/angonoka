@@ -16,9 +16,11 @@ define RELEASE_CXXFLAGS =
 -fdata-sections \
 -falign-functions=32 \
 -mllvm -polly -mllvm -polly-vectorizer=stripmine \
--fno-stack-protector
+-fno-stack-protector \
+-fno-semantic-interposition \
+-fPIC
 endef
-RELEASE_LDFLAGS := -Wl,--gc-sections
+RELEASE_LDFLAGS := -Wl,--gc-sections,-Bsymbolic-functions
 LLVM_ROOT := $(shell readlink -m $$(which clang-tidy)/../..)
 CLANG_BUILTIN := $(shell echo | clang -v -E -x c++ - 2>&1 \
 	| sed -nE 's@^ (/[^ ]*)@-isystem\1@p' | tr '\n' ' ')
@@ -64,6 +66,11 @@ test:
 		LLVM_PROFILE_FILE=$$t.profraw $$t
 	done
 
+.PHONY: test/functional
+test/functional:
+	cd test/functional
+	pytest -qx suite.py
+
 # .PHONY: benchmark
 # benchmark:
 # 	build/benchmark/angonoka_benchmark
@@ -90,6 +97,15 @@ install: release
 	)
 	mkdir -p dist/lib64
 	cp $$LIBS dist/lib64
+	mkdir -p debug
+	cd dist
+	for f in $$(find bin lib64 -type f); do
+		llvm-objcopy --only-keep-debug $$f $$f.dbg
+		DIR=../debug/$$(dirname $$f)
+		mkdir -p $$DIR
+		mv $$f.dbg $$DIR
+		llvm-strip --strip-unneeded $$f
+	done
 
 .PHONY: release
 release: MESON_ARGS=--prefix \
@@ -97,7 +113,7 @@ release: MESON_ARGS=--prefix \
 	--buildtype release \
 	-Db_lto=true \
 	-Db_ndebug=true \
-	-Dstrip=true
+	-Dstrip=false
 release: CXXFLAGS=$(RELEASE_CXXFLAGS)
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
@@ -116,7 +132,7 @@ plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
 .PHONY: build/cov
-build/cov: MESON_ARGS=--buildtype debug -Dtests=enabled
+build/cov: MESON_ARGS=--buildtype debugoptimized -Dtests=enabled
 build/cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping -DANGONOKA_COVERAGE
 build/cov: ninja
 
@@ -127,8 +143,16 @@ check/cov: build/cov
 		$$(find . -name '*.profraw') \
 		-o angonoka.profdata
 	llvm-cov report \
-		build/test/angonoka_test \
+		build/src/angonoka-x86_64 \
 		-instr-profile=angonoka.profdata \
+		src
+
+.PHONY: check/show
+check/show: check/cov
+	llvm-cov show \
+		build/src/angonoka-x86_64 \
+		-instr-profile=angonoka.profdata \
+		-format=html -o html \
 		src
 
 .PHONY: format

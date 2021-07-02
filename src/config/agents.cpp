@@ -37,13 +37,15 @@ void parse_agent_groups(
 /**
     Makes sure the performance is greater than 0.
 
-    @param performance Performance value
+    @param performance  Performance value
+    @param agent        Agent
 
     @return Performance value
 */
 float validate_performance(float performance)
 {
-    if (performance <= 0.F) throw NegativePerformance{};
+    if (performance <= 0.F)
+        throw std::domain_error{"Negative performance"};
     return performance;
 }
 
@@ -75,11 +77,13 @@ void parse_agent_performance(
             agent.performance.max = validate_performance(
                 performance["max"].as<float>());
         }
+    } catch (const std::domain_error&) {
+        throw NegativePerformance{agent.name};
     } catch (const YAML::Exception&) {
-        throw InvalidAgentPerformance{};
+        throw InvalidAgentPerformance{agent.name};
     }
     if (agent.performance.min > agent.performance.max)
-        throw AgentPerformanceMinMax{};
+        throw AgentPerformanceMinMax{agent.name};
 }
 
 /**
@@ -94,7 +98,7 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
 
     if (const auto a = ranges::find(agents, name, &Agent::name);
         a != agents.end())
-        throw DuplicateAgentDefinition{};
+        throw DuplicateAgentDefinition{name};
 }
 
 /**
@@ -143,8 +147,13 @@ void parse_agent(
 namespace angonoka::detail {
 void parse_agents(const YAML::Node& node, Configuration& config)
 {
+    Expects(config.agents.empty());
+
+    if (node.size() == 0) throw CantBeEmpty{R"_("agents")_"};
     for (auto&& agent : node) {
         parse_agent(agent.first, agent.second, config);
     }
+
+    Ensures(!config.agents.empty());
 }
 } // namespace angonoka::detail

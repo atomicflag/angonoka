@@ -49,64 +49,84 @@ suite stun_makespan = [] {
         using namespace angonoka::stun;
 
         const auto params = make_test_schedule_params();
-        const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
-        Makespan makespan{params};
-
-        expect(makespan(state) == 3._d);
+        const std::vector<ScheduleItem> schedule{
+            {0, 0},
+            {1, 1},
+            {2, 2}};
 
         auto params2 = make_test_schedule_params();
         params2.agent_performance.resize(2);
         params2.task_duration.resize(2);
-        const std::vector<StateItem> state2{{0, 0}, {1, 1}};
-        Makespan makespan2{params2};
 
-        expect(makespan2(state2) == 2._d);
+        const std::vector<ScheduleItem> schedule2{{0, 0}, {1, 1}};
 
-        should("copy assignment") = [=]() mutable {
+        "constructors"_test = [&] {
+            Makespan makespan{params};
+            expect(makespan(schedule) == 3._d);
+            Makespan makespan2{params2};
+            expect(makespan2(schedule2) == 2._d);
+        };
+
+        should("copy assignment") = [&] {
+            Makespan makespan{params};
+            Makespan makespan2{params2};
             makespan2 = makespan;
-            expect(makespan(state) == 3._d);
-            expect(makespan2(state) == 3._d);
+            expect(makespan(schedule) == 3._d);
+            expect(makespan2(schedule) == 3._d);
         };
 
-        should("move assignment") = [=]() mutable {
+        should("move assignment") = [&] {
+            Makespan makespan{params};
+            Makespan makespan2{params2};
             makespan2 = std::move(makespan);
-            expect(makespan2(state) == 3._d);
+            expect(makespan2(schedule) == 3._d);
         };
 
-        should("copy ctor") = [=]() mutable {
+        should("copy ctor") = [&] {
+            Makespan makespan{params};
+            Makespan makespan2{params2};
             Makespan makespan3{makespan2};
-            expect(makespan2(state2) == 2._d);
-            expect(makespan3(state2) == 2._d);
+            expect(makespan2(schedule2) == 2._d);
+            expect(makespan3(schedule2) == 2._d);
         };
 
-        should("move ctor") = [=]() mutable {
+        should("move ctor") = [&] {
+            Makespan makespan{params};
+            Makespan makespan2{params2};
             Makespan makespan4{std::move(makespan2)};
-            expect(makespan4(state2) == 2._d);
+            expect(makespan4(schedule2) == 2._d);
         };
 
-        should("self copy") = [=]() mutable {
+        should("self copy") = [&] {
+            Makespan makespan{params};
+            Makespan makespan2{params2};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             makespan = makespan;
 #pragma clang diagnostic pop
 
-            expect(makespan(state) == 3._d);
+            expect(makespan(schedule) == 3._d);
         };
 
-        should("self move") = [=]() mutable {
+        should("self move") = [&] {
+            Makespan makespan{params};
+            Makespan makespan2{params2};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             makespan = std::move(makespan);
 #pragma clang diagnostic pop
 
-            expect(makespan(state) == 3._d);
+            expect(makespan(schedule) == 3._d);
         };
     };
 
     "Makespan estimation"_test = [] {
         const auto params = make_test_schedule_params();
         Makespan makespan{params};
-        const std::vector<StateItem> state{{0, 0}, {1, 1}, {2, 2}};
-        expect(makespan(state) == 3._d);
+        const std::vector<ScheduleItem> schedule{
+            {0, 0},
+            {1, 1},
+            {2, 2}};
+        expect(makespan(schedule) == 3._d);
     };
 };

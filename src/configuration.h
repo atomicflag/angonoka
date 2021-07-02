@@ -18,9 +18,9 @@ using TaskIndices = flat_set<TaskIndex>;
     Agent that performs Tasks.
 
     Agent::group_ids refer to Group indices in the
-   Configuration::groups. The lower the performance parameter the
-   slower an agent will perform any given task. An agent can only
-   perform tasks belonging to groups in group_ids.
+    Configuration::groups. The lower the performance parameter the
+    slower an agent will perform any given task. An agent can only
+    perform tasks belonging to groups in group_ids.
 
     @var name           Agent's name
     @var group_ids      flat_set of Group ids

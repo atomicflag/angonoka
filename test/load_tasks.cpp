@@ -11,6 +11,7 @@ using namespace boost::ut;
 suite loading_tasks = [] {
     using namespace std::chrono;
     using namespace std::literals::chrono_literals;
+    using namespace std::literals::string_view_literals;
 
     "no 'tasks' section"_test = [] {
         constexpr auto text = ANGONOKA_COMMON_YAML;
@@ -23,6 +24,16 @@ suite loading_tasks = [] {
         constexpr auto text = 
             ANGONOKA_COMMON_YAML
             "tasks:";
+        // clang-format on
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
+
+    "empty array"_test = [] {
+        // clang-format off
+        constexpr auto text = 
+            ANGONOKA_COMMON_YAML
+            "tasks: []";
         // clang-format on
         expect(throws<angonoka::ValidationError>(
             [&] { angonoka::load_text(text); }));
@@ -67,8 +78,16 @@ suite loading_tasks = [] {
             "      min: as\n"
             "      max: a";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::InvalidDuration>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::InvalidDuration& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Task "task 1" has invalid duration "as".)"sv));
+                throw;
+            }
+        }));
     };
 
     "invalid task duration"_test = [] {
@@ -81,8 +100,16 @@ suite loading_tasks = [] {
             "      min: 5 days\n"
             "      max: 2 days";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::TaskDurationMinMax>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::TaskDurationMinMax& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Task "task 1" has min duration that is greater than max duration.)"sv));
+                throw;
+            }
+        }));
     };
 
     "missing task duration"_test = [] {
@@ -253,8 +280,16 @@ suite loading_tasks = [] {
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::CantBeEmpty>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::CantBeEmpty& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Task id for the task "task 1" can't be empty.)"sv));
+                throw;
+            }
+        }));
     };
 
     "missing name"_test = [] {
@@ -324,8 +359,16 @@ suite loading_tasks = [] {
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
+        expect(throws<angonoka::CantBeEmpty>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::CantBeEmpty& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Dependency id of the task "task 1" can't be empty.)"sv));
+                throw;
+            }
+        }));
     };
 
     "invalid dependency id"_test = [] {
@@ -341,6 +384,30 @@ suite loading_tasks = [] {
 
         expect(throws<angonoka::ValidationError>(
             [&] { angonoka::load_text(text); }));
+    };
+
+    "duplicate id"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    id: A\n"
+            "    duration: 1h\n"
+            "  - name: task 2\n"
+            "    id: A\n"
+            "    duration: 1h";
+        // clang-format on
+
+        expect(throws<angonoka::DuplicateTaskDefinition>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::DuplicateTaskDefinition& e) {
+                expect(eq(e.what(), R"(Duplicate task id "A".)"sv));
+                throw;
+            }
+        }));
     };
 
     "out of order dependencies"_test = [] {

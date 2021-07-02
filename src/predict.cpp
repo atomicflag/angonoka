@@ -21,10 +21,11 @@ using namespace angonoka;
 
     @return Optimal schedule
 */
-std::vector<stun::StateItem> optimize(
+std::vector<stun::ScheduleItem> optimize(
     const stun::ScheduleParams& params,
     Queue<ProgressEvent>& events)
 {
+    using seconds = std::chrono::seconds::rep;
     Expects(!params.agent_performance.empty());
     Expects(!params.task_duration.empty());
     Expects(!params.available_agents.empty());
@@ -43,13 +44,16 @@ std::vector<stun::StateItem> optimize(
         MaxIdleIters{max_idle_iters}};
     while (!optimizer.has_converged()) {
         optimizer.update();
+        const auto makespan = gsl::narrow<seconds>(std::trunc(
+            optimizer.normalized_makespan()
+            * params.duration_multiplier));
         events.enqueue(ScheduleOptimizationEvent{
             .progress = optimizer.estimated_progress(),
-            .makespan
-            = optimizer.energy() * params.duration_multiplier});
+            .makespan = std::chrono::seconds{makespan}});
     }
 
-    return ranges::to<std::vector<StateItem>>(optimizer.state());
+    return ranges::to<std::vector<ScheduleItem>>(
+        optimizer.schedule());
 }
 } // namespace
 
@@ -66,9 +70,11 @@ predict(const Configuration& config)
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationStart);
         const auto schedule_params = stun::to_schedule_params(config);
-        const auto state = optimize(schedule_params, *events);
+        const auto schedule = optimize(schedule_params, *events);
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationDone);
+        // TODO: WIP do other stuff here
+        events->enqueue(SimpleProgressEvent::Finished);
         return Prediction{};
     });
     return {std::move(future), std::move(events)};

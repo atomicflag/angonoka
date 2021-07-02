@@ -20,12 +20,15 @@ ScheduleParams to_schedule_params(const Configuration&)
 
 bool Optimizer::has_converged() { return steps >= 5; }
 void Optimizer::update() { steps += 1; }
-State Optimizer::state() { return {}; }
+Schedule Optimizer::schedule() { return {}; }
 float Optimizer::estimated_progress()
 {
     return static_cast<float>(steps) / 5.f;
 }
-float Optimizer::energy() { return 5.f / static_cast<float>(steps); }
+float Optimizer::normalized_makespan()
+{
+    return 5.f / static_cast<float>(steps);
+}
 } // namespace angonoka::stun
 
 namespace {
@@ -40,6 +43,7 @@ template <typename T> auto pop(auto& events)
 suite predict_test = [] {
     "basic prediction"_test = [] {
         using namespace angonoka;
+        using namespace std::literals::chrono_literals;
 
         Configuration config;
         auto [prediction_future, event_queue] = predict(config);
@@ -55,7 +59,7 @@ suite predict_test = [] {
         {
             const auto evt = pop<ScheduleOptimizationEvent>(events);
             expect(evt.progress == .2_d);
-            expect(evt.makespan == 50._d);
+            expect(evt.makespan == 50s);
         }
         expect(
             pop<ScheduleOptimizationEvent>(events).progress == .4_d);
@@ -66,12 +70,25 @@ suite predict_test = [] {
         {
             const auto evt = pop<ScheduleOptimizationEvent>(events);
             expect(evt.progress == 1._d);
-            expect(evt.makespan == 10._d);
+            expect(evt.makespan == 10s);
         }
         expect(
             pop<SimpleProgressEvent>(events)
             == SimpleProgressEvent::ScheduleOptimizationDone);
+        expect(
+            pop<SimpleProgressEvent>(events)
+            == SimpleProgressEvent::Finished);
         expect(events.empty());
         // TODO: implement
+    };
+
+    "events"_test = [] {
+        using boost::variant2::variant_alternative;
+        using namespace angonoka;
+        expect(std::is_same_v<
+               variant_alternative<0, ProgressEvent>::type,
+               SimpleProgressEvent>);
+        expect(
+            SimpleProgressEvent{} != SimpleProgressEvent::Finished);
     };
 };

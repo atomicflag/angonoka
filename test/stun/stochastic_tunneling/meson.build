@@ -5,7 +5,7 @@ stochastic_tunneling_test = executable(
     'main.cpp',
     'stochastic_tunneling.cpp',
     '../../../src/stun/stochastic_tunneling.cpp',
-    '../../../src/stun/common.cpp',
+    '../../../src/stun/schedule.cpp',
   ],
   dependencies : [ test_deps, dependencies ],
   include_directories : ['.', include],

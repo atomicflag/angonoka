@@ -1,13 +1,17 @@
 #pragma once
 
 #include "configuration.h"
-#include <boost/variant.hpp>
+#include <boost/variant2/variant.hpp>
+#include <chrono>
 #include <future>
 #include <memory>
 #include <readerwriterqueue/readerwriterqueue.h>
 #include <tuple>
 
 namespace angonoka {
+template <typename... Ts>
+using variant = boost::variant2::variant<Ts...>;
+
 // TODO: doc, test, expects
 struct Prediction {
 };
@@ -28,18 +32,18 @@ enum class SimpleProgressEvent {
     Emitted during the schedule optimization step.
 
     @var progress Optimization progress from 0.0 to 1.0
-    @var makespan The best makespan so far in seconds
+    @var makespan The best makespan so far
 */
 struct ScheduleOptimizationEvent {
     float progress;
-    float makespan;
+    std::chrono::seconds makespan;
 };
 
 /**
     Prediction progress event.
 */
 using ProgressEvent
-    = boost::variant<SimpleProgressEvent, ScheduleOptimizationEvent>;
+    = variant<SimpleProgressEvent, ScheduleOptimizationEvent>;
 
 /**
     Predict likelihood of a given system configuration.

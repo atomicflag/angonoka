@@ -45,12 +45,14 @@ concept AttrOrStr = String<T> || Attribute<T>;
 */
 constexpr Check auto scalar()
 {
-    return [](const YAML::Node& node,
-              std::string_view scope) -> result {
-        if (!node || !node.IsScalar())
-            return R"("{}" is expected to be a string)"_format(scope);
-        return bo::success();
-    };
+    return
+        [](const YAML::Node& node, std::string_view scope) -> result {
+            if (!node || node.IsNull())
+                return R"("{}" can't be empty.)"_format(scope);
+            if (!node.IsScalar())
+                return R"("{}" has invalid type.)"_format(scope);
+            return bo::success();
+        };
 }
 
 namespace detail {
@@ -74,6 +76,22 @@ namespace detail {
         {
         }
     };
+
+    /**
+        Join YAML path parts.
+
+        @param a Root path
+        @param b New path
+
+        @return Concatenation of parts separated by a ".".
+    */
+    template <String T1, String T2> std::string join(T1&& a, T2&& b)
+    {
+        if (std::empty(a)) return std::forward<T2>(b);
+        return "{}.{}"_format(
+            std::forward<T1>(a),
+            std::forward<T2>(b));
+    }
 } // namespace detail
 
 /**
@@ -95,8 +113,8 @@ template <Check T> struct required : detail::functor<T> {
     operator()(const YAML::Node& node, std::string_view scope) const
     {
         if (const auto n = node[this->name])
-            return this->check(n, this->name);
-        return R"("{}" is missing a "{}" attribute)"_format(
+            return this->check(n, detail::join(scope, this->name));
+        return R"("{}" is missing a "{}" attribute.)"_format(
             scope,
             this->name);
     }
@@ -155,12 +173,11 @@ namespace detail {
 template <Check T> struct optional : detail::functor<T> {
     using detail::functor<T>::functor;
 
-    result operator()(
-        const YAML::Node& node,
-        std::string_view /* scope */) const
+    result
+    operator()(const YAML::Node& node, std::string_view scope) const
     {
         if (const auto n = node[this->name])
-            return this->check(n, this->name);
+            return this->check(n, detail::join(scope, this->name));
         return bo::success();
     }
 };
@@ -189,11 +206,13 @@ constexpr Check auto sequence(Check auto check)
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
         if (!node || !node.IsSequence()) {
-            return R"("{}" is expected to be a sequence)"_format(
+            return R"("{}" is expected to be a sequence.)"_format(
                 scope);
         }
-        const auto s = "Element of {}"_format(scope);
-        for (auto&& a : node) { BOOST_OUTCOME_TRY(check(a, s)); }
+        for (gsl::index i{0}; i < std::size(node); ++i) {
+            BOOST_OUTCOME_TRY(
+                check(node[i], "{}[{}]"_format(scope, i)));
+        }
         return bo::success();
     };
 }
@@ -220,21 +239,21 @@ constexpr Check auto sequence() { return sequence(scalar()); }
 constexpr Check auto attributes(AttrOrStr auto... attrs)
 {
     return [=](const YAML::Node& node,
-               std::string_view scope = "Document") -> result {
+               std::string_view scope = {}) -> result {
         if (!node || node.IsScalar() || node.IsSequence())
-            return R"("{}" is expected to be a map)"_format(scope);
+            return R"("{}" is expected to be a map.)"_format(scope);
         flat_set<std::string_view> unique_fields;
         for (auto&& n : node) {
             const auto& attr_name = n.first.Scalar();
             if (attr_name.empty())
-                return R"(Empty attribute in "{}")"_format(scope);
+                return R"(Empty attribute in "{}".)"_format(scope);
             if (!unique_fields.emplace(attr_name).second) {
-                return R"(Duplicate attribute "{}" in "{}")"_format(
+                return R"(Duplicate attribute "{}" in "{}".)"_format(
                     attr_name,
                     scope);
             }
             if (!((attr_name == detail::attr_name(attrs)) || ...)) {
-                return R"(Unexpected attribute "{}" in "{}")"_format(
+                return R"(Unexpected attribute "{}" in "{}".)"_format(
                     attr_name,
                     scope);
             }
@@ -269,9 +288,11 @@ constexpr Check auto values(Check auto check)
     return [=](const YAML::Node& node,
                std::string_view scope) -> result {
         if (!node || !node.IsMap())
-            return R"("{}" is expected to be a map)"_format(scope);
+            return R"("{}" is expected to be a map.)"_format(scope);
         for (auto&& n : node) {
-            BOOST_OUTCOME_TRY(check(n.second, n.first.Scalar()));
+            BOOST_OUTCOME_TRY(check(
+                n.second,
+                detail::join(scope, n.first.Scalar())));
         }
         return bo::success();
     };

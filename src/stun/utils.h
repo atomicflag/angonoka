@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "schedule.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
 #include <vector>
@@ -35,11 +35,11 @@ public:
     /**
         Calculate the makespan of a given scheduling configuration.
 
-        @param state Scheduling configuration
+        @param schedule Scheduling configuration
 
         @return Makespan in seconds
     */
-    float operator()(State state) noexcept;
+    float operator()(Schedule schedule) noexcept;
 
 private:
     struct Impl;
@@ -70,9 +70,9 @@ public:
     /**
         Mutates the scheduling configuration in-place.
 
-        @param state Scheduling configuration
+        @param schedule Scheduling configuration
     */
-    void operator()(MutState state) const noexcept;
+    void operator()(MutSchedule schedule) const noexcept;
 
 private:
     struct Impl;

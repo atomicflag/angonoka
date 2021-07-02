@@ -16,7 +16,7 @@ base_test = executable(
     'parse_duration.cpp',
     'configuration.cpp',
     'validation.cpp',
-    'stun/common.cpp',
+    'stun/schedule.cpp',
     'stun/exp_curve_fitter.cpp',
     'stun/makespan.cpp',
     'stun/mutate.cpp',

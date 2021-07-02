@@ -4,40 +4,42 @@
 #include <string_view>
 
 namespace angonoka {
-
 struct Exception : std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 struct ValidationError : Exception {
     using Exception::Exception;
 };
+struct DurationParseError : std::exception {
+    DurationParseError(std::string_view text);
+    std::string_view text;
+};
 struct InvalidDuration : ValidationError {
-    InvalidDuration();
+    InvalidDuration(std::string_view where, std::string_view what);
 };
 struct SchemaError : ValidationError {
     using ValidationError::ValidationError;
 };
 struct InvalidAgentPerformance : ValidationError {
-    InvalidAgentPerformance();
+    InvalidAgentPerformance(std::string_view who);
 };
 struct AgentPerformanceMinMax : ValidationError {
-    AgentPerformanceMinMax();
+    AgentPerformanceMinMax(std::string_view who);
 };
 struct DuplicateAgentDefinition : ValidationError {
-    DuplicateAgentDefinition();
+    DuplicateAgentDefinition(std::string_view who);
 };
-// TODO: Add the task name to the error message
 struct TaskDurationMinMax : ValidationError {
-    TaskDurationMinMax();
+    TaskDurationMinMax(std::string_view where);
 };
 struct NoSuitableAgent : ValidationError {
     NoSuitableAgent(std::string_view task);
 };
 struct DuplicateTaskDefinition : ValidationError {
-    DuplicateTaskDefinition();
+    DuplicateTaskDefinition(std::string_view task_id);
 };
 struct NegativePerformance : ValidationError {
-    NegativePerformance();
+    NegativePerformance(std::string_view who);
 };
 struct CantBeEmpty : ValidationError {
     CantBeEmpty(std::string_view what);

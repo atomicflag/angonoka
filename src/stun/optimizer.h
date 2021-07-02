@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common.h"
 #include "exp_curve_fitter.h"
 #include "random_utils.h"
+#include "schedule.h"
 #include "schedule_params.h"
 #include "stochastic_tunneling.h"
 #include "temperature.h"
@@ -24,6 +24,9 @@ enum class MaxIdleIters : std::int_fast32_t;
 
 /**
     Optimization algorithm based on stochastic tunneling.
+
+    This is the primary facade for doing stochastic tunneling
+    optimization.
 */
 class Optimizer {
 public:
@@ -66,14 +69,14 @@ public:
 
         @return A schedule.
     */
-    [[nodiscard]] State state() const;
+    [[nodiscard]] Schedule schedule() const;
 
     /**
         The best makespan so far.
 
         @return Makespan.
     */
-    [[nodiscard]] float energy() const;
+    [[nodiscard]] float normalized_makespan() const;
 
     /**
         Reset the optimization to initial state.
@@ -87,6 +90,8 @@ public:
     ~Optimizer() noexcept;
 
 private:
+    struct Impl;
+
     static constexpr auto beta_scale = 1e-4F;
     static constexpr auto stun_window = 10000;
     static constexpr auto gamma = .5F;
@@ -99,7 +104,7 @@ private:
     int16 idle_iters{0};
     int16 epochs{0};
     float last_progress{0.F};
-    float last_energy{0.F};
+    float last_makespan{0.F};
     RandomUtils random_utils;
     Mutator mutator{*params, random_utils};
     Makespan makespan{*params};
@@ -117,7 +122,7 @@ private:
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}},
-        initial_state(*params)};
+        initial_schedule(*params)};
 #pragma clang diagnostic pop
     ExpCurveFitter exp_curve;
 };

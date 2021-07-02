@@ -1,4 +1,7 @@
 build
 dist
+debug
+html
+__pycache__
 *.profdata
 *.profraw

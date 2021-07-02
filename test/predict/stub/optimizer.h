@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stun/common.h"
+#include "stun/schedule.h"
 
 namespace angonoka::stun {
 enum class BatchSize : std::int_fast32_t;
@@ -10,9 +10,9 @@ struct Optimizer {
 
     bool has_converged();
     void update();
-    State state();
+    Schedule schedule();
     float estimated_progress();
-    float energy();
+    float normalized_makespan();
 
     int steps{0};
 };

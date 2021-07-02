@@ -1,0 +1,10 @@
+agents:
+  Agent:
+    performance:
+      min: 0.52
+      max: 0.76
+tasks:
+  - name: Task
+    duration:
+      min: 20 minutes
+      max: 33 minutes

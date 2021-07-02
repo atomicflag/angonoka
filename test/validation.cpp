@@ -72,7 +72,7 @@ suite validation = [] {
             expect(!result);
             expect(
                 result.error()
-                == R"(Unexpected attribute "val3" in "map")");
+                == R"(Unexpected attribute "val3" in "map".)");
         };
 
         "empty attributes"_test = [] {
@@ -94,7 +94,7 @@ suite validation = [] {
             const auto result = schema(node);
             expect(!result);
             expect(
-                result.error() == R"(Empty attribute in "foobar")");
+                result.error() == R"(Empty attribute in "foobar".)");
         };
 
         "map values"_test = [] {
@@ -165,7 +165,7 @@ suite validation = [] {
             expect(!result);
             expect(
                 result.error()
-                == R"("map" is missing a "val3" attribute)");
+                == R"("map" is missing a "val3" attribute.)");
         };
 
         "extra args"_test = [&] {
@@ -180,7 +180,83 @@ suite validation = [] {
             expect(!result);
             expect(
                 result.error()
-                == R"(Unexpected attribute "val2" in "map")");
+                == R"(Unexpected attribute "val2" in "map".)");
+        };
+    };
+
+    "nested location"_test = [] {
+        using namespace angonoka::validation;
+
+        // clang-format off
+        constexpr auto schema = attributes(
+            required("first", attributes(
+                required("second", attributes(
+                    required("third")
+                ))
+            ))
+        );
+        // clang-format on
+
+        "deep nesting"_test = [&] {
+            // clang-format off
+            const auto node = YAML::Load(
+                "first:\n"
+                "  second:\n"
+                "    third:\n"
+                "      error: 123\n"
+            );
+            // clang-format on
+            const auto result = schema(node);
+            expect(!result);
+            expect(
+                result.error()
+                == R"("first.second.third" has invalid type.)");
+        };
+
+        "shallow"_test = [&] {
+            // clang-format off
+            const auto node = YAML::Load(
+                "first:\n"
+                "  a: 123\n"
+            );
+            // clang-format on
+            const auto result = schema(node);
+            expect(!result);
+            expect(
+                result.error()
+                == R"(Unexpected attribute "a" in "first".)");
+        };
+    };
+
+    "invalid attributes"_test = [] {
+        using namespace angonoka::validation;
+
+        // clang-format off
+        constexpr auto schema = attributes(
+            required("attr")
+        );
+        // clang-format on
+
+        "invalid type"_test = [&] {
+            // clang-format off
+            const auto node = YAML::Load(
+                "attr: []\n"
+            );
+            // clang-format on
+            const auto result = schema(node);
+            expect(!result);
+            expect(result.error() == R"("attr" has invalid type.)");
+        };
+
+        "empty"_test = [&] {
+            // clang-format off
+            const auto node = YAML::Load(
+                "attr:\n"
+            );
+            // clang-format on
+            const auto result = schema(node);
+            expect(!result);
+            expect(result.error() == R"("attr" can't be empty.)");
         };
     };
 };

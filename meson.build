@@ -1,7 +1,7 @@
 project(
   'angonoka',
   'cpp',
-  version : '0.3.0',
+  version : '0.4.0',
   default_options : ['warning_level=3', 'cpp_std=c++20']
 )
 
@@ -36,7 +36,7 @@ endif
 dependencies = [
   dependency('fmt'),
   dependency('yaml-cpp'),
-  dependency('clipp'),
+  dependency('cli11'),
   dependency('range-v3'),
   dependency('gsl-lite'),
   dependency('pcg-cpp'),
