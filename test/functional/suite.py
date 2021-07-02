@@ -56,7 +56,7 @@ def test_prints_help():
 def test_version():
     code, cout, cerr = run("--version")
     assert code == 0
-    assert cout == "angonoka version 0.3.0\n"
+    assert cout == "angonoka version 0.4.0\n"
 
 
 def test_invalid_option():
@@ -73,7 +73,7 @@ def test_invalid_option():
 def test_invalid_option_with_version():
     code, cout, cerr = run("--asdf", "--version")
     assert code == 0
-    assert cout == "angonoka version 0.3.0\n"
+    assert cout == "angonoka version 0.4.0\n"
 
 
 def test_basic_non_tty_output():
