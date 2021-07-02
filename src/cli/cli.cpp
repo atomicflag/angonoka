@@ -28,7 +28,6 @@ void print_yaml_error(
 } // namespace
 
 namespace angonoka::cli {
-
 Configuration parse_config(const Options& options)
 {
     print(options, "Parsing configuration... ");
@@ -67,8 +66,8 @@ void run_prediction(
         Progress progress;
         if (options.color) progress.emplace<ProgressBar>();
         auto consumer = make_event_consumer(
-            on_simple_progress_event(progress, options),
-            on_schedule_optimization_event(progress));
+            OnSimpleProgressEvent{&progress, &options},
+            OnScheduleOptimizationEvent{&progress});
         consumer(*event_queue, prediction_future);
     }
     prediction_future.get();

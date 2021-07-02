@@ -4,59 +4,42 @@
 #include "predict.h"
 #include "progress.h"
 #include <boost/hana/functional/overload.hpp>
-#include <fmt/printf.h>
 #include <gsl/gsl-lite.hpp>
 
 namespace angonoka::cli {
 /**
     Handle simple progress events.
 
-    @param progress Text or graphical progress bar
-    @param options  CLI options
-
-    @return SimpleProgressEvent message handler.
+    @var progress Text or graphical progress bar
+    @var options  CLI options
 */
-inline auto
-on_simple_progress_event(Progress& progress, const Options& options)
-{
-    return [&](const SimpleProgressEvent& e) mutable {
-        switch (e) {
-        case SimpleProgressEvent::ScheduleOptimizationStart:
-            fmt::print("Optimizing the schedule...\n");
-            start(progress);
-            return;
-        case SimpleProgressEvent::ScheduleOptimizationDone:
-            stop(progress);
-            if (options.color) {
-                cursor_up();
-                fmt::print("Optimizing the schedule... OK\n");
-            } else {
-                fmt::print("Schedule optimization complete.\n");
-            }
-            // TODO: Print optimization results
-            return;
-        case SimpleProgressEvent::Finished:
-            fmt::print("Probability estimation complete.\n");
-            return;
-        }
-    };
-}
+struct OnSimpleProgressEvent {
+    gsl::not_null<Progress*> progress;
+    gsl::not_null<const Options*> options;
+
+    /**
+        Handler.
+
+        @param e Event
+    */
+    void operator()(const SimpleProgressEvent& e) const;
+};
 
 /**
     Handle schedule optimization events.
 
-    @param progress Text or graphical progress bar
-
-    @return ScheduleOptimizationEvent message handler.
+    @var progress Text or graphical progress bar
 */
-inline auto on_schedule_optimization_event(Progress& progress)
-{
-    return [&](const ScheduleOptimizationEvent& e) mutable {
-        Expects(e.progress >= 0.F && e.progress <= 1.F);
+struct OnScheduleOptimizationEvent {
+    gsl::not_null<Progress*> progress;
 
-        update(progress, e.progress, "Optimization progress");
-    };
-}
+    /**
+        Handler.
+
+        @param e Event
+    */
+    void operator()(const ScheduleOptimizationEvent& e) const;
+};
 
 /**
     Check if an event is the final one.
@@ -75,7 +58,7 @@ bool is_final_event(ProgressEvent& evt) noexcept;
 template <typename... Ts>
 auto make_event_consumer(Ts&&... callbacks) noexcept
 {
-    return [&... callbacks = std::forward<Ts>(callbacks)](
+    return [... callbacks = std::forward<Ts>(callbacks)](
                Queue<ProgressEvent>& queue,
                std::future<Prediction>& prediction) mutable {
         using boost::hana::overload;
