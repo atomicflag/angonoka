@@ -13,6 +13,25 @@
 namespace {
 using namespace angonoka;
 
+// TODO: doc, test, expects
+struct OptimizationResult {
+    std::vector<stun::ScheduleItem> schedule;
+    std::chrono::seconds makespan;
+};
+
+// TODO: doc, test, expects
+std::chrono::seconds makespan(
+    const stun::Optimizer& optimizer,
+    const stun::ScheduleParams& params)
+{
+
+    using seconds = std::chrono::seconds::rep;
+    const auto duration = gsl::narrow<seconds>(std::trunc(
+        optimizer.normalized_makespan()
+        * params.duration_multiplier));
+    return std::chrono::seconds{duration};
+}
+
 /**
     Find the optimal schedule.
 
@@ -21,11 +40,10 @@ using namespace angonoka;
 
     @return Optimal schedule
 */
-std::vector<stun::ScheduleItem> optimize(
+OptimizationResult optimize(
     const stun::ScheduleParams& params,
     Queue<ProgressEvent>& events)
 {
-    using seconds = std::chrono::seconds::rep;
     Expects(!params.agent_performance.empty());
     Expects(!params.task_duration.empty());
     Expects(!params.available_agents.empty());
@@ -44,16 +62,15 @@ std::vector<stun::ScheduleItem> optimize(
         MaxIdleIters{max_idle_iters}};
     while (!optimizer.has_converged()) {
         optimizer.update();
-        const auto makespan = gsl::narrow<seconds>(std::trunc(
-            optimizer.normalized_makespan()
-            * params.duration_multiplier));
         events.enqueue(ScheduleOptimizationEvent{
             .progress = optimizer.estimated_progress(),
-            .makespan = std::chrono::seconds{makespan}});
+            .makespan = makespan(optimizer, params)});
     }
 
-    return ranges::to<std::vector<ScheduleItem>>(
-        optimizer.schedule());
+    return {
+        .schedule{ranges::to<std::vector<ScheduleItem>>(
+            optimizer.schedule())},
+        .makespan{makespan(optimizer, params)}};
 }
 } // namespace
 
@@ -66,13 +83,13 @@ predict(const Configuration& config)
     constexpr auto event_queue_size = 100;
     auto events
         = std::make_shared<Queue<ProgressEvent>>(event_queue_size);
-    auto future = std::async(std::launch::async, [=] {
+    auto future = std::async(std::launch::async, [events, &config] {
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationStart);
         const auto schedule_params = stun::to_schedule_params(config);
-        const auto schedule = optimize(schedule_params, *events);
-        events->enqueue(
-            SimpleProgressEvent::ScheduleOptimizationDone);
+        const auto opt_result = optimize(schedule_params, *events);
+        events->enqueue(ScheduleOptimizationComplete{
+            .makespan{opt_result.makespan}});
         // TODO: WIP do other stuff here
         events->enqueue(SimpleProgressEvent::Finished);
         return Prediction{};
