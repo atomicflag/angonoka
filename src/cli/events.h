@@ -25,5 +25,5 @@ struct EventHandler {
 void consume_events(
     Queue<ProgressEvent>& queue,
     std::future<Prediction>& prediction,
-    EventHandler&& handler);
+    EventHandler handler);
 } // namespace angonoka::cli

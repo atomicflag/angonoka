@@ -57,7 +57,7 @@ void EventHandler::operator()(
 void consume_events(
     Queue<ProgressEvent>& queue,
     std::future<Prediction>& prediction,
-    EventHandler&& handler)
+    EventHandler handler)
 {
 
     using namespace std::literals::chrono_literals;
