@@ -21,15 +21,6 @@ struct EventHandler {
     void operator()(const ScheduleOptimizationComplete& e) const;
 };
 
-/**
-    Check if an event is the final one.
-
-    @param evt Event
-
-    @return True if this is the final event.
-*/
-bool is_final_event(ProgressEvent& evt) noexcept;
-
 // TODO: doc, test, expects
 void consume_events(
     Queue<ProgressEvent>& queue,

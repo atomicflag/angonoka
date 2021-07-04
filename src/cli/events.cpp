@@ -1,7 +1,15 @@
 #include "events.h"
 #include <fmt/printf.h>
 
-namespace angonoka::cli {
+namespace {
+using namespace angonoka;
+/**
+    Check if an event is the final one.
+
+    @param evt Event
+
+    @return True if this is the final event.
+*/
 bool is_final_event(ProgressEvent& evt) noexcept
 {
     using boost::variant2::get_if;
@@ -9,7 +17,9 @@ bool is_final_event(ProgressEvent& evt) noexcept
         return *e == SimpleProgressEvent::Finished;
     return false;
 }
+} // namespace
 
+namespace angonoka::cli {
 void EventHandler::operator()(const SimpleProgressEvent& e) const
 {
     switch (e) {
