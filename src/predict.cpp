@@ -13,13 +13,25 @@
 namespace {
 using namespace angonoka;
 
-// TODO: doc, test, expects
+/**
+    The result of the schedule optimization process.
+
+    @var schedule Optimized schedule
+    @var makespan Makespan in seconds
+*/
 struct OptimizationResult {
     std::vector<stun::ScheduleItem> schedule;
     std::chrono::seconds makespan;
 };
 
-// TODO: doc, test, expects
+/**
+    Convert normalized makespan to seconds.
+
+    @param optimizer    Instance of Optimizer
+    @param params       Schedule parameters
+
+    @return Makespan in seconds
+*/
 std::chrono::seconds makespan(
     const stun::Optimizer& optimizer,
     const stun::ScheduleParams& params)

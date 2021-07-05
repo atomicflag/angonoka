@@ -59,6 +59,7 @@ void consume_events(
     std::future<Prediction>& prediction,
     EventHandler handler)
 {
+    Expects(prediction.valid());
 
     using namespace std::literals::chrono_literals;
     using boost::variant2::visit;
@@ -71,5 +72,7 @@ void consume_events(
         }
         visit(handler, evt);
     }
+
+    Ensures(prediction.valid());
 }
 } // namespace angonoka::cli

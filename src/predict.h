@@ -38,7 +38,11 @@ struct ScheduleOptimizationEvent {
     std::chrono::seconds makespan;
 };
 
-// TODO: doc, test, expects
+/**
+    Emitted when the schedule optimization is complete.
+
+    @var makespan The makespan after optimization
+*/
 struct ScheduleOptimizationComplete {
     std::chrono::seconds makespan;
 };

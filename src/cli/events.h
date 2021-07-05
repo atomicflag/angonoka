@@ -6,7 +6,15 @@
 #include <gsl/gsl-lite.hpp>
 
 namespace angonoka::cli {
-// TODO: doc, test, expects
+/**
+    Prediction events handler.
+
+    Prints various progress messages and results as
+    the prediction algorithm runs.
+
+    @var progress Chosen progress bar implementation
+    @var options CLI options
+*/
 struct EventHandler {
     gsl::not_null<Progress*> progress;
     gsl::not_null<const Options*> options;
@@ -21,7 +29,13 @@ struct EventHandler {
     void operator()(const ScheduleOptimizationComplete& e) const;
 };
 
-// TODO: doc, test, expects
+/**
+    Consumes prediction events from the queue.
+
+    @param queue        Prediction events queue
+    @param prediction   Prediction result
+    @param handler      Events handler
+*/
 void consume_events(
     Queue<ProgressEvent>& queue,
     std::future<Prediction>& prediction,
