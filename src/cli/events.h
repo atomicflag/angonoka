@@ -19,13 +19,25 @@ struct EventHandler {
     gsl::not_null<Progress*> progress;
     gsl::not_null<const Options*> options;
 
-    // TODO: doc, test, expects
+    /**
+        Handler events without attributes.
+
+        @param e Event
+    */
     void operator()(const SimpleProgressEvent& e) const;
 
-    // TODO: doc, test, expects
+    /**
+        Handle schedule optimization events.
+
+        @param e Event
+    */
     void operator()(const ScheduleOptimizationEvent& e) const;
 
-    // TODO: doc, test, expects
+    /**
+        Handle schedule optimization completion.
+
+        @param e Event
+    */
     void operator()(const ScheduleOptimizationComplete& e) const;
 };
 
