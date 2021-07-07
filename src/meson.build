@@ -14,6 +14,7 @@ base_lib = static_library(
     'cli/terminal.cpp',
     'cli/cli.cpp',
     'cli/events.cpp',
+    'cli/utils.cpp',
     'configuration.cpp',
     'exceptions.cpp',
     'predict.cpp',
