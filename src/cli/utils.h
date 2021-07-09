@@ -60,33 +60,25 @@ template <typename T> humanize(T) -> humanize<T>;
 
 namespace detail {
     // TODO: doc, test, expects
-    template <typename T> auto format_duration(auto name)
+    template <typename T>
+    auto format_duration(auto name, auto article)
     {
-        return [=](bool& needs_space,
-                   std::chrono::seconds& total,
-                   auto& ctx) {
-            const auto dur = std::chrono::floor<T>(total);
-            if (dur == dur.zero()) return;
-            total -= dur;
-            if (needs_space) fmt::format_to(ctx.out(), " ");
-            const auto ticks = dur.count();
-            fmt::format_to(
-                ctx.out(),
-                ticks == 1 ? "{} {}" : "{} {}s",
-                ticks,
-                name);
-            needs_space = true;
-        };
-    }
+        return [=](auto total, auto& ctx) {
+            const auto dur = std::chrono::round<T>(total);
+            if (dur == dur.zero()) return false;
 
-    // TODO: doc, test, expects
-    void
-    compose_duration_fmts(const auto& obj, auto& ctx, auto&&... fns)
-    {
-        bool needs_space = false;
-        auto total = std::chrono::duration_cast<std::chrono::seconds>(
-            obj.value);
-        (fns(needs_space, total, ctx), ...);
+            const auto ticks = dur.count();
+            if (ticks == 1) {
+                fmt::format_to(
+                    ctx.out(),
+                    "about {} {}",
+                    article,
+                    name);
+            } else {
+                fmt::format_to(ctx.out(), "{} {}s", ticks, name);
+            }
+            return true;
+        };
     }
 } // namespace detail
 } // namespace angonoka::cli
@@ -100,21 +92,24 @@ struct fmt::formatter<humanize<std::chrono::duration<Ts...>>> {
     {
         return ctx.end();
     }
+
     template <typename FormatContext>
     constexpr auto format(const value_type& obj, FormatContext& ctx)
     {
         using angonoka::cli::detail::format_duration;
-        if (obj.value == decltype(obj.value)::zero())
-            return format_to(ctx.out(), "0 seconds");
+        using namespace std::literals::chrono_literals;
+        using namespace std::chrono;
+        constexpr auto min_threshold = 5s;
+        if (obj.value <= min_threshold)
+            return format_to(ctx.out(), "a few seconds");
         // TODO: refactor?
-        compose_duration_fmts(
-            obj,
-            ctx,
-            format_duration<std::chrono::months>("month"),
-            format_duration<std::chrono::days>("day"),
-            format_duration<std::chrono::hours>("hour"),
-            format_duration<std::chrono::minutes>("minute"),
-            format_duration<std::chrono::seconds>("second"));
+        [&](auto&&... fns) {
+            (fns(obj.value, ctx) || ...);
+        }(format_duration<months>("month", "a"),
+          format_duration<days>("day", "a"),
+          format_duration<hours>("hour", "an"),
+          format_duration<minutes>("minute", "a"),
+          format_duration<seconds>("second", "a"));
         return ctx.out();
     }
 };
