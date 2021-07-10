@@ -4,6 +4,7 @@
 #include <chrono>
 #include <fmt/color.h>
 #include <fmt/printf.h>
+#include <gsl/gsl-lite.hpp>
 
 namespace angonoka::cli {
 /**
@@ -61,12 +62,11 @@ template <typename T> humanize(T) -> humanize<T>;
 namespace detail {
     // TODO: doc, test, expects
     template <typename T>
-    auto format_duration(auto name, auto article)
+    auto format_duration(gsl::czstring article, gsl::czstring name)
     {
         return [=](auto total, auto& ctx) {
             const auto dur = std::chrono::round<T>(total);
             if (dur == dur.zero()) return false;
-
             const auto ticks = dur.count();
             if (ticks == 1) {
                 fmt::format_to(
@@ -85,6 +85,7 @@ namespace detail {
 
 namespace fmt {
 using angonoka::cli::humanize;
+// TODO: doc, test, expects
 template <typename... Ts>
 struct fmt::formatter<humanize<std::chrono::duration<Ts...>>> {
     using value_type = humanize<std::chrono::duration<Ts...>>;
@@ -102,14 +103,13 @@ struct fmt::formatter<humanize<std::chrono::duration<Ts...>>> {
         constexpr auto min_threshold = 5s;
         if (obj.value <= min_threshold)
             return format_to(ctx.out(), "a few seconds");
-        // TODO: refactor?
         [&](auto&&... fns) {
             (fns(obj.value, ctx) || ...);
-        }(format_duration<months>("month", "a"),
-          format_duration<days>("day", "a"),
-          format_duration<hours>("hour", "an"),
-          format_duration<minutes>("minute", "a"),
-          format_duration<seconds>("second", "a"));
+        }(format_duration<months>("a", "month"),
+          format_duration<days>("a", "day"),
+          format_duration<hours>("an", "hour"),
+          format_duration<minutes>("a", "minute"),
+          format_duration<seconds>("a", "second"));
         return ctx.out();
     }
 };
