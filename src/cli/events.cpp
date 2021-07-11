@@ -1,4 +1,5 @@
 #include "events.h"
+#include "utils.h"
 #include <fmt/printf.h>
 
 namespace {
@@ -42,7 +43,7 @@ void EventHandler::operator()(
 }
 
 void EventHandler::operator()(
-    const ScheduleOptimizationComplete& /* e */) const
+    const ScheduleOptimizationComplete& e) const
 {
     stop(*progress);
     if (options->color) {
@@ -51,7 +52,7 @@ void EventHandler::operator()(
     } else {
         fmt::print("Schedule optimization complete.\n");
     }
-    // TODO: Print optimization results
+    fmt::print("Optimal makespan: {}.\n", humanize{e.makespan});
 }
 
 void consume_events(

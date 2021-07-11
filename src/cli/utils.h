@@ -53,14 +53,34 @@ void die(const Options& options, auto&&... args)
     red_text(options, std::forward<decltype(args)>(args)...);
 }
 
-// TODO: doc, test, expects
+/**
+    Pretty-print values.
+
+    This class is mostly used for specializing user-defined
+    formatters for the fmt library. We don't want to specialize
+    the formatter for the original type because we might not
+    always want a human-readable output.
+
+    Instead of specializing fmt::formatter<std::chrono::seconds>
+    we specialize fmt::formatter<humanize<std::chrono::seconds>>
+    thus not interfering with the original formatter.
+
+    @var value Value to be pretty-printed
+*/
 template <typename T> struct humanize {
     T value;
 };
 template <typename T> humanize(T) -> humanize<T>;
 
 namespace detail {
-    // TODO: doc, test, expects
+    /**
+        Helper function to print durations in human-readable form.
+
+        @param article  "a" or "an"
+        @param name     Duration (seconds, minutes, etc)
+
+        @return Formatter function
+    */
     template <typename T>
     auto format_duration(gsl::czstring article, gsl::czstring name)
     {
@@ -85,7 +105,9 @@ namespace detail {
 
 namespace fmt {
 using angonoka::cli::humanize;
-// TODO: doc, test, expects
+/**
+    User-defined formatter for std::chrono durations.
+*/
 template <typename... Ts>
 struct fmt::formatter<humanize<std::chrono::duration<Ts...>>> {
     using value_type = humanize<std::chrono::duration<Ts...>>;
