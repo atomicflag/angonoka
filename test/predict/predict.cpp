@@ -25,7 +25,7 @@ float Optimizer::estimated_progress()
 {
     return static_cast<float>(steps) / 5.f;
 }
-float Optimizer::normalized_makespan()
+float Optimizer::normalized_makespan() const
 {
     return 5.f / static_cast<float>(steps);
 }
@@ -72,9 +72,11 @@ suite predict_test = [] {
             expect(evt.progress == 1._d);
             expect(evt.makespan == 10s);
         }
-        expect(
-            pop<SimpleProgressEvent>(events)
-            == SimpleProgressEvent::ScheduleOptimizationDone);
+        {
+            const auto evt
+                = pop<ScheduleOptimizationComplete>(events);
+            expect(evt.makespan == 10s);
+        }
         expect(
             pop<SimpleProgressEvent>(events)
             == SimpleProgressEvent::Finished);

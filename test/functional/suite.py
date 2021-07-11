@@ -91,6 +91,7 @@ def test_basic_non_tty_output():
     text = dedent(
         """\
     Schedule optimization complete.
+    Optimal makespan: about an hour.
     Probability estimation complete.
     Done.
     """
@@ -121,6 +122,7 @@ def test_basic_tty_output():
     text = dedent(
         """\
     Optimizing the schedule... OK
+    Optimal makespan: about an hour.
     Probability estimation complete.
     Done.
     """
@@ -149,6 +151,7 @@ def test_verbose_non_tty_output():
     text = dedent(
         """\
     Schedule optimization complete.
+    Optimal makespan: about an hour.
     Probability estimation complete.
     Done.
     """

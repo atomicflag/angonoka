@@ -65,10 +65,10 @@ void run_prediction(
     if (!options.quiet) {
         Progress progress;
         if (options.color) progress.emplace<ProgressBar>();
-        auto consumer = make_event_consumer(
-            OnSimpleProgressEvent{&progress, &options},
-            OnScheduleOptimizationEvent{&progress});
-        consumer(*event_queue, prediction_future);
+        consume_events(
+            *event_queue,
+            prediction_future,
+            EventHandler{&progress, &options});
     }
     prediction_future.get();
     // TODO: implement

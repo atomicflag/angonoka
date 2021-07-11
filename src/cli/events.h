@@ -3,76 +3,53 @@
 #include "options.h"
 #include "predict.h"
 #include "progress.h"
-#include <boost/hana/functional/overload.hpp>
 #include <gsl/gsl-lite.hpp>
 
 namespace angonoka::cli {
 /**
-    Handle simple progress events.
+    Prediction events handler.
 
-    @var progress Text or graphical progress bar
-    @var options  CLI options
+    Prints various progress messages and results as
+    the prediction algorithm runs.
+
+    @var progress Chosen progress bar implementation
+    @var options CLI options
 */
-struct OnSimpleProgressEvent {
+struct EventHandler {
     gsl::not_null<Progress*> progress;
     gsl::not_null<const Options*> options;
 
     /**
-        Handler.
+        Handler events without attributes.
 
         @param e Event
     */
     void operator()(const SimpleProgressEvent& e) const;
-};
-
-/**
-    Handle schedule optimization events.
-
-    @var progress Text or graphical progress bar
-*/
-struct OnScheduleOptimizationEvent {
-    gsl::not_null<Progress*> progress;
 
     /**
-        Handler.
+        Handle schedule optimization events.
 
         @param e Event
     */
     void operator()(const ScheduleOptimizationEvent& e) const;
+
+    /**
+        Handle schedule optimization completion.
+
+        @param e Event
+    */
+    void operator()(const ScheduleOptimizationComplete& e) const;
 };
 
 /**
-    Check if an event is the final one.
+    Consumes prediction events from the queue.
 
-    @param evt Event
-
-    @return True if this is the final event.
+    @param queue        Prediction events queue
+    @param prediction   Prediction result
+    @param handler      Events handler
 */
-bool is_final_event(ProgressEvent& evt) noexcept;
-
-/**
-    Compose callbacks into an event consumer function.
-
-    @return Event consumer function.
-*/
-template <typename... Ts>
-auto make_event_consumer(Ts&&... callbacks) noexcept
-{
-    return [... callbacks = std::forward<Ts>(callbacks)](
-               Queue<ProgressEvent>& queue,
-               std::future<Prediction>& prediction) mutable {
-        using boost::hana::overload;
-        using namespace std::literals::chrono_literals;
-        using boost::variant2::visit;
-        constexpr auto event_timeout = 100ms;
-        ProgressEvent evt;
-        while (!is_final_event(evt)) {
-            if (!queue.try_dequeue(evt)) {
-                prediction.wait_for(event_timeout);
-                continue;
-            }
-            visit(overload(callbacks...), evt);
-        }
-    };
-}
+void consume_events(
+    Queue<ProgressEvent>& queue,
+    std::future<Prediction>& prediction,
+    EventHandler handler);
 } // namespace angonoka::cli

@@ -24,7 +24,6 @@ using Queue = moodycamel::ReaderWriterQueue<Ts...>;
 */
 enum class SimpleProgressEvent {
     ScheduleOptimizationStart,
-    ScheduleOptimizationDone,
     Finished
 };
 
@@ -40,10 +39,21 @@ struct ScheduleOptimizationEvent {
 };
 
 /**
+    Emitted when the schedule optimization is complete.
+
+    @var makespan The makespan after optimization
+*/
+struct ScheduleOptimizationComplete {
+    std::chrono::seconds makespan;
+};
+
+/**
     Prediction progress event.
 */
-using ProgressEvent
-    = variant<SimpleProgressEvent, ScheduleOptimizationEvent>;
+using ProgressEvent = variant<
+    SimpleProgressEvent,
+    ScheduleOptimizationEvent,
+    ScheduleOptimizationComplete>;
 
 /**
     Predict likelihood of a given system configuration.

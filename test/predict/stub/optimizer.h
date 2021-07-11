@@ -12,7 +12,7 @@ struct Optimizer {
     void update();
     Schedule schedule();
     float estimated_progress();
-    float normalized_makespan();
+    float normalized_makespan() const;
 
     int steps{0};
 };

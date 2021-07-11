@@ -71,10 +71,6 @@ test/functional:
 	cd test/functional
 	pytest -qx suite.py
 
-# .PHONY: benchmark
-# benchmark:
-# 	build/benchmark/angonoka_benchmark
-
 .PHONY: ninja
 ninja: build/build.ninja
 	$(BUILD_ENV)
@@ -117,15 +113,6 @@ release: MESON_ARGS=--prefix \
 release: CXXFLAGS=$(RELEASE_CXXFLAGS)
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
-
-# .PHONY: release/benchmark
-# release/benchmark: MESON_ARGS=--buildtype release \
-# 	-Db_lto=true \
-# 	-Db_ndebug=true \
-# 	-Dbenchmark=enabled
-# release/benchmark: CXXFLAGS=$(RELEASE_CXXFLAGS)
-# release/benchmark: LDFLAGS=$(RELEASE_LDFLAGS)
-# release/benchmark: ninja
 
 .PHONY: plain
 plain: MESON_ARGS=--buildtype plain
@@ -193,7 +180,6 @@ check/tidy:
 	python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
 		-quiet $$(find ../src \
 			\( -name '*.cpp' -o -name '*.h' \) \
-			! -wholename '../src/stun.cpp' \
 			) 2>/dev/null
 	EXIT_CODE=$$?
 	mv compile_commands.json.bak compile_commands.json
