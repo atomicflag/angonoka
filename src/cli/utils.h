@@ -72,6 +72,12 @@ template <typename T> struct humanize {
 };
 template <typename T> humanize(T) -> humanize<T>;
 
+// TODO: doc, test, expects
+template <typename T> struct verbose {
+    T value;
+};
+template <typename T> verbose(T) -> verbose<T>;
+
 namespace detail {
     /**
         Helper function to print durations in human-readable form.
@@ -82,7 +88,7 @@ namespace detail {
         @return Formatter function
     */
     template <typename T>
-    auto format_duration(gsl::czstring article, gsl::czstring name)
+    auto humanize_duration(gsl::czstring article, gsl::czstring name)
     {
         return [=](auto total, auto& ctx) {
             const auto dur = std::chrono::round<T>(total);
@@ -100,11 +106,26 @@ namespace detail {
             return true;
         };
     }
+
+    // TODO: doc, test, expects
+    template <typename T> auto verbose_duration(gsl::czstring name)
+    {
+        return [=](auto& total, auto& ctx, bool& needs_space) {
+            const auto dur = std::chrono::floor<T>(total);
+            if (dur == dur.zero()) return;
+            total -= dur;
+            if (needs_space) fmt::format_to(ctx.out(), " ");
+            needs_space = true;
+            const auto ticks = dur.count();
+            fmt::format_to(ctx.out(), "{}{}", ticks, name);
+        };
+    }
 } // namespace detail
 } // namespace angonoka::cli
 
 namespace fmt {
 using angonoka::cli::humanize;
+using angonoka::cli::verbose;
 /**
     User-defined formatter for std::chrono durations.
 */
@@ -119,7 +140,7 @@ struct fmt::formatter<humanize<std::chrono::duration<Ts...>>> {
     template <typename FormatContext>
     constexpr auto format(const value_type& obj, FormatContext& ctx)
     {
-        using angonoka::cli::detail::format_duration;
+        using angonoka::cli::detail::humanize_duration;
         using namespace std::literals::chrono_literals;
         using namespace std::chrono;
         constexpr auto min_threshold = 5s;
@@ -127,11 +148,40 @@ struct fmt::formatter<humanize<std::chrono::duration<Ts...>>> {
             return format_to(ctx.out(), "a few seconds");
         [&](auto&&... fns) {
             (fns(obj.value, ctx) || ...);
-        }(format_duration<months>("a", "month"),
-          format_duration<days>("a", "day"),
-          format_duration<hours>("an", "hour"),
-          format_duration<minutes>("a", "minute"),
-          format_duration<seconds>("a", "second"));
+        }(humanize_duration<months>("a", "month"),
+          humanize_duration<days>("a", "day"),
+          humanize_duration<hours>("an", "hour"),
+          humanize_duration<minutes>("a", "minute"),
+          humanize_duration<seconds>("a", "second"));
+        return ctx.out();
+    }
+};
+
+// TODO: doc, test, expects
+template <typename... Ts>
+struct fmt::formatter<verbose<std::chrono::duration<Ts...>>> {
+    using value_type = verbose<std::chrono::duration<Ts...>>;
+    static constexpr auto parse(format_parse_context& ctx)
+    {
+        return ctx.end();
+    }
+
+    template <typename FormatContext>
+    constexpr auto format(const value_type& obj, FormatContext& ctx)
+    {
+        using angonoka::cli::detail::verbose_duration;
+        using namespace std::chrono;
+        if (obj.value == obj.value.zero())
+            return format_to(ctx.out(), "0s");
+        [&](auto&&... fns) {
+            bool needs_space = false;
+            auto total = duration_cast<seconds>(obj.value);
+            (fns(total, ctx, needs_space), ...);
+        }(verbose_duration<months>("mo"),
+          verbose_duration<days>("d"),
+          verbose_duration<hours>("h"),
+          verbose_duration<minutes>("m"),
+          verbose_duration<seconds>("s"));
         return ctx.out();
     }
 };
