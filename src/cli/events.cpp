@@ -1,5 +1,6 @@
 #include "events.h"
-#include "utils.h"
+#include "humanize.h"
+#include "verbose.h"
 #include <fmt/printf.h>
 
 namespace {
