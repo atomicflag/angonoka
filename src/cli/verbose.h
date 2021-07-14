@@ -5,14 +5,24 @@
 #include <gsl/gsl-lite.hpp>
 
 namespace angonoka::cli {
-// TODO: doc, test, expects
+/**
+    Pretty-print values with as much info as possible.
+
+    @var value Value to be pretty-printed
+*/
 template <typename T> struct verbose {
     T value;
 };
 template <typename T> verbose(T) -> verbose<T>;
 
 namespace detail {
-    // TODO: doc, test, expects
+    /**
+        Helper function to print verbose durations.
+
+        @param name     Duration (s, m, d, etc)
+
+        @return Formatter function
+    */
     template <typename T>
     constexpr auto verbose_duration(gsl::czstring name)
     {
@@ -32,7 +42,9 @@ namespace detail {
 namespace fmt {
 using angonoka::cli::verbose;
 
-// TODO: doc, test, expects
+/**
+    User-defined formatter for std::chrono durations.
+*/
 template <typename... Ts>
 struct fmt::formatter<verbose<std::chrono::duration<Ts...>>> {
     using value_type = verbose<std::chrono::duration<Ts...>>;
