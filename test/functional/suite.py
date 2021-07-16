@@ -151,7 +151,7 @@ def test_verbose_non_tty_output():
     text = dedent(
         """\
     Schedule optimization complete.
-    Optimal makespan: about an hour.
+    Optimal makespan: 41m 24s.
     Probability estimation complete.
     Done.
     """

@@ -53,7 +53,12 @@ void EventHandler::operator()(
     } else {
         fmt::print("Schedule optimization complete.\n");
     }
-    fmt::print("Optimal makespan: {}.\n", humanize{e.makespan});
+    constexpr auto text = "Optimal makespan: {}.\n";
+    if (options->verbose) {
+        fmt::print(text, verbose{e.makespan});
+    } else {
+        fmt::print(text, humanize{e.makespan});
+    }
 }
 
 void consume_events(

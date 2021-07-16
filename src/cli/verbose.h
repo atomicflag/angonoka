@@ -19,7 +19,7 @@ namespace detail {
     /**
         Helper function to print verbose durations.
 
-        @param name     Duration (s, m, d, etc)
+        @param name Duration (s, m, d, etc)
 
         @return Formatter function
     */
