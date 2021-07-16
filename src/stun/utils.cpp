@@ -202,6 +202,8 @@ Mutator::Mutator(const ScheduleParams& params, RandomUtils& random)
     : params{&params}
     , random{&random}
 {
+    Expects(!params.dependencies.empty());
+    Expects(!params.available_agents.empty());
 }
 
 void Mutator::operator()(MutSchedule schedule) const noexcept

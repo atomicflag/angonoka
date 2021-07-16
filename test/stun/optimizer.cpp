@@ -105,6 +105,19 @@ suite optimizer = [] {
             while (!optimizer.has_converged()) optimizer.update();
 
             expect(other.normalized_makespan() == 2.F);
+
+            // TODO: Make this work
+            // {
+            //     Optimizer optimizer2{
+            //         params,
+            //         BatchSize{5},
+            //         MaxIdleIters{10}};
+            //     other = optimizer2;
+            // }
+            //
+            // while (!other.has_converged()) other.update();
+            //
+            // expect(other.normalized_makespan() == 2.F);
         };
 
         should("move ctor") = [&] {

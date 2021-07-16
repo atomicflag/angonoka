@@ -41,6 +41,8 @@ public:
     */
     float operator()(Schedule schedule) noexcept;
 
+    // TODO: Add options() to swap params
+
 private:
     struct Impl;
     gsl::not_null<const ScheduleParams*> params;
@@ -73,6 +75,8 @@ public:
         @param schedule Scheduling configuration
     */
     void operator()(MutSchedule schedule) const noexcept;
+
+    // TODO: Add options() to swap params and random
 
 private:
     struct Impl;
