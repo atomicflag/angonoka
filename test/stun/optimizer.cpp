@@ -106,18 +106,18 @@ suite optimizer = [] {
 
             expect(other.normalized_makespan() == 2.F);
 
-            // TODO: Make this work
-            // {
-            //     Optimizer optimizer2{
-            //         params,
-            //         BatchSize{5},
-            //         MaxIdleIters{10}};
-            //     other = optimizer2;
-            // }
-            //
-            // while (!other.has_converged()) other.update();
-            //
-            // expect(other.normalized_makespan() == 2.F);
+            while (!other.has_converged()) other.update();
+            expect(other.normalized_makespan() == 1.F);
+
+            {
+                Optimizer optimizer2{
+                    params,
+                    BatchSize{5},
+                    MaxIdleIters{10}};
+                other = optimizer2;
+            }
+
+            expect(other.normalized_makespan() == 2.F);
         };
 
         should("move ctor") = [&] {
@@ -147,6 +147,29 @@ suite optimizer = [] {
             while (!other.has_converged()) other.update();
 
             expect(other.normalized_makespan() == 1.F);
+        };
+
+        should("destructive move assignment") = [&] {
+            Optimizer optimizer{
+                params,
+                BatchSize{5},
+                MaxIdleIters{10}};
+
+            expect(optimizer.normalized_makespan() == 2.F);
+
+            {
+                Optimizer other{
+                    params,
+                    BatchSize{5},
+                    MaxIdleIters{10}};
+                optimizer = std::move(other);
+            }
+
+            expect(optimizer.normalized_makespan() == 2.F);
+
+            while (!optimizer.has_converged()) optimizer.update();
+
+            expect(optimizer.normalized_makespan() == 1.F);
         };
 
         should("self copy") = [&] {

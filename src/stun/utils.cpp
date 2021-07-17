@@ -26,7 +26,7 @@ struct Makespan::Impl {
 
         using ranges::views::transform;
         const auto deps
-            = self.params
+            = self.params_
                   ->dependencies[static_cast<gsl::index>(task_id)];
         if (deps.empty()) return 0.F;
         return ranges::max(deps | transform([&](const auto& dep_id) {
@@ -52,15 +52,15 @@ struct Makespan::Impl {
     {
         Expects(task_id >= 0);
         Expects(agent_id >= 0);
-        return self.params
+        return self.params_
                    ->task_duration[static_cast<gsl::index>(task_id)]
-            / self.params->agent_performance[static_cast<gsl::index>(
+            / self.params_->agent_performance[static_cast<gsl::index>(
                 agent_id)];
     }
 };
 
 Makespan::Makespan(const ScheduleParams& params)
-    : params{&params}
+    : params_{&params}
     , sum_buffer(
           params.task_duration.size() + params.agent_performance.size())
     , task_done{sum_buffer.data(), static_cast<int>(params.task_duration.size())}
@@ -79,8 +79,15 @@ Makespan::Makespan(const ScheduleParams& params)
         == static_cast<int>(params.agent_performance.size()));
 }
 
+void Makespan::params(const ScheduleParams& params)
+{
+    params_ = &params;
+}
+
+const ScheduleParams& Makespan::params() const { return *params_; }
+
 Makespan::Makespan(const Makespan& other)
-    : Makespan{*other.params}
+    : Makespan{*other.params_}
 {
     Ensures(sum_buffer.size() == other.sum_buffer.size());
 }
@@ -97,7 +104,7 @@ Makespan& Makespan::operator=(Makespan&& other) noexcept
 {
     if (&other == this) return *this;
 
-    params = std::move(other.params);
+    params_ = std::move(other.params_);
     sum_buffer = std::move(other.sum_buffer);
     task_done = other.task_done;
     work_done = other.work_done;
@@ -204,6 +211,22 @@ Mutator::Mutator(const ScheduleParams& params, RandomUtils& random)
 {
     Expects(!params.dependencies.empty());
     Expects(!params.available_agents.empty());
+}
+
+Mutator::Mutator(const Options& options)
+    : Mutator{*options.params, *options.random}
+{
+}
+
+auto Mutator::options() const -> Options
+{
+    return {.params{params}, .random{random}};
+}
+
+void Mutator::options(const Options& options)
+{
+    params = options.params;
+    random = options.random;
 }
 
 void Mutator::operator()(MutSchedule schedule) const noexcept

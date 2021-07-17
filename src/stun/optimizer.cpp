@@ -168,6 +168,7 @@ Optimizer::Optimizer(const Optimizer& other)
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
+    mutator.options({.params{params}, .random{&random_utils}});
 }
 
 Optimizer::Optimizer(Optimizer&& other) noexcept
@@ -191,6 +192,7 @@ Optimizer::Optimizer(Optimizer&& other) noexcept
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
+    mutator.options({.params{params}, .random{&random_utils}});
 }
 
 Optimizer& Optimizer::operator=(const Optimizer& other)
@@ -221,6 +223,7 @@ Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
+    mutator.options({.params{params}, .random{&random_utils}});
     exp_curve = other.exp_curve;
     return *this;
 }
