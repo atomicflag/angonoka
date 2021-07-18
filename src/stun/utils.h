@@ -41,10 +41,22 @@ public:
     */
     float operator()(Schedule schedule) noexcept;
 
-    // TODO: doc, test, expects
+    /**
+        Get the current ScheduleParams object.
+
+        TODO: test
+
+        @return Schedule parameters.
+    */
     [[nodiscard]] const ScheduleParams& params() const;
 
-    // TODO: doc, test, expects
+    /**
+        Set the ScheduleParams object.
+
+        TODO: test
+
+        @param params ScheduleParams object
+    */
     void params(const ScheduleParams& params);
 
 private:
@@ -65,7 +77,12 @@ class RandomUtils;
 */
 class Mutator {
 public:
-    // TODO: doc, test, expects
+    /**
+        Mutator options.
+
+        @var params Schedule parameters
+        @var random Random utils.
+    */
     struct Options {
         gsl::not_null<const ScheduleParams*> params;
         gsl::not_null<RandomUtils*> random;
@@ -87,10 +104,22 @@ public:
     */
     void operator()(MutSchedule schedule) const noexcept;
 
-    // TODO: doc, test, expects
+    /**
+        Get current options.
+
+        TODO: test
+
+        @return Options.
+    */
     [[nodiscard]] Options options() const;
 
-    // TODO: doc, test, expects
+    /**
+        Set options.
+
+        TODO: test
+
+        @param options Options.
+    */
     void options(const Options& options);
 
 private:
