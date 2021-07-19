@@ -44,16 +44,12 @@ public:
     /**
         Get the current ScheduleParams object.
 
-        TODO: test
-
         @return Schedule parameters.
     */
     [[nodiscard]] const ScheduleParams& params() const;
 
     /**
         Set the ScheduleParams object.
-
-        TODO: test
 
         @param params ScheduleParams object
     */
