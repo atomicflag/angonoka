@@ -103,16 +103,12 @@ public:
     /**
         Get current options.
 
-        TODO: test
-
         @return Options.
     */
     [[nodiscard]] Options options() const;
 
     /**
         Set options.
-
-        TODO: test
 
         @param options Options.
     */

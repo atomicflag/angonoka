@@ -50,6 +50,27 @@ suite mutate = [] {
                 == std::vector<ScheduleItem>{{1, 2}, {0, 0}, {2, 2}});
         };
 
+        "options"_test = [&] {
+            RandomUtils random{0};
+            Mutator mut{params, random};
+
+            {
+                auto [p, r] = mut.options();
+
+                expect(p == &params);
+                expect(r == &random);
+            }
+
+            RandomUtils random2{0};
+
+            mut.options({.params{&params}, .random{&random2}});
+
+            auto [p, r] = mut.options();
+
+            expect(p == &params);
+            expect(r == &random2);
+        };
+
         "with dependencies"_test = [&] {
             using ranges::actions::push_back;
             using ranges::views::chunk;

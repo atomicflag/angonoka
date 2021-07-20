@@ -83,6 +83,8 @@ public:
     */
     void reset();
 
+    // TODO: add params() setter/getter
+
     Optimizer(const Optimizer& other);
     Optimizer(Optimizer&& other) noexcept;
     Optimizer& operator=(const Optimizer& other);
