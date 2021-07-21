@@ -163,10 +163,10 @@ check/tidy:
 			compile_commands.json
 	cp compile_commands.json compile_commands.json.bak
 	sed -i \
-		-e 's/-fsanitize=[a-z,]*//g' \
-		-e 's/-pipe//g' \
-		-e 's/-fno-omit-frame-pointer//g' \
-		-e 's/--coverage//g' \
+		-e 's/ -fsanitize=[a-z,]*//g' \
+		-e 's/ -pipe//g' \
+		-e 's/ -fno-omit-frame-pointer//g' \
+		-e 's/ --coverage//g' \
 		compile_commands.json
 	python3 <<EOF
 		import json
@@ -178,9 +178,7 @@ check/tidy:
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
 	python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
-		-quiet $$(find ../src \
-			\( -name '*.cpp' -o -name '*.h' \) \
-			) 2>/dev/null
+		-quiet ../src 2>/dev/null
 	EXIT_CODE=$$?
 	mv compile_commands.json.bak compile_commands.json
 	exit $$EXIT_CODE

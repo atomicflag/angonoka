@@ -1,7 +1,7 @@
 ---
 Checks:          'clang-diagnostic-*,clang-analyzer-*,bugprone-*,cppcoreguidelines-*,misc-*,modernize-*,-modernize-use-trailing-return-type,openmp-*,performance-*,readability-*,-misc-non-private-member-variables-in-classes,-cppcoreguidelines-pro-type-member-init,-misc-no-recursion,-readability-magic-numbers'
 WarningsAsErrors: '*'
-HeaderFilterRegex: 'src/(?!config\.h)'
+HeaderFilterRegex: '\.\./src/'
 AnalyzeTemporaryDtors: false
 FormatStyle:     none
 User:            signal9
