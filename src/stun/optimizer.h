@@ -83,7 +83,19 @@ public:
     */
     void reset();
 
-    // TODO: add params() setter/getter
+    /**
+        Get the current ScheduleParams object.
+
+        @return Schedule parameters.
+    */
+    [[nodiscard]] const ScheduleParams& params() const;
+
+    /**
+        Set the ScheduleParams object.
+
+        @param params ScheduleParams object
+    */
+    void params(const ScheduleParams& params);
 
     Optimizer(const Optimizer& other);
     Optimizer(Optimizer&& other) noexcept;
@@ -100,7 +112,7 @@ private:
     static constexpr auto restart_period = 1 << 20;
     static constexpr auto initial_beta = 1.0F;
 
-    gsl::not_null<const ScheduleParams*> params;
+    gsl::not_null<const ScheduleParams*> params_;
     int16 batch_size;
     int16 max_idle_iters;
     int16 idle_iters{0};
@@ -108,8 +120,8 @@ private:
     float last_progress{0.F};
     float last_makespan{0.F};
     RandomUtils random_utils;
-    Mutator mutator{*params, random_utils};
-    Makespan makespan{*params};
+    Mutator mutator{*params_, random_utils};
+    Makespan makespan{*params_};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
@@ -124,7 +136,7 @@ private:
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}},
-        initial_schedule(*params)};
+        initial_schedule(*params_)};
 #pragma clang diagnostic pop
     ExpCurveFitter exp_curve;
 };

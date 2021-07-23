@@ -32,7 +32,6 @@ suite optimizer = [] {
         const auto config = angonoka::load_text(text);
 
         const auto params = to_schedule_params(config);
-        const auto schedule_params = to_schedule_params(config);
         Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
         expect(optimizer.normalized_makespan() == 2.F);
@@ -53,10 +52,21 @@ suite optimizer = [] {
             optimizer.schedule()[1].agent_id
             != optimizer.schedule()[0].agent_id);
 
-        optimizer.reset();
+        should("reset") = [&] {
+            optimizer.reset();
 
-        expect(optimizer.normalized_makespan() == 2.F);
-        expect(optimizer.estimated_progress() == 0.F);
+            expect(optimizer.normalized_makespan() == 2.F);
+            expect(optimizer.estimated_progress() == 0.F);
+        };
+
+        should("rebind params") = [&] {
+            expect(&optimizer.params() == &params);
+            const auto params2 = params;
+            optimizer.params(params2);
+            expect(&optimizer.params() == &params2);
+
+            while (!optimizer.has_converged()) optimizer.update();
+        };
     };
 
     "Optimizer special memeber functions"_test = [] {
@@ -76,7 +86,6 @@ suite optimizer = [] {
         const auto config = angonoka::load_text(text);
 
         const auto params = to_schedule_params(config);
-        const auto schedule_params = to_schedule_params(config);
 
         should("copy ctor") = [&] {
             Optimizer optimizer{

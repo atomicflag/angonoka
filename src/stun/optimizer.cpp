@@ -78,7 +78,7 @@ Optimizer::Optimizer(
     const ScheduleParams& params,
     BatchSize batch_size,
     MaxIdleIters max_idle_iters)
-    : params{&params}
+    : params_{&params}
     , batch_size{static_cast<std::int_fast32_t>(batch_size)}
     , max_idle_iters{static_cast<std::int_fast32_t>(max_idle_iters)}
 {
@@ -134,7 +134,7 @@ void Optimizer::reset()
     Expects(max_idle_iters > 0);
     Expects(batch_size > 0);
 
-    stun.reset(initial_schedule(*params));
+    stun.reset(initial_schedule(*params_));
     temperature
         = {Beta{initial_beta},
            BetaScale{beta_scale},
@@ -148,7 +148,7 @@ void Optimizer::reset()
 }
 
 Optimizer::Optimizer(const Optimizer& other)
-    : params{other.params}
+    : params_{other.params_}
     , batch_size{other.batch_size}
     , max_idle_iters{other.max_idle_iters}
     , idle_iters{other.idle_iters}
@@ -168,11 +168,11 @@ Optimizer::Optimizer(const Optimizer& other)
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
-    mutator.options({.params{params}, .random{&random_utils}});
+    mutator.options({.params{params_}, .random{&random_utils}});
 }
 
 Optimizer::Optimizer(Optimizer&& other) noexcept
-    : params{std::move(other.params)}
+    : params_{std::move(other.params_)}
     , batch_size{other.batch_size}
     , max_idle_iters{other.max_idle_iters}
     , idle_iters{other.idle_iters}
@@ -192,7 +192,7 @@ Optimizer::Optimizer(Optimizer&& other) noexcept
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
-    mutator.options({.params{params}, .random{&random_utils}});
+    mutator.options({.params{params_}, .random{&random_utils}});
 }
 
 Optimizer& Optimizer::operator=(const Optimizer& other)
@@ -205,7 +205,7 @@ Optimizer& Optimizer::operator=(const Optimizer& other)
 Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
 {
     if (&other == this) return *this;
-    params = other.params;
+    params_ = other.params_;
     batch_size = other.batch_size;
     max_idle_iters = other.max_idle_iters;
     idle_iters = other.idle_iters;
@@ -223,10 +223,17 @@ Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
-    mutator.options({.params{params}, .random{&random_utils}});
+    mutator.options({.params{params_}, .random{&random_utils}});
     exp_curve = other.exp_curve;
     return *this;
 }
+
+void Optimizer::params(const ScheduleParams& params)
+{
+    params_ = &params;
+}
+
+const ScheduleParams& Optimizer::params() const { return *params_; }
 
 Optimizer::~Optimizer() noexcept = default;
 } // namespace angonoka::stun
