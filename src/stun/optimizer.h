@@ -23,6 +23,100 @@ enum class BatchSize : std::int_fast32_t;
 enum class MaxIdleIters : std::int_fast32_t;
 
 /**
+    TODO: doc
+*/
+class OptimizerJob {
+public:
+    /**
+        Constructor.
+
+        @param params           Scheduling parameters
+        @param batch_size       Number of iterations per update
+    */
+    OptimizerJob(
+        const ScheduleParams& params,
+        BatchSize batch_size);
+
+    /**
+        Run stochastic tunneling optimization batch.
+
+        Does batch_size number of iterations and adjusts the estimated
+        progress accordingly.
+    */
+    void update() noexcept;
+
+    /**
+        The best schedule so far.
+
+        @return A schedule.
+    */
+    [[nodiscard]] Schedule schedule() const;
+
+    /**
+        The best makespan so far.
+
+        @return Makespan.
+    */
+    [[nodiscard]] float normalized_makespan() const;
+
+    /**
+        Reset the optimization to initial state.
+    */
+    void reset();
+
+    /**
+        Get the current ScheduleParams object.
+
+        @return Schedule parameters.
+    */
+    [[nodiscard]] const ScheduleParams& params() const;
+
+    /**
+        Set the ScheduleParams object.
+
+        @param params ScheduleParams object
+    */
+    void params(const ScheduleParams& params);
+
+    // TODO: add new_random_seed() function
+
+    OptimizerJob(const OptimizerJob& other);
+    OptimizerJob(OptimizerJob&& other) noexcept;
+    OptimizerJob& operator=(const OptimizerJob& other);
+    OptimizerJob& operator=(OptimizerJob&& other) noexcept;
+    ~OptimizerJob() noexcept;
+
+private:
+    static constexpr auto beta_scale = 1e-4F;
+    static constexpr auto stun_window = 10000;
+    static constexpr auto gamma = .5F;
+    static constexpr auto restart_period = 1 << 20;
+    static constexpr auto initial_beta = 1.0F;
+
+    gsl::not_null<const ScheduleParams*> params_;
+    int16 batch_size;
+    RandomUtils random_utils;
+    Mutator mutator{*params_, random_utils};
+    Makespan makespan{*params_};
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
+#pragma clang diagnostic ignored "-Wbraced-scalar-init"
+    Temperature temperature{
+        Beta{initial_beta},
+        BetaScale{beta_scale},
+        StunWindow{stun_window},
+        RestartPeriod{restart_period}};
+    StochasticTunneling stun{
+        {.mutator{&mutator},
+         .random{&random_utils},
+         .makespan{&makespan},
+         .temp{&temperature},
+         .gamma{gamma}},
+        initial_schedule(*params_)};
+#pragma clang diagnostic pop
+};
+
+/**
     Optimization algorithm based on stochastic tunneling.
 
     This is the primary facade for doing stochastic tunneling
@@ -106,38 +200,13 @@ public:
 private:
     struct Impl;
 
-    static constexpr auto beta_scale = 1e-4F;
-    static constexpr auto stun_window = 10000;
-    static constexpr auto gamma = .5F;
-    static constexpr auto restart_period = 1 << 20;
-    static constexpr auto initial_beta = 1.0F;
-
-    gsl::not_null<const ScheduleParams*> params_;
-    int16 batch_size;
     int16 max_idle_iters;
     int16 idle_iters{0};
     int16 epochs{0};
     float last_progress{0.F};
     float last_makespan{0.F};
-    RandomUtils random_utils;
-    Mutator mutator{*params_, random_utils};
-    Makespan makespan{*params_};
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-braces"
-#pragma clang diagnostic ignored "-Wbraced-scalar-init"
-    Temperature temperature{
-        Beta{initial_beta},
-        BetaScale{beta_scale},
-        StunWindow{stun_window},
-        RestartPeriod{restart_period}};
-    StochasticTunneling stun{
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{gamma}},
-        initial_schedule(*params_)};
-#pragma clang diagnostic pop
     ExpCurveFitter exp_curve;
+
+    // TODO: add vector<OptimizerJob> and best_job : int
 };
 } // namespace angonoka::stun
