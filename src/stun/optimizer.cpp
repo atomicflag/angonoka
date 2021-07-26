@@ -230,6 +230,7 @@ Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
 
 void Optimizer::params(const ScheduleParams& params)
 {
+    // TODO: update params in dependencies too
     params_ = &params;
 }
 
