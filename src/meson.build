@@ -20,6 +20,7 @@ base_lib = static_library(
     'stun/schedule.cpp',
     'stun/exp_curve_fitter.cpp',
     'stun/optimizer.cpp',
+    'stun/optimizer_job.cpp',
     'stun/random_utils.cpp',
     'stun/schedule_params.cpp',
     'stun/stochastic_tunneling.cpp',

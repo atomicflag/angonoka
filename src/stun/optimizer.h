@@ -88,13 +88,6 @@ public:
     */
     void params(const ScheduleParams& params);
 
-    // TODO: probably not needed
-    // Optimizer(const Optimizer& other);
-    // Optimizer(Optimizer&& other) noexcept;
-    // Optimizer& operator=(const Optimizer& other);
-    // Optimizer& operator=(Optimizer&& other) noexcept;
-    // ~Optimizer() noexcept;
-
 private:
     struct Impl;
 

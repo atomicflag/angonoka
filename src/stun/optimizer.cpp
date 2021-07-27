@@ -62,6 +62,8 @@ struct Optimizer::Impl {
     {
         Expects(self.epochs >= 0);
 
+        // TODO: WIP
+
         const auto p = progress(self);
         self.last_makespan = self.stun.normalized_makespan();
         self.epochs += 1;
@@ -78,9 +80,7 @@ Optimizer::Optimizer(
     const ScheduleParams& params,
     BatchSize batch_size,
     MaxIdleIters max_idle_iters)
-    : params_{&params}
-    , batch_size{static_cast<std::int_fast32_t>(batch_size)}
-    , max_idle_iters{static_cast<std::int_fast32_t>(max_idle_iters)}
+    : max_idle_iters{static_cast<std::int_fast32_t>(max_idle_iters)}
 {
     Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
     Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
@@ -90,7 +90,7 @@ void Optimizer::update() noexcept
 {
     Expects(batch_size > 0);
 
-    for (int32 i{0}; i < batch_size; ++i) stun.update();
+    // TODO: WIP
     idle_iters += batch_size;
     // Make up a progress value just so that the user
     // doesn't think that the optimizaton has halted.
@@ -121,25 +121,23 @@ void Optimizer::update() noexcept
 
 [[nodiscard]] Schedule Optimizer::schedule() const
 {
+    // TODO: WIP
     return stun.schedule();
 }
 
 [[nodiscard]] float Optimizer::normalized_makespan() const
 {
+    // TODO: WIP
     return stun.normalized_makespan();
 }
 
 void Optimizer::reset()
 {
+    // TODO: WIP
+
     Expects(max_idle_iters > 0);
     Expects(batch_size > 0);
 
-    stun.reset(initial_schedule(*params_));
-    temperature
-        = {Beta{initial_beta},
-           BetaScale{beta_scale},
-           StunWindow{stun_window},
-           RestartPeriod{restart_period}};
     idle_iters = 0;
     epochs = 0;
     last_progress = 0.F;
@@ -147,96 +145,17 @@ void Optimizer::reset()
     exp_curve.reset();
 }
 
-Optimizer::Optimizer(const Optimizer& other)
-    : params_{other.params_}
-    , batch_size{other.batch_size}
-    , max_idle_iters{other.max_idle_iters}
-    , idle_iters{other.idle_iters}
-    , epochs{other.epochs}
-    , last_progress{other.last_progress}
-    , last_makespan{other.last_makespan}
-    , random_utils{other.random_utils}
-    , mutator{other.mutator}
-    , makespan{other.makespan}
-    , temperature{other.temperature}
-    , stun{other.stun}
-    , exp_curve{other.exp_curve}
-{
-    stun.options(
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{gamma}});
-    mutator.options({.params{params_}, .random{&random_utils}});
-}
-
-Optimizer::Optimizer(Optimizer&& other) noexcept
-    : params_{std::move(other.params_)}
-    , batch_size{other.batch_size}
-    , max_idle_iters{other.max_idle_iters}
-    , idle_iters{other.idle_iters}
-    , epochs{other.epochs}
-    , last_progress{other.last_progress}
-    , last_makespan{other.last_makespan}
-    , random_utils{other.random_utils}
-    , mutator{std::move(other.mutator)}
-    , makespan{std::move(other.makespan)}
-    , temperature{std::move(other.temperature)}
-    , stun{std::move(other.stun)}
-    , exp_curve{other.exp_curve}
-{
-    stun.options(
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{gamma}});
-    mutator.options({.params{params_}, .random{&random_utils}});
-}
-
-Optimizer& Optimizer::operator=(const Optimizer& other)
-{
-    if (&other == this) return *this;
-    *this = Optimizer{other};
-    return *this;
-}
-
-Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
-{
-    if (&other == this) return *this;
-    params_ = other.params_;
-    batch_size = other.batch_size;
-    max_idle_iters = other.max_idle_iters;
-    idle_iters = other.idle_iters;
-    epochs = other.epochs;
-    last_progress = other.last_progress;
-    last_makespan = other.last_makespan;
-    random_utils = other.random_utils;
-    mutator = std::move(other.mutator);
-    makespan = std::move(other.makespan);
-    temperature = std::move(other.temperature);
-    stun = std::move(other.stun);
-    stun.options(
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{gamma}});
-    mutator.options({.params{params_}, .random{&random_utils}});
-    exp_curve = other.exp_curve;
-    return *this;
-}
-
 void Optimizer::params(const ScheduleParams& params)
 {
+    // TODO: WIP
     // TODO: update params in dependencies too
     params_ = &params;
 }
 
-const ScheduleParams& Optimizer::params() const { return *params_; }
-
-Optimizer::~Optimizer() noexcept = default;
+const ScheduleParams& Optimizer::params() const {
+        // TODO: WIP
+ return *params_; 
+}
 } // namespace angonoka::stun
 
 #pragma clang diagnostic pop
