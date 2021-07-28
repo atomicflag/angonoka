@@ -29,6 +29,14 @@ using namespace angonoka::cli;
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 constinit std::atomic_flag cursor_suppressed{};
 
+#if defined(__llvm__) && defined(ANGONOKA_COVERAGE)
+void save_coverage()
+{
+    __llvm_profile_initialize_file();
+    __llvm_profile_write_file();
+}
+#endif
+
 /**
     quick_exit handler.
 */
@@ -39,8 +47,7 @@ void at_exit()
         std::fflush(stdout);
     }
 #if defined(__llvm__) && defined(ANGONOKA_COVERAGE)
-    __llvm_profile_initialize_file();
-    __llvm_profile_write_file();
+    save_coverage();
 #endif
 }
 } // namespace
@@ -49,6 +56,9 @@ namespace angonoka::cli {
 void register_abort_handlers()
 {
     std::at_quick_exit(at_exit);
+#if defined(__llvm__) && defined(ANGONOKA_COVERAGE)
+    std::atexit(save_coverage);
+#endif
     std::signal(SIGINT, abort_handler);
     std::signal(SIGTERM, abort_handler);
 }
