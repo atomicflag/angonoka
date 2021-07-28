@@ -5,6 +5,7 @@
 using namespace boost::ut;
 
 suite optimizer = [] {
+    // TODO: Add OptimizerJob test
     "Optimizer type traits"_test = [] {
         using angonoka::stun::Optimizer;
         expect(std::is_nothrow_destructible_v<Optimizer>);

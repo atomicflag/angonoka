@@ -38,4 +38,6 @@ suite temperature = [] {
         expect(temp.average_stun() == 0._d);
         expect(temp < 1.f);
     };
+
+    // TODO: Special member functions tests
 };

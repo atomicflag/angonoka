@@ -16,6 +16,12 @@ void abort_handler(int signal)
     constexpr auto posix_offset = 128;
     std::quick_exit(posix_offset + signal);
 }
+
+#if defined(__llvm__) && defined(ANGONOKA_COVERAGE)
+int __llvm_profile_runtime; // NOLINT
+void __llvm_profile_initialize_file(void); // NOLINT
+int __llvm_profile_write_file(void); // NOLINT
+#endif
 }
 
 namespace {
@@ -32,6 +38,10 @@ void at_exit()
         show_cursor();
         std::fflush(stdout);
     }
+#if defined(__llvm__) && defined(ANGONOKA_COVERAGE)
+    __llvm_profile_initialize_file();
+    __llvm_profile_write_file();
+#endif
 }
 } // namespace
 
