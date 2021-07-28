@@ -112,11 +112,12 @@ void OptimizerJob::params(const ScheduleParams& params)
     mutator.options({.params{params_}, .random{&random_utils}});
 }
 
-const ScheduleParams& OptimizerJob::params() const { return *params_; }
+const ScheduleParams& OptimizerJob::params() const
+{
+    return *params_;
+}
 
-    void OptimizerJob::new_random_seed() {
-        random_utils = {};
-    }
+void OptimizerJob::new_random_seed() { random_utils = {}; }
 
 OptimizerJob::~OptimizerJob() noexcept = default;
-}
+} // namespace angonoka::stun

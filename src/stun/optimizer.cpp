@@ -61,11 +61,10 @@ struct Optimizer::Impl {
     static void estimate_progress(Optimizer& self) noexcept
     {
         Expects(self.epochs >= 0);
-
-        // TODO: WIP
+        Expects(!self.jobs.empty());
 
         const auto p = progress(self);
-        self.last_makespan = self.stun.normalized_makespan();
+        self.last_makespan = self.jobs.front().normalized_makespan();
         self.epochs += 1;
         self.last_progress
             = std::min(self.exp_curve(TO_FLOAT(self.epochs), p), 1.F);
@@ -80,21 +79,30 @@ Optimizer::Optimizer(
     const ScheduleParams& params,
     BatchSize batch_size,
     MaxIdleIters max_idle_iters)
-    : max_idle_iters{static_cast<std::int_fast32_t>(max_idle_iters)}
+    : batch_size{static_cast<std::int_fast32_t>(batch_size)}
+    , max_idle_iters{static_cast<std::int_fast32_t>(max_idle_iters)}
 {
     Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
     Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
+
+    // TODO: Parallel
+    jobs.emplace_back(params, batch_size);
+
+    Ensures(!jobs.empty());
 }
 
 void Optimizer::update() noexcept
 {
     Expects(batch_size > 0);
+    Expects(!jobs.empty());
 
-    // TODO: WIP
+    // TODO: Parallel
+    jobs.front().update();
+
     idle_iters += batch_size;
     // Make up a progress value just so that the user
     // doesn't think that the optimizaton has halted.
-    if (stun.normalized_makespan() == last_makespan) {
+    if (jobs.front().normalized_makespan() == last_makespan) {
         Impl::interpolate_progress(*this);
         return;
     }
@@ -121,40 +129,45 @@ void Optimizer::update() noexcept
 
 [[nodiscard]] Schedule Optimizer::schedule() const
 {
-    // TODO: WIP
-    return stun.schedule();
+    Expects(!jobs.empty());
+
+    return jobs.front().schedule();
 }
 
 [[nodiscard]] float Optimizer::normalized_makespan() const
 {
-    // TODO: WIP
-    return stun.normalized_makespan();
+    Expects(!jobs.empty());
+
+    return jobs.front().normalized_makespan();
 }
 
 void Optimizer::reset()
 {
-    // TODO: WIP
-
     Expects(max_idle_iters > 0);
     Expects(batch_size > 0);
+    Expects(!jobs.empty());
 
     idle_iters = 0;
     epochs = 0;
     last_progress = 0.F;
     last_makespan = 0.F;
     exp_curve.reset();
+
+    for (auto& j : jobs) j.reset();
 }
 
 void Optimizer::params(const ScheduleParams& params)
 {
-    // TODO: WIP
-    // TODO: update params in dependencies too
-    params_ = &params;
+    Expects(!jobs.empty());
+
+    for (auto& j : jobs) j.params(params);
 }
 
-const ScheduleParams& Optimizer::params() const {
-        // TODO: WIP
- return *params_; 
+const ScheduleParams& Optimizer::params() const
+{
+    Expects(!jobs.empty());
+
+    return jobs.front().params();
 }
 } // namespace angonoka::stun
 

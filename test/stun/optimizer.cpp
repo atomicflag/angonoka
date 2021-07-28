@@ -194,18 +194,6 @@ suite optimizer = [] {
             expect(optimizer.normalized_makespan() == 2.F);
         };
 
-        should("self move") = [&] {
-            Optimizer optimizer{
-                params,
-                BatchSize{5},
-                MaxIdleIters{10}};
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wself-move"
-            optimizer = std::move(optimizer);
-#pragma clang diagnostic pop
-
-            expect(optimizer.normalized_makespan() == 2.F);
-        };
+        // self move is not supported
     };
 };

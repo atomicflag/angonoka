@@ -1,9 +1,9 @@
 #pragma once
 
 #include "exp_curve_fitter.h"
+#include "optimizer_job.h"
 #include "schedule_params.h"
 #include <gsl/gsl-lite.hpp>
-#include "optimizer_job.h"
 #include <vector>
 
 namespace angonoka::stun {
@@ -98,7 +98,6 @@ private:
     float last_progress{0.F};
     float last_makespan{0.F};
     ExpCurveFitter exp_curve;
-    int16 best_job{0};
     std::vector<OptimizerJob> jobs;
 };
 } // namespace angonoka::stun

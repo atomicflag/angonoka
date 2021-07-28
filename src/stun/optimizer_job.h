@@ -26,9 +26,7 @@ public:
         @param params           Scheduling parameters
         @param batch_size       Number of iterations per update
     */
-    OptimizerJob(
-        const ScheduleParams& params,
-        BatchSize batch_size);
+    OptimizerJob(const ScheduleParams& params, BatchSize batch_size);
 
     /**
         Run stochastic tunneling optimization batch.
