@@ -49,11 +49,11 @@ build/build.ninja: build/conaninfo.txt
 		import json
 		data = json.load(open('compile_commands.json'))
 		for f in data: f['command'] = f['command'] \
-			.replace(' -isystem', ' $(CLANG_BUILTIN) '
+			.replace(' -o ', ' $(CLANG_BUILTIN) '
 			'-Dgsl_CONFIG_CONTRACT_CHECKING_OFF '
 			'-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ELIDE '
 			'-DNDEBUG '
-			'-isystem', 1) \
+			'-o ', 1) \
 			.replace('-DUNIT_TEST', '')
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
