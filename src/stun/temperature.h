@@ -72,11 +72,11 @@ public:
         StunWindow stun_window,
         RestartPeriod restart_period);
 
-    Temperature(const Temperature& other) = default;
-    Temperature(Temperature&& other) noexcept = default;
-    Temperature& operator=(const Temperature& other) = default;
+    Temperature(const Temperature& other);
+    Temperature(Temperature&& other) noexcept;
+    Temperature& operator=(const Temperature& other);
     Temperature& operator=(Temperature&& other) noexcept;
-    ~Temperature() = default;
+    ~Temperature() noexcept;
 
     /**
         Updates the internal counters, averages and the beta value.

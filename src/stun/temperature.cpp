@@ -57,4 +57,10 @@ Temperature& Temperature::operator=(Temperature&& other) noexcept
     restart_period_mask = other.restart_period_mask;
     return *this;
 }
+
+Temperature::Temperature(const Temperature& other) = default;
+Temperature::Temperature(Temperature&& other) noexcept = default;
+Temperature& Temperature::operator=(const Temperature& other)
+    = default;
+Temperature::~Temperature() noexcept = default;
 } // namespace angonoka::stun

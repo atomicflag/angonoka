@@ -3,6 +3,9 @@
 
 using namespace boost::ut;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
+
 suite temperature = [] {
     "Temperature type traits"_test = [] {
         using angonoka::stun::Temperature;
@@ -24,7 +27,6 @@ suite temperature = [] {
             BetaScale{1e-3f},
             StunWindow{5},
             RestartPeriod{64}};
-#pragma clang diagnostic pop
 
         expect(temp == 1.f);
 
@@ -39,5 +41,87 @@ suite temperature = [] {
         expect(temp < 1.f);
     };
 
-    // TODO: Special member functions tests
+    "Temperature special member functions"_test = [] {
+        using namespace angonoka::stun;
+
+        should("copy assignment") = [&] {
+            Temperature temp{
+                Beta{1.f},
+                BetaScale{1e-3f},
+                StunWindow{5},
+                RestartPeriod{64}};
+            Temperature temp2{
+                Beta{2.f},
+                BetaScale{1e-3f},
+                StunWindow{5},
+                RestartPeriod{64}};
+            temp = temp2;
+            expect(temp == 2.f);
+        };
+
+        should("move assignment") = [&] {
+            Temperature temp{
+                Beta{1.f},
+                BetaScale{1e-3f},
+                StunWindow{5},
+                RestartPeriod{64}};
+            Temperature temp2{
+                Beta{2.f},
+                BetaScale{1e-3f},
+                StunWindow{5},
+                RestartPeriod{64}};
+            temp = std::move(temp2);
+            expect(temp == 2.f);
+        };
+
+        should("copy ctor") = [&] {
+            Temperature temp{
+                Beta{1.f},
+                BetaScale{1e-3f},
+                StunWindow{5},
+                RestartPeriod{64}};
+            Temperature temp2{temp};
+            expect(temp2 == 1.f);
+        };
+
+        should("move ctor") = [&] {
+            Temperature temp{
+                Beta{1.f},
+                BetaScale{1e-3f},
+                StunWindow{5},
+                RestartPeriod{64}};
+            Temperature temp2{std::move(temp)};
+            expect(temp2 == 1.f);
+        };
+
+        should("self copy") = [&] {
+            Temperature temp{
+                Beta{1.f},
+                BetaScale{1e-3f},
+                StunWindow{5},
+                RestartPeriod{64}};
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+            temp = temp;
+#pragma clang diagnostic pop
+
+            expect(temp == 1.f);
+        };
+
+        should("self move") = [&] {
+            Temperature temp{
+                Beta{1.f},
+                BetaScale{1e-3f},
+                StunWindow{5},
+                RestartPeriod{64}};
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-move"
+            temp = std::move(temp);
+#pragma clang diagnostic pop
+
+            expect(temp == 1.f);
+        };
+    };
 };
+
+#pragma clang diagnostic pop
