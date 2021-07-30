@@ -41,13 +41,13 @@ suite mutate = [] {
 
             expect(
                 schedule
-                == std::vector<ScheduleItem>{{0, 0}, {2, 1}, {1, 2}});
+                == std::vector<ScheduleItem>{{0, 0}, {2, 1}, {1, 1}});
 
             for (int i{0}; i < 100; ++i) mut(schedule);
 
             expect(
                 schedule
-                == std::vector<ScheduleItem>{{1, 2}, {0, 0}, {2, 2}});
+                == std::vector<ScheduleItem>{{1, 2}, {0, 2}, {2, 2}});
         };
 
         "options"_test = [&] {
@@ -139,5 +139,44 @@ suite mutate = [] {
         expect(std::is_copy_assignable_v<Mutator>);
         expect(std::is_nothrow_move_constructible_v<Mutator>);
         expect(std::is_nothrow_move_assignable_v<Mutator>);
+    };
+
+    "Limited available agents"_test = [] {
+        using namespace angonoka::stun;
+
+        ScheduleParams params;
+        params.agent_performance = {1.F, 2.F, 3.F};
+        params.task_duration = {1.F, 2.F, 3.F};
+        {
+            std::vector<int16> available_agents_data = {0, 1, 2};
+            const span<int16> all_span{available_agents_data};
+            std::vector<span<int16>> available_agents
+                = {all_span.subspan(0, 1),
+                   all_span.subspan(1, 1),
+                   all_span.subspan(2, 1)};
+            params.available_agents
+                = {std::move(available_agents_data),
+                   std::move(available_agents)};
+        }
+        params.dependencies
+            = {std::vector<int16>{},
+               std::vector<span<int16>>{{}, {}, {}}};
+
+        RandomUtils random{0};
+
+        std::vector<ScheduleItem> schedule{{0, 0}, {1, 1}, {2, 2}};
+
+        Mutator mut{params, random};
+        mut(schedule);
+
+        expect(
+            schedule
+            == std::vector<ScheduleItem>{{0, 0}, {2, 2}, {1, 1}});
+
+        for (int i{0}; i < 100; ++i) mut(schedule);
+
+        expect(
+            schedule
+            == std::vector<ScheduleItem>{{2, 2}, {1, 1}, {0, 0}});
     };
 };

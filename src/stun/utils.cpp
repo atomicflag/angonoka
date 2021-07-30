@@ -179,9 +179,10 @@ struct Mutator::Impl {
         if (schedule.size() == 1) return;
         const auto swap_index
             = 1 + self.random->uniform_int(schedule.size() - 2);
-        auto& task_a = schedule[swap_index].task_id;
-        auto& task_b = schedule[swap_index - 1].task_id;
-        if (!is_swappable(self, task_a, task_b)) return;
+        auto& task_a = schedule[swap_index];
+        auto& task_b = schedule[swap_index - 1];
+        if (!is_swappable(self, task_a.task_id, task_b.task_id))
+            return;
         std::swap(task_a, task_b);
     }
 
@@ -192,16 +193,19 @@ struct Mutator::Impl {
     update_agent(const Mutator& self, MutSchedule schedule) noexcept
     {
         Expects(!schedule.empty());
+        const auto& available_agents = self.params->available_agents;
         Expects(
             static_cast<gsl::index>(schedule.size())
-            == self.params->available_agents.size());
+            == available_agents.size());
+
         const auto task_index
             = self.random->uniform_int(schedule.size() - 1);
         const auto task_id
             = static_cast<gsl::index>(schedule[task_index].task_id);
         const auto new_agent_id = self.random->uniform_int(
-            self.params->available_agents[task_id].size() - 1);
-        schedule[task_index].agent_id = new_agent_id;
+            available_agents[task_id].size() - 1);
+        schedule[task_index].agent_id
+            = available_agents[task_id][new_agent_id];
     }
 };
 
