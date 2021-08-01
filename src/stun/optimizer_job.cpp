@@ -7,11 +7,27 @@
 namespace angonoka::stun {
 OptimizerJob::OptimizerJob(
     const ScheduleParams& params,
+    RandomUtils& random_utils,
     BatchSize batch_size)
-    : params_{&params}
+    : params{&params}
     , batch_size{static_cast<std::int_fast32_t>(batch_size)}
+    , mutator{params, random_utils}
+    , stun{
+          {.mutator{&mutator},
+           .random{&random_utils},
+           .makespan{&makespan},
+           .temp{&temperature},
+           .gamma{gamma}},
+          initial_schedule(params)}
 {
     Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
+}
+
+OptimizerJob::OptimizerJob(
+    const Options& options,
+    BatchSize batch_size)
+    : OptimizerJob{*options.params, *options.random, batch_size}
+{
 }
 
 void OptimizerJob::update() noexcept
@@ -35,7 +51,7 @@ void OptimizerJob::reset()
 {
     Expects(batch_size > 0);
 
-    stun.reset(initial_schedule(*params_));
+    stun.reset(initial_schedule(*params));
     temperature
         = {Beta{initial_beta},
            BetaScale{beta_scale},
@@ -44,9 +60,8 @@ void OptimizerJob::reset()
 }
 
 OptimizerJob::OptimizerJob(const OptimizerJob& other)
-    : params_{other.params_}
+    : params{other.params}
     , batch_size{other.batch_size}
-    , random_utils{other.random_utils}
     , mutator{other.mutator}
     , makespan{other.makespan}
     , temperature{other.temperature}
@@ -54,17 +69,15 @@ OptimizerJob::OptimizerJob(const OptimizerJob& other)
 {
     stun.options(
         {.mutator{&mutator},
-         .random{&random_utils},
+         .random{mutator.options().random},
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
-    mutator.options({.params{params_}, .random{&random_utils}});
 }
 
 OptimizerJob::OptimizerJob(OptimizerJob&& other) noexcept
-    : params_{std::move(other.params_)}
+    : params{std::move(other.params)}
     , batch_size{other.batch_size}
-    , random_utils{other.random_utils}
     , mutator{std::move(other.mutator)}
     , makespan{std::move(other.makespan)}
     , temperature{std::move(other.temperature)}
@@ -72,11 +85,10 @@ OptimizerJob::OptimizerJob(OptimizerJob&& other) noexcept
 {
     stun.options(
         {.mutator{&mutator},
-         .random{&random_utils},
+         .random{mutator.options().random},
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
-    mutator.options({.params{params_}, .random{&random_utils}});
 }
 
 OptimizerJob& OptimizerJob::operator=(const OptimizerJob& other)
@@ -89,35 +101,39 @@ OptimizerJob& OptimizerJob::operator=(const OptimizerJob& other)
 OptimizerJob& OptimizerJob::operator=(OptimizerJob&& other) noexcept
 {
     if (&other == this) return *this;
-    params_ = other.params_;
+    params = other.params;
     batch_size = other.batch_size;
-    random_utils = other.random_utils;
     mutator = std::move(other.mutator);
     makespan = std::move(other.makespan);
     temperature = std::move(other.temperature);
     stun = std::move(other.stun);
     stun.options(
         {.mutator{&mutator},
-         .random{&random_utils},
+         .random{mutator.options().random},
          .makespan{&makespan},
          .temp{&temperature},
          .gamma{gamma}});
-    mutator.options({.params{params_}, .random{&random_utils}});
     return *this;
 }
 
-void OptimizerJob::params(const ScheduleParams& params)
+void OptimizerJob::options(const Options& options)
 {
-    params_ = &params;
-    mutator.options({.params{params_}, .random{&random_utils}});
+    params = options.params;
+    mutator.options(
+        {.params{options.params}, .random{options.random}});
+    stun.options(
+        {.mutator{&mutator},
+         .random{options.random},
+         .makespan{&makespan},
+         .temp{&temperature},
+         .gamma{gamma}});
 }
 
-const ScheduleParams& OptimizerJob::params() const
+auto OptimizerJob::options() const -> Options
 {
-    return *params_;
+    auto [p, r] = mutator.options();
+    return {p, r};
 }
-
-void OptimizerJob::new_random_seed() { random_utils = {}; }
 
 OptimizerJob::~OptimizerJob() noexcept = default;
 } // namespace angonoka::stun

@@ -64,7 +64,8 @@ struct Optimizer::Impl {
         Expects(!self.jobs.empty());
 
         const auto p = progress(self);
-        self.last_makespan = self.jobs.front().normalized_makespan();
+        self.last_makespan
+            = self.jobs.front().job.normalized_makespan();
         self.epochs += 1;
         self.last_progress
             = std::min(self.exp_curve(TO_FLOAT(self.epochs), p), 1.F);
@@ -74,6 +75,13 @@ struct Optimizer::Impl {
         Ensures(self.last_progress >= 0.F);
     }
 };
+
+Optimizer::Job::Job(
+    const ScheduleParams& params,
+    BatchSize batch_size)
+    : job{params, random_utils, batch_size}
+{
+}
 
 Optimizer::Optimizer(
     const ScheduleParams& params,
@@ -97,12 +105,12 @@ void Optimizer::update() noexcept
     Expects(!jobs.empty());
 
     // TODO: Parallel
-    jobs.front().update();
+    jobs.front().job.update();
 
     idle_iters += batch_size;
     // Make up a progress value just so that the user
     // doesn't think that the optimizaton has halted.
-    if (jobs.front().normalized_makespan() == last_makespan) {
+    if (normalized_makespan() == last_makespan) {
         Impl::interpolate_progress(*this);
         return;
     }
@@ -131,14 +139,14 @@ void Optimizer::update() noexcept
 {
     Expects(!jobs.empty());
 
-    return jobs.front().schedule();
+    return jobs.front().job.schedule();
 }
 
 [[nodiscard]] float Optimizer::normalized_makespan() const
 {
     Expects(!jobs.empty());
 
-    return jobs.front().normalized_makespan();
+    return jobs.front().job.normalized_makespan();
 }
 
 void Optimizer::reset()
@@ -153,21 +161,23 @@ void Optimizer::reset()
     last_makespan = 0.F;
     exp_curve.reset();
 
-    for (auto& j : jobs) j.reset();
+    for (auto& j : jobs) j.job.reset();
 }
 
 void Optimizer::params(const ScheduleParams& params)
 {
     Expects(!jobs.empty());
 
-    for (auto& j : jobs) j.params(params);
+    for (auto& j : jobs) {
+        j.job.options({.params{&params}, .random{&j.random_utils}});
+    }
 }
 
 const ScheduleParams& Optimizer::params() const
 {
     Expects(!jobs.empty());
 
-    return jobs.front().params();
+    return *jobs.front().job.options().params;
 }
 } // namespace angonoka::stun
 

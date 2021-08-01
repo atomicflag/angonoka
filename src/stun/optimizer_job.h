@@ -21,12 +21,28 @@ enum class BatchSize : std::int_fast32_t;
 class OptimizerJob {
 public:
     /**
+        OptimizerJob options.
+
+        @var params Schedule parameters
+        @var random Random utils.
+    */
+    struct Options {
+        gsl::not_null<const ScheduleParams*> params;
+        gsl::not_null<RandomUtils*> random;
+    };
+
+    /**
         Constructor.
 
         @param params           Scheduling parameters
+        @param random_utils     TODO
         @param batch_size       Number of iterations per update
     */
-    OptimizerJob(const ScheduleParams& params, BatchSize batch_size);
+    OptimizerJob(
+        const ScheduleParams& params,
+        RandomUtils& random_utils,
+        BatchSize batch_size);
+    OptimizerJob(const Options& options, BatchSize batch_size);
 
     /**
         Run stochastic tunneling optimization batch.
@@ -55,22 +71,11 @@ public:
     */
     void reset();
 
-    /**
-        Get the current ScheduleParams object.
-
-        @return Schedule parameters.
-    */
-    [[nodiscard]] const ScheduleParams& params() const;
-
-    /**
-        Set the ScheduleParams object.
-
-        @param params ScheduleParams object
-    */
-    void params(const ScheduleParams& params);
+    // TODO: doc, test, expects
+    [[nodiscard]] Options options() const;
 
     // TODO: doc, test, expects
-    void new_random_seed();
+    void options(const Options& options);
 
     OptimizerJob(const OptimizerJob& other);
     OptimizerJob(OptimizerJob&& other) noexcept;
@@ -85,11 +90,10 @@ private:
     static constexpr auto restart_period = 1 << 20;
     static constexpr auto initial_beta = 1.0F;
 
-    gsl::not_null<const ScheduleParams*> params_;
+    gsl::not_null<const ScheduleParams*> params;
     int16 batch_size;
-    RandomUtils random_utils;
-    Mutator mutator{*params_, random_utils};
-    Makespan makespan{*params_};
+    Mutator mutator;
+    Makespan makespan{*params};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
@@ -98,13 +102,7 @@ private:
         BetaScale{beta_scale},
         StunWindow{stun_window},
         RestartPeriod{restart_period}};
-    StochasticTunneling stun{
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{gamma}},
-        initial_schedule(*params_)};
+    StochasticTunneling stun;
 #pragma clang diagnostic pop
 };
 } // namespace angonoka::stun

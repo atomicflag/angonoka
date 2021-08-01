@@ -32,7 +32,8 @@ suite optimizer_job = [] {
         const auto config = angonoka::load_text(text);
 
         const auto params = to_schedule_params(config);
-        OptimizerJob optimizer{params, BatchSize{5}};
+        RandomUtils random;
+        OptimizerJob optimizer{params, random, BatchSize{5}};
 
         expect(optimizer.normalized_makespan() == 2.F);
         expect(optimizer.schedule()[1].agent_id == 0);
@@ -56,13 +57,23 @@ suite optimizer_job = [] {
         };
 
         should("rebind params") = [&] {
-            expect(&optimizer.params() == &params);
+            expect(optimizer.options().params == &params);
+            expect(optimizer.options().random == &random);
             const auto params2 = params;
-            optimizer.params(params2);
-            expect(&optimizer.params() == &params2);
+            optimizer.options({.params{&params2}, .random{&random}});
+            expect(optimizer.options().params == &params2);
 
             while (optimizer.normalized_makespan() != 1.F)
                 optimizer.update();
+        };
+
+        should("options constructor") = [&] {
+            OptimizerJob optimizer2{
+                {.params{&params}, .random{&random}},
+                BatchSize{5}};
+
+            expect(optimizer2.options().params == &params);
+            expect(optimizer2.options().random == &random);
         };
     };
 
@@ -83,9 +94,10 @@ suite optimizer_job = [] {
         const auto config = angonoka::load_text(text);
 
         const auto params = to_schedule_params(config);
+        RandomUtils random;
 
         should("copy ctor") = [&] {
-            OptimizerJob job{params, BatchSize{5}};
+            OptimizerJob job{params, random, BatchSize{5}};
             OptimizerJob other{job};
 
             expect(other.normalized_makespan() == 2.F);
@@ -96,8 +108,8 @@ suite optimizer_job = [] {
         };
 
         should("copy assignment") = [&] {
-            OptimizerJob job{params, BatchSize{5}};
-            OptimizerJob other{params, BatchSize{5}};
+            OptimizerJob job{params, random, BatchSize{5}};
+            OptimizerJob other{params, random, BatchSize{5}};
             other = job;
 
             expect(other.normalized_makespan() == 2.F);
@@ -111,7 +123,7 @@ suite optimizer_job = [] {
             expect(other.normalized_makespan() == 1.F);
 
             {
-                OptimizerJob job2{params, BatchSize{5}};
+                OptimizerJob job2{params, random, BatchSize{5}};
                 other = job2;
             }
 
@@ -119,7 +131,7 @@ suite optimizer_job = [] {
         };
 
         should("move ctor") = [&] {
-            OptimizerJob job{params, BatchSize{5}};
+            OptimizerJob job{params, random, BatchSize{5}};
             OptimizerJob other{std::move(job)};
 
             expect(other.normalized_makespan() == 2.F);
@@ -130,8 +142,8 @@ suite optimizer_job = [] {
         };
 
         should("move assignment") = [&] {
-            OptimizerJob job{params, BatchSize{5}};
-            OptimizerJob other{params, BatchSize{5}};
+            OptimizerJob job{params, random, BatchSize{5}};
+            OptimizerJob other{params, random, BatchSize{5}};
             other = std::move(job);
 
             expect(other.normalized_makespan() == 2.F);
@@ -142,12 +154,12 @@ suite optimizer_job = [] {
         };
 
         should("destructive move assignment") = [&] {
-            OptimizerJob job{params, BatchSize{5}};
+            OptimizerJob job{params, random, BatchSize{5}};
 
             expect(job.normalized_makespan() == 2.F);
 
             {
-                OptimizerJob other{params, BatchSize{5}};
+                OptimizerJob other{params, random, BatchSize{5}};
                 job = std::move(other);
             }
 
@@ -159,7 +171,7 @@ suite optimizer_job = [] {
         };
 
         should("self copy") = [&] {
-            OptimizerJob job{params, BatchSize{5}};
+            OptimizerJob job{params, random, BatchSize{5}};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             job = job;
@@ -169,7 +181,7 @@ suite optimizer_job = [] {
         };
 
         should("self move") = [&] {
-            OptimizerJob job{params, BatchSize{5}};
+            OptimizerJob job{params, random, BatchSize{5}};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             job = std::move(job);

@@ -2,6 +2,7 @@
 
 #include "exp_curve_fitter.h"
 #include "optimizer_job.h"
+#include "random_utils.h"
 #include "schedule_params.h"
 #include <gsl/gsl-lite.hpp>
 #include <vector>
@@ -98,6 +99,13 @@ private:
     float last_progress{0.F};
     float last_makespan{0.F};
     ExpCurveFitter exp_curve;
-    std::vector<OptimizerJob> jobs;
+
+    // TODO: doc, test, expects
+    struct Job {
+        Job(const ScheduleParams& params, BatchSize batch_size);
+        RandomUtils random_utils;
+        OptimizerJob job;
+    };
+    std::vector<Job> jobs;
 };
 } // namespace angonoka::stun
