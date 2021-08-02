@@ -47,8 +47,7 @@ public:
     /**
         Run stochastic tunneling optimization batch.
 
-        Does batch_size number of iterations and adjusts the estimated
-        progress accordingly.
+        Does batch_size number of iterations.
     */
     void update() noexcept;
 
