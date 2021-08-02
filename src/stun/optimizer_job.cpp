@@ -9,9 +9,10 @@ OptimizerJob::OptimizerJob(
     const ScheduleParams& params,
     RandomUtils& random_utils,
     BatchSize batch_size)
-    : params{&params}
-    , batch_size{static_cast<std::int_fast32_t>(batch_size)}
+    : batch_size{static_cast<std::int_fast32_t>(batch_size)}
     , mutator{params, random_utils}
+    , makespan{params}
+    , temperature{Beta{initial_beta}, BetaScale{beta_scale}, StunWindow{stun_window}, RestartPeriod{restart_period}}
     , stun{
           {.mutator{&mutator},
            .random{&random_utils},
@@ -51,7 +52,7 @@ void OptimizerJob::reset()
 {
     Expects(batch_size > 0);
 
-    stun.reset(initial_schedule(*params));
+    stun.reset(initial_schedule(*mutator.options().params));
     temperature
         = {Beta{initial_beta},
            BetaScale{beta_scale},
@@ -60,8 +61,7 @@ void OptimizerJob::reset()
 }
 
 OptimizerJob::OptimizerJob(const OptimizerJob& other)
-    : params{other.params}
-    , batch_size{other.batch_size}
+    : batch_size{other.batch_size}
     , mutator{other.mutator}
     , makespan{other.makespan}
     , temperature{other.temperature}
@@ -76,8 +76,7 @@ OptimizerJob::OptimizerJob(const OptimizerJob& other)
 }
 
 OptimizerJob::OptimizerJob(OptimizerJob&& other) noexcept
-    : params{std::move(other.params)}
-    , batch_size{other.batch_size}
+    : batch_size{other.batch_size}
     , mutator{std::move(other.mutator)}
     , makespan{std::move(other.makespan)}
     , temperature{std::move(other.temperature)}
@@ -101,7 +100,6 @@ OptimizerJob& OptimizerJob::operator=(const OptimizerJob& other)
 OptimizerJob& OptimizerJob::operator=(OptimizerJob&& other) noexcept
 {
     if (&other == this) return *this;
-    params = other.params;
     batch_size = other.batch_size;
     mutator = std::move(other.mutator);
     makespan = std::move(other.makespan);
@@ -118,7 +116,6 @@ OptimizerJob& OptimizerJob::operator=(OptimizerJob&& other) noexcept
 
 void OptimizerJob::options(const Options& options)
 {
-    params = options.params;
     mutator.options(
         {.params{options.params}, .random{options.random}});
     stun.options(

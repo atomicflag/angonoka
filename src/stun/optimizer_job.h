@@ -90,19 +90,10 @@ private:
     static constexpr auto restart_period = 1 << 20;
     static constexpr auto initial_beta = 1.0F;
 
-    gsl::not_null<const ScheduleParams*> params;
     int16 batch_size;
     Mutator mutator;
-    Makespan makespan{*params};
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-braces"
-#pragma clang diagnostic ignored "-Wbraced-scalar-init"
-    Temperature temperature{
-        Beta{initial_beta},
-        BetaScale{beta_scale},
-        StunWindow{stun_window},
-        RestartPeriod{restart_period}};
+    Makespan makespan;
+    Temperature temperature;
     StochasticTunneling stun;
-#pragma clang diagnostic pop
 };
 } // namespace angonoka::stun
