@@ -64,8 +64,7 @@ struct Optimizer::Impl {
         Expects(!self.jobs.empty());
 
         const auto p = progress(self);
-        self.last_makespan
-            = self.jobs.front().job.normalized_makespan();
+        self.last_makespan = self.normalized_makespan();
         self.epochs += 1;
         self.last_progress
             = std::min(self.exp_curve(TO_FLOAT(self.epochs), p), 1.F);
