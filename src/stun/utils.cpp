@@ -202,10 +202,10 @@ struct Mutator::Impl {
             = self.random->uniform_int(schedule.size() - 1);
         const auto task_id
             = static_cast<gsl::index>(schedule[task_index].task_id);
-        const auto new_agent_id = self.random->uniform_int(
+        const auto new_agent_index = self.random->uniform_int(
             available_agents[task_id].size() - 1);
         schedule[task_index].agent_id
-            = available_agents[task_id][new_agent_id];
+            = available_agents[task_id][new_agent_index];
     }
 };
 
