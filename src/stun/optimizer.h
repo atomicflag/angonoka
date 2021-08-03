@@ -100,8 +100,19 @@ private:
     float last_makespan{0.F};
     ExpCurveFitter exp_curve;
 
-    // TODO: doc, test, expects
+    /**
+        An optimization job and a PRNG.
+
+        @var random_utils   Random number generator utilities
+        @var job            Optimization job
+    */
     struct Job {
+        /**
+            Constructor.
+
+            @param params       Scheduling parameters
+            @param batch_size   Number of iterations per update
+        */
         Job(const ScheduleParams& params, BatchSize batch_size);
         RandomUtils random_utils;
         OptimizerJob job;

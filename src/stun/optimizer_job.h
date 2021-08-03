@@ -16,7 +16,10 @@ namespace angonoka::stun {
 enum class BatchSize : std::int_fast32_t;
 
 /**
-    TODO: doc
+    A single optimization job, meant to be launched in a thread pool.
+
+    Optimizer starts many OptimizerJobs in parallel,
+    pruning unseccessful jobs as needed.
 */
 class OptimizerJob {
 public:
@@ -35,7 +38,7 @@ public:
         Constructor.
 
         @param params           Scheduling parameters
-        @param random_utils     TODO
+        @param random_utils     Random number generator utilities
         @param batch_size       Number of iterations per update
     */
     OptimizerJob(
@@ -70,10 +73,18 @@ public:
     */
     void reset();
 
-    // TODO: doc, test, expects
+    /**
+        Get current options.
+
+        @return Options.
+    */
     [[nodiscard]] Options options() const;
 
-    // TODO: doc, test, expects
+    /**
+        Set options.
+
+        @param options Options.
+    */
     void options(const Options& options);
 
     OptimizerJob(const OptimizerJob& other);
