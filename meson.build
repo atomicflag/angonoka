@@ -42,7 +42,8 @@ dependencies = [
   dependency('pcg-cpp'),
   dependency('indicators'),
   dependency('readerwriterqueue'),
-  dependency('boost', include_type : 'system')
+  dependency('boost', include_type : 'system'),
+  dependency('openmp')
 ]
 
 include = include_directories('src')

@@ -65,8 +65,9 @@ OptimizationResult optimize(
 
     using namespace angonoka::stun;
 
-    constexpr auto batch_size = 10'000;
-    constexpr auto max_idle_iters = 1'000'000;
+    // Maximum of 50 idle batches
+    constexpr auto batch_size = 30'000;
+    constexpr auto max_idle_iters = batch_size * 50;
 
     stun::Optimizer optimizer{
         params,

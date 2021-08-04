@@ -1,4 +1,6 @@
 #include "optimizer.h"
+#include <omp.h>
+#include <range/v3/algorithm/min_element.hpp>
 
 #ifndef NDEBUG
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
@@ -73,6 +75,22 @@ struct Optimizer::Impl {
         Ensures(self.epochs > 0);
         Ensures(self.last_progress >= 0.F);
     }
+
+    // TODO: doc, test, expects
+    static void replicate_best_job(Optimizer& self) noexcept
+    {
+        const auto target_job = ranges::min_element(
+            self.jobs,
+            ranges::less{},
+            [](auto& v) { return v.job.normalized_makespan(); });
+        const auto params = self.jobs.front().job.options().params;
+        for (auto j{self.jobs.begin()}; j < self.jobs.end(); ++j) {
+            if (j == target_job) continue;
+            j->job = target_job->job;
+            j->job.options(
+                {.params{params}, .random{&j->random_utils}});
+        }
+    }
 };
 
 Optimizer::Job::Job(
@@ -92,8 +110,10 @@ Optimizer::Optimizer(
     Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
     Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
 
-    // TODO: Parallel
-    jobs.emplace_back(params, batch_size);
+    const auto max_threads = omp_get_max_threads();
+    jobs.reserve(static_cast<gsl::index>(max_threads));
+    for (int i{0}; i < max_threads; ++i)
+        jobs.emplace_back(params, batch_size);
 
     Ensures(!jobs.empty());
 }
@@ -103,9 +123,9 @@ void Optimizer::update() noexcept
     Expects(batch_size > 0);
     Expects(!jobs.empty());
 
-    // TODO: Parallel
-    jobs.front().job.update();
-
+#pragma omp parallel for default(none)
+    for (auto& j : jobs) j.job.update();
+    Impl::replicate_best_job(*this);
     idle_iters += batch_size;
     // Make up a progress value just so that the user
     // doesn't think that the optimizaton has halted.
