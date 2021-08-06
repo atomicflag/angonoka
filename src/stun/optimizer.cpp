@@ -33,6 +33,7 @@ struct Optimizer::Impl {
     static float progress(Optimizer& self) noexcept
     {
         Expects(self.max_idle_iters > 0);
+        Expects(self.idle_iters >= 0);
 
         return TO_FLOAT(self.idle_iters)
             / TO_FLOAT(self.max_idle_iters);
@@ -79,15 +80,37 @@ struct Optimizer::Impl {
         Ensures(self.last_progress >= 0.F);
     }
 
+    /**
+        Convenience function to get the best job.
+
+        @return The best optimization job.
+    */
+    static auto& best_job(auto& self) noexcept
+    {
+        Expects(!self.jobs.empty());
+
+        return self.jobs.front().job;
+    }
+
 #ifdef ANGONOKA_OPENMP
-    // TODO: doc, test, expects
+    /**
+        Replace all optimizer jobs with the best job so far.
+
+        After each round of updates, find the best job and
+        replace all other jobs with the best one. All jobs
+        will continue the optimization process independently
+        from the same state. Each job has it's own PRNG
+        so they won't optimize exactly the same way.
+    */
     static void replicate_best_job(Optimizer& self) noexcept
     {
+        Expects(!self.jobs.empty());
+
         const auto target_job = ranges::min_element(
             self.jobs,
             ranges::less{},
             [](auto& v) { return v.job.normalized_makespan(); });
-        const auto params = self.jobs.front().job.options().params;
+        const auto params = best_job(self).options().params;
         for (auto j{self.jobs.begin()}; j < self.jobs.end(); ++j) {
             if (j == target_job) continue;
             j->job = target_job->job;
@@ -117,12 +140,12 @@ Optimizer::Optimizer(
 
 #ifdef ANGONOKA_OPENMP
     const auto max_threads = omp_get_max_threads();
+#else // ANGONOKA_OPENMP
+    const auto max_threads = 1;
+#endif // ANGONOKA_OPENMP
     jobs.reserve(static_cast<gsl::index>(max_threads));
     for (int i{0}; i < max_threads; ++i)
         jobs.emplace_back(params, batch_size);
-#else // ANGONOKA_OPENMP
-    jobs.emplace_back(params, batch_size);
-#endif // ANGONOKA_OPENMP
 
     Ensures(!jobs.empty());
 }
@@ -171,14 +194,14 @@ void Optimizer::update() noexcept
 {
     Expects(!jobs.empty());
 
-    return jobs.front().job.schedule();
+    return Impl::best_job(*this).schedule();
 }
 
 [[nodiscard]] float Optimizer::normalized_makespan() const
 {
     Expects(!jobs.empty());
 
-    return jobs.front().job.normalized_makespan();
+    return Impl::best_job(*this).normalized_makespan();
 }
 
 void Optimizer::reset()
@@ -209,7 +232,7 @@ const ScheduleParams& Optimizer::params() const
 {
     Expects(!jobs.empty());
 
-    return *jobs.front().job.options().params;
+    return *Impl::best_job(*this).options().params;
 }
 } // namespace angonoka::stun
 
