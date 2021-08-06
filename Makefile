@@ -60,6 +60,7 @@ build/build.ninja: build/conaninfo.txt
 
 .PHONY: test
 test:
+	export OMP_NUM_THREADS=1
 	for t in $$(find build -name '*_test'); do
 		test_name=$$(basename $$t)
 		printf "$$test_name:\n  "
@@ -119,7 +120,7 @@ plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
 .PHONY: build/cov
-build/cov: MESON_ARGS=--buildtype debugoptimized -Dtests=enabled
+build/cov: MESON_ARGS=--buildtype debugoptimized -Dtests=enabled -Dopenmp=disabled
 build/cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping -DANGONOKA_COVERAGE
 build/cov: ninja
 

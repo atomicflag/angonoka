@@ -33,6 +33,8 @@ else
   )
 endif
 
+openmp = dependency('openmp', required : get_option('openmp'))
+
 dependencies = [
   dependency('fmt'),
   dependency('yaml-cpp'),
@@ -43,7 +45,7 @@ dependencies = [
   dependency('indicators'),
   dependency('readerwriterqueue'),
   dependency('boost', include_type : 'system'),
-  dependency('openmp')
+  openmp
 ]
 
 include = include_directories('src')

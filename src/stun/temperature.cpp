@@ -52,6 +52,12 @@ Temperature& Temperature::operator=(Temperature&& other) noexcept
     try {
         acc = other.acc;
     } catch (...) {
+        // 99% certain that the missing noexcept on
+        // accumulator's copy ctor is a bug in
+        // a boost lib.
+#ifdef __llvm__
+        __builtin_unreachable();
+#endif // __llvm__
     }
     beta_scale = other.beta_scale;
     restart_period_mask = other.restart_period_mask;

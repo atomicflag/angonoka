@@ -1,6 +1,9 @@
 #include "optimizer.h"
-#include <omp.h>
+#include "config.h"
 #include <range/v3/algorithm/min_element.hpp>
+#ifdef ANGONOKA_OPENMP
+#include <omp.h>
+#endif // ANGONOKA_OPENMP
 
 #ifndef NDEBUG
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
@@ -76,6 +79,7 @@ struct Optimizer::Impl {
         Ensures(self.last_progress >= 0.F);
     }
 
+#ifdef ANGONOKA_OPENMP
     // TODO: doc, test, expects
     static void replicate_best_job(Optimizer& self) noexcept
     {
@@ -91,6 +95,7 @@ struct Optimizer::Impl {
                 {.params{params}, .random{&j->random_utils}});
         }
     }
+#endif // ANGONOKA_OPENMP
 };
 
 Optimizer::Job::Job(
@@ -110,10 +115,14 @@ Optimizer::Optimizer(
     Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
     Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
 
+#ifdef ANGONOKA_OPENMP
     const auto max_threads = omp_get_max_threads();
     jobs.reserve(static_cast<gsl::index>(max_threads));
     for (int i{0}; i < max_threads; ++i)
         jobs.emplace_back(params, batch_size);
+#else // ANGONOKA_OPENMP
+    jobs.emplace_back(params, batch_size);
+#endif // ANGONOKA_OPENMP
 
     Ensures(!jobs.empty());
 }
@@ -123,9 +132,13 @@ void Optimizer::update() noexcept
     Expects(batch_size > 0);
     Expects(!jobs.empty());
 
+#ifdef ANGONOKA_OPENMP
 #pragma omp parallel for default(none)
     for (auto& j : jobs) j.job.update();
     Impl::replicate_best_job(*this);
+#else // ANGONOKA_OPENMP
+    jobs.front().job.update();
+#endif // ANGONOKA_OPENMP
     idle_iters += batch_size;
     // Make up a progress value just so that the user
     // doesn't think that the optimizaton has halted.
