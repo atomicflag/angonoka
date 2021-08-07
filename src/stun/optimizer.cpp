@@ -1,6 +1,6 @@
 #include "optimizer.h"
 #include "config.h"
-#include <range/v3/algorithm/min_element.hpp>
+#include <range/v3/algorithm/min.hpp>
 #ifdef ANGONOKA_OPENMP
 #include <omp.h>
 #endif // ANGONOKA_OPENMP
@@ -106,16 +106,19 @@ struct Optimizer::Impl {
     {
         Expects(!self.jobs.empty());
 
-        const auto target_job = ranges::min_element(
-            self.jobs,
-            ranges::less{},
-            [](auto& v) { return v.job.normalized_makespan(); });
+        const auto& target_job
+            = ranges::min(self.jobs, ranges::less{}, [](auto& v) {
+                  return v.job.normalized_makespan();
+              });
+        const auto best_makespan
+            = target_job.job.normalized_makespan();
         const auto params = best_job(self).options().params;
-        for (auto j{self.jobs.begin()}; j < self.jobs.end(); ++j) {
-            if (j == target_job) continue;
-            j->job = target_job->job;
-            j->job.options(
-                {.params{params}, .random{&j->random_utils}});
+        for (auto& j : self.jobs) {
+            if (j.job.normalized_makespan() == best_makespan)
+                continue;
+            j.job = target_job.job;
+            j.job.options(
+                {.params{params}, .random{&j.random_utils}});
         }
     }
 #endif // ANGONOKA_OPENMP
@@ -141,7 +144,7 @@ Optimizer::Optimizer(
 #ifdef ANGONOKA_OPENMP
     const auto max_threads = omp_get_max_threads();
 #else // ANGONOKA_OPENMP
-    const auto max_threads = 1;
+    constexpr auto max_threads = 1;
 #endif // ANGONOKA_OPENMP
     jobs.reserve(static_cast<gsl::index>(max_threads));
     for (int i{0}; i < max_threads; ++i)
