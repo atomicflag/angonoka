@@ -15,6 +15,12 @@ suite human_duration = [] {
         expect(text == "a few seconds");
     };
 
+    "15 seconds"_test = [] {
+        constexpr auto d = humanize{15s};
+        const auto text = fmt::format("{}", d);
+        expect(text == "15 seconds");
+    };
+
     "short duration"_test = [] {
         constexpr auto d = humanize{1min + 15s};
         const auto text = fmt::format("{}", d);
@@ -33,6 +39,18 @@ suite human_duration = [] {
         expect(text == "about an hour");
     };
 
+    "2 hours"_test = [] {
+        constexpr auto d = humanize{2h};
+        const auto text = fmt::format("{}", d);
+        expect(text == "2 hours");
+    };
+
+    "a day"_test = [] {
+        constexpr auto d = humanize{23h};
+        const auto text = fmt::format("{}", d);
+        expect(text == "about a day");
+    };
+
     "long duration"_test = [] {
         constexpr auto d = humanize{24h * 12 + 1h + 15s};
         const auto text = fmt::format("{}", d);
@@ -43,6 +61,12 @@ suite human_duration = [] {
         constexpr auto d = humanize{24h * 35};
         const auto text = fmt::format("{}", d);
         expect(text == "about a month");
+    };
+
+    "2 months"_test = [] {
+        constexpr auto d = humanize{24h * 70};
+        const auto text = fmt::format("{}", d);
+        expect(text == "2 months");
     };
 
     "0 duration"_test = [] {

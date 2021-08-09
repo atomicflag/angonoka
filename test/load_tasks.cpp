@@ -306,6 +306,21 @@ suite loading_tasks = [] {
             [&] { angonoka::load_text(text); }));
     };
 
+    "empty name"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - id: 'hello'\n"
+            "    name: ''\n"
+            "    duration: 1h";
+        // clang-format on
+
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
+
     "optional id"_test = [] {
         // clang-format off
         constexpr auto text =
