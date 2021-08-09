@@ -1,4 +1,9 @@
 #include "optimizer.h"
+#include "config.h"
+#include <range/v3/algorithm/min.hpp>
+#ifdef ANGONOKA_OPENMP
+#include <omp.h>
+#endif // ANGONOKA_OPENMP
 
 #ifndef NDEBUG
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
@@ -28,6 +33,7 @@ struct Optimizer::Impl {
     static float progress(Optimizer& self) noexcept
     {
         Expects(self.max_idle_iters > 0);
+        Expects(self.idle_iters >= 0);
 
         return TO_FLOAT(self.idle_iters)
             / TO_FLOAT(self.max_idle_iters);
@@ -61,9 +67,10 @@ struct Optimizer::Impl {
     static void estimate_progress(Optimizer& self) noexcept
     {
         Expects(self.epochs >= 0);
+        Expects(!self.jobs.empty());
 
         const auto p = progress(self);
-        self.last_makespan = self.stun.normalized_makespan();
+        self.last_makespan = self.normalized_makespan();
         self.epochs += 1;
         self.last_progress
             = std::min(self.exp_curve(TO_FLOAT(self.epochs), p), 1.F);
@@ -72,29 +79,96 @@ struct Optimizer::Impl {
         Ensures(self.epochs > 0);
         Ensures(self.last_progress >= 0.F);
     }
+
+    /**
+        Convenience function to get the best job.
+
+        @return The best optimization job.
+    */
+    static auto& best_job(auto& self) noexcept
+    {
+        Expects(!self.jobs.empty());
+
+        return self.jobs.front().job;
+    }
+
+#ifdef ANGONOKA_OPENMP
+    /**
+        Replace all optimizer jobs with the best job so far.
+
+        After each round of updates, find the best job and
+        replace all other jobs with the best one. All jobs
+        will continue the optimization process independently
+        from the same state. Each job has it's own PRNG
+        so they won't optimize exactly the same way.
+    */
+    static void replicate_best_job(Optimizer& self) noexcept
+    {
+        Expects(!self.jobs.empty());
+
+        const auto& target_job
+            = ranges::min(self.jobs, ranges::less{}, [](auto& v) {
+                  return v.job.normalized_makespan();
+              });
+        const auto best_makespan
+            = target_job.job.normalized_makespan();
+        const auto params = best_job(self).options().params;
+        for (auto& j : self.jobs) {
+            if (j.job.normalized_makespan() == best_makespan)
+                continue;
+            j.job = target_job.job;
+            j.job.options(
+                {.params{params}, .random{&j.random_utils}});
+        }
+    }
+#endif // ANGONOKA_OPENMP
 };
+
+Optimizer::Job::Job(
+    const ScheduleParams& params,
+    BatchSize batch_size)
+    : job{params, random_utils, batch_size}
+{
+}
 
 Optimizer::Optimizer(
     const ScheduleParams& params,
     BatchSize batch_size,
     MaxIdleIters max_idle_iters)
-    : params{&params}
-    , batch_size{static_cast<std::int_fast32_t>(batch_size)}
+    : batch_size{static_cast<std::int_fast32_t>(batch_size)}
     , max_idle_iters{static_cast<std::int_fast32_t>(max_idle_iters)}
 {
     Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
     Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
+
+#ifdef ANGONOKA_OPENMP
+    const auto max_threads = omp_get_max_threads();
+#else // ANGONOKA_OPENMP
+    constexpr auto max_threads = 1;
+#endif // ANGONOKA_OPENMP
+    jobs.reserve(static_cast<gsl::index>(max_threads));
+    for (int i{0}; i < max_threads; ++i)
+        jobs.emplace_back(params, batch_size);
+
+    Ensures(!jobs.empty());
 }
 
 void Optimizer::update() noexcept
 {
     Expects(batch_size > 0);
+    Expects(!jobs.empty());
 
-    for (int32 i{0}; i < batch_size; ++i) stun.update();
+#ifdef ANGONOKA_OPENMP
+#pragma omp parallel for default(none)
+    for (auto& j : jobs) j.job.update();
+    Impl::replicate_best_job(*this);
+#else // ANGONOKA_OPENMP
+    jobs.front().job.update();
+#endif // ANGONOKA_OPENMP
     idle_iters += batch_size;
     // Make up a progress value just so that the user
     // doesn't think that the optimizaton has halted.
-    if (stun.normalized_makespan() == last_makespan) {
+    if (normalized_makespan() == last_makespan) {
         Impl::interpolate_progress(*this);
         return;
     }
@@ -121,111 +195,48 @@ void Optimizer::update() noexcept
 
 [[nodiscard]] Schedule Optimizer::schedule() const
 {
-    return stun.schedule();
+    Expects(!jobs.empty());
+
+    return Impl::best_job(*this).schedule();
 }
 
 [[nodiscard]] float Optimizer::normalized_makespan() const
 {
-    return stun.normalized_makespan();
+    Expects(!jobs.empty());
+
+    return Impl::best_job(*this).normalized_makespan();
 }
 
 void Optimizer::reset()
 {
     Expects(max_idle_iters > 0);
     Expects(batch_size > 0);
+    Expects(!jobs.empty());
 
-    stun.reset(initial_schedule(*params));
-    temperature
-        = {Beta{initial_beta},
-           BetaScale{beta_scale},
-           StunWindow{stun_window},
-           RestartPeriod{restart_period}};
     idle_iters = 0;
     epochs = 0;
     last_progress = 0.F;
     last_makespan = 0.F;
     exp_curve.reset();
+
+    for (auto& j : jobs) j.job.reset();
 }
 
-Optimizer::Optimizer(const Optimizer& other)
-    : params{other.params}
-    , batch_size{other.batch_size}
-    , max_idle_iters{other.max_idle_iters}
-    , idle_iters{other.idle_iters}
-    , epochs{other.epochs}
-    , last_progress{other.last_progress}
-    , last_makespan{other.last_makespan}
-    , random_utils{other.random_utils}
-    , mutator{other.mutator}
-    , makespan{other.makespan}
-    , temperature{other.temperature}
-    , stun{other.stun}
-    , exp_curve{other.exp_curve}
+void Optimizer::params(const ScheduleParams& params)
 {
-    stun.options(
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{gamma}});
+    Expects(!jobs.empty());
+
+    for (auto& j : jobs) {
+        j.job.options({.params{&params}, .random{&j.random_utils}});
+    }
 }
 
-Optimizer::Optimizer(Optimizer&& other) noexcept
-    : params{std::move(other.params)}
-    , batch_size{other.batch_size}
-    , max_idle_iters{other.max_idle_iters}
-    , idle_iters{other.idle_iters}
-    , epochs{other.epochs}
-    , last_progress{other.last_progress}
-    , last_makespan{other.last_makespan}
-    , random_utils{other.random_utils}
-    , mutator{std::move(other.mutator)}
-    , makespan{std::move(other.makespan)}
-    , temperature{std::move(other.temperature)}
-    , stun{std::move(other.stun)}
-    , exp_curve{other.exp_curve}
+const ScheduleParams& Optimizer::params() const
 {
-    stun.options(
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{gamma}});
-}
+    Expects(!jobs.empty());
 
-Optimizer& Optimizer::operator=(const Optimizer& other)
-{
-    if (&other == this) return *this;
-    *this = Optimizer{other};
-    return *this;
+    return *Impl::best_job(*this).options().params;
 }
-
-Optimizer& Optimizer::operator=(Optimizer&& other) noexcept
-{
-    if (&other == this) return *this;
-    params = other.params;
-    batch_size = other.batch_size;
-    max_idle_iters = other.max_idle_iters;
-    idle_iters = other.idle_iters;
-    epochs = other.epochs;
-    last_progress = other.last_progress;
-    last_makespan = other.last_makespan;
-    random_utils = other.random_utils;
-    mutator = std::move(other.mutator);
-    makespan = std::move(other.makespan);
-    temperature = std::move(other.temperature);
-    stun = std::move(other.stun);
-    stun.options(
-        {.mutator{&mutator},
-         .random{&random_utils},
-         .makespan{&makespan},
-         .temp{&temperature},
-         .gamma{gamma}});
-    exp_curve = other.exp_curve;
-    return *this;
-}
-
-Optimizer::~Optimizer() noexcept = default;
 } // namespace angonoka::stun
 
 #pragma clang diagnostic pop

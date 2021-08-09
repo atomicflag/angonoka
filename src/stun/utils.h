@@ -41,9 +41,23 @@ public:
     */
     float operator()(Schedule schedule) noexcept;
 
+    /**
+        Get the current ScheduleParams object.
+
+        @return Schedule parameters.
+    */
+    [[nodiscard]] const ScheduleParams& params() const;
+
+    /**
+        Set the ScheduleParams object.
+
+        @param params ScheduleParams object
+    */
+    void params(const ScheduleParams& params);
+
 private:
     struct Impl;
-    gsl::not_null<const ScheduleParams*> params;
+    gsl::not_null<const ScheduleParams*> params_;
     std::vector<float> sum_buffer;
     span<float> task_done;
     span<float> work_done;
@@ -60,12 +74,24 @@ class RandomUtils;
 class Mutator {
 public:
     /**
+        Mutator options.
+
+        @var params Schedule parameters
+        @var random Random utils.
+    */
+    struct Options {
+        gsl::not_null<const ScheduleParams*> params;
+        gsl::not_null<RandomUtils*> random;
+    };
+
+    /**
         Constructor.
 
         @param params An instance of ScheduleParams
         @param random An instance of RandomUtils
     */
     Mutator(const ScheduleParams& params, RandomUtils& random);
+    Mutator(const Options& options);
 
     /**
         Mutates the scheduling configuration in-place.
@@ -73,6 +99,20 @@ public:
         @param schedule Scheduling configuration
     */
     void operator()(MutSchedule schedule) const noexcept;
+
+    /**
+        Get current options.
+
+        @return Options.
+    */
+    [[nodiscard]] Options options() const;
+
+    /**
+        Set options.
+
+        @param options Options.
+    */
+    void options(const Options& options);
 
 private:
     struct Impl;

@@ -49,17 +49,18 @@ build/build.ninja: build/conaninfo.txt
 		import json
 		data = json.load(open('compile_commands.json'))
 		for f in data: f['command'] = f['command'] \
-			.replace(' -isystem', ' $(CLANG_BUILTIN) '
+			.replace(' -o ', ' $(CLANG_BUILTIN) '
 			'-Dgsl_CONFIG_CONTRACT_CHECKING_OFF '
 			'-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ELIDE '
 			'-DNDEBUG '
-			'-isystem', 1) \
+			'-o ', 1) \
 			.replace('-DUNIT_TEST', '')
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
 
 .PHONY: test
 test:
+	export OMP_NUM_THREADS=1
 	for t in $$(find build -name '*_test'); do
 		test_name=$$(basename $$t)
 		printf "$$test_name:\n  "
@@ -119,7 +120,7 @@ plain: MESON_ARGS=--buildtype plain
 plain: ninja
 
 .PHONY: build/cov
-build/cov: MESON_ARGS=--buildtype debugoptimized -Dtests=enabled
+build/cov: MESON_ARGS=--buildtype debugoptimized -Dtests=enabled -Dopenmp=disabled
 build/cov: CXXFLAGS=-fprofile-instr-generate -fcoverage-mapping -DANGONOKA_COVERAGE
 build/cov: ninja
 
@@ -163,10 +164,10 @@ check/tidy:
 			compile_commands.json
 	cp compile_commands.json compile_commands.json.bak
 	sed -i \
-		-e 's/-fsanitize=[a-z,]*//g' \
-		-e 's/-pipe//g' \
-		-e 's/-fno-omit-frame-pointer//g' \
-		-e 's/--coverage//g' \
+		-e 's/ -fsanitize=[a-z,]*//g' \
+		-e 's/ -pipe//g' \
+		-e 's/ -fno-omit-frame-pointer//g' \
+		-e 's/ --coverage//g' \
 		compile_commands.json
 	python3 <<EOF
 		import json
@@ -178,9 +179,7 @@ check/tidy:
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
 	python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
-		-quiet $$(find ../src \
-			\( -name '*.cpp' -o -name '*.h' \) \
-			) 2>/dev/null
+		-quiet ../src 2>/dev/null
 	EXIT_CODE=$$?
 	mv compile_commands.json.bak compile_commands.json
 	exit $$EXIT_CODE

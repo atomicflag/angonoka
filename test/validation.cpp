@@ -258,5 +258,16 @@ suite validation = [] {
             expect(!result);
             expect(result.error() == R"("attr" can't be empty.)");
         };
+
+        "empty attribute name"_test = [&] {
+            // clang-format off
+            const auto node = YAML::Load(
+                ": hello\n"
+            );
+            // clang-format on
+            const auto result = schema(node);
+            expect(!result);
+            expect(result.error() == R"(Empty attribute in "".)");
+        };
     };
 };

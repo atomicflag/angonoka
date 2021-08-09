@@ -20,6 +20,7 @@ base_lib = static_library(
     'stun/schedule.cpp',
     'stun/exp_curve_fitter.cpp',
     'stun/optimizer.cpp',
+    'stun/optimizer_job.cpp',
     'stun/random_utils.cpp',
     'stun/schedule_params.cpp',
     'stun/stochastic_tunneling.cpp',
@@ -40,7 +41,8 @@ base = declare_dependency(
 configure_file(output : 'config.h',
   configuration : {
     'ANGONOKA_VERSION' : '"'+meson.project_name()+' version '+meson.project_version()+'"',
-    'ANGONOKA_NAME' : '"'+meson.project_name()+'"'
+    'ANGONOKA_NAME' : '"'+meson.project_name()+'"',
+    'ANGONOKA_OPENMP' : openmp.found()
   }
 )
 

@@ -32,7 +32,6 @@ suite optimizer = [] {
         const auto config = angonoka::load_text(text);
 
         const auto params = to_schedule_params(config);
-        const auto schedule_params = to_schedule_params(config);
         Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
         expect(optimizer.normalized_makespan() == 2.F);
@@ -53,10 +52,21 @@ suite optimizer = [] {
             optimizer.schedule()[1].agent_id
             != optimizer.schedule()[0].agent_id);
 
-        optimizer.reset();
+        should("reset") = [&] {
+            optimizer.reset();
 
-        expect(optimizer.normalized_makespan() == 2.F);
-        expect(optimizer.estimated_progress() == 0.F);
+            expect(optimizer.normalized_makespan() == 2.F);
+            expect(optimizer.estimated_progress() == 0.F);
+        };
+
+        should("rebind params") = [&] {
+            expect(&optimizer.params() == &params);
+            const auto params2 = params;
+            optimizer.params(params2);
+            expect(&optimizer.params() == &params2);
+
+            while (!optimizer.has_converged()) optimizer.update();
+        };
     };
 
     "Optimizer special memeber functions"_test = [] {
@@ -76,7 +86,6 @@ suite optimizer = [] {
         const auto config = angonoka::load_text(text);
 
         const auto params = to_schedule_params(config);
-        const auto schedule_params = to_schedule_params(config);
 
         should("copy ctor") = [&] {
             Optimizer optimizer{
@@ -103,6 +112,19 @@ suite optimizer = [] {
             expect(other.normalized_makespan() == 2.F);
 
             while (!optimizer.has_converged()) optimizer.update();
+
+            expect(other.normalized_makespan() == 2.F);
+
+            while (!other.has_converged()) other.update();
+            expect(other.normalized_makespan() == 1.F);
+
+            {
+                Optimizer optimizer2{
+                    params,
+                    BatchSize{5},
+                    MaxIdleIters{10}};
+                other = optimizer2;
+            }
 
             expect(other.normalized_makespan() == 2.F);
         };
@@ -136,6 +158,29 @@ suite optimizer = [] {
             expect(other.normalized_makespan() == 1.F);
         };
 
+        should("destructive move assignment") = [&] {
+            Optimizer optimizer{
+                params,
+                BatchSize{5},
+                MaxIdleIters{10}};
+
+            expect(optimizer.normalized_makespan() == 2.F);
+
+            {
+                Optimizer other{
+                    params,
+                    BatchSize{5},
+                    MaxIdleIters{10}};
+                optimizer = std::move(other);
+            }
+
+            expect(optimizer.normalized_makespan() == 2.F);
+
+            while (!optimizer.has_converged()) optimizer.update();
+
+            expect(optimizer.normalized_makespan() == 1.F);
+        };
+
         should("self copy") = [&] {
             Optimizer optimizer{
                 params,
@@ -149,18 +194,6 @@ suite optimizer = [] {
             expect(optimizer.normalized_makespan() == 2.F);
         };
 
-        should("self move") = [&] {
-            Optimizer optimizer{
-                params,
-                BatchSize{5},
-                MaxIdleIters{10}};
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wself-move"
-            optimizer = std::move(optimizer);
-#pragma clang diagnostic pop
-
-            expect(optimizer.normalized_makespan() == 2.F);
-        };
+        // self move is not supported
     };
 };

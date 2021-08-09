@@ -26,6 +26,13 @@ template <typename T> humanize(T) -> humanize<T>;
 
 namespace detail {
     /**
+        Enum that tells if a human-readable duration
+        printing should continue parsing durations of a
+        smaller scale or stop.
+    */
+    enum DurationParsing : bool { continue_, stop };
+
+    /**
         Helper function to print durations in human-readable form.
 
         @param article  "a" or "an"
@@ -39,7 +46,7 @@ namespace detail {
     {
         return [=](auto total, auto& ctx) {
             const auto dur = std::chrono::round<T>(total);
-            if (dur == dur.zero()) return false;
+            if (dur == dur.zero()) return DurationParsing::continue_;
             const auto ticks = dur.count();
             if (ticks == 1) {
                 fmt::format_to(
@@ -50,7 +57,7 @@ namespace detail {
             } else {
                 fmt::format_to(ctx.out(), "{} {}s", ticks, name);
             }
-            return true;
+            return DurationParsing::stop;
         };
     }
 } // namespace detail

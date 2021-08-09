@@ -129,4 +129,22 @@ suite stun_makespan = [] {
             {2, 2}};
         expect(makespan(schedule) == 3._d);
     };
+
+    "Makespan params"_test = [] {
+        const auto params = make_test_schedule_params();
+        Makespan makespan{params};
+
+        expect(&makespan.params() == &params);
+
+        const auto params2 = make_test_schedule_params();
+        makespan.params(params2);
+
+        expect(&makespan.params() == &params2);
+
+        const std::vector<ScheduleItem> schedule{
+            {0, 0},
+            {1, 1},
+            {2, 2}};
+        expect(makespan(schedule) == 3._d);
+    };
 };
