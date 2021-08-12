@@ -338,6 +338,67 @@ suite loading_tasks = [] {
         expect(config.tasks[0].name == "task 1");
     };
 
+    "dedicated agent"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "  agent2:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: agent1\n"
+            "    duration: 1h";
+        // clang-format on
+
+        const auto config = angonoka::load_text(text);
+
+        expect(config.tasks.size() == 1_i);
+        // TODO: only agent1 must be able to work on task 1
+    };
+
+    "dedicated agent and a group"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "  agent2:\n"
+            "    groups:\n"
+            "      - A\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: agent1\n"
+            "    group: A\n"
+            "    duration: 1h";
+        // clang-format on
+
+        const auto config = angonoka::load_text(text);
+
+        // TODO: Error, can't have both an agent and a group
+    };
+
+    "dedicated agent and subtasks"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "  agent2:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: agent1\n"
+            "    duration: 1h\n"
+            "    subtasks:\n"
+            "      - name: task 2\n"
+            "        duration: 2h";
+        // clang-format on
+
+        const auto config = angonoka::load_text(text);
+
+        // TODO: task 1 must be available only to agent 1
+        // task 2 can be completed by any agent
+    };
+
     "depends on single task"_test = [] {
         // clang-format off
         constexpr auto text =
