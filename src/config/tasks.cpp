@@ -100,6 +100,17 @@ find_task_index_by_id(const Tasks& tasks, std::string_view id)
     throw TaskNotFound{id};
 }
 
+// TODO: doc, test, expects
+AgentIndex
+find_agent_index_by_name(const Agents& agents, std::string_view name)
+{
+    Expects(!name.empty());
+    if (const auto a = ranges::find(agents, name, &Agent::name);
+        a != agents.end())
+        return a->id;
+    throw AgentNotFound{name};
+}
+
 /**
     Parses Task ids.
 
@@ -217,6 +228,40 @@ void parse_subtasks(
     }
 }
 
+// TODO: doc, test, expects
+void parse_task_agent(
+    const YAML::Node& agent,
+    Task& task,
+    const Agents& agents)
+{
+    const auto& name = agent.Scalar();
+    if (name.empty()) throw CantBeEmpty{"Assigned agents name"};
+    task.agent_id = find_agent_index_by_name(agents, name);
+}
+
+// TODO: doc, test, expects
+void parse_groups_or_agents(
+    const YAML::Node& task_node,
+    Task& task,
+    Configuration& config)
+{
+    if (task_node["group"].IsDefined()
+        && task_node["agent"].IsDefined())
+        throw InvalidTaskAssignment(task.name);
+
+    // Parse task.group
+    if (const auto& group = task_node["group"]) {
+        parse_task_group(group, task, config);
+        return;
+    }
+
+    // Parse task.agent
+    if (const auto& agent = task_node["agent"]) {
+        parse_task_agent(agent, task, config.agents);
+        return;
+    }
+}
+
 /**
     Parses task blocks.
 
@@ -249,21 +294,15 @@ void parse_task(
     task.name = name;
 
     // Parse task.id
-    if (const auto& id_node = task_node["id"]) {
+    if (const auto& id_node = task_node["id"])
         parse_task_id(id_node, config.tasks, task);
-    }
 
     parse_duration(task_node["duration"], task);
-
-    // Parse task.group
-    if (const auto& group = task_node["group"]) {
-        parse_task_group(group, task, config);
-    }
+    parse_groups_or_agents(task_node, task, config);
 
     // Parse task.depends_on
-    if (const auto& depends_on = task_node["depends_on"]) {
+    if (const auto& depends_on = task_node["depends_on"])
         parse_dependencies(depends_on, task_deps, task);
-    }
 
     // Parse task.subtasks
     if (const auto& subtasks = task_node["subtasks"]) {

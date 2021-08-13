@@ -23,6 +23,9 @@ struct SchemaError : ValidationError {
 struct InvalidAgentPerformance : ValidationError {
     InvalidAgentPerformance(std::string_view who);
 };
+struct InvalidTaskAssignment : ValidationError {
+    InvalidTaskAssignment(std::string_view task);
+};
 struct AgentPerformanceMinMax : ValidationError {
     AgentPerformanceMinMax(std::string_view who);
 };
@@ -46,6 +49,9 @@ struct CantBeEmpty : ValidationError {
 };
 struct TaskNotFound : ValidationError {
     TaskNotFound(std::string_view task_id);
+};
+struct AgentNotFound : ValidationError {
+    AgentNotFound(std::string_view name);
 };
 struct DependencyCycle : ValidationError {
     DependencyCycle();

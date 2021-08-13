@@ -20,6 +20,7 @@ bool can_work_on(const Agent& agent, GroupIndex id) noexcept
 [[nodiscard]] bool
 can_work_on(const Agent& agent, const Task& task) noexcept
 {
+    if (task.agent_id) return task.agent_id == agent.id;
     return is_universal(agent)
         || (task.group_id && can_work_on(agent, *task.group_id));
 }

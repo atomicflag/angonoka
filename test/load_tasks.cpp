@@ -339,6 +339,9 @@ suite loading_tasks = [] {
     };
 
     "dedicated agent"_test = [] {
+        using angonoka::AgentIndex;
+        using angonoka::can_work_on;
+
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -353,7 +356,10 @@ suite loading_tasks = [] {
         const auto config = angonoka::load_text(text);
 
         expect(config.tasks.size() == 1_i);
-        // TODO: only agent1 must be able to work on task 1
+        expect(!config.tasks[0].group_id);
+        expect(config.tasks[0].agent_id == AgentIndex{0});
+        expect(can_work_on(config.agents[0], config.tasks[0]));
+        expect(!can_work_on(config.agents[1], config.tasks[0]));
     };
 
     "dedicated agent and a group"_test = [] {
@@ -373,12 +379,21 @@ suite loading_tasks = [] {
             "    duration: 1h";
         // clang-format on
 
-        const auto config = angonoka::load_text(text);
-
-        // TODO: Error, can't have both an agent and a group
+        expect(throws<angonoka::InvalidTaskAssignment>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::InvalidTaskAssignment& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Task "task 1" must have at most one of: agent, group.)"sv));
+                throw;
+            }
+        }));
     };
 
     "dedicated agent and subtasks"_test = [] {
+        using angonoka::AgentIndex;
+
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -395,9 +410,13 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        // TODO: task 1 must be available only to agent 1
-        // task 2 can be completed by any agent
+        expect(config.tasks.size() == 2_i);
+        expect(config.tasks[0].agent_id == AgentIndex{0});
+        expect(!config.tasks[1].agent_id);
     };
+
+    // TODO: empty dedicated agent
+    // TODO: dedicated agent not found
 
     "depends on single task"_test = [] {
         // clang-format off
