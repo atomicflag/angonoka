@@ -415,8 +415,50 @@ suite loading_tasks = [] {
         expect(!config.tasks[1].agent_id);
     };
 
-    // TODO: empty dedicated agent
-    // TODO: dedicated agent not found
+    "empty dedicated agent"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: ''\n"
+            "    duration: 1h";
+        // clang-format on
+
+        expect(throws<angonoka::CantBeEmpty>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::CantBeEmpty& e) {
+                expect(
+                    eq(e.what(),
+                       R"(Assigned agents name can't be empty.)"sv));
+                throw;
+            }
+        }));
+    };
+
+    "dedicated agent not found"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: asdf\n"
+            "    duration: 1h";
+        // clang-format on
+
+        expect(throws<angonoka::AgentNotFound>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::AgentNotFound& e) {
+                expect(
+                    eq(e.what(), R"(Agent "asdf" doesn't exist.)"sv));
+                throw;
+            }
+        }));
+    };
 
     "depends on single task"_test = [] {
         // clang-format off
