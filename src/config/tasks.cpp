@@ -100,11 +100,20 @@ find_task_index_by_id(const Tasks& tasks, std::string_view id)
     throw TaskNotFound{id};
 }
 
-// TODO: doc, test, expects
+/**
+    Find agent's id by name.
+
+    @param agents   Array of agents
+    @param name     Agents name
+
+    @return Agent's id
+*/
 AgentIndex
 find_agent_index_by_name(const Agents& agents, std::string_view name)
 {
+    Expects(!agents.empty());
     Expects(!name.empty());
+
     if (const auto a = ranges::find(agents, name, &Agent::name);
         a != agents.end())
         return a->id;
@@ -228,23 +237,56 @@ void parse_subtasks(
     }
 }
 
-// TODO: doc, test, expects
+/**
+    Parse task's dedicated agent.
+
+    Parses blocks such as these:
+
+    agent: Bob
+           ^ this
+
+    @param agent    YAML scalar
+    @param task     Task for the agent
+    @param agents   Array of agents
+*/
 void parse_task_agent(
     const YAML::Node& agent,
     Task& task,
     const Agents& agents)
 {
+    Expects(!agents.empty());
+    Expects(agent.IsScalar());
+
     const auto& name = agent.Scalar();
     if (name.empty()) throw CantBeEmpty{"Assigned agents name"};
     task.agent_id = find_agent_index_by_name(agents, name);
+
+    Ensures(task.agent_id);
 }
 
-// TODO: doc, test, expects
-void parse_groups_or_agents(
+/**
+    Parses task's groups and dedicated agents definition.
+
+    Parses blocks such as these:
+
+    agent: Bob
+
+    and
+
+    groups:
+     - group 1
+
+    @param task_node    YAML node containing task data
+    @param task         Instance of Task
+    @param config       Instance of Configuration
+*/
+void parse_groups_and_agents(
     const YAML::Node& task_node,
     Task& task,
     Configuration& config)
 {
+    Expects(!task.name.empty());
+
     if (task_node["group"].IsDefined()
         && task_node["agent"].IsDefined())
         throw InvalidTaskAssignment(task.name);
@@ -298,7 +340,7 @@ void parse_task(
         parse_task_id(id_node, config.tasks, task);
 
     parse_duration(task_node["duration"], task);
-    parse_groups_or_agents(task_node, task, config);
+    parse_groups_and_agents(task_node, task, config);
 
     // Parse task.depends_on
     if (const auto& depends_on = task_node["depends_on"])
