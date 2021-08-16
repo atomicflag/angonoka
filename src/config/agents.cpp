@@ -140,6 +140,9 @@ void parse_agent(
     // Parse agent.perf
     if (const auto performance = agent_data["performance"])
         parse_agent_performance(performance, agent);
+
+    Ensures(agent.id >= 0);
+    Ensures(!agent.name.empty());
 }
 } // namespace
 

@@ -189,4 +189,4 @@ check: check/format check/tidy
 
 .PHONY: clean
 clean:
-	rm -rf build
+	git clean -fxd
