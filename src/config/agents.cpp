@@ -128,19 +128,21 @@ void parse_agent(
 
     check_for_duplicates(config.agents, agent_name);
     auto& agent = config.agents.emplace_back();
+    agent.id = config.agents.size() - 1;
 
     // Parse agent.name
     agent.name = agent_name;
 
     // Parse agent.groups
-    if (const auto groups = agent_data["groups"]) {
+    if (const auto groups = agent_data["groups"])
         parse_agent_groups(groups, agent, config.groups);
-    }
 
     // Parse agent.perf
-    if (const auto performance = agent_data["performance"]) {
+    if (const auto performance = agent_data["performance"])
         parse_agent_performance(performance, agent);
-    }
+
+    Ensures(agent.id >= 0);
+    Ensures(!agent.name.empty());
 }
 } // namespace
 
@@ -150,9 +152,8 @@ void parse_agents(const YAML::Node& node, Configuration& config)
     Expects(config.agents.empty());
 
     if (node.size() == 0) throw CantBeEmpty{R"_("agents")_"};
-    for (auto&& agent : node) {
+    for (auto&& agent : node)
         parse_agent(agent.first, agent.second, config);
-    }
 
     Ensures(!config.agents.empty());
 }

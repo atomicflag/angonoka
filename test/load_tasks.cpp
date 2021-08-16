@@ -338,6 +338,128 @@ suite loading_tasks = [] {
         expect(config.tasks[0].name == "task 1");
     };
 
+    "dedicated agent"_test = [] {
+        using angonoka::AgentIndex;
+        using angonoka::can_work_on;
+
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "  agent2:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: agent1\n"
+            "    duration: 1h";
+        // clang-format on
+
+        const auto config = angonoka::load_text(text);
+
+        expect(config.tasks.size() == 1_i);
+        expect(!config.tasks[0].group_id);
+        expect(config.tasks[0].agent_id == AgentIndex{0});
+        expect(can_work_on(config.agents[0], config.tasks[0]));
+        expect(!can_work_on(config.agents[1], config.tasks[0]));
+    };
+
+    "dedicated agent and a group"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "  agent2:\n"
+            "    groups:\n"
+            "      - A\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: agent1\n"
+            "    group: A\n"
+            "    duration: 1h";
+        // clang-format on
+
+        expect(throws<angonoka::InvalidTaskAssignment>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::InvalidTaskAssignment& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Task "task 1" must have at most one of: agent, group.)"sv));
+                throw;
+            }
+        }));
+    };
+
+    "dedicated agent and subtasks"_test = [] {
+        using angonoka::AgentIndex;
+
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "  agent2:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: agent1\n"
+            "    duration: 1h\n"
+            "    subtasks:\n"
+            "      - name: task 2\n"
+            "        duration: 2h";
+        // clang-format on
+
+        const auto config = angonoka::load_text(text);
+
+        expect(config.tasks.size() == 2_i);
+        expect(config.tasks[0].agent_id == AgentIndex{0});
+        expect(!config.tasks[1].agent_id);
+    };
+
+    "empty dedicated agent"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: ''\n"
+            "    duration: 1h";
+        // clang-format on
+
+        expect(throws<angonoka::CantBeEmpty>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::CantBeEmpty& e) {
+                expect(
+                    eq(e.what(),
+                       R"(Assigned agents name can't be empty.)"sv));
+                throw;
+            }
+        }));
+    };
+
+    "dedicated agent not found"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    agent: asdf\n"
+            "    duration: 1h";
+        // clang-format on
+
+        expect(throws<angonoka::AgentNotFound>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::AgentNotFound& e) {
+                expect(
+                    eq(e.what(), R"(Agent "asdf" doesn't exist.)"sv));
+                throw;
+            }
+        }));
+    };
+
     "depends on single task"_test = [] {
         // clang-format off
         constexpr auto text =

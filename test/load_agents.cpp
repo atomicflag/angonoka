@@ -137,6 +137,21 @@ suite loading_agents = [] {
         expect(config.agents[1].group_ids.empty());
     };
 
+    "agent ids"_test = [] {
+        using angonoka::AgentIndex;
+
+        // clang-format off
+        constexpr auto text =
+            ANGONOKA_COMMON_YAML
+            "agents:\n"
+            "  agent 1:\n"
+            "  agent 2:";
+        // clang-format on
+        const auto config = angonoka::load_text(text);
+        expect(config.agents[0].id == AgentIndex{0});
+        expect(config.agents[1].id == AgentIndex{1});
+    };
+
     "invalid performance section"_test = [] {
         // clang-format off
         constexpr auto text =

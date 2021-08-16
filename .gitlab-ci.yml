@@ -24,11 +24,15 @@ test:
   script:
     - make check/format
     - make build/cov
-    - make check/tidy
     - make test
     - pip install --no-cache-dir pytest
     - make test/functional
     - make check/cov
+
+clang-tidy:
+  stage: test
+  script:
+    - make check
 
 build:
   stage: build

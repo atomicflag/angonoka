@@ -59,9 +59,21 @@ CantBeEmpty::CantBeEmpty(std::string_view what)
 {
 }
 
+InvalidTaskAssignment::InvalidTaskAssignment(std::string_view task)
+    : ValidationError{
+        R"(Task "{}" must have at most one of: agent, group.)"_format(
+            task)}
+{
+}
+
 TaskNotFound::TaskNotFound(std::string_view task_id)
     : ValidationError{
         R"_(Task with id "{}" doesn't exist.)_"_format(task_id)}
+{
+}
+
+AgentNotFound::AgentNotFound(std::string_view name)
+    : ValidationError{R"_(Agent "{}" doesn't exist.)_"_format(name)}
 {
 }
 

@@ -11,6 +11,7 @@ namespace angonoka {
 using boost::container::flat_set;
 using GroupIndex = int8;
 using TaskIndex = int8;
+using AgentIndex = int8;
 using GroupIndices = flat_set<GroupIndex>;
 using TaskIndices = flat_set<TaskIndex>;
 
@@ -27,6 +28,7 @@ using TaskIndices = flat_set<TaskIndex>;
     @var performance    Performance min/max
 */
 struct Agent {
+    AgentIndex id;
     std::string name;
     GroupIndices group_ids;
     struct Performance {
@@ -81,6 +83,7 @@ struct Task {
     std::string name;
     std::string id;
     std::optional<GroupIndex> group_id;
+    std::optional<AgentIndex> agent_id;
     TaskIndices dependencies;
     struct Duration {
         std::chrono::seconds min, max;

@@ -144,7 +144,7 @@ check/show: check/cov
 		src
 
 .PHONY: format
-format:
+format: build/build.ninja
 	$(BUILD_ENV)
 	ninja clang-format
 
@@ -156,7 +156,7 @@ check/format:
 			-name '*.h' -o -name '*.cpp')
 
 .PHONY: check/tidy
-check/tidy:
+check/tidy: build/build.ninja
 	echo Running clang-tidy
 	cd build
 	[ -e compile_commands.json.bak ] && \
@@ -189,4 +189,4 @@ check: check/format check/tidy
 
 .PHONY: clean
 clean:
-	rm -rf build
+	git clean -fxd
