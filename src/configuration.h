@@ -69,20 +69,23 @@ can_work_on(const Agent& agent, GroupIndex id) noexcept;
 /**
     Task performed by an Agent.
 
-    If a Task has a Group, it will be processed by Agents that can
-    perform Tasks from that group. Otherwise it will be processed by
-    any Agent.
+    If a task has a group, it will be processed by agents that can
+    perform tasks from that group. Otherwise it will be processed by
+    any agent.
+
+    If a task has multiple groups, the agent has to belong to all
+    of tasks groups in order to be assignable to this task.
 
     @var name           Task's name
     @var id             Task's unique id
-    @var group_id       Group id, if any
+    @var group_ids      IDs of groups this task belongs to
     @var dependencies   Task prerequisites
     @var duration       Duration min/max in seconds
 */
 struct Task {
     std::string name;
     std::string id;
-    std::optional<GroupIndex> group_id;
+    GroupIndices group_ids;
     std::optional<AgentIndex> agent_id;
     TaskIndices dependencies;
     struct Duration {

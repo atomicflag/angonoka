@@ -63,7 +63,7 @@ suite loading_tasks = [] {
         expect(config.tasks.size() == 1_i);
         const auto& task = config.tasks[0];
         expect(task.name == "task 1");
-        expect(!task.group_id);
+        expect(task.group_ids.empty());
         expect(task.duration.min == days{1});
         expect(task.duration.max == days{3});
     };
@@ -139,6 +139,7 @@ suite loading_tasks = [] {
     };
 
     "valid group id"_test = [] {
+        using angonoka::GroupIndices;
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -155,12 +156,42 @@ suite loading_tasks = [] {
         const auto config = angonoka::load_text(text);
         expect(config.tasks.size() == 1_i);
         const auto& task = config.tasks[0];
-        // group_id is std::optional and has to have a value
-        expect(static_cast<bool>(task.group_id));
-        expect(task.group_id == 0);
+        expect(task.group_ids.size() == 1);
+        expect(task.group_ids == GroupIndices{0});
+    };
+
+    "multiple groups"_test = [] {
+        using angonoka::GroupIndices;
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "      - B\n"
+            "  agent2:\n"
+            "    groups:\n"
+            "      - A\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    groups:\n"
+            "     - A\n"
+            "     - B\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
+        // clang-format on
+        const auto config = angonoka::load_text(text);
+        expect(config.tasks.size() == 1_i);
+        const auto& task = config.tasks[0];
+        expect(task.group_ids.size() == 2);
+        expect(task.group_ids == GroupIndices{0,1});
+        // TODO: agent1 can work on task 1 but
+        // agent2 can't.
     };
 
     "two tasks, one group"_test = [] {
+        using angonoka::GroupIndices;
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -183,8 +214,8 @@ suite loading_tasks = [] {
         expect(config.tasks.size() == 2_i);
         const auto& task1 = config.tasks[0];
         const auto& task2 = config.tasks[1];
-        expect(task1.group_id == 0);
-        expect(task2.group_id == 0);
+        expect(task1.group_ids == GroupIndices{0});
+        expect(task2.group_ids == GroupIndices{0});
     };
 
     "duplicate tasks"_test = [] {
@@ -356,7 +387,7 @@ suite loading_tasks = [] {
         const auto config = angonoka::load_text(text);
 
         expect(config.tasks.size() == 1_i);
-        expect(!config.tasks[0].group_id);
+        expect(config.tasks[0].group_ids.empty());
         expect(config.tasks[0].agent_id == AgentIndex{0});
         expect(can_work_on(config.agents[0], config.tasks[0]));
         expect(!can_work_on(config.agents[1], config.tasks[0]));
