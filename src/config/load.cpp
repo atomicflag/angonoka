@@ -33,6 +33,7 @@ validate_task_list(const YAML::Node& node, std::string_view scope)
     // clang-format off
     return sequence(attributes(
         optional("group"),
+        optional("groups", sequence()),
         optional("agent"),
         "name",
         optional("id"),

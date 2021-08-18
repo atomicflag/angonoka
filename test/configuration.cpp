@@ -51,7 +51,7 @@ suite configuration = [] {
         expect(!has_universal_agents(s));
         expect(!can_work_on(a, t));
 
-        t.group_id = angonoka::GroupIndex{0};
+        t.group_ids.emplace(angonoka::GroupIndex{0});
 
         expect(can_work_on(a, t));
     };

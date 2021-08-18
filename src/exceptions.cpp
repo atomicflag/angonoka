@@ -61,7 +61,7 @@ CantBeEmpty::CantBeEmpty(std::string_view what)
 
 InvalidTaskAssignment::InvalidTaskAssignment(std::string_view task)
     : ValidationError{
-        R"(Task "{}" must have at most one of: agent, group.)"_format(
+        R"(Task "{}" must have at most one of: agent, group, groups.)"_format(
             task)}
 {
 }

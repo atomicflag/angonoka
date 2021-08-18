@@ -2,6 +2,7 @@
 #include "exceptions.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/algorithm/any_of.hpp>
+#include <range/v3/algorithm/set_algorithm.hpp>
 
 namespace angonoka {
 bool is_universal(const Agent& agent) noexcept
@@ -20,9 +21,11 @@ bool can_work_on(const Agent& agent, GroupIndex id) noexcept
 [[nodiscard]] bool
 can_work_on(const Agent& agent, const Task& task) noexcept
 {
+    using ranges::includes;
     if (task.agent_id) return task.agent_id == agent.id;
     return is_universal(agent)
-        || (task.group_id && can_work_on(agent, *task.group_id));
+        || (!task.group_ids.empty()
+            && includes(agent.group_ids, task.group_ids));
 }
 
 bool has_universal_agents(const Configuration& config) noexcept

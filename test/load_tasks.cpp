@@ -162,6 +162,7 @@ suite loading_tasks = [] {
 
     "multiple groups"_test = [] {
         using angonoka::GroupIndices;
+        using angonoka::can_work_on;
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -169,6 +170,7 @@ suite loading_tasks = [] {
             "    groups:\n"
             "      - A\n"
             "      - B\n"
+            "      - C\n"
             "  agent2:\n"
             "    groups:\n"
             "      - A\n"
@@ -185,10 +187,14 @@ suite loading_tasks = [] {
         expect(config.tasks.size() == 1_i);
         const auto& task = config.tasks[0];
         expect(task.group_ids.size() == 2);
-        expect(task.group_ids == GroupIndices{0,1});
-        // TODO: agent1 can work on task 1 but
-        // agent2 can't.
+        expect(task.group_ids == GroupIndices{0, 1});
+        expect(can_work_on(config.agents[0], task));
+        expect(!can_work_on(config.agents[1], task));
     };
+
+    // TODO: groups & group at the same time
+    // TODO: invalid groups format
+    // TODO: invalid group in groups
 
     "two tasks, one group"_test = [] {
         using angonoka::GroupIndices;
@@ -416,7 +422,7 @@ suite loading_tasks = [] {
             } catch (const angonoka::InvalidTaskAssignment& e) {
                 expect(eq(
                     e.what(),
-                    R"(Task "task 1" must have at most one of: agent, group.)"sv));
+                    R"(Task "task 1" must have at most one of: agent, group, groups.)"sv));
                 throw;
             }
         }));
