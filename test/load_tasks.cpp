@@ -223,7 +223,7 @@ suite loading_tasks = [] {
         }));
     };
 
-    "invalid groups fromat"_test = [] {
+    "invalid groups format"_test = [] {
         // clang-format off
         constexpr auto text =
             "agents:\n"
