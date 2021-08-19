@@ -192,9 +192,77 @@ suite loading_tasks = [] {
         expect(!can_work_on(config.agents[1], task));
     };
 
-    // TODO: groups & group at the same time
-    // TODO: invalid groups format
-    // TODO: invalid group in groups
+    "groups and group"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "      - B\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    group: A\n"
+            "    groups:\n"
+            "     - A\n"
+            "     - B\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
+        // clang-format on
+
+        expect(throws<angonoka::InvalidTaskAssignment>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::InvalidTaskAssignment& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Task "task 1" must have at most one of: agent, group, groups.)"sv));
+                throw;
+            }
+        }));
+    };
+
+    "invalid groups fromat"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "      - B\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    groups: asdf\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
+        // clang-format on
+
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
+
+    "invalid group in groups"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "      - B\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    groups:\n"
+            "      - C\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
+        // clang-format on
+
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
 
     "two tasks, one group"_test = [] {
         using angonoka::GroupIndices;
