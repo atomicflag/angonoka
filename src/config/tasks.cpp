@@ -69,7 +69,19 @@ void parse_task_group(
     Ensures(!task.group_ids.empty());
 }
 
-// TODO: doc, test, expects
+/**
+    Parse task groups.
+
+    Parses blocks such as these:
+
+    groups:
+      - A
+      - B
+
+    @param groups_node  YAML node of groups
+    @param task         An instance of Task
+    @param confg        An instance of Configuration
+*/
 void parse_task_groups(
     const YAML::Node& groups_node,
     Task& task,
@@ -275,7 +287,13 @@ void parse_task_agent(
     Ensures(task.agent_id);
 }
 
-// TODO: doc, test, expects
+/**
+    Count how many YAML nodes are defined.
+
+    @param vars YAML nodes
+
+    @return Number of defined nodes.
+*/
 int count_defined(concepts::convertible_to<bool> auto const&... vars)
 {
     return (static_cast<int>(static_cast<bool>(vars)) + ...);
