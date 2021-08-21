@@ -1,6 +1,7 @@
 #include "../common.h"
 #include "../exceptions.h"
 #include "load.h"
+#include <concepts>
 #include <fmt/format.h>
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/algorithm/find.hpp>
@@ -63,9 +64,31 @@ void parse_task_group(
         = detail::find_or_insert_group(config.groups, group_name);
     if (is_inserted && !has_universal_agents(config))
         throw NoSuitableAgent{group_name};
-    task.group_id = gid;
+    task.group_ids.emplace(gid);
 
-    Ensures(task.group_id);
+    Ensures(!task.group_ids.empty());
+}
+
+/**
+    Parse task groups.
+
+    Parses blocks such as these:
+
+    groups:
+      - A
+      - B
+
+    @param groups_node  YAML node of groups
+    @param task         An instance of Task
+    @param confg        An instance of Configuration
+*/
+void parse_task_groups(
+    const YAML::Node& groups_node,
+    Task& task,
+    Configuration& config)
+{
+    for (auto&& group : groups_node)
+        parse_task_group(group, task, config);
 }
 
 /**
@@ -265,6 +288,18 @@ void parse_task_agent(
 }
 
 /**
+    Count how many YAML nodes are defined.
+
+    @param vars YAML nodes
+
+    @return Number of defined nodes.
+*/
+int count_defined(concepts::convertible_to<bool> auto const&... vars)
+{
+    return (static_cast<int>(static_cast<bool>(vars)) + ...);
+}
+
+/**
     Parses task's groups and dedicated agents definition.
 
     Parses blocks such as these:
@@ -287,13 +322,22 @@ void parse_groups_and_agents(
 {
     Expects(!task.name.empty());
 
-    if (task_node["group"].IsDefined()
-        && task_node["agent"].IsDefined())
+    if (count_defined(
+            task_node["group"],
+            task_node["groups"],
+            task_node["agent"])
+        > 1)
         throw InvalidTaskAssignment(task.name);
 
     // Parse task.group
     if (const auto& group = task_node["group"]) {
         parse_task_group(group, task, config);
+        return;
+    }
+
+    // Parse task.group
+    if (const auto& group = task_node["groups"]) {
+        parse_task_groups(group, task, config);
         return;
     }
 
@@ -443,7 +487,7 @@ void parse_tasks(const YAML::Node& node, Configuration& config)
 
     if (node.size() == 0) throw CantBeEmpty{R"_("tasks")_"};
     Dependencies deps;
-    for (auto&& task : node) { parse_task(task, config, deps); }
+    for (auto&& task : node) parse_task(task, config, deps);
     parse_dependencies_2nd_phase(config.tasks, deps);
     check_for_cycles(config.tasks);
 

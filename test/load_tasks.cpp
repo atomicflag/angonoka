@@ -63,7 +63,7 @@ suite loading_tasks = [] {
         expect(config.tasks.size() == 1_i);
         const auto& task = config.tasks[0];
         expect(task.name == "task 1");
-        expect(!task.group_id);
+        expect(task.group_ids.empty());
         expect(task.duration.min == days{1});
         expect(task.duration.max == days{3});
     };
@@ -139,6 +139,7 @@ suite loading_tasks = [] {
     };
 
     "valid group id"_test = [] {
+        using angonoka::GroupIndices;
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -155,12 +156,116 @@ suite loading_tasks = [] {
         const auto config = angonoka::load_text(text);
         expect(config.tasks.size() == 1_i);
         const auto& task = config.tasks[0];
-        // group_id is std::optional and has to have a value
-        expect(static_cast<bool>(task.group_id));
-        expect(task.group_id == 0);
+        expect(task.group_ids.size() == 1);
+        expect(task.group_ids == GroupIndices{0});
+    };
+
+    "multiple groups"_test = [] {
+        using angonoka::GroupIndices;
+        using angonoka::can_work_on;
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "      - B\n"
+            "      - C\n"
+            "  agent2:\n"
+            "    groups:\n"
+            "      - A\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    groups:\n"
+            "     - A\n"
+            "     - B\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
+        // clang-format on
+        const auto config = angonoka::load_text(text);
+        expect(config.tasks.size() == 1_i);
+        const auto& task = config.tasks[0];
+        expect(task.group_ids.size() == 2);
+        expect(task.group_ids == GroupIndices{0, 1});
+        expect(can_work_on(config.agents[0], task));
+        expect(!can_work_on(config.agents[1], task));
+    };
+
+    "groups and group"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "      - B\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    group: A\n"
+            "    groups:\n"
+            "     - A\n"
+            "     - B\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
+        // clang-format on
+
+        expect(throws<angonoka::InvalidTaskAssignment>([&] {
+            try {
+                angonoka::load_text(text);
+            } catch (const angonoka::InvalidTaskAssignment& e) {
+                expect(eq(
+                    e.what(),
+                    R"(Task "task 1" must have at most one of: agent, group, groups.)"sv));
+                throw;
+            }
+        }));
+    };
+
+    "invalid groups format"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "      - B\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    groups: asdf\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
+        // clang-format on
+
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
+    };
+
+    "invalid group in groups"_test = [] {
+        // clang-format off
+        constexpr auto text =
+            "agents:\n"
+            "  agent1:\n"
+            "    groups:\n"
+            "      - A\n"
+            "      - B\n"
+            "tasks:\n"
+            "  - name: task 1\n"
+            "    groups:\n"
+            "      - C\n"
+            "    duration:\n"
+            "      min: 1 day\n"
+            "      max: 2 days";
+        // clang-format on
+
+        expect(throws<angonoka::ValidationError>(
+            [&] { angonoka::load_text(text); }));
     };
 
     "two tasks, one group"_test = [] {
+        using angonoka::GroupIndices;
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -183,8 +288,8 @@ suite loading_tasks = [] {
         expect(config.tasks.size() == 2_i);
         const auto& task1 = config.tasks[0];
         const auto& task2 = config.tasks[1];
-        expect(task1.group_id == 0);
-        expect(task2.group_id == 0);
+        expect(task1.group_ids == GroupIndices{0});
+        expect(task2.group_ids == GroupIndices{0});
     };
 
     "duplicate tasks"_test = [] {
@@ -356,7 +461,7 @@ suite loading_tasks = [] {
         const auto config = angonoka::load_text(text);
 
         expect(config.tasks.size() == 1_i);
-        expect(!config.tasks[0].group_id);
+        expect(config.tasks[0].group_ids.empty());
         expect(config.tasks[0].agent_id == AgentIndex{0});
         expect(can_work_on(config.agents[0], config.tasks[0]));
         expect(!can_work_on(config.agents[1], config.tasks[0]));
@@ -385,7 +490,7 @@ suite loading_tasks = [] {
             } catch (const angonoka::InvalidTaskAssignment& e) {
                 expect(eq(
                     e.what(),
-                    R"(Task "task 1" must have at most one of: agent, group.)"sv));
+                    R"(Task "task 1" must have at most one of: agent, group, groups.)"sv));
                 throw;
             }
         }));
