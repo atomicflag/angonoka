@@ -11,7 +11,7 @@ trompeloeil/40
 indicators/2.0
 readerwriterqueue/1.0.3
 boost-ext-ut/1.1.8
-cli11/1.9.1
+cli11/2.0.0
 
 [build_requires]
 meson/0.58.0

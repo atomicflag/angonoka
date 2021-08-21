@@ -1,7 +1,7 @@
 project(
   'angonoka',
   'cpp',
-  version : '0.6.0',
+  version : '0.6.1',
   default_options : ['warning_level=3', 'cpp_std=c++20']
 )
 
@@ -38,7 +38,7 @@ openmp = dependency('openmp', required : get_option('openmp'))
 dependencies = [
   dependency('fmt'),
   dependency('yaml-cpp'),
-  dependency('cli11'),
+  dependency('CLI11'),
   dependency('range-v3'),
   dependency('gsl-lite'),
   dependency('pcg-cpp'),
