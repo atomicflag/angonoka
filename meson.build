@@ -38,7 +38,7 @@ openmp = dependency('openmp', required : get_option('openmp'))
 dependencies = [
   dependency('fmt'),
   dependency('yaml-cpp'),
-  dependency('cli11'),
+  dependency('CLI11'),
   dependency('range-v3'),
   dependency('gsl-lite'),
   dependency('pcg-cpp'),
