@@ -20,3 +20,6 @@ ragel/6.10
 [generators]
 pkg_config
 virtualenv
+
+[options]
+boost:without_stacktrace=True

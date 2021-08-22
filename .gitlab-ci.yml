@@ -16,7 +16,8 @@ default:
       - .conan
       - .ccache
   before_script:
-    - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
+    - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan
+    - conan config set general.revisions_enabled=1
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
 
 test:

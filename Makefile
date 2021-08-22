@@ -35,7 +35,7 @@ build/conaninfo.txt:
 	export CXXFLAGS="$$CXXFLAGS $(RELEASE_CXXFLAGS)"
 	export CFLAGS="$$CFLAGS $(RELEASE_CXXFLAGS)"
 	export LDFLAGS="$$LDFLAGS $(RELEASE_LDFLAGS)"
-	conan install -b missing ..
+	conan install -l ../conan.lock -b missing ..
 
 build/build.ninja: build/conaninfo.txt
 	$(BUILD_ENV)
