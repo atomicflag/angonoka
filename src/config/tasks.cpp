@@ -294,7 +294,8 @@ void parse_task_agent(
 
     @return Number of defined nodes.
 */
-int count_defined(concepts::convertible_to<bool> auto const&... vars)
+int count_defined(
+    concepts::explicitly_convertible_to<bool> auto const&... vars)
 {
     return (static_cast<int>(static_cast<bool>(vars)) + ...);
 }
