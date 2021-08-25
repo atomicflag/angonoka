@@ -1,6 +1,7 @@
 #pragma once
 
 #include "configuration.h"
+#include "stun/schedule.h"
 #include <boost/variant2/variant.hpp>
 #include <chrono>
 #include <future>
@@ -14,6 +15,17 @@ using variant = boost::variant2::variant<Ts...>;
 
 // TODO: doc, test, expects
 struct Prediction {
+};
+
+/**
+    The result of the schedule optimization process.
+
+    @var schedule Optimized schedule
+    @var makespan Makespan in seconds
+*/
+struct OptimizedSchedule {
+    std::vector<stun::ScheduleItem> schedule;
+    std::chrono::seconds makespan;
 };
 
 template <typename... Ts>
@@ -71,4 +83,10 @@ std::tuple<
     std::future<Prediction>,
     std::shared_ptr<Queue<ProgressEvent>>>
 predict(const Configuration& config);
+
+// TODO: doc, test, expects
+std::tuple<
+    std::future<OptimizedSchedule>,
+    std::shared_ptr<Queue<ProgressEvent>>>
+schedule(const Configuration& config);
 } // namespace angonoka

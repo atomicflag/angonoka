@@ -20,7 +20,11 @@ ScheduleParams to_schedule_params(const Configuration&)
 
 bool Optimizer::has_converged() { return steps >= 5; }
 void Optimizer::update() { steps += 1; }
-Schedule Optimizer::schedule() { return {}; }
+Schedule Optimizer::schedule()
+{
+    static const std::vector<ScheduleItem> data{{0, 0}, {4, 2}};
+    return data;
+}
 float Optimizer::estimated_progress()
 {
     return static_cast<float>(steps) / 5.f;
@@ -82,6 +86,21 @@ suite predict_test = [] {
             == SimpleProgressEvent::Finished);
         expect(events.empty());
         // TODO: implement
+    };
+
+    "schedule without prediction"_test = [] {
+        using namespace angonoka;
+        using namespace std::literals::chrono_literals;
+
+        Configuration config;
+        auto [prediction_future, event_queue] = schedule(config);
+        const auto r = prediction_future.get();
+
+        expect(!r.schedule.empty());
+        expect(r.makespan == 10s);
+        expect(
+            r.schedule
+            == std::vector<stun::ScheduleItem>{{0, 0}, {4, 2}});
     };
 
     "events"_test = [] {
