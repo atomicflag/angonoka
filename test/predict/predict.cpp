@@ -88,7 +88,7 @@ suite predict_test = [] {
         // TODO: implement
     };
 
-    "schedule without prediction"_test = [] {
+    "a schedule without prediction"_test = [] {
         using namespace angonoka;
         using namespace std::literals::chrono_literals;
 

@@ -84,7 +84,13 @@ std::tuple<
     std::shared_ptr<Queue<ProgressEvent>>>
 predict(const Configuration& config);
 
-// TODO: doc, test, expects
+/**
+    Make and optimize a schedule for a given configuration.
+
+    @param config Tasks, agents and other data.
+
+    @return An optimized schedule.
+*/
 std::tuple<
     std::future<OptimizedSchedule>,
     std::shared_ptr<Queue<ProgressEvent>>>
