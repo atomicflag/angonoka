@@ -3,7 +3,6 @@
 #include <CLI/CLI.hpp>
 #include <fmt/printf.h>
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, char** argv)
 {
     using namespace fmt::literals;
@@ -37,13 +36,13 @@ int main(int argc, char** argv)
     // TODO: CLI help doesn't look clean
 
     try {
-        cli.parse(argc, argv);
+        CLI11_PARSE(cli, argc, argv);
         const auto config = parse_config(options);
         run_prediction(config, options);
         return EXIT_SUCCESS;
-    } catch (const CLI::ParseError& e) {
-        return cli.exit(e);
     } catch (const UserError&) {
         return EXIT_FAILURE;
+    } catch (const std::exception&){
+        std::terminate();
     }
 }
