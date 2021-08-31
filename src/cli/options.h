@@ -26,5 +26,6 @@ struct Options {
     bool verbose{false};
     bool color{output_is_terminal()};
     bool quiet{false};
+    std::string output;
 };
 } // namespace angonoka::cli

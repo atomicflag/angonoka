@@ -31,6 +31,8 @@ int main(int argc, char** argv)
 
     auto* schedule_cmd = subcommands->add_subcommand("schedule", "Output the schedule in JSON format.");
     schedule_cmd->fallthrough();
+
+    schedule_cmd->add_flag("-o,--output", options.output, "Output the schedule to a file");
     // CLI::TriggerOff(schedule_cmd, input_file);
     // schedule_cmd->add_option("input file", options.filename)->required()->check(CLI::ExistingFile);
     // TODO: CLI help doesn't look clean
