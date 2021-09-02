@@ -24,16 +24,18 @@ int main(int argc, char** argv)
         "Force colored output");
     cli.add_flag("-q,--quiet", options.quiet, "Give less output");
     cli.add_flag("-v,--verbose", options.verbose, "Give more output");
-    cli.add_option("input file", options.filename)->check(CLI::ExistingFile);
+    cli.require_subcommand(-1);
+    auto* input_file = cli.add_option("input file", options.filename)->check(CLI::ExistingFile);
 
     auto* schedule_cmd = cli.add_subcommand("schedule", "Output the schedule in JSON format.");
-    schedule_cmd->fallthrough();
+    schedule_cmd->excludes(input_file);
     schedule_cmd->add_flag("-o,--output", options.output, "Output the schedule to a file");
     schedule_cmd->add_option("input file", options.filename)->required()->check(CLI::ExistingFile);
 
     // TODO: CLI help doesn't look clean
     // build/src/angonoka-x86_64 schedule tasks.yml schedule
     // triggers input file in the root CLI :(
+    // update: seems okay-ish
 
     try {
         CLI11_PARSE(cli, argc, argv);
