@@ -3,6 +3,7 @@
 #include <CLI/CLI.hpp>
 #include <fmt/printf.h>
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, char** argv)
 {
     using namespace fmt::literals;
@@ -16,7 +17,10 @@ int main(int argc, char** argv)
         "modeling.\n",
         ANGONOKA_NAME};
 
-    cli.set_version_flag("--version", ANGONOKA_VERSION,"Display program version information and exit" );
+    cli.set_version_flag(
+        "--version",
+        ANGONOKA_VERSION,
+        "Display program version information and exit");
 
     cli.add_flag(
         "--color,!--no-color",
@@ -25,17 +29,20 @@ int main(int argc, char** argv)
     cli.add_flag("-q,--quiet", options.quiet, "Give less output");
     cli.add_flag("-v,--verbose", options.verbose, "Give more output");
     cli.require_subcommand(-1);
-    auto* input_file = cli.add_option("input file", options.filename)->check(CLI::ExistingFile);
+    auto* input_file = cli.add_option("input file", options.filename)
+                           ->check(CLI::ExistingFile);
 
-    auto* schedule_cmd = cli.add_subcommand("schedule", "Output the schedule in JSON format.");
+    auto* schedule_cmd = cli.add_subcommand(
+        "schedule",
+        "Output the schedule in JSON format.");
     schedule_cmd->excludes(input_file);
-    schedule_cmd->add_flag("-o,--output", options.output, "Output the schedule to a file");
-    schedule_cmd->add_option("input file", options.filename)->required()->check(CLI::ExistingFile);
-
-    // TODO: CLI help doesn't look clean
-    // build/src/angonoka-x86_64 schedule tasks.yml schedule
-    // triggers input file in the root CLI :(
-    // update: seems okay-ish
+    schedule_cmd->add_flag(
+        "-o,--output",
+        options.output,
+        "Output the schedule to a file");
+    schedule_cmd->add_option("input file", options.filename)
+        ->required()
+        ->check(CLI::ExistingFile);
 
     try {
         CLI11_PARSE(cli, argc, argv);
@@ -44,7 +51,7 @@ int main(int argc, char** argv)
         return EXIT_SUCCESS;
     } catch (const UserError&) {
         return EXIT_FAILURE;
-    } catch (const std::exception&){
+    } catch (const std::exception&) {
         std::terminate();
     }
 }

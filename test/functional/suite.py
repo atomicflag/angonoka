@@ -37,10 +37,10 @@ def test_prints_help():
         """\
     Angonoka is a time estimation software based on statistical modeling.
 
-    Usage: angonoka [OPTIONS] input file
+    Usage: angonoka [OPTIONS] [input file] [SUBCOMMAND]
 
     Positionals:
-      input file TEXT REQUIRED    
+      input file TEXT:FILE        
 
     Options:
       -h,--help                   Print this help message and exit
@@ -48,6 +48,9 @@ def test_prints_help():
       --color,--no-color{false}   Force colored output
       -q,--quiet                  Give less output
       -v,--verbose                Give more output
+
+    Subcommands:
+      schedule                    Output the schedule in JSON format.
 
     """
     )
@@ -58,6 +61,7 @@ def test_version():
     assert code == 0
     assert cout == "angonoka version 0.6.1\n"
 
+
 def test_version_with_file():
     code, cout, cerr = run("--version", "file.yaml")
     assert code == 0
@@ -66,10 +70,10 @@ def test_version_with_file():
 
 def test_invalid_option():
     code, cout, cerr = run("--asdf")
-    assert code == 106
+    assert code == 109
     assert cerr == dedent(
         """\
-    input file is required
+    The following argument was not expected: --asdf
     Run with --help for more information.
     """
     )
@@ -166,23 +170,23 @@ def test_verbose_non_tty_output():
 
 def test_missing_file():
     code, cout, cerr = run("--no-color", "missing.yml")
-    assert code == 1
-    assert cout == dedent(
+    assert code == 105
+    assert cerr == dedent(
         """\
-    Parsing configuration... Error
-    Error reading tasks and agents from file "missing.yml".
+    input file: File does not exist: missing.yml
+    Run with --help for more information.
     """
     )
 
 
 def test_missing_file_tty():
     code, cout, cerr = run("--color", "missing.yml")
-    assert code == 1
-    assert cout == dedent(
+    assert code == 105
+    assert cerr == dedent(
         """\
-    Parsing configuration... \x1b[31mError
-    \x1b[0m\x1b[31mError reading tasks and agents from file "missing.yml".
-    \x1b[0m"""
+    input file: File does not exist: missing.yml
+    Run with --help for more information.
+    """
     )
 
 
@@ -221,3 +225,41 @@ def test_abort():
     )
     code, cout, cerr = r.returncode, r.stdout, r.stderr
     assert cout.endswith("\x1b[?25h")
+
+
+def test_input_and_schedule():
+    code, cout, cerr = run("tasks.yml", "schedule")
+    assert code == 108
+    assert cerr == dedent(
+        """\
+    schedule excludes input file
+    Run with --help for more information.
+    """
+    )
+
+
+def test_2_inputs_and_schedule():
+    code, cout, cerr = run("tasks.yml", "schedule", "tasks.yml")
+    assert code == 108
+    assert cerr == dedent(
+        """\
+    schedule excludes input file
+    Run with --help for more information.
+    """
+    )
+
+
+def test_2_schedules():
+    code, cout, cerr = run("schedule", "tasks.yml", "schedule", "tasks.yml")
+    assert code == 109
+    assert cerr == dedent(
+        """\
+    The following arguments were not expected: tasks.yml schedule
+    Run with --help for more information.
+    """
+    )
+
+
+def test_general_options_before_schedule():
+    code, cout, cerr = run("-v", "schedule", "tasks.yml")
+    assert code == 0

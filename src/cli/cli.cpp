@@ -18,6 +18,7 @@ void print_yaml_error(
     const Options& options,
     const YAML::Exception& e)
 {
+    // TODO: cerr
     red_text(
         options,
         "Error at line {}, column {}: {}\n",
