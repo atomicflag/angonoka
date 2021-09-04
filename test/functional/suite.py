@@ -204,6 +204,7 @@ def test_invalid_yaml():
     """
     )
 
+
 def test_invalid_yaml_tty():
     code, cout, cerr = run("--color", "invalid.yml")
     assert code == 1
@@ -224,8 +225,9 @@ def test_invalid_yaml_format():
     """
     )
 
+
 def test_invalid_yaml_format_tty():
-    code, cout, cerr = run("--color","invalid2.yml")
+    code, cout, cerr = run("--color", "invalid2.yml")
     assert code == 1
     assert cerr
 
@@ -282,6 +284,7 @@ def test_general_options_before_schedule():
     code, cout, cerr = run("-v", "schedule", "tasks.yml")
     assert code == 0
 
+
 def test_inaccessible_file():
     code, cout, cerr = run("--no-color", "/etc/shadow")
     assert code == 1
@@ -296,12 +299,8 @@ def test_inaccessible_file():
     """
     )
 
+
 def test_inaccessible_file_tty():
     code, cout, cerr = run("--color", "/etc/shadow")
-    assert code == 1
-    assert cerr
-
-def test_invalid_yaml_format_tty():
-    code, cout, cerr = run("--color","invalid2.yml")
     assert code == 1
     assert cerr
