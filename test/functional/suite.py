@@ -196,9 +196,18 @@ def test_invalid_yaml():
     assert cout == dedent(
         """\
     Parsing configuration... Error
+    """
+    )
+    assert cerr == dedent(
+        """\
     Validation error: "tasks" is expected to be a sequence.
     """
     )
+
+def test_invalid_yaml_tty():
+    code, cout, cerr = run("--color", "invalid.yml")
+    assert code == 1
+    assert cerr
 
 
 def test_invalid_yaml_format():
@@ -207,9 +216,18 @@ def test_invalid_yaml_format():
     assert cout == dedent(
         """\
     Parsing configuration... Error
+    """
+    )
+    assert cerr == dedent(
+        """\
     Error parsing YAML: Error at line 4, column 10: illegal map value
     """
     )
+
+def test_invalid_yaml_format_tty():
+    code, cout, cerr = run("--color","invalid2.yml")
+    assert code == 1
+    assert cerr
 
 
 def test_abort():
@@ -263,3 +281,27 @@ def test_2_schedules():
 def test_general_options_before_schedule():
     code, cout, cerr = run("-v", "schedule", "tasks.yml")
     assert code == 0
+
+def test_inaccessible_file():
+    code, cout, cerr = run("--no-color", "/etc/shadow")
+    assert code == 1
+    assert cout == dedent(
+        """\
+    Parsing configuration... Error
+    """
+    )
+    assert cerr == dedent(
+        """\
+    Error reading tasks and agents from file "/etc/shadow".
+    """
+    )
+
+def test_inaccessible_file_tty():
+    code, cout, cerr = run("--color", "/etc/shadow")
+    assert code == 1
+    assert cerr
+
+def test_invalid_yaml_format_tty():
+    code, cout, cerr = run("--color","invalid2.yml")
+    assert code == 1
+    assert cerr

@@ -150,6 +150,14 @@ suite schedule_params = [] {
             };
         };
 
+        "empty input arrays"_test = [] {
+            Vector2D vspans{
+                std::vector<int16>{},
+                span<const int16>{}};
+
+            expect(vspans.empty());
+        };
+
         "non-empty"_test = [] {
             constexpr auto setup = [] {
                 std::vector<int16> data{0, 1, 2};

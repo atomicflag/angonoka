@@ -1,6 +1,7 @@
 #pragma once
 
 #include "options.h"
+#include <cstdio>
 #include <fmt/color.h>
 #include <fmt/printf.h>
 #include <gsl/gsl-lite.hpp>
@@ -30,18 +31,20 @@ void print(
     @param options CLI options
 */
 template <typename... T>
-void red_text(
+void print_error(
     const Options& options,
+    std::FILE* output,
     fmt::format_string<T...> fmt,
     T&&... args)
 {
     if (options.color) {
         fmt::print(
+            output,
             fg(fmt::terminal_color::red),
             fmt::string_view{fmt},
             std::forward<T>(args)...);
     } else {
-        fmt::print(fmt, std::forward<T>(args)...);
+        fmt::print(output, fmt, std::forward<T>(args)...);
     }
 }
 
@@ -62,7 +65,7 @@ void die(
     T&&... args)
 {
 
-    if (!options.quiet) red_text(options, "Error\n");
-    red_text(options, fmt, std::forward<T>(args)...);
+    if (!options.quiet) print_error(options, stdout, "Error\n");
+    print_error(options, stderr, fmt, std::forward<T>(args)...);
 }
 } // namespace angonoka::cli

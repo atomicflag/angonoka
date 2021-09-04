@@ -65,10 +65,21 @@ suite mutate = [] {
 
             mut.options({.params{&params}, .random{&random2}});
 
-            auto [p, r] = mut.options();
+            {
+                auto [p, r] = mut.options();
 
-            expect(p == &params);
-            expect(r == &random2);
+                expect(p == &params);
+                expect(r == &random2);
+            }
+
+            Mutator mut2{mut.options()};
+
+            {
+                auto [p, r] = mut2.options();
+
+                expect(p == &params);
+                expect(r == &random2);
+            }
         };
 
         "with dependencies"_test = [&] {

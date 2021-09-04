@@ -51,7 +51,5 @@ int main(int argc, char** argv)
         return EXIT_SUCCESS;
     } catch (const UserError&) {
         return EXIT_FAILURE;
-    } catch (const std::exception&) {
-        std::terminate();
     }
 }
