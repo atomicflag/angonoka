@@ -286,7 +286,7 @@ def test_general_options_before_schedule():
 
 
 def test_inaccessible_file():
-    code, cout, cerr = run("--no-color", "/etc/shadow")
+    code, cout, cerr = run("--no-color", "/run/systemd/notify")
     assert code == 1
     assert cout == dedent(
         """\
@@ -295,12 +295,12 @@ def test_inaccessible_file():
     )
     assert cerr == dedent(
         """\
-    Error reading tasks and agents from file "/etc/shadow".
+    Error reading tasks and agents from file "/run/systemd/notify".
     """
     )
 
 
 def test_inaccessible_file_tty():
-    code, cout, cerr = run("--color", "/etc/shadow")
+    code, cout, cerr = run("--color", "/run/systemd/notify")
     assert code == 1
     assert cerr
