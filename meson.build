@@ -44,6 +44,7 @@ dependencies = [
   dependency('pcg-cpp'),
   dependency('indicators'),
   dependency('readerwriterqueue'),
+  dependency('nlohmann_json'),
   dependency('boost', include_type : 'system'),
   openmp
 ]

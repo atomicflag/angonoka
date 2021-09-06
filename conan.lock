@@ -14,11 +14,12 @@
      "10",
      "11",
      "12",
-     "13"
+     "13",
+     "14"
     ],
     "build_requires": [
-     "14",
-     "16"
+     "15",
+     "17"
     ],
     "path": "../conanfile.txt",
     "context": "host"
@@ -49,7 +50,6 @@
     "ref": "fmt/8.0.1#a5a28fc13037de5e390f44c2304bd6ba",
     "options": "header_only=False\nshared=True\nwith_fmt_alias=False\nwith_os_api=True",
     "package_id": "d4e9c4f02b4f03edf5a640dcd22779727d782e79",
-    "modified": true,
     "context": "host"
    },
    "5": {
@@ -68,7 +68,6 @@
     "ref": "yaml-cpp/0.7.0#64a77e2af6be52e0380a53ee74c699a1",
     "options": "shared=True",
     "package_id": "76c3c4eb7f33ef2efcaa668247a38c0d3695a614",
-    "modified": true,
     "context": "host"
    },
    "8": {
@@ -108,21 +107,27 @@
     "context": "host"
    },
    "14": {
+    "ref": "nlohmann_json/3.10.2#dd458b94efb60e73d2a4e6bb0a190947",
+    "options": "",
+    "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
+    "context": "host"
+   },
+   "15": {
     "ref": "meson/0.58.0#2219dca8f7b09559ac8e5300c9f69efe",
     "options": "",
     "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
     "requires": [
-     "15"
+     "16"
     ],
     "context": "host"
    },
-   "15": {
+   "16": {
     "ref": "ninja/1.10.2#0ed34363d5683eb57a22bd2ccd7b62fc",
     "options": "",
     "package_id": "24647d9fe8ec489125dfbae4b3ebefaf7581674c",
     "context": "host"
    },
-   "16": {
+   "17": {
     "ref": "ragel/6.10#0af6e8774e2ce8c6e54a37cd34bd4e63",
     "options": "",
     "package_id": "4db1be536558d833e52e862fd84d64d75c2b3656",

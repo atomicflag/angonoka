@@ -12,6 +12,7 @@ indicators/2.0
 readerwriterqueue/1.0.5
 boost-ext-ut/1.1.8
 cli11/2.0.0
+nlohmann_json/3.10.2
 
 [build_requires]
 meson/0.58.0
