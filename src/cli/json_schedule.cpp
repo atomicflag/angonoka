@@ -4,11 +4,22 @@
 namespace angonoka::cli {
 namespace detail {
     nlohmann::json to_json(
-        const Configuration& /* config */,
-        const OptimizedSchedule& /* schedule */)
+        const Configuration& config,
+        const OptimizedSchedule& schedule)
     {
-        // TODO: WIP: Implement
-        return {};
+        using nlohmann::json;
+        // TODO: try range transform/to combo
+        json tasks;
+
+        for (const auto& t : schedule.schedule) {
+            const auto& task
+                = config.tasks[static_cast<std::size_t>(t.task_id)];
+            tasks.emplace_back(json{{"name", task.name}});
+        }
+
+        return {
+            {"makespan", schedule.makespan.count()},
+            {"tasks", std::move(tasks)}};
     }
 } // namespace detail
 
