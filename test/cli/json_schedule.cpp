@@ -23,5 +23,10 @@ suite json_schedule = [] {
 
     expect(json["makespan"] == 3600_i);
     expect(json["tasks"].size() == 1_i);
+    const auto& task = json["tasks"][0];
+    expect(task["agent"] == "agent1");
+    expect(task["task"] == "task 1");
+    expect(task["priority"] == 0_i);
+    expect(task["expected_duration"] == 3600_i);
     // TODO: WIP: Implement
 };
