@@ -28,5 +28,6 @@ suite json_schedule = [] {
     expect(task["task"] == "task 1");
     expect(task["priority"] == 0_i);
     expect(task["expected_duration"] == 3600_i);
-    // TODO: WIP: Implement
+    expect(task["expected_start"] == 0_i);
+    // TODO: WIP: More complex tests
 };
