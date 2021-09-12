@@ -2,41 +2,55 @@
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/transform.hpp>
 #include <vector>
-#ifndef NDEBUG
-#include <boost/safe_numerics/safe_integer.hpp>
-#include <iosfwd>
-#endif // NDEBUG
+
+namespace {
+using namespace angonoka;
+
+/**
+    How long it will take for a given agent to complete a given
+    task.
+
+    Factors in agent's performace.
+
+    TODO: test, expects
+
+    @param task     Task
+    @param agent    Agent who performs the task
+
+    @return Time in seconds
+*/
+[[nodiscard]] float
+task_duration(const Task& task, const Agent& agent)
+{
+    return static_cast<float>(task.duration.average().count())
+        * agent.performance.average();
+}
+
+/**
+    The time when the last dependency will be completed.
+
+    TODO: test, expects
+
+    @param task_done    Array of task completion times
+    @param deps         Dependency ids
+
+    @return Time in seconds
+*/
+[[nodiscard]] float dependencies_done(
+    const std::vector<float>& task_done,
+    const TaskIndices& deps)
+{
+    using ranges::max;
+    using ranges::views::transform;
+    if (deps.empty()) return 0.F;
+    return max(deps | transform([&](auto dep_id) {
+                   return task_done[dep_id];
+               }));
+}
+} // namespace
 
 namespace angonoka::cli {
 namespace detail {
-#ifndef NDEBUG
-    namespace sn = boost::safe_numerics;
-    using int16 = sn::safe<std::int_fast16_t>;
-#else // NDEBUG
-    using int16 = std::int_fast16_t;
-#endif // NDEBUG
-
-    // TODO: doc, test, expects
-    [[nodiscard]] float
-    task_duration(const Task& task, const Agent& agent)
-    {
-        return static_cast<float>(task.duration.average().count())
-            * agent.performance.average();
-    }
-
-    // TODO: doc, test, expects
-    [[nodiscard]] float dependencies_done(
-        const std::vector<float>& task_done,
-        const TaskIndices& deps)
-    {
-        using ranges::max;
-        using ranges::views::transform;
-        if (deps.empty()) return 0.F;
-        return max(deps | transform([&](auto dep_id) {
-                       return task_done[dep_id];
-                   }));
-    }
-
     nlohmann::json to_json(
         const Configuration& config,
         const OptimizedSchedule& schedule)
