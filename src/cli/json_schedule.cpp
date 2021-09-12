@@ -12,7 +12,7 @@ using namespace angonoka;
 
     Factors in agent's performace.
 
-    TODO: test, expects
+    TODO: test
 
     @param task     Task
     @param agent    Agent who performs the task
@@ -22,6 +22,9 @@ using namespace angonoka;
 [[nodiscard]] float
 task_duration(const Task& task, const Agent& agent)
 {
+    Expects(task.duration.average().count() > 0);
+    Expects(agent.performance.average() > 0.F);
+
     return static_cast<float>(task.duration.average().count())
         * agent.performance.average();
 }
@@ -62,27 +65,24 @@ namespace detail {
         std::vector<float> task_done(config.tasks.size());
 
         for (const auto& t : schedule.schedule) {
-            const auto& task
-                = config.tasks[static_cast<gsl::index>(t.task_id)];
-            const auto& agent
-                = config.agents[static_cast<gsl::index>(t.agent_id)];
-            const auto duration = task_duration(task, agent);
-            const auto priority
-                = agent_priority[static_cast<gsl::index>(
-                    t.agent_id)]++;
-            auto& work_end
-                = agent_work_end[static_cast<gsl::index>(t.agent_id)];
+            const auto t_id = static_cast<gsl::index>(t.task_id);
+            const auto a_id = static_cast<gsl::index>(t.agent_id);
+            const auto duration = task_duration(
+                config.tasks[t_id],
+                config.agents[a_id]);
             const auto expected_start = std::max(
-                work_end,
-                dependencies_done(task_done, task.dependencies));
-            work_end = task_done[static_cast<gsl::index>(t.task_id)]
+                agent_work_end[a_id],
+                dependencies_done(
+                    task_done,
+                    config.tasks[t_id].dependencies));
+            agent_work_end[a_id] = task_done[t_id]
                 = expected_start + duration;
 
             // TODO: Refactor
             tasks.emplace_back(json{
-                {"task", task.name},
-                {"agent", agent.name},
-                {"priority", priority},
+                {"task", config.tasks[t_id].name},
+                {"agent", config.agents[a_id].name},
+                {"priority", agent_priority[a_id]++},
                 {"expected_duration", static_cast<int>(duration)},
                 {"expected_start", expected_start}});
         }

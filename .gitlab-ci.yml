@@ -19,6 +19,8 @@ default:
     - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan
     - conan config set general.revisions_enabled=1
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
+  after_script:
+    - conan remove -b -s -f '*'
 
 test:
   stage: test
