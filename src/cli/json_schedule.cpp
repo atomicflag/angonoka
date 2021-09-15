@@ -50,6 +50,43 @@ task_duration(const Task& task, const Agent& agent)
                    return task_done[dep_id];
                }));
 }
+
+// TODO: doc, test, expects
+class MakespanAccumulator {
+public:
+    // TODO: doc, test, expects
+    MakespanAccumulator(const Configuration& config)
+        : agent_work_end(config.agents.size())
+        , task_done(config.tasks.size())
+        , config{&config}
+    {
+    }
+
+    // TODO: doc, test, expects
+    [[nodiscard]] auto
+    operator()(gsl::index agent_id, gsl::index task_id)
+    {
+        // TODO: make this indempotent or add expects
+        const auto duration = task_duration(
+            config->tasks[task_id],
+            config->agents[agent_id]);
+        const auto expected_start = std::max(
+            agent_work_end[agent_id],
+            dependencies_done(
+                task_done,
+                config->tasks[task_id].dependencies));
+        agent_work_end[agent_id] = task_done[task_id]
+            = expected_start + duration;
+        return std::make_tuple(
+            static_cast<int>(duration),
+            expected_start);
+    }
+
+private:
+    std::vector<float> agent_work_end;
+    std::vector<float> task_done;
+    gsl::not_null<const Configuration*> config;
+};
 } // namespace
 
 namespace angonoka::cli {
@@ -61,30 +98,20 @@ namespace detail {
         using nlohmann::json;
         json tasks;
         std::vector<int> agent_priority(config.agents.size());
-        std::vector<float> agent_work_end(config.agents.size());
-        std::vector<float> task_done(config.tasks.size());
+        MakespanAccumulator makespan{config};
 
         for (const auto& t : schedule.schedule) {
             const auto t_id = static_cast<gsl::index>(t.task_id);
             const auto a_id = static_cast<gsl::index>(t.agent_id);
-            const auto duration = task_duration(
-                config.tasks[t_id],
-                config.agents[a_id]);
-            const auto expected_start = std::max(
-                agent_work_end[a_id],
-                dependencies_done(
-                    task_done,
-                    config.tasks[t_id].dependencies));
-            agent_work_end[a_id] = task_done[t_id]
-                = expected_start + duration;
+            const auto [duration, expected_start]
+                = makespan(a_id, t_id);
 
-            // TODO: Refactor
-            tasks.emplace_back(json{
-                {"task", config.tasks[t_id].name},
-                {"agent", config.agents[a_id].name},
-                {"priority", agent_priority[a_id]++},
-                {"expected_duration", static_cast<int>(duration)},
-                {"expected_start", expected_start}});
+            tasks.emplace_back<json>(
+                {{"task", config.tasks[t_id].name},
+                 {"agent", config.agents[a_id].name},
+                 {"priority", agent_priority[a_id]++},
+                 {"expected_duration", duration},
+                 {"expected_start", expected_start}});
         }
 
         return {
