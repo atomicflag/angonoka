@@ -43,6 +43,8 @@ task_duration(const Task& task, const Agent& agent)
     const std::vector<float>& task_done,
     const TaskIndices& deps)
 {
+    Expects(!task_done.empty());
+
     using ranges::max;
     using ranges::views::transform;
     if (deps.empty()) return 0.F;
@@ -51,22 +53,42 @@ task_duration(const Task& task, const Agent& agent)
                }));
 }
 
-// TODO: doc, test, expects
-class MakespanAccumulator {
+/**
+    Utility class for calculating task durations.
+*/
+class TaskDurations {
 public:
-    // TODO: doc, test, expects
-    MakespanAccumulator(const Configuration& config)
+    /**
+        Constructor.
+
+        @param config Tasks and agents
+    */
+    TaskDurations(const Configuration& config)
         : agent_work_end(config.agents.size())
         , task_done(config.tasks.size())
         , config{&config}
     {
+        Expects(!config.tasks.empty());
+        Expects(!config.agents.empty());
     }
 
-    // TODO: doc, test, expects
+    /**
+        Calculate the duration and starting time for
+        a given task and agent combo.
+
+        @param agent_id Agent id
+        @param task_id  Task id
+
+        @return Task duration and expected start
+        time in seconds
+    */
     [[nodiscard]] auto
     operator()(gsl::index agent_id, gsl::index task_id)
     {
-        // TODO: make this indempotent or add expects
+        Expects(task_done[task_id] == 0.F);
+        Expects(agent_id >= 0 && agent_id < config->agents.size());
+        Expects(task_id >= 0 && task_id < config->tasks.size());
+
         const auto duration = task_duration(
             config->tasks[task_id],
             config->agents[agent_id]);
@@ -77,6 +99,10 @@ public:
                 config->tasks[task_id].dependencies));
         agent_work_end[agent_id] = task_done[task_id]
             = expected_start + duration;
+
+        Ensures(task_done[task_id] > 0.F);
+        Ensures(agent_work_end[agent_id] > 0.F);
+
         return std::make_tuple(
             static_cast<int>(duration),
             expected_start);
@@ -91,20 +117,24 @@ private:
 
 namespace angonoka::cli {
 namespace detail {
+    // TODO: doc, test, expects
     nlohmann::json to_json(
         const Configuration& config,
         const OptimizedSchedule& schedule)
     {
+        Expects(!config.tasks.empty());
+        Expects(!config.agents.empty());
+
         using nlohmann::json;
         json tasks;
         std::vector<int> agent_priority(config.agents.size());
-        MakespanAccumulator makespan{config};
+        TaskDurations durations{config};
 
         for (const auto& t : schedule.schedule) {
             const auto t_id = static_cast<gsl::index>(t.task_id);
             const auto a_id = static_cast<gsl::index>(t.agent_id);
             const auto [duration, expected_start]
-                = makespan(a_id, t_id);
+                = durations(a_id, t_id);
 
             tasks.emplace_back<json>(
                 {{"task", config.tasks[t_id].name},

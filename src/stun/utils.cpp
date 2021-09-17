@@ -23,6 +23,7 @@ struct Makespan::Impl {
     dependencies_done(Makespan& self, int16 task_id) noexcept
     {
         Expects(task_id >= 0);
+        Expects(task_id < self.params_->task_duration.size());
 
         using ranges::views::transform;
         const auto deps
@@ -51,7 +52,10 @@ struct Makespan::Impl {
         int16 agent_id) noexcept
     {
         Expects(task_id >= 0);
+        Expects(task_id < self.params_->task_duration.size());
         Expects(agent_id >= 0);
+        Expects(agent_id < self.params_->agent_performance.size());
+
         return self.params_
                    ->task_duration[static_cast<gsl::index>(task_id)]
             / self.params_->agent_performance[static_cast<gsl::index>(
