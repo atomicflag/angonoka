@@ -32,7 +32,7 @@ task_duration(const Task& task, const Agent& agent)
 /**
     The time when the last dependency will be completed.
 
-    TODO: test, expects
+    TODO: test
 
     @param task_done    Array of task completion times
     @param deps         Dependency ids
@@ -117,7 +117,6 @@ private:
 
 namespace angonoka::cli {
 namespace detail {
-    // TODO: doc, test, expects
     nlohmann::json to_json(
         const Configuration& config,
         const OptimizedSchedule& schedule)
