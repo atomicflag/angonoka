@@ -18,7 +18,7 @@ void abort_handler(int signal)
 }
 
 #if defined(__llvm__) && defined(ANGONOKA_COVERAGE)
-int __llvm_profile_runtime; // NOLINT
+static int __llvm_profile_runtime; // NOLINT
 void __llvm_profile_initialize_file(void); // NOLINT
 int __llvm_profile_write_file(void); // NOLINT
 #endif

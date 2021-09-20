@@ -18,8 +18,8 @@ suite json_schedule = [] {
         const auto config = load_text(text);
 
         const OptimizedSchedule schedule{
-            .makespan{3600},
-            .schedule{{.task_id{0}, .agent_id{0}}}};
+            .schedule{{.task_id{0}, .agent_id{0}}},
+            .makespan{3600}};
         const auto json = cli::detail::to_json(config, schedule);
 
         expect(json["makespan"] == 3600_i);
@@ -57,12 +57,12 @@ suite json_schedule = [] {
         const auto config = load_text(text);
 
         const OptimizedSchedule schedule{
-            .makespan{3600},
             .schedule{
                 {.task_id{0}, .agent_id{0}},
                 {.task_id{1}, .agent_id{1}},
                 {.task_id{2}, .agent_id{1}},
-                {.task_id{3}, .agent_id{0}}}};
+                {.task_id{3}, .agent_id{0}}},
+            .makespan{3600}};
         const auto json = cli::detail::to_json(config, schedule);
 
         expect(
