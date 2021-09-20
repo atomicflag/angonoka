@@ -91,6 +91,4 @@ suite json_schedule = [] {
                    {"expected_duration", 3600},
                    {"expected_start", 10800}}}}});
     };
-
-    // TODO: WIP: More complex tests
 };

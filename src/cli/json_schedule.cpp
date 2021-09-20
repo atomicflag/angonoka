@@ -1,4 +1,6 @@
 #include "json_schedule.h"
+#include "events.h"
+#include "progress.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/transform.hpp>
 #include <vector>
@@ -11,8 +13,6 @@ using namespace angonoka;
     task.
 
     Factors in agent's performace.
-
-    TODO: test
 
     @param task     Task
     @param agent    Agent who performs the task
@@ -31,8 +31,6 @@ task_duration(const Task& task, const Agent& agent)
 
 /**
     The time when the last dependency will be completed.
-
-    TODO: test
 
     @param task_done    Array of task completion times
     @param deps         Dependency ids
@@ -143,20 +141,33 @@ namespace detail {
                  {"expected_start", expected_start}});
         }
 
+        Ensures(!tasks.empty());
+        Ensures(schedule.makespan.count() > 0);
+
         return {
             {"makespan", schedule.makespan.count()},
             {"tasks", std::move(tasks)}};
     }
 } // namespace detail
 
-nlohmann::json json_schedule(
-    const Configuration& config,
-    const Options& /* options */)
+nlohmann::json
+json_schedule(const Configuration& config, const Options& options)
 {
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());
 
-    // TODO: WIP: Implement
-    return {};
+    auto [schedule_future, event_queue] = schedule(config);
+
+    if (!options.quiet) {
+        Progress progress;
+        if (options.color) progress.emplace<ProgressBar>();
+        // TODO: add consume_events for JSON
+        // consume_events(
+        //     *event_queue,
+        //     schedule_future,
+        //     EventHandler{&progress, &options});
+    }
+    const auto schedule = schedule_future.get();
+    return detail::to_json(config, schedule);
 }
 } // namespace angonoka::cli

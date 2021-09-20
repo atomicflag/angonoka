@@ -25,8 +25,6 @@ namespace detail {
             ]
         }
 
-        TODO: test, expects
-
         @param config   Tasks and agents
         @param schedule Optimized schedule
 
