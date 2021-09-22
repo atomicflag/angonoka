@@ -4,6 +4,7 @@
 #include "options.h"
 #include "predict.h"
 #include <nlohmann/json.hpp>
+#include <string_view>
 
 namespace angonoka::cli {
 namespace detail {
@@ -47,4 +48,7 @@ namespace detail {
 */
 [[nodiscard]] nlohmann::json
 json_schedule(const Configuration& config, const Options& options);
+
+// TODO: doc, test, expects
+void save_json(const nlohmann::json& json, std::string_view path);
 } // namespace angonoka::cli

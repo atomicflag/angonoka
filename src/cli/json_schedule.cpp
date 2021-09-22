@@ -1,6 +1,7 @@
 #include "json_schedule.h"
 #include "events.h"
 #include "progress.h"
+#include <fstream>
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/transform.hpp>
 #include <vector>
@@ -168,5 +169,12 @@ json_schedule(const Configuration& config, const Options& options)
     }
     const auto schedule = schedule_future.get();
     return detail::to_json(config, schedule);
+}
+
+void save_json(const nlohmann::json& json, std::string_view path)
+{
+    // TODO: Catch errors
+    std::ofstream output{path};
+    output << std::setw(4) << json;
 }
 } // namespace angonoka::cli

@@ -48,9 +48,9 @@ int main(int argc, char** argv)
     try {
         CLI11_PARSE(cli, argc, argv);
         const auto config = parse_config(options);
-        if (schedule_cmd) {
+        if (schedule_cmd->parsed()) {
             const auto json = json_schedule(config, options);
-            // TODO: save JSON to options.output
+            save_json(json, options.output);
         } else {
             run_prediction(config, options);
         }
