@@ -30,7 +30,7 @@ namespace detail {
 
         @return JSON object
     */
-    nlohmann::json to_json(
+    [[nodiscard]] nlohmann::json to_json(
         const Configuration& config,
         const OptimizedSchedule& schedule);
 } // namespace detail
@@ -45,6 +45,6 @@ namespace detail {
 
     @return JSON object
 */
-nlohmann::json
+[[nodiscard]] nlohmann::json
 json_schedule(const Configuration& config, const Options& options);
 } // namespace angonoka::cli

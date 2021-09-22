@@ -1,4 +1,5 @@
 #include "cli/cli.h"
+#include "cli/json_schedule.h"
 #include "config.h"
 #include <CLI/CLI.hpp>
 #include <fmt/printf.h>
@@ -47,7 +48,12 @@ int main(int argc, char** argv)
     try {
         CLI11_PARSE(cli, argc, argv);
         const auto config = parse_config(options);
-        run_prediction(config, options);
+        if (schedule_cmd) {
+            const auto json = json_schedule(config, options);
+            // TODO: save JSON to options.output
+        } else {
+            run_prediction(config, options);
+        }
         return EXIT_SUCCESS;
     } catch (const UserError&) {
         return EXIT_FAILURE;

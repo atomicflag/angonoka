@@ -161,11 +161,10 @@ json_schedule(const Configuration& config, const Options& options)
     if (!options.quiet) {
         Progress progress;
         if (options.color) progress.emplace<ProgressBar>();
-        // TODO: add consume_events for JSON
-        // consume_events(
-        //     *event_queue,
-        //     schedule_future,
-        //     EventHandler{&progress, &options});
+        consume_events(
+            *event_queue,
+            schedule_future,
+            EventHandler{&progress, &options});
     }
     const auto schedule = schedule_future.get();
     return detail::to_json(config, schedule);

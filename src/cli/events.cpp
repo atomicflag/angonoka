@@ -3,25 +3,17 @@
 #include "verbose.h"
 #include <fmt/printf.h>
 
-namespace {
-using namespace angonoka;
-/**
-    Check if an event is the final one.
-
-    @param evt Event
-
-    @return True if this is the final event.
-*/
-bool is_final_event(ProgressEvent& evt) noexcept
-{
-    using boost::variant2::get_if;
-    if (auto* e = get_if<SimpleProgressEvent>(&evt))
-        return *e == SimpleProgressEvent::Finished;
-    return false;
-}
-} // namespace
-
 namespace angonoka::cli {
+namespace detail {
+    bool is_final_event(ProgressEvent& evt) noexcept
+    {
+        using boost::variant2::get_if;
+        if (auto* e = get_if<SimpleProgressEvent>(&evt))
+            return *e == SimpleProgressEvent::Finished;
+        return false;
+    }
+} // namespace detail
+
 void EventHandler::operator()(const SimpleProgressEvent& e) const
 {
     switch (e) {
@@ -59,27 +51,5 @@ void EventHandler::operator()(
     } else {
         fmt::print(text, humanize{e.makespan});
     }
-}
-
-void consume_events(
-    Queue<ProgressEvent>& queue,
-    std::future<Prediction>& prediction,
-    EventHandler handler)
-{
-    Expects(prediction.valid());
-
-    using namespace std::literals::chrono_literals;
-    using boost::variant2::visit;
-    constexpr auto event_timeout = 100ms;
-    ProgressEvent evt;
-    while (!is_final_event(evt)) {
-        if (!queue.try_dequeue(evt)) {
-            prediction.wait_for(event_timeout);
-            continue;
-        }
-        visit(handler, evt);
-    }
-
-    Ensures(prediction.valid());
 }
 } // namespace angonoka::cli

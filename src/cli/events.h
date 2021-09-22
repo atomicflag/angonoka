@@ -6,6 +6,16 @@
 #include <gsl/gsl-lite.hpp>
 
 namespace angonoka::cli {
+namespace detail {
+    /**
+        Check if an event is the final one.
+
+        @param evt Event
+
+        @return True if this is the final event.
+    */
+    bool is_final_event(ProgressEvent& evt) noexcept;
+} // namespace detail
 /**
     Prediction events handler.
 
@@ -50,6 +60,23 @@ struct EventHandler {
 */
 void consume_events(
     Queue<ProgressEvent>& queue,
-    std::future<Prediction>& prediction,
-    EventHandler handler);
+    auto& prediction,
+    EventHandler handler)
+{
+    Expects(prediction.valid());
+
+    using namespace std::literals::chrono_literals;
+    using boost::variant2::visit;
+    constexpr auto event_timeout = 100ms;
+    ProgressEvent evt;
+    while (!detail::is_final_event(evt)) {
+        if (!queue.try_dequeue(evt)) {
+            prediction.wait_for(event_timeout);
+            continue;
+        }
+        visit(handler, evt);
+    }
+
+    Ensures(prediction.valid());
+}
 } // namespace angonoka::cli
