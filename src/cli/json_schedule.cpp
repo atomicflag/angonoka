@@ -173,6 +173,7 @@ json_schedule(const Configuration& config, const Options& options)
 
 void save_json(const nlohmann::json& json, std::string_view path)
 {
+    Expects(!path.empty());
     // TODO: Catch errors
     std::ofstream output{path};
     output << std::setw(4) << json;

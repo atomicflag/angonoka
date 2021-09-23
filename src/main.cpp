@@ -48,12 +48,16 @@ int main(int argc, char** argv)
     try {
         CLI11_PARSE(cli, argc, argv);
         const auto config = parse_config(options);
+
+        // schedule subcommand
         if (schedule_cmd->parsed()) {
             const auto json = json_schedule(config, options);
             save_json(json, options.output);
-        } else {
-            run_prediction(config, options);
+            return EXIT_SUCCESS;
         }
+
+        // no subcommand
+        run_prediction(config, options);
         return EXIT_SUCCESS;
     } catch (const UserError&) {
         return EXIT_FAILURE;

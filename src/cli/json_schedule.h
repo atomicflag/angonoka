@@ -49,6 +49,15 @@ namespace detail {
 [[nodiscard]] nlohmann::json
 json_schedule(const Configuration& config, const Options& options);
 
-// TODO: doc, test, expects
+/**
+    Save JSON to a file with formatting.
+
+    Currently used for exporting the optimized schedule.
+
+    TODO: expects, test
+
+    @param json JSON to be saved
+    @param path Filename to save JSON as
+*/
 void save_json(const nlohmann::json& json, std::string_view path);
 } // namespace angonoka::cli
