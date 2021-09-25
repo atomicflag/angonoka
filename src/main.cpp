@@ -37,10 +37,9 @@ int main(int argc, char** argv)
         "schedule",
         "Output the schedule in JSON format.");
     schedule_cmd->excludes(input_file);
-    schedule_cmd->add_flag(
-        "-o,--output",
-        options.output,
-        "Output the schedule to a file");
+    schedule_cmd
+        ->add_option("-o,--output", "Output the schedule to a file")
+        ->default_str("schedule.json");
     schedule_cmd->add_option("input file", options.filename)
         ->required()
         ->check(CLI::ExistingFile);
@@ -51,6 +50,7 @@ int main(int argc, char** argv)
 
         // schedule subcommand
         if (schedule_cmd->parsed()) {
+            options.output = (*schedule_cmd)["-o"]->as<std::string>();
             const auto json = json_schedule(config, options);
             save_json(json, options.output);
             return EXIT_SUCCESS;

@@ -304,3 +304,12 @@ def test_inaccessible_file_tty():
     code, cout, cerr = run("--color", "/proc/sys/vm/drop_caches")
     assert code == 1
     assert cerr
+
+def test_schedule_output():
+    code, cout, cerr = run("schedule", "-o", "schedule2.json", "tasks.yml")
+    assert code == 0
+    assert not cerr
+    # TODO: check schedule2.json contents
+
+# TODO: check schedule subcommand doc
+# TODO: check schedule default filename
