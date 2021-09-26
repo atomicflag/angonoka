@@ -2,6 +2,7 @@ import pytest
 import subprocess
 from textwrap import dedent
 import os
+from pathlib import Path
 
 EXE = "../../build/src/angonoka-x86_64"
 TEST_IDX = 0
@@ -283,6 +284,7 @@ def test_2_schedules():
 def test_general_options_before_schedule():
     code, cout, cerr = run("-v", "schedule", "tasks.yml")
     assert code == 0
+    assert Path("schedule.json").exists()
 
 
 def test_inaccessible_file():
@@ -305,11 +307,46 @@ def test_inaccessible_file_tty():
     assert code == 1
     assert cerr
 
+
 def test_schedule_output():
     code, cout, cerr = run("schedule", "-o", "schedule2.json", "tasks.yml")
     assert code == 0
     assert not cerr
-    # TODO: check schedule2.json contents
+    assert Path("schedule2.json").read_text() == dedent(
+        """\
+    {
+        "makespan": 2484,
+        "tasks": [
+            {
+                "agent": "Agent",
+                "expected_duration": 1017,
+                "expected_start": 0.0,
+                "priority": 0,
+                "task": "Task"
+            }
+        ]
+    }"""
+    )
 
-# TODO: check schedule subcommand doc
-# TODO: check schedule default filename
+
+def test_schedule_doc():
+    code, cout, cerr = run("schedule", "--help")
+    assert code == 0
+    assert not cerr
+    assert cout == dedent(
+        """\
+    Output the schedule in JSON format.
+    Usage: angonoka schedule [OPTIONS] input file
+
+    Positionals:
+      input file TEXT:FILE REQUIRED
+
+    Options:
+      -h,--help                   Print this help message and exit
+      -o,--output=schedule.json   Output the schedule to a file
+
+    """
+    )
+
+
+# TODO: test invalid JSON output destination
