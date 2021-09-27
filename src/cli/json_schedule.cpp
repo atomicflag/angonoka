@@ -1,7 +1,9 @@
 #include "json_schedule.h"
 #include "events.h"
 #include "progress.h"
-#include <fstream>
+#include <boost/filesystem.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
+#include <boost/iostreams/stream.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/transform.hpp>
 #include <vector>
@@ -171,11 +173,17 @@ json_schedule(const Configuration& config, const Options& options)
     return detail::to_json(config, schedule);
 }
 
-void save_json(const nlohmann::json& json, std::string_view path)
+void save_json(const nlohmann::json& json, std::string_view location)
 {
-    Expects(!path.empty());
+    using boost::filesystem::path;
+    using boost::iostreams::file_descriptor_sink;
+    using boost::iostreams::stream;
+
+    Expects(!location.empty());
+
     // TODO: Catch errors
-    std::ofstream output{path};
+    stream<file_descriptor_sink> output{
+        path{location.begin(), location.end()}};
     output << std::setw(4) << json;
 }
 } // namespace angonoka::cli
