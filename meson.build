@@ -46,7 +46,6 @@ dependencies = [
   dependency('readerwriterqueue'),
   dependency('nlohmann_json'),
   dependency('boost', include_type : 'system'),
-  dependency('boost_filesystem'),
   dependency('boost_iostreams'),
   openmp
 ]

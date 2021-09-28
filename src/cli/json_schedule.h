@@ -57,7 +57,7 @@ json_schedule(const Configuration& config, const Options& options);
     TODO: expects, test
 
     @param json     JSON to be saved
-    @param location Filename to save JSON as
+    @param options  CLI options
 */
-void save_json(const nlohmann::json& json, std::string_view location);
+void save_json(const nlohmann::json& json, const Options& options);
 } // namespace angonoka::cli

@@ -349,4 +349,4 @@ def test_schedule_doc():
     )
 
 
-# TODO: test invalid JSON output destination
+# TODO: test invalid JSON output destination/permission denied

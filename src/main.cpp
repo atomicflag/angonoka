@@ -52,7 +52,7 @@ int main(int argc, char** argv)
         if (schedule_cmd->parsed()) {
             options.output = (*schedule_cmd)["-o"]->as<std::string>();
             const auto json = json_schedule(config, options);
-            save_json(json, options.output);
+            save_json(json, options);
             return EXIT_SUCCESS;
         }
 
