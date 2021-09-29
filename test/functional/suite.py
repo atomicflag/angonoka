@@ -349,4 +349,11 @@ def test_schedule_doc():
     )
 
 
-# TODO: test invalid JSON output destination/permission denied
+def test_schedule_invalid_output():
+    code, cout, cerr = run("schedule", "-o", "/proc/1/asdf", "tasks.yml")
+    assert code == 1
+    assert cerr == dedent(
+        """\
+    Error saving the schedule:
+    failed opening file: No such file or directory: unspecified iostream_category error"""
+    )
