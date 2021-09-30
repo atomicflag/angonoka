@@ -15,7 +15,13 @@ namespace detail {
         @return True if this is the final event.
     */
     bool is_final_event(ProgressEvent& evt) noexcept;
+
+    // TODO: documentation
+    template <typename T> inline constexpr bool is_future = false;
+    template <typename T>
+    inline constexpr bool is_future<std::future<T>> = true;
 } // namespace detail
+
 /**
     Prediction events handler.
 
@@ -51,6 +57,9 @@ struct EventHandler {
     void operator()(const ScheduleOptimizationComplete& e) const;
 };
 
+template <typename T>
+concept Prediction = detail::is_future<T>;
+
 /**
     Consumes prediction events from the queue.
 
@@ -60,7 +69,7 @@ struct EventHandler {
 */
 void consume_events(
     Queue<ProgressEvent>& queue,
-    auto& prediction,
+    Prediction auto& prediction,
     EventHandler handler)
 {
     Expects(prediction.valid());
