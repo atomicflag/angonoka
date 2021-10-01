@@ -16,7 +16,10 @@ namespace detail {
     */
     bool is_final_event(ProgressEvent& evt) noexcept;
 
-    // TODO: documentation
+    /**
+        Helper constant that checks if a given class is
+        a specialization of std::future.
+    */
     template <typename T> inline constexpr bool is_future = false;
     template <typename T>
     inline constexpr bool is_future<std::future<T>> = true;
@@ -57,6 +60,9 @@ struct EventHandler {
     void operator()(const ScheduleOptimizationComplete& e) const;
 };
 
+/**
+    Awaitable result of the prediction.
+*/
 template <typename T>
 concept Prediction = detail::is_future<T>;
 
