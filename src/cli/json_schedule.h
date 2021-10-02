@@ -39,8 +39,6 @@ namespace detail {
 /**
     Optimize the schedule and output to JSON.
 
-    TODO: test, expects
-
     @param config   Tasks and agents
     @param options  CLI options
 
@@ -53,8 +51,6 @@ json_schedule(const Configuration& config, const Options& options);
     Save JSON to a file with formatting.
 
     Currently used for exporting the optimized schedule.
-
-    TODO: expects, test
 
     @param json     JSON to be saved
     @param options  CLI options

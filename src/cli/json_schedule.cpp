@@ -179,6 +179,7 @@ void save_json(const nlohmann::json& json, const Options& options)
     using boost::iostreams::stream;
 
     Expects(!options.output.empty());
+    Expects(!json.empty());
 
     try {
         stream<file_descriptor_sink> output{options.output};
