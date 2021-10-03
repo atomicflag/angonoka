@@ -18,9 +18,8 @@ int16 terminal_width()
 {
     const auto width = indicators::terminal_width();
     constexpr auto min_width = 5;
-    constexpr auto max_width = 9999;
     constexpr auto default_width = 50;
-    if (width < min_width || width > max_width) return default_width;
+    if (width < min_width) return default_width;
     return width;
 }
 

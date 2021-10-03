@@ -5,7 +5,7 @@
 // ut's destructor we won't get any coverage.
 #if defined(__llvm__) && defined(ANGONOKA_COVERAGE)
 extern "C" {
-int __llvm_profile_runtime;
+static int __llvm_profile_runtime;
 void __llvm_profile_initialize_file(void);
 int __llvm_profile_write_file(void);
 };

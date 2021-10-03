@@ -1,17 +1,18 @@
-# conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
+# conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan
 
 [requires]
 boost/1.76.0
-fmt/7.1.3
+fmt/8.0.1
 gsl-lite/0.38.1@signal9/stable
 range-v3/0.11.0
-yaml-cpp/0.6.3
+yaml-cpp/0.7.0
 pcg-cpp/0.98.1@signal9/stable
-trompeloeil/40
+trompeloeil/41
 indicators/2.0
-readerwriterqueue/1.0.3
+readerwriterqueue/1.0.5
 boost-ext-ut/1.1.8
 cli11/2.0.0
+nlohmann_json/3.10.2
 
 [build_requires]
 meson/0.58.0
@@ -20,3 +21,6 @@ ragel/6.10
 [generators]
 pkg_config
 virtualenv
+
+[options]
+boost:without_stacktrace=True

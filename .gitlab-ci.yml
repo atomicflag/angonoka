@@ -16,13 +16,19 @@ default:
       - .conan
       - .ccache
   before_script:
-    - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
+    - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan
+    - conan config set general.revisions_enabled=1
     - conan config set storage.path="$CI_PROJECT_DIR/.conan"
+    - make check/format
+    - export CCACHE_DISABLE=1
+    - make build/conaninfo.txt
+    - unset CCACHE_DISABLE
+  after_script:
+    - conan remove -b -s -f '*'
 
 test:
   stage: test
   script:
-    - make check/format
     - make build/cov
     - make test
     - pip install --no-cache-dir pytest
@@ -32,7 +38,7 @@ test:
 clang-tidy:
   stage: test
   script:
-    - make check
+    - make check/tidy
 
 build:
   stage: build

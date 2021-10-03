@@ -1,6 +1,7 @@
 #pragma once
 
 #include "options.h"
+#include <cstdio>
 #include <fmt/color.h>
 #include <fmt/printf.h>
 #include <gsl/gsl-lite.hpp>
@@ -11,10 +12,14 @@ namespace angonoka::cli {
 
     @param options CLI options
 */
-void print(const Options& options, auto&&... args)
+template <typename... T>
+void print(
+    const Options& options,
+    fmt::format_string<T...> fmt,
+    T&&... args)
 {
     if (options.quiet) return;
-    fmt::print(std::forward<decltype(args)>(args)...);
+    fmt::print(fmt, std::forward<T>(args)...);
 }
 
 /**
@@ -25,14 +30,21 @@ void print(const Options& options, auto&&... args)
 
     @param options CLI options
 */
-void red_text(const Options& options, auto&&... args)
+template <typename... T>
+void print_error(
+    const Options& options,
+    std::FILE* output,
+    fmt::format_string<T...> fmt,
+    T&&... args)
 {
     if (options.color) {
         fmt::print(
+            output,
             fg(fmt::terminal_color::red),
-            std::forward<decltype(args)>(args)...);
+            fmt::string_view{fmt},
+            std::forward<T>(args)...);
     } else {
-        fmt::print(std::forward<decltype(args)>(args)...);
+        fmt::print(output, fmt, std::forward<T>(args)...);
     }
 }
 
@@ -46,9 +58,14 @@ void red_text(const Options& options, auto&&... args)
 
     @param options CLI options
 */
-void die(const Options& options, auto&&... args)
+template <typename... T>
+void die(
+    const Options& options,
+    fmt::format_string<T...> fmt,
+    T&&... args)
 {
-    if (!options.quiet) red_text(options, "Error\n");
-    red_text(options, std::forward<decltype(args)>(args)...);
+
+    if (!options.quiet) print_error(options, stdout, "Error\n");
+    print_error(options, stderr, fmt, std::forward<T>(args)...);
 }
 } // namespace angonoka::cli

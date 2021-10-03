@@ -8,21 +8,12 @@
 #else // UNIT_TEST
 #include "stub/optimizer.h"
 #include "stub/schedule_params.h"
-#endif
+#endif // UNIT_TEST
 
 namespace {
 using namespace angonoka;
 
-/**
-    The result of the schedule optimization process.
-
-    @var schedule Optimized schedule
-    @var makespan Makespan in seconds
-*/
-struct OptimizationResult {
-    std::vector<stun::ScheduleItem> schedule;
-    std::chrono::seconds makespan;
-};
+constexpr auto event_queue_size = 100;
 
 /**
     Convert normalized makespan to seconds.
@@ -52,7 +43,7 @@ std::chrono::seconds makespan(
 
     @return Optimal schedule
 */
-OptimizationResult optimize(
+OptimizedSchedule optimize(
     const stun::ScheduleParams& params,
     Queue<ProgressEvent>& events)
 {
@@ -93,7 +84,6 @@ std::tuple<
     std::shared_ptr<Queue<ProgressEvent>>>
 predict(const Configuration& config)
 {
-    constexpr auto event_queue_size = 100;
     auto events
         = std::make_shared<Queue<ProgressEvent>>(event_queue_size);
     auto future = std::async(std::launch::async, [events, &config] {
@@ -106,6 +96,26 @@ predict(const Configuration& config)
         // TODO: WIP do other stuff here
         events->enqueue(SimpleProgressEvent::Finished);
         return Prediction{};
+    });
+    return {std::move(future), std::move(events)};
+}
+
+std::tuple<
+    std::future<OptimizedSchedule>,
+    std::shared_ptr<Queue<ProgressEvent>>>
+schedule(const Configuration& config)
+{
+    auto events
+        = std::make_shared<Queue<ProgressEvent>>(event_queue_size);
+    auto future = std::async(std::launch::async, [events, &config] {
+        events->enqueue(
+            SimpleProgressEvent::ScheduleOptimizationStart);
+        const auto schedule_params = stun::to_schedule_params(config);
+        auto opt_result = optimize(schedule_params, *events);
+        events->enqueue(ScheduleOptimizationComplete{
+            .makespan{opt_result.makespan}});
+        events->enqueue(SimpleProgressEvent::Finished);
+        return opt_result;
     });
     return {std::move(future), std::move(events)};
 }
