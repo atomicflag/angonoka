@@ -21,7 +21,6 @@ define RELEASE_CXXFLAGS =
 -fPIC
 endef
 RELEASE_LDFLAGS := -Wl,--gc-sections,-Bsymbolic-functions
-LLVM_ROOT := $(shell readlink -m $$(which clang-tidy)/../..)
 CLANG_BUILTIN := $(shell echo | clang -v -E -x c++ - 2>&1 \
 	| sed -nE 's@^ (/[^ ]*)@-isystem\1@p' | tr '\n' ' ')
 define BUILD_ENV
@@ -178,8 +177,7 @@ check/tidy: build/build.ninja
 		data = tuple(filter(keep, data))
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
-	python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
-		-quiet ../src 2>/dev/null
+	run-clang-tidy -quiet ../src 2>/dev/null
 	EXIT_CODE=$$?
 	mv compile_commands.json.bak compile_commands.json
 	exit $$EXIT_CODE

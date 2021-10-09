@@ -4,7 +4,7 @@
 boost/1.76.0
 fmt/8.0.1
 gsl-lite/0.38.1@signal9/stable
-range-v3/0.11.0
+range-v3/0.12.0-pre1
 yaml-cpp/0.7.0
 pcg-cpp/0.98.1@signal9/stable
 trompeloeil/41
