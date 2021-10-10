@@ -34,7 +34,7 @@ build/conaninfo.txt:
 	export CXXFLAGS="$$CXXFLAGS $(RELEASE_CXXFLAGS)"
 	export CFLAGS="$$CFLAGS $(RELEASE_CXXFLAGS)"
 	export LDFLAGS="$$LDFLAGS $(RELEASE_LDFLAGS)"
-	conan install -l ../conan.lock -b missing ..
+	conan install -l ../conan.lock ..
 
 build/build.ninja: build/conaninfo.txt
 	$(BUILD_ENV)
@@ -132,7 +132,7 @@ check/cov: build/cov
 	llvm-cov report \
 		build/src/angonoka-x86_64 \
 		-instr-profile=angonoka.profdata \
-		src
+		--ignore-filename-regex='.*\.a\.p'
 
 .PHONY: check/show
 check/show: check/cov
@@ -140,7 +140,7 @@ check/show: check/cov
 		build/src/angonoka-x86_64 \
 		-instr-profile=angonoka.profdata \
 		-format=html -o html \
-		src
+		--ignore-filename-regex='.*\.a\.p'
 
 .PHONY: format
 format: build/build.ninja

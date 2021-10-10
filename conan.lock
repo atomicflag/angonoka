@@ -142,10 +142,10 @@
     "context": "host"
    },
    "16": {
-    "ref": "meson/0.58.0#2219dca8f7b09559ac8e5300c9f69efe",
+    "ref": "meson/0.59.2#2352c1ecfc4c2b7df0299610b66da3c4",
     "options": "",
     "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
-    "prev": "feec04b5f751f133b757ed930f8993fb",
+    "prev": "11e2b8c6afdb537307aa1abd433a2251",
     "requires": [
      "17"
     ],
