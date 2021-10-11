@@ -23,11 +23,12 @@ default:
     - export CCACHE_DISABLE=1
     - make build/conaninfo.txt
     - unset CCACHE_DISABLE
-  after_script: |
-    to_delete="$(sed -En '/(Retrieved|Stored)/s/.*\((.*)\)/\1/gp' $CCACHE_LOGFILE | sort -u)
-    $(find $CCACHE_DIR -type f)"
-    to_delete=$(echo "$to_delete" | sort | uniq -u)
-    [[ -n "$to_delete" ]] && rm $to_delete
+  after_script:
+    - |
+      to_delete="$(sed -En '/(Retrieved|Stored)/s/.*\((.*)\)/\1/gp' $CCACHE_LOGFILE | sort -u)
+      $(find $CCACHE_DIR -type f)"
+      to_delete=$(echo "$to_delete" | sort | uniq -u)
+      [[ -n "$to_delete" ]] && rm $to_delete
 
 test:
   stage: test
