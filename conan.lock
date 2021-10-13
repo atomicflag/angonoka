@@ -18,8 +18,8 @@
      "14"
     ],
     "build_requires": [
-     "16",
-     "18"
+     "15",
+     "17"
     ],
     "path": "../conanfile.txt",
     "context": "host"
@@ -29,13 +29,9 @@
     "options": "asio_no_deprecated=False\nbuildid=None\nbzip2=True\ndebug_level=0\ndiagnostic_definitions=False\nerror_code_header_only=False\nextra_b2_flags=None\nfilesystem_no_deprecated=False\nheader_only=False\ni18n_backend=deprecated\ni18n_backend_iconv=libc\ni18n_backend_icu=False\nlayout=system\nlzma=False\nmagic_autolink=False\nmultithreading=True\nnamespace=boost\nnamespace_alias=False\nnuma=True\npch=True\npython_executable=None\npython_version=None\nsegmented_stacks=False\nshared=True\nsystem_no_deprecated=False\nvisibility=hidden\nwithout_atomic=False\nwithout_chrono=False\nwithout_container=False\nwithout_context=False\nwithout_contract=False\nwithout_coroutine=False\nwithout_date_time=False\nwithout_exception=False\nwithout_fiber=False\nwithout_filesystem=False\nwithout_graph=False\nwithout_graph_parallel=True\nwithout_iostreams=False\nwithout_json=False\nwithout_locale=False\nwithout_log=False\nwithout_math=False\nwithout_mpi=True\nwithout_nowide=False\nwithout_program_options=False\nwithout_python=True\nwithout_random=False\nwithout_regex=False\nwithout_serialization=False\nwithout_stacktrace=True\nwithout_system=False\nwithout_test=False\nwithout_thread=False\nwithout_timer=False\nwithout_type_erasure=False\nwithout_wave=False\nzlib=True\nzstd=False\nbzip2:build_executable=True\nbzip2:shared=True\nzlib:minizip=deprecated\nzlib:shared=True",
     "package_id": "907df18149faf77a9af6765d906b70d2c2c1ac8e",
     "prev": "42caf972d4a3d3701876aa29baedb671",
-    "modified": true,
     "requires": [
      "2",
      "3"
-    ],
-    "build_requires": [
-     "15"
     ],
     "context": "host"
    },
@@ -44,7 +40,6 @@
     "options": "minizip=deprecated\nshared=True",
     "package_id": "a94498c1f63a7731916053a03adfbea7ef7657ad",
     "prev": "55f1410e41efbed6033ecb6e41d5227f",
-    "modified": true,
     "context": "host"
    },
    "3": {
@@ -73,7 +68,6 @@
     "options": "",
     "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
     "prev": "1ddf2592c91eaf53aac4f710504a35fc",
-    "modified": true,
     "context": "host"
    },
    "7": {
@@ -81,7 +75,6 @@
     "options": "shared=True",
     "package_id": "5ff5c28500993ef8e3801901fe5ce2891dde0858",
     "prev": "fb55dafdf4129ae8101ab2208375d9d7",
-    "modified": true,
     "context": "host"
    },
    "8": {
@@ -89,7 +82,6 @@
     "options": "revision=726e919c2dd22a3cdaccb0674c5422ab4fa7a216",
     "package_id": "350f06990f22b512fe2c38999e5b3d033e0ad3ad",
     "prev": "322a8199ca78c6f0543fb7e0fa68cff1",
-    "modified": true,
     "context": "host"
    },
    "9": {
@@ -135,30 +127,23 @@
     "context": "host"
    },
    "15": {
-    "ref": "b2/4.5.0#07e81572aa57e50fcd1992880328976b",
-    "options": "toolset=auto\nuse_cxx_env=False",
-    "package_id": "4db1be536558d833e52e862fd84d64d75c2b3656",
-    "prev": "7da4f76343327f64ad3de2166adccd66",
-    "context": "host"
-   },
-   "16": {
     "ref": "meson/0.59.2#2352c1ecfc4c2b7df0299610b66da3c4",
     "options": "",
     "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
     "prev": "11e2b8c6afdb537307aa1abd433a2251",
     "requires": [
-     "17"
+     "16"
     ],
     "context": "host"
    },
-   "17": {
+   "16": {
     "ref": "ninja/1.10.2#0ed34363d5683eb57a22bd2ccd7b62fc",
     "options": "",
     "package_id": "24647d9fe8ec489125dfbae4b3ebefaf7581674c",
     "prev": "4d1bb64a438fff596e46919a9dcb929d",
     "context": "host"
    },
-   "18": {
+   "17": {
     "ref": "ragel/6.10#0af6e8774e2ce8c6e54a37cd34bd4e63",
     "options": "",
     "package_id": "4db1be536558d833e52e862fd84d64d75c2b3656",

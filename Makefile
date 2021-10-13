@@ -188,3 +188,36 @@ check: check/format check/tidy
 .PHONY: clean
 clean:
 	git clean -fxd
+
+.PHONY: install-deps
+install-deps:
+	mkdir -p deps
+	cd deps
+	export CXXFLAGS="$$CXXFLAGS $(RELEASE_CXXFLAGS)"
+	export CFLAGS="$$CFLAGS $(RELEASE_CXXFLAGS)"
+	export LDFLAGS="$$LDFLAGS $(RELEASE_LDFLAGS)"
+	conan install -u -b missing ..
+
+.PHONY: update-deps
+update-deps:
+	docker run --rm -i \
+	  --name temp \
+	  -e CONAN_TOKEN \
+	  -e CONAN_USER \
+	  -v $$(pwd):/app \
+	  --entrypoint /bin/bash \
+	  registry.gitlab.com/signal9/cpp-env:13.0.0 <<"EOF"
+	python3 -m pip --no-cache-dir install --upgrade conan
+	apt-get update
+	apt-get install -y --no-install-recommends jq
+	conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
+	conan config set general.revisions_enabled=1
+	conan user -p $$CONAN_TOKEN -r signal9 $$CONAN_USER
+	cd /app
+	make install-deps
+	cp deps/conan.lock conan.lock
+	conan info -l conan.lock -u -j deps.json .
+	deps=$$(jq -r '.[] | select(.is_ref) | "\(.reference)#\(.revision):\(.id)"' deps.json)
+	for d in $$deps; do conan upload -r signal9 --parallel $$d; done
+	rm -rf deps deps.json
+	EOF
