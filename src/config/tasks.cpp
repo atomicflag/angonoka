@@ -408,7 +408,7 @@ void parse_task(
     not be resolved during the first pass.
 
     @param tasks   Array of Tasks
-    @param deps    Array of Task dependencies
+    @param deps    2D array of Task dependencies
 */
 void parse_dependencies_2nd_phase(
     Tasks& tasks,
@@ -418,8 +418,8 @@ void parse_dependencies_2nd_phase(
     Expects(tasks.size() == deps.size());
 
     using ranges::views::zip;
-    for (auto&& [task, deps] : zip(tasks, deps)) {
-        for (auto dep : deps) {
+    for (auto&& [task, tdeps] : zip(tasks, deps)) {
+        for (auto dep : tdeps) {
             const auto dep_index = find_task_index_by_id(tasks, dep);
             task.dependencies.emplace(dep_index);
         }

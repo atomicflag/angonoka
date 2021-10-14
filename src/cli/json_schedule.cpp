@@ -54,6 +54,10 @@ task_duration(const Task& task, const Agent& agent)
                }));
 }
 
+// TODO: doc, test, expects
+enum class AgentIndex : gsl::index {};
+enum class TaskIndex : gsl::index {};
+
 /**
     Utility class for calculating task durations.
 */
@@ -77,15 +81,17 @@ public:
         Calculate the duration and starting time for
         a given task and agent combo.
 
-        @param agent_id Agent id
-        @param task_id  Task id
+        @param agent_id_ Agent id
+        @param task_id_  Task id
 
         @return Task duration and expected start
         time in seconds
     */
     [[nodiscard]] auto
-    operator()(gsl::index agent_id, gsl::index task_id)
+    operator()(AgentIndex agent_id_, TaskIndex task_id_)
     {
+        const auto task_id = static_cast<gsl::index>(task_id_);
+        const auto agent_id = static_cast<gsl::index>(agent_id_);
         Expects(task_done[task_id] == 0.F);
         Expects(agent_id >= 0 && agent_id < config->agents.size());
         Expects(task_id >= 0 && task_id < config->tasks.size());
@@ -134,7 +140,7 @@ namespace detail {
             const auto t_id = static_cast<gsl::index>(t.task_id);
             const auto a_id = static_cast<gsl::index>(t.agent_id);
             const auto [duration, expected_start]
-                = durations(a_id, t_id);
+                = durations(::AgentIndex{a_id}, ::TaskIndex{t_id});
 
             tasks.emplace_back<json>(
                 {{"task", config.tasks[t_id].name},

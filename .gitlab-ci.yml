@@ -46,11 +46,10 @@ test:
     - make test/functional
     - make check/cov
 
-# TODO: fix clang-tidy
-# clang-tidy:
-#   stage: test
-#   script:
-#     - make check/tidy
+clang-tidy:
+  stage: test
+  script:
+    - make check/tidy
 
 build:
   stage: build

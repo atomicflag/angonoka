@@ -101,6 +101,35 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
         throw DuplicateAgentDefinition{name};
 }
 
+namespace detail {
+    // TODO: doc, test, expects
+    struct OpaqueNode {
+        explicit OpaqueNode(const YAML::Node& node)
+            : node{&node}
+        {
+        }
+        gsl::not_null<const YAML::Node*> node;
+
+        decltype(auto) operator->() const
+        {
+            return node.operator->();
+        }
+
+        auto operator[](auto&& arg) const
+        {
+            return (*node)[std::forward<decltype(arg)>(arg)];
+        }
+    };
+} // namespace detail
+
+// TODO: doc, test, expects
+struct AgentNode : detail::OpaqueNode {
+    using OpaqueNode::OpaqueNode;
+};
+struct AgentData : detail::OpaqueNode {
+    using OpaqueNode::OpaqueNode;
+};
+
 /**
     Parses agent blocks.
 
@@ -119,11 +148,11 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
     @param config       An instance of Configuration
 */
 void parse_agent(
-    const YAML::Node& agent_node,
-    const YAML::Node& agent_data,
+    const AgentNode& agent_node,
+    const AgentData& agent_data,
     Configuration& config)
 {
-    const auto& agent_name = agent_node.Scalar();
+    const auto& agent_name = agent_node->Scalar();
     Expects(!agent_name.empty());
 
     check_for_duplicates(config.agents, agent_name);
@@ -152,8 +181,12 @@ void parse_agents(const YAML::Node& node, Configuration& config)
     Expects(config.agents.empty());
 
     if (node.size() == 0) throw CantBeEmpty{R"_("agents")_"};
-    for (auto&& agent : node)
-        parse_agent(agent.first, agent.second, config);
+    for (auto&& agent : node) {
+        parse_agent(
+            AgentNode{agent.first},
+            AgentData{agent.second},
+            config);
+    }
 
     Ensures(!config.agents.empty());
 }
