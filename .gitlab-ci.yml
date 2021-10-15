@@ -49,6 +49,7 @@ test:
 clang-tidy:
   stage: test
   script:
+    - ln -sf /usr/bin/python{3,}
     - make check/tidy
 
 build:
