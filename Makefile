@@ -178,16 +178,11 @@ check/format:
 .PHONY: check/tidy
 check/tidy: build/build.ninja
 	echo Running clang-tidy
-	git diff HEAD~1 --name-only | 
-	  grep -Eq '\.cpp$$' ||
-	  { echo No changes; exit 0; }
-	if [[ -z $$(git status -s) ]]; then
-		files=$$(git diff HEAD --name-only | 
-		  grep -E '\.cpp$$')
-	else
-		files=$$(git diff HEAD~1 --name-only | 
-		  grep -E '\.cpp$$')
-	fi
+	head="HEAD"
+	test -z "$$(git status -s)" && head="HEAD~1"
+	files=$$(git diff $$head --name-only |
+	  grep -E '\.cpp$$')
+	test -z "$$files" && { echo No changes; exit 0; }
 	cd build
 	$(CLEAN_COMPILE_COMMANDS)
 	run-clang-tidy -quiet $$files 2>/dev/null
