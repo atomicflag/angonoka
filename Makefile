@@ -27,6 +27,27 @@ define BUILD_ENV
 cd build
 . ./activate.sh
 endef
+define CLEAN_COMPILE_COMMANDS
+[ -e compile_commands.json.bak ] && \
+	mv compile_commands.json.bak \
+		compile_commands.json
+cp compile_commands.json compile_commands.json.bak
+sed -i \
+	-e 's/ -fsanitize=[a-z,]*//g' \
+	-e 's/ -pipe//g' \
+	-e 's/ -fno-omit-frame-pointer//g' \
+	-e 's/ --coverage//g' \
+	compile_commands.json
+python3 <<EOF
+	import json
+	data = json.load(open('compile_commands.json'))
+	def keep(f): return 'meson-generated' \
+		not in f['output'] and \
+		not f['output'].startswith('test')
+	data = tuple(filter(keep, data))
+	json.dump(data, open('compile_commands.json', 'w'))
+EOF
+endef
 
 build/conaninfo.txt:
 	mkdir -p build
@@ -157,26 +178,28 @@ check/format:
 .PHONY: check/tidy
 check/tidy: build/build.ninja
 	echo Running clang-tidy
+	git diff HEAD~1 --name-only | 
+	  grep -Eq '\.cpp$$' ||
+	  { echo No changes; exit 0; }
+	if [[ -z $$(git status -s) ]]; then
+		files=$$(git diff HEAD --name-only | 
+		  grep -E '\.cpp$$')
+	else
+		files=$$(git diff HEAD~1 --name-only | 
+		  grep -E '\.cpp$$')
+	fi
 	cd build
-	[ -e compile_commands.json.bak ] && \
-		mv compile_commands.json.bak \
-			compile_commands.json
-	cp compile_commands.json compile_commands.json.bak
-	sed -i \
-		-e 's/ -fsanitize=[a-z,]*//g' \
-		-e 's/ -pipe//g' \
-		-e 's/ -fno-omit-frame-pointer//g' \
-		-e 's/ --coverage//g' \
-		compile_commands.json
-	python3 <<EOF
-		import json
-		data = json.load(open('compile_commands.json'))
-		def keep(f): return 'meson-generated' \
-			not in f['output'] and \
-			not f['output'].startswith('test')
-		data = tuple(filter(keep, data))
-		json.dump(data, open('compile_commands.json', 'w'))
-	EOF
+	$(CLEAN_COMPILE_COMMANDS)
+	run-clang-tidy -quiet $$files 2>/dev/null
+	EXIT_CODE=$$?
+	mv compile_commands.json.bak compile_commands.json
+	exit $$EXIT_CODE
+
+.PHONY: check/tidy-full
+check/tidy-full: build/build.ninja
+	echo Running clang-tidy
+	cd build
+	$(CLEAN_COMPILE_COMMANDS)
 	run-clang-tidy -quiet ../src 2>/dev/null
 	EXIT_CODE=$$?
 	mv compile_commands.json.bak compile_commands.json

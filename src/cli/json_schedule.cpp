@@ -54,7 +54,9 @@ task_duration(const Task& task, const Agent& agent)
                }));
 }
 
-// TODO: doc, test, expects
+/**
+    Opaque types.
+*/
 enum class AgentIndex : gsl::index {};
 enum class TaskIndex : gsl::index {};
 
