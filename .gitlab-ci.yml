@@ -41,9 +41,6 @@ default:
 
 test:
   stage: test
-  artifacts:
-    paths:
-      - ccache.log
   script:
     - make build/cov
     - make test
