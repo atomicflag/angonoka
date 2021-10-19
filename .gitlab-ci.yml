@@ -49,6 +49,7 @@ test:
     - make check/cov
     - ln -sf /usr/bin/python{3,}
     - rm -rf build
+    - grep -E 'Result: .*miss' $CCACHE_LOGFILE
     - |
       pids=$(sed -En \
         '/Result: .*miss/s/^\[.* ([0-9]+)\].*/\1/gp' \
