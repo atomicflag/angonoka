@@ -18,7 +18,8 @@ default:
     paths:
       - .ccache
   before_script:
-    - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
+    - conan remote add signal9 
+      https://signal9.jfrog.io/artifactory/api/conan/conan --insert
     - conan config set general.revisions_enabled=1
     - make check/format
     - export CCACHE_DISABLE=1
@@ -27,7 +28,9 @@ default:
   after_script:
     - ccache --show-stats
     - |
-      to_delete="$(sed -En '/(Retrieved|Stored)/s/.*\((.*)\)/\1/gp' $CCACHE_LOGFILE | sort -u)
+      to_delete="$(sed -En \
+        '/(Retrieved|Stored)/s/.*\((.*)\)/\1/gp' \
+        $CCACHE_LOGFILE | sort -u)
       $(find $CCACHE_DIR -type f)"
       to_delete=$(echo "$to_delete" | sort | uniq -u)
       if [[ -n "$to_delete" ]]; then
@@ -35,7 +38,6 @@ default:
         count_deleted=$(echo "$to_delete" | wc -l)
         echo "Removed $count_deleted cache entries"
       fi
-
 
 test:
   stage: test
@@ -45,11 +47,16 @@ test:
     - pip install --no-cache-dir pytest
     - make test/functional
     - make check/cov
-
-clang-tidy:
-  stage: test
-  script:
     - ln -sf /usr/bin/python{3,}
+    - rm -rf build
+    - |
+      pids=$(sed -En \
+        '/Result: .*miss/s/^\[.* ([0-9]+)\].*/\1/gp' \
+        $CCACHE_LOGFILE | sort -u)
+      pids=$(echo $pids | tr ' ' '|')
+      export CLANG_TIDY_FILES=$(sed -En \
+        "/^\[.* ($pids)\]/s@.*Source file: (\.\./src/.*\.cpp)$@\1@p" \
+        $CCACHE_LOGFILE)
     - make check/tidy
 
 build:

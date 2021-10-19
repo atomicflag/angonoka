@@ -6,6 +6,7 @@
 .ONESHELL:
 .SILENT:
 .DEFAULT_GOAL := debug
+CLANG_TIDY_FILES ?= ../src
 define RELEASE_CXXFLAGS =
 -pipe \
 -O3 \
@@ -28,25 +29,6 @@ cd build
 . ./activate.sh
 endef
 define CLEAN_COMPILE_COMMANDS
-[ -e compile_commands.json.bak ] && \
-	mv compile_commands.json.bak \
-		compile_commands.json
-cp compile_commands.json compile_commands.json.bak
-sed -i \
-	-e 's/ -fsanitize=[a-z,]*//g' \
-	-e 's/ -pipe//g' \
-	-e 's/ -fno-omit-frame-pointer//g' \
-	-e 's/ --coverage//g' \
-	compile_commands.json
-python3 <<EOF
-	import json
-	data = json.load(open('compile_commands.json'))
-	def keep(f): return 'meson-generated' \
-		not in f['output'] and \
-		not f['output'].startswith('test')
-	data = tuple(filter(keep, data))
-	json.dump(data, open('compile_commands.json', 'w'))
-EOF
 endef
 
 build/conaninfo.txt:
@@ -178,24 +160,28 @@ check/format:
 .PHONY: check/tidy
 check/tidy: build/build.ninja
 	echo Running clang-tidy
-	head="HEAD"
-	test -z "$$(git status -s)" && head="HEAD~1"
-	files=$$(git diff $$head --name-only |
-	  grep -E '\.cpp$$')
-	test -z "$$files" && { echo No changes; exit 0; }
+	test -z "$(CLANG_TIDY_FILES)" && { echo No changes; exit 0; }
 	cd build
-	$(CLEAN_COMPILE_COMMANDS)
-	run-clang-tidy -quiet $$files 2>/dev/null
-	EXIT_CODE=$$?
-	mv compile_commands.json.bak compile_commands.json
-	exit $$EXIT_CODE
-
-.PHONY: check/tidy-full
-check/tidy-full: build/build.ninja
-	echo Running clang-tidy
-	cd build
-	$(CLEAN_COMPILE_COMMANDS)
-	run-clang-tidy -quiet ../src 2>/dev/null
+	[ -e compile_commands.json.bak ] && \
+		mv compile_commands.json.bak \
+			compile_commands.json
+	cp compile_commands.json compile_commands.json.bak
+	sed -i \
+		-e 's/ -fsanitize=[a-z,]*//g' \
+		-e 's/ -pipe//g' \
+		-e 's/ -fno-omit-frame-pointer//g' \
+		-e 's/ --coverage//g' \
+		compile_commands.json
+	python3 <<EOF
+		import json
+		data = json.load(open('compile_commands.json'))
+		def keep(f): return 'meson-generated' \
+			not in f['output'] and \
+			not f['output'].startswith('test')
+		data = tuple(filter(keep, data))
+		json.dump(data, open('compile_commands.json', 'w'))
+	EOF
+	run-clang-tidy -quiet $(CLANG_TIDY_FILES) 2>/dev/null
 	EXIT_CODE=$$?
 	mv compile_commands.json.bak compile_commands.json
 	exit $$EXIT_CODE
