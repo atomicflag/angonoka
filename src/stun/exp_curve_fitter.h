@@ -8,7 +8,7 @@ namespace angonoka::stun {
     optimization. This class allows for fitting an exponential curve
     without requiring an array of the historical values.
 
-    Source2:
+    Source:
 
     https://mathworld.wolfram.com/LeastSquaresFittingExponential.html
 */
