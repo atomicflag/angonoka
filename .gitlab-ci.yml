@@ -49,19 +49,19 @@ test:
     - make check/cov
     - ln -sf /usr/bin/python{3,}
     - rm -rf build
-    - |
-      pids=$(sed -En \
-        '/Result: .*miss/s/^\[.* ([0-9]+)\].*/\1/gp' \
-        $CCACHE_LOGFILE | sort -u)
-      pids=$(echo $pids | tr ' ' '|')
-      export CLANG_TIDY_FILES=$(sed -En \
-        "/^\[.* ($pids)\]/s%.*Source file: (\.\./src/.*\.cpp)$%\1%p" \
-        $CCACHE_LOGFILE | tr '\n' ' ')
+    # - |
+    #   pids=$(sed -En \
+    #     '/Result: .*miss/s/^\[.* ([0-9]+)\].*/\1/gp' \
+    #     $CCACHE_LOGFILE | sort -u)
+    #   pids=$(echo $pids | tr ' ' '|')
+    #   export CLANG_TIDY_FILES=$(sed -En \
+    #     "/^\[.* ($pids)\]/s%.*Source file: (\.\./src/.*\.cpp)$%\1%p" \
+    #     $CCACHE_LOGFILE | tr '\n' ' ')
     - >-
       pids=$(sed -En '/Result: .*miss/s/^\[.* ([0-9]+)\].*/\1/gp' $CCACHE_LOGFILE | sort -u)
-    - echo "$pids"
+    - printf '"%s"\n' "$pids"
     - pids=$(echo $pids | tr ' ' '|')
-    - echo "$pids"
+    - printf '"%s"\n' "$pids"
     - >-
       export CLANG_TIDY_FILES=$(sed -En "/^\[.* ($pids)\]/s%.*Source file: (\.\./src/.*\.cpp)$%\1%p" $CCACHE_LOGFILE | tr '\n' ' ')
     - echo "$CLANG_TIDY_FILES"
