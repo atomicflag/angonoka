@@ -49,7 +49,6 @@ test:
     - make check/cov
     - ln -sf /usr/bin/python{3,}
     - rm -rf build
-    - "grep -E 'Result: .*miss' $CCACHE_LOGFILE"
     - |
       pids=$(sed -En \
         '/Result: .*miss/s/^\[.* ([0-9]+)\].*/\1/gp' \
@@ -58,6 +57,7 @@ test:
       export CLANG_TIDY_FILES=$(sed -En \
         "/^\[.* ($pids)\]/s%.*Source file: (\.\./src/.*\.cpp)$%\1%p" \
         $CCACHE_LOGFILE | tr '\n' ' ')
+    - echo "$CLANG_TIDY_FILES"
     - make check/tidy
 
 build:
