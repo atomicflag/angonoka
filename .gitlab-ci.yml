@@ -41,6 +41,9 @@ default:
 
 test:
   stage: test
+  artifacts:
+    paths:
+      - ccache.log
   script:
     - make build/cov
     - make test
@@ -54,9 +57,13 @@ test:
         '/Result: .*miss/s/^\[.* ([0-9]+)\].*/\1/gp' \
         $CCACHE_LOGFILE | sort -u)
       pids=$(echo $pids | tr ' ' '|')
+      echo sed
+      sed -En '/Result: .*/p' $CCACHE_LOGFILE
+      printf '"%s"\n' "$pids"
       export CLANG_TIDY_FILES=$(sed -En \
         "/^\[[^ ]+ ($pids) *\]/s%.*Source file: (\.\./src/.*\.cpp)$%\1%p" \
         $CCACHE_LOGFILE | tr '\n' ' ')
+      printf '"%s"\n' "$CLANG_TIDY_FILES"
     - make check/tidy
 
 build:
