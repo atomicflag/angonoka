@@ -57,8 +57,13 @@ test:
       export CLANG_TIDY_FILES=$(sed -En \
         "/^\[.* ($pids)\]/s%.*Source file: (\.\./src/.*\.cpp)$%\1%p" \
         $CCACHE_LOGFILE | tr '\n' ' ')
-    - "sed -En '/^\\[.* ()\\]/s%.*Source file: (\\.\\./src/.*\\.cpp)$%\\1%p' || true"
-    - "sed -En '/Result: .*miss/p' $CCACHE_LOGFILE || true"
+    - >-
+      pids=$(sed -En '/Result: .*miss/s/^\[.* ([0-9]+)\].*/\1/gp' $CCACHE_LOGFILE | sort -u)
+    - echo "$pids"
+    - pids=$(echo $pids | tr ' ' '|')
+    - echo "$pids"
+    - >-
+      export CLANG_TIDY_FILES=$(sed -En "/^\[.* ($pids)\]/s%.*Source file: (\.\./src/.*\.cpp)$%\1%p" $CCACHE_LOGFILE | tr '\n' ' ')
     - echo "$CLANG_TIDY_FILES"
     - make check/tidy
 
