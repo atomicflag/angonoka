@@ -113,7 +113,7 @@ release: MESON_ARGS=--prefix \
 	-Db_lto=true \
 	-Db_ndebug=true \
 	-Dstrip=false
-release: CXXFLAGS=$(RELEASE_CXXFLAGS)
+release: CXXFLAGS=$(RELEASE_CXXFLAGS) -ffast-math
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
 

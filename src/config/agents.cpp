@@ -102,7 +102,9 @@ void check_for_duplicates(const Agents& agents, std::string_view name)
 }
 
 namespace detail {
-    // TODO: doc, test, expects
+    /**
+        Strong-typed alias for YAML:Node.
+    */
     struct OpaqueNode {
         explicit OpaqueNode(const YAML::Node& node)
             : node{&node}
@@ -122,7 +124,10 @@ namespace detail {
     };
 } // namespace detail
 
-// TODO: doc, test, expects
+/**
+    Opaque types to distinguish consecutive
+    arguments in functions.
+*/
 struct AgentNode : detail::OpaqueNode {
     using OpaqueNode::OpaqueNode;
 };

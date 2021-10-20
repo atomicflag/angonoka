@@ -60,6 +60,15 @@ task_duration(const Task& task, const Agent& agent)
 enum class AgentIndex : gsl::index {};
 enum class TaskIndex : gsl::index {};
 
+constexpr auto operator*(AgentIndex i)
+{
+    return static_cast<gsl::index>(i);
+}
+constexpr auto operator*(TaskIndex i)
+{
+    return static_cast<gsl::index>(i);
+}
+
 /**
     Utility class for calculating task durations.
 */
@@ -83,34 +92,32 @@ public:
         Calculate the duration and starting time for
         a given task and agent combo.
 
-        @param agent_id_ Agent id
-        @param task_id_  Task id
+        @param agent_id Agent id
+        @param task_id  Task id
 
         @return Task duration and expected start
         time in seconds
     */
     [[nodiscard]] auto
-    operator()(AgentIndex agent_id_, TaskIndex task_id_)
+    operator()(AgentIndex agent_id, TaskIndex task_id)
     {
-        const auto task_id = static_cast<gsl::index>(task_id_);
-        const auto agent_id = static_cast<gsl::index>(agent_id_);
-        Expects(task_done[task_id] == 0.F);
-        Expects(agent_id >= 0 && agent_id < config->agents.size());
-        Expects(task_id >= 0 && task_id < config->tasks.size());
+        Expects(task_done[*task_id] == 0.F);
+        Expects(*agent_id >= 0 && *agent_id < config->agents.size());
+        Expects(*task_id >= 0 && *task_id < config->tasks.size());
 
         const auto duration = task_duration(
-            config->tasks[task_id],
-            config->agents[agent_id]);
+            config->tasks[*task_id],
+            config->agents[*agent_id]);
         const auto expected_start = std::max(
-            agent_work_end[agent_id],
+            agent_work_end[*agent_id],
             dependencies_done(
                 task_done,
-                config->tasks[task_id].dependencies));
-        agent_work_end[agent_id] = task_done[task_id]
+                config->tasks[*task_id].dependencies));
+        agent_work_end[*agent_id] = task_done[*task_id]
             = expected_start + duration;
 
-        Ensures(task_done[task_id] > 0.F);
-        Ensures(agent_work_end[agent_id] > 0.F);
+        Ensures(task_done[*task_id] > 0.F);
+        Ensures(agent_work_end[*agent_id] > 0.F);
 
         return std::make_tuple(
             static_cast<int>(duration),
