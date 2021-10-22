@@ -15,23 +15,28 @@
      "11",
      "12",
      "13",
-     "14"
+     "14",
+     "15"
     ],
     "build_requires": [
-     "15",
-     "17"
+     "17",
+     "19"
     ],
     "path": "../conanfile.txt",
     "context": "host"
    },
    "1": {
-    "ref": "boost/1.76.0#3d47e128c3de27d74d7e922953c9e6a2",
+    "ref": "boost/1.77.0#840fe26dafacf9525e5917d03de2edd0",
     "options": "asio_no_deprecated=False\nbuildid=None\nbzip2=True\ndebug_level=0\ndiagnostic_definitions=False\nerror_code_header_only=False\nextra_b2_flags=None\nfilesystem_no_deprecated=False\nheader_only=False\ni18n_backend=deprecated\ni18n_backend_iconv=libc\ni18n_backend_icu=False\nlayout=system\nlzma=False\nmagic_autolink=False\nmultithreading=True\nnamespace=boost\nnamespace_alias=False\nnuma=True\npch=True\npython_executable=None\npython_version=None\nsegmented_stacks=False\nshared=True\nsystem_no_deprecated=False\nvisibility=hidden\nwithout_atomic=False\nwithout_chrono=False\nwithout_container=False\nwithout_context=False\nwithout_contract=False\nwithout_coroutine=False\nwithout_date_time=False\nwithout_exception=False\nwithout_fiber=False\nwithout_filesystem=False\nwithout_graph=False\nwithout_graph_parallel=True\nwithout_iostreams=False\nwithout_json=False\nwithout_locale=False\nwithout_log=False\nwithout_math=False\nwithout_mpi=True\nwithout_nowide=False\nwithout_program_options=False\nwithout_python=True\nwithout_random=False\nwithout_regex=False\nwithout_serialization=False\nwithout_stacktrace=True\nwithout_system=False\nwithout_test=False\nwithout_thread=False\nwithout_timer=False\nwithout_type_erasure=False\nwithout_wave=False\nzlib=True\nzstd=False\nbzip2:build_executable=True\nbzip2:shared=True\nzlib:minizip=deprecated\nzlib:shared=True",
     "package_id": "907df18149faf77a9af6765d906b70d2c2c1ac8e",
-    "prev": "42caf972d4a3d3701876aa29baedb671",
+    "prev": "0048c9254bcfddf3d6d0bc645471bb48",
+    "modified": true,
     "requires": [
      "2",
      "3"
+    ],
+    "build_requires": [
+     "16"
     ],
     "context": "host"
    },
@@ -92,10 +97,10 @@
     "context": "host"
    },
    "10": {
-    "ref": "indicators/2.0#2db1eb3766a07ad431022ba38807bf6f",
+    "ref": "indicators/2.2#232370f5b4d4df3ce30bde27ef82951d",
     "options": "",
     "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
-    "prev": "7868c00e027f567d7ce1af51cbc67b1c",
+    "prev": "ff76169a877104f2feb3f06792365611",
     "context": "host"
    },
    "11": {
@@ -113,37 +118,51 @@
     "context": "host"
    },
    "13": {
-    "ref": "cli11/2.0.0#55bbf965f955df1982c9d8814476f972",
+    "ref": "cli11/2.1.1#572b9253141a7275c2be087aa7c1a344",
     "options": "",
     "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
-    "prev": "4423334c2f9c525f84604faf42b7bdb5",
+    "prev": "f5dbcea7359138209eb0520d1c9a8444",
     "context": "host"
    },
    "14": {
-    "ref": "nlohmann_json/3.10.2#dd458b94efb60e73d2a4e6bb0a190947",
+    "ref": "nlohmann_json/3.10.4#15c958694f8ab49724389f600c56569f",
     "options": "",
     "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
-    "prev": "ee445de7d2fdf50d8ad093f69ca1430c",
+    "prev": "181b607011f5ddc138611fb3d1499779",
     "context": "host"
    },
    "15": {
+    "ref": "doctest/2.4.6#6c191c8eeece0e3167498f2dea082412",
+    "options": "",
+    "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
+    "prev": "7769bf3c31fd54417626af4237d2d3f4",
+    "context": "host"
+   },
+   "16": {
+    "ref": "b2/4.5.0#07e81572aa57e50fcd1992880328976b",
+    "options": "toolset=auto\nuse_cxx_env=False",
+    "package_id": "4db1be536558d833e52e862fd84d64d75c2b3656",
+    "prev": "7da4f76343327f64ad3de2166adccd66",
+    "context": "host"
+   },
+   "17": {
     "ref": "meson/0.59.2#2352c1ecfc4c2b7df0299610b66da3c4",
     "options": "",
     "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
     "prev": "11e2b8c6afdb537307aa1abd433a2251",
     "requires": [
-     "16"
+     "18"
     ],
     "context": "host"
    },
-   "16": {
+   "18": {
     "ref": "ninja/1.10.2#0ed34363d5683eb57a22bd2ccd7b62fc",
     "options": "",
     "package_id": "24647d9fe8ec489125dfbae4b3ebefaf7581674c",
     "prev": "4d1bb64a438fff596e46919a9dcb929d",
     "context": "host"
    },
-   "17": {
+   "19": {
     "ref": "ragel/6.10#0af6e8774e2ce8c6e54a37cd34bd4e63",
     "options": "",
     "package_id": "4db1be536558d833e52e862fd84d64d75c2b3656",
