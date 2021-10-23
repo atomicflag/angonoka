@@ -1,5 +1,5 @@
 test_deps = []
-foreach d : ['doctest', 'trompeloeil']
+foreach d : ['catch2', 'trompeloeil']
   test_deps += [
       dependency(d,
         required : get_option('tests'),
@@ -13,8 +13,9 @@ base_test = executable(
     'main.cpp',
     'configuration.cpp',
     'parse_duration.cpp',
+    'load_tasks.cpp',
   ],
   dependencies : [ base, test_deps ],
-  cpp_args : ['-DDOCTEST_CONFIG_SUPER_FAST_ASSERTS'],
+  cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
 )
 test('Unit tests 2', base_test)

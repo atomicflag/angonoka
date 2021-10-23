@@ -12,7 +12,6 @@ base_test = executable(
   [
     'main.cpp',
     'load_agents.cpp',
-    'load_tasks.cpp',
     'validation.cpp',
     'cli/duration.cpp',
     'cli/json_schedule.cpp',

@@ -13,7 +13,7 @@ readerwriterqueue/1.0.5
 boost-ext-ut/1.1.8
 cli11/2.1.1
 nlohmann_json/3.10.4
-doctest/2.4.6
+catch2/2.13.7
 
 [build_requires]
 meson/0.59.2

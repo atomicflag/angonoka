@@ -1,55 +1,68 @@
 #include "config/load.h"
 #include "exceptions.h"
-#include <boost/ut.hpp>
-
-using namespace boost::ut;
+#include <catch2/catch.hpp>
 
 #define ANGONOKA_COMMON_YAML                                         \
     "agents:\n"                                                      \
     "  agent1:\n"
 
-suite loading_tasks = [] {
+TEST_CASE("loading tasks")
+{
     using namespace std::chrono;
     using namespace std::literals::chrono_literals;
     using namespace std::literals::string_view_literals;
+    using Catch::Message;
 
-    "no 'tasks' section"_test = [] {
+    SECTION("no 'tasks' section")
+    {
         constexpr auto text = ANGONOKA_COMMON_YAML;
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
 
-    "empty 'tasks' section"_test = [] {
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("empty 'tasks' section")
+    {
         // clang-format off
         constexpr auto text = 
             ANGONOKA_COMMON_YAML
             "tasks:";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
 
-    "empty array"_test = [] {
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("empty array")
+    {
         // clang-format off
         constexpr auto text = 
             ANGONOKA_COMMON_YAML
             "tasks: []";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
 
-    "invalid 'tasks' format"_test = [] {
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("invalid 'tasks' format")
+    {
         // clang-format off
         constexpr auto text = 
             ANGONOKA_COMMON_YAML
             "tasks: 123";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
 
-    "a single task"_test = [] {
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("a single task")
+    {
         // clang-format off
         constexpr auto text =
             ANGONOKA_COMMON_YAML
@@ -59,16 +72,19 @@ suite loading_tasks = [] {
             "      min: 1 day\n"
             "      max: 3 days";
         // clang-format on
-        const auto config = angonoka::load_text(text);
-        expect(config.tasks.size() == 1_i);
-        const auto& task = config.tasks[0];
-        expect(task.name == "task 1");
-        expect(task.group_ids.empty());
-        expect(task.duration.min == days{1});
-        expect(task.duration.max == days{3});
-    };
 
-    "invalid task duration type"_test = [] {
+        const auto config = angonoka::load_text(text);
+
+        REQUIRE(config.tasks.size() == 1);
+        const auto& task = config.tasks[0];
+        REQUIRE(task.name == "task 1");
+        REQUIRE(task.group_ids.empty());
+        REQUIRE(task.duration.min == days{1});
+        REQUIRE(task.duration.max == days{3});
+    }
+
+    SECTION("invalid task duration type")
+    {
         // clang-format off
         constexpr auto text =
             ANGONOKA_COMMON_YAML
@@ -78,19 +94,15 @@ suite loading_tasks = [] {
             "      min: as\n"
             "      max: a";
         // clang-format on
-        expect(throws<angonoka::InvalidDuration>([&] {
-            try {
-                angonoka::load_text(text);
-            } catch (const angonoka::InvalidDuration& e) {
-                expect(eq(
-                    e.what(),
-                    R"(Task "task 1" has invalid duration "as".)"sv));
-                throw;
-            }
-        }));
-    };
 
-    "invalid task duration"_test = [] {
+        REQUIRE_THROWS_MATCHES(
+            angonoka::load_text(text),
+            angonoka::InvalidDuration,
+            Message(R"(Task "task 1" has invalid duration "as".)"));
+    }
+
+    SECTION("invalid task duration")
+    {
         // clang-format off
         constexpr auto text =
             ANGONOKA_COMMON_YAML
@@ -100,30 +112,30 @@ suite loading_tasks = [] {
             "      min: 5 days\n"
             "      max: 2 days";
         // clang-format on
-        expect(throws<angonoka::TaskDurationMinMax>([&] {
-            try {
-                angonoka::load_text(text);
-            } catch (const angonoka::TaskDurationMinMax& e) {
-                expect(eq(
-                    e.what(),
-                    R"(Task "task 1" has min duration that is greater than max duration.)"sv));
-                throw;
-            }
-        }));
-    };
 
-    "missing task duration"_test = [] {
+        REQUIRE_THROWS_MATCHES(
+            angonoka::load_text(text),
+            angonoka::TaskDurationMinMax,
+            Message(
+                R"(Task "task 1" has min duration that is greater than max duration.)"));
+    }
+
+    SECTION("missing task duration")
+    {
         // clang-format off
         constexpr auto text =
             ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
 
-    "exact duration"_test = [] {
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("exact duration")
+    {
         // clang-format off
         constexpr auto text =
             ANGONOKA_COMMON_YAML
@@ -131,14 +143,17 @@ suite loading_tasks = [] {
             "  - name: task 1\n"
             "    duration: 3h";
         // clang-format on
-        const auto config = angonoka::load_text(text);
-        expect(config.tasks.size() == 1_i);
-        const auto& task = config.tasks[0];
-        expect(task.duration.min == 3h);
-        expect(task.duration.max == 3h);
-    };
 
-    "valid group id"_test = [] {
+        const auto config = angonoka::load_text(text);
+
+        REQUIRE(config.tasks.size() == 1);
+        const auto& task = config.tasks[0];
+        REQUIRE(task.duration.min == 3h);
+        REQUIRE(task.duration.max == 3h);
+    }
+
+    SECTION("valid group id")
+    {
         using angonoka::GroupIndices;
         // clang-format off
         constexpr auto text =
@@ -153,16 +168,19 @@ suite loading_tasks = [] {
             "      min: 1 day\n"
             "      max: 2 days";
         // clang-format on
-        const auto config = angonoka::load_text(text);
-        expect(config.tasks.size() == 1_i);
-        const auto& task = config.tasks[0];
-        expect(task.group_ids.size() == 1);
-        expect(task.group_ids == GroupIndices{0});
-    };
 
-    "multiple groups"_test = [] {
-        using angonoka::GroupIndices;
+        const auto config = angonoka::load_text(text);
+
+        REQUIRE(config.tasks.size() == 1);
+        const auto& task = config.tasks[0];
+        REQUIRE(task.group_ids.size() == 1);
+        REQUIRE(task.group_ids == GroupIndices{0});
+    }
+
+    SECTION("multiple groups")
+    {
         using angonoka::can_work_on;
+        using angonoka::GroupIndices;
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -183,16 +201,19 @@ suite loading_tasks = [] {
             "      min: 1 day\n"
             "      max: 2 days";
         // clang-format on
-        const auto config = angonoka::load_text(text);
-        expect(config.tasks.size() == 1_i);
-        const auto& task = config.tasks[0];
-        expect(task.group_ids.size() == 2);
-        expect(task.group_ids == GroupIndices{0, 1});
-        expect(can_work_on(config.agents[0], task));
-        expect(!can_work_on(config.agents[1], task));
-    };
 
-    "groups and group"_test = [] {
+        const auto config = angonoka::load_text(text);
+
+        REQUIRE(config.tasks.size() == 1);
+        const auto& task = config.tasks[0];
+        REQUIRE(task.group_ids.size() == 2);
+        REQUIRE(task.group_ids == GroupIndices{0, 1});
+        REQUIRE(can_work_on(config.agents[0], task));
+        REQUIRE_FALSE(can_work_on(config.agents[1], task));
+    }
+
+    SECTION("groups and group")
+    {
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -211,19 +232,15 @@ suite loading_tasks = [] {
             "      max: 2 days";
         // clang-format on
 
-        expect(throws<angonoka::InvalidTaskAssignment>([&] {
-            try {
-                angonoka::load_text(text);
-            } catch (const angonoka::InvalidTaskAssignment& e) {
-                expect(eq(
-                    e.what(),
-                    R"(Task "task 1" must have at most one of: agent, group, groups.)"sv));
-                throw;
-            }
-        }));
-    };
+        REQUIRE_THROWS_MATCHES(
+            angonoka::load_text(text),
+            angonoka::InvalidTaskAssignment,
+            Message(
+                R"(Task "task 1" must have at most one of: agent, group, groups.)"));
+    }
 
-    "invalid groups format"_test = [] {
+    SECTION("invalid groups format")
+    {
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -239,11 +256,13 @@ suite loading_tasks = [] {
             "      max: 2 days";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
 
-    "invalid group in groups"_test = [] {
+    SECTION("invalid group in groups")
+    {
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -260,11 +279,13 @@ suite loading_tasks = [] {
             "      max: 2 days";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
 
-    "two tasks, one group"_test = [] {
+    SECTION("two tasks, one group")
+    {
         using angonoka::GroupIndices;
         // clang-format off
         constexpr auto text =
@@ -284,15 +305,18 @@ suite loading_tasks = [] {
             "      min: 1 day\n"
             "      max: 2 days";
         // clang-format on
+
         const auto config = angonoka::load_text(text);
-        expect(config.tasks.size() == 2_i);
+
+        REQUIRE(config.tasks.size() == 2);
         const auto& task1 = config.tasks[0];
         const auto& task2 = config.tasks[1];
-        expect(task1.group_ids == GroupIndices{0});
-        expect(task2.group_ids == GroupIndices{0});
-    };
+        REQUIRE(task1.group_ids == GroupIndices{0});
+        REQUIRE(task2.group_ids == GroupIndices{0});
+    }
 
-    "duplicate tasks"_test = [] {
+    SECTION("duplicate tasks")
+    {
         // clang-format off
         constexpr auto text =
             ANGONOKA_COMMON_YAML
@@ -308,12 +332,14 @@ suite loading_tasks = [] {
         // clang-format on
 
         const auto config = angonoka::load_text(text);
-        expect(config.tasks.size() == 2_i);
-        expect(config.tasks[0].name == "task 1");
-        expect(config.tasks[1].name == "task 1");
-    };
 
-    "duplicate attributes"_test = [] {
+        REQUIRE(config.tasks.size() == 2);
+        REQUIRE(config.tasks[0].name == "task 1");
+        REQUIRE(config.tasks[1].name == "task 1");
+    }
+
+    SECTION("duplicate attributes")
+    {
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -331,11 +357,14 @@ suite loading_tasks = [] {
             "      min: 1 day\n"
             "      max: 3 days";
         // clang-format on
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
 
-    "no suitable agents"_test = [] {
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
+
+    SECTION("no suitable agents")
+    {
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -352,15 +381,16 @@ suite loading_tasks = [] {
 
         // "task 1" has a group "B" and the only agent can
         // only work on tasks from group "A".
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
 
-    "task with id"_test = [] {
+    SECTION("task with id")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    id: task_1\n"
@@ -369,68 +399,65 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        expect(config.tasks.size() == 1_i);
-        expect(config.tasks[0].id == "task_1");
-        expect(config.tasks[0].name == "task 1");
-    };
+        REQUIRE(config.tasks.size() == 1);
+        REQUIRE(config.tasks[0].id == "task_1");
+        REQUIRE(config.tasks[0].name == "task 1");
+    }
 
-    "empty id"_test = [] {
+    SECTION("empty id")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: 'task 1'\n"
             "    id: ''\n"
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::CantBeEmpty>([&] {
-            try {
-                angonoka::load_text(text);
-            } catch (const angonoka::CantBeEmpty& e) {
-                expect(eq(
-                    e.what(),
-                    R"(Task id for the task "task 1" can't be empty.)"sv));
-                throw;
-            }
-        }));
-    };
+        REQUIRE_THROWS_MATCHES(
+            angonoka::load_text(text),
+            angonoka::CantBeEmpty,
+            Message(
+                R"(Task id for the task "task 1" can't be empty.)"));
+    }
 
-    "missing name"_test = [] {
+    SECTION("missing name")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - id: 'hello'\n"
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
 
-    "empty name"_test = [] {
+    SECTION("empty name")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - id: 'hello'\n"
             "    name: ''\n"
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
 
-    "optional id"_test = [] {
+    SECTION("optional id")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    duration: 1h";
@@ -438,12 +465,13 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        expect(config.tasks.size() == 1_i);
-        expect(config.tasks[0].id.empty());
-        expect(config.tasks[0].name == "task 1");
-    };
+        REQUIRE(config.tasks.size() == 1);
+        REQUIRE(config.tasks[0].id.empty());
+        REQUIRE(config.tasks[0].name == "task 1");
+    }
 
-    "dedicated agent"_test = [] {
+    SECTION("dedicated agent")
+    {
         using angonoka::AgentIndex;
         using angonoka::can_work_on;
 
@@ -460,14 +488,15 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        expect(config.tasks.size() == 1_i);
-        expect(config.tasks[0].group_ids.empty());
-        expect(config.tasks[0].agent_id == AgentIndex{0});
-        expect(can_work_on(config.agents[0], config.tasks[0]));
-        expect(!can_work_on(config.agents[1], config.tasks[0]));
-    };
+        REQUIRE(config.tasks.size() == 1);
+        REQUIRE(config.tasks[0].group_ids.empty());
+        REQUIRE(config.tasks[0].agent_id == AgentIndex{0});
+        REQUIRE(can_work_on(config.agents[0], config.tasks[0]));
+        REQUIRE_FALSE(can_work_on(config.agents[1], config.tasks[0]));
+    }
 
-    "dedicated agent and a group"_test = [] {
+    SECTION("dedicated agent and a group")
+    {
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -484,19 +513,15 @@ suite loading_tasks = [] {
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::InvalidTaskAssignment>([&] {
-            try {
-                angonoka::load_text(text);
-            } catch (const angonoka::InvalidTaskAssignment& e) {
-                expect(eq(
-                    e.what(),
-                    R"(Task "task 1" must have at most one of: agent, group, groups.)"sv));
-                throw;
-            }
-        }));
-    };
+        REQUIRE_THROWS_MATCHES(
+            angonoka::load_text(text),
+            angonoka::InvalidTaskAssignment,
+            Message(
+                R"(Task "task 1" must have at most one of: agent, group, groups.)"));
+    }
 
-    "dedicated agent and subtasks"_test = [] {
+    SECTION("dedicated agent and subtasks")
+    {
         using angonoka::AgentIndex;
 
         // clang-format off
@@ -515,61 +540,50 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        expect(config.tasks.size() == 2_i);
-        expect(config.tasks[0].agent_id == AgentIndex{0});
-        expect(!config.tasks[1].agent_id);
-    };
+        REQUIRE(config.tasks.size() == 2);
+        REQUIRE(config.tasks[0].agent_id == AgentIndex{0});
+        REQUIRE_FALSE(config.tasks[1].agent_id);
+    }
 
-    "empty dedicated agent"_test = [] {
+    SECTION("empty dedicated agent")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    agent: ''\n"
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::CantBeEmpty>([&] {
-            try {
-                angonoka::load_text(text);
-            } catch (const angonoka::CantBeEmpty& e) {
-                expect(
-                    eq(e.what(),
-                       R"(Assigned agents name can't be empty.)"sv));
-                throw;
-            }
-        }));
-    };
+        REQUIRE_THROWS_MATCHES(
+            angonoka::load_text(text),
+            angonoka::CantBeEmpty,
+            Message(R"(Assigned agents name can't be empty.)"));
+    }
 
-    "dedicated agent not found"_test = [] {
+    SECTION("dedicated agent not found")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    agent: asdf\n"
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::AgentNotFound>([&] {
-            try {
-                angonoka::load_text(text);
-            } catch (const angonoka::AgentNotFound& e) {
-                expect(
-                    eq(e.what(), R"(Agent "asdf" doesn't exist.)"sv));
-                throw;
-            }
-        }));
-    };
+        REQUIRE_THROWS_MATCHES(
+            angonoka::load_text(text),
+            angonoka::AgentNotFound,
+            Message(R"(Agent "asdf" doesn't exist.)"));
+    }
 
-    "depends on single task"_test = [] {
+    SECTION("depends on single task")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    id: A\n"
@@ -581,58 +595,54 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        expect(config.tasks.size() == 2_i);
-        expect(config.tasks[0].id == "A");
-        expect(config.tasks[0].name == "task 1");
-        expect(config.tasks[1].id.empty());
-        expect(config.tasks[1].name == "task 2");
-        expect(
+        REQUIRE(config.tasks.size() == 2);
+        REQUIRE(config.tasks[0].id == "A");
+        REQUIRE(config.tasks[0].name == "task 1");
+        REQUIRE(config.tasks[1].id.empty());
+        REQUIRE(config.tasks[1].name == "task 2");
+        REQUIRE(
             config.tasks[1].dependencies == angonoka::TaskIndices{0});
-    };
+    }
 
-    "empty dependency id"_test = [] {
+    SECTION("empty dependency id")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    depends_on: ''\n"
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::CantBeEmpty>([&] {
-            try {
-                angonoka::load_text(text);
-            } catch (const angonoka::CantBeEmpty& e) {
-                expect(eq(
-                    e.what(),
-                    R"(Dependency id of the task "task 1" can't be empty.)"sv));
-                throw;
-            }
-        }));
-    };
+        REQUIRE_THROWS_MATCHES(
+            angonoka::load_text(text),
+            angonoka::CantBeEmpty,
+            Message(
+                R"(Dependency id of the task "task 1" can't be empty.)"));
+    }
 
-    "invalid dependency id"_test = [] {
+    SECTION("invalid dependency id")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    depends_on: A\n"
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
 
-    "duplicate id"_test = [] {
+    SECTION("duplicate id")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    id: A\n"
@@ -642,21 +652,17 @@ suite loading_tasks = [] {
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::DuplicateTaskDefinition>([&] {
-            try {
-                angonoka::load_text(text);
-            } catch (const angonoka::DuplicateTaskDefinition& e) {
-                expect(eq(e.what(), R"(Duplicate task id "A".)"sv));
-                throw;
-            }
-        }));
-    };
+        REQUIRE_THROWS_MATCHES(
+            angonoka::load_text(text),
+            angonoka::DuplicateTaskDefinition,
+            Message(R"(Duplicate task id "A".)"));
+    }
 
-    "out of order dependencies"_test = [] {
+    SECTION("out of order dependencies")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    depends_on: B\n"
@@ -668,17 +674,17 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        expect(config.tasks.size() == 2_i);
-        expect(
+        REQUIRE(config.tasks.size() == 2);
+        REQUIRE(
             config.tasks[0].dependencies == angonoka::TaskIndices{1});
-        expect(config.tasks[1].dependencies.empty());
-    };
+        REQUIRE(config.tasks[1].dependencies.empty());
+    }
 
-    "multiple dependencies"_test = [] {
+    SECTION("multiple dependencies")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    depends_on:\n"
@@ -695,19 +701,19 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        expect(config.tasks.size() == 3_i);
-        expect(
+        REQUIRE(config.tasks.size() == 3);
+        REQUIRE(
             config.tasks[0].dependencies
             == angonoka::TaskIndices{1, 2});
-        expect(config.tasks[1].dependencies.empty());
-        expect(config.tasks[2].dependencies.empty());
-    };
+        REQUIRE(config.tasks[1].dependencies.empty());
+        REQUIRE(config.tasks[2].dependencies.empty());
+    }
 
-    "dependency cycle"_test = [] {
+    SECTION("dependency cycle")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    depends_on: B\n"
@@ -723,15 +729,16 @@ suite loading_tasks = [] {
             "    duration: 3h";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
 
-    "depends on itself"_test = [] {
+    SECTION("depends on itself")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    depends_on: A\n"
@@ -739,15 +746,16 @@ suite loading_tasks = [] {
             "    duration: 1h";
         // clang-format on
 
-        expect(throws<angonoka::ValidationError>(
-            [&] { angonoka::load_text(text); }));
-    };
+        REQUIRE_THROWS_AS(
+            angonoka::load_text(text),
+            angonoka::ValidationError);
+    }
 
-    "subtasks"_test = [] {
+    SECTION("subtasks")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    duration: 1h\n"
@@ -758,19 +766,19 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        expect(config.tasks.size() == 2_i);
-        expect(config.tasks[0].name == "task 1");
-        expect(
+        REQUIRE(config.tasks.size() == 2);
+        REQUIRE(config.tasks[0].name == "task 1");
+        REQUIRE(
             config.tasks[0].dependencies == angonoka::TaskIndices{1});
-        expect(config.tasks[1].name == "task 2");
-        expect(config.tasks[1].dependencies.empty());
-    };
+        REQUIRE(config.tasks[1].name == "task 2");
+        REQUIRE(config.tasks[1].dependencies.empty());
+    }
 
-    "deep subtasks"_test = [] {
+    SECTION("deep subtasks")
+    {
         // clang-format off
         constexpr auto text =
-            "agents:\n"
-            "  agent1:\n"
+            ANGONOKA_COMMON_YAML
             "tasks:\n"
             "  - name: task 1\n"
             "    duration: 1h\n"
@@ -795,29 +803,29 @@ suite loading_tasks = [] {
 
         const auto config = angonoka::load_text(text);
 
-        expect(config.tasks.size() == 7_i);
-        expect(config.tasks[0].name == "task 1");
-        expect(
+        REQUIRE(config.tasks.size() == 7);
+        REQUIRE(config.tasks[0].name == "task 1");
+        REQUIRE(
             config.tasks[0].dependencies
             == angonoka::TaskIndices{1, 4});
-        expect(config.tasks[1].name == "task 1.1");
-        expect(
+        REQUIRE(config.tasks[1].name == "task 1.1");
+        REQUIRE(
             config.tasks[1].dependencies
             == angonoka::TaskIndices{2, 3});
-        expect(config.tasks[2].name == "task 1.1.1");
-        expect(config.tasks[2].dependencies.empty());
-        expect(config.tasks[3].name == "task 1.1.2");
-        expect(config.tasks[3].dependencies.empty());
-        expect(config.tasks[4].name == "task 1.2");
-        expect(
+        REQUIRE(config.tasks[2].name == "task 1.1.1");
+        REQUIRE(config.tasks[2].dependencies.empty());
+        REQUIRE(config.tasks[3].name == "task 1.1.2");
+        REQUIRE(config.tasks[3].dependencies.empty());
+        REQUIRE(config.tasks[4].name == "task 1.2");
+        REQUIRE(
             config.tasks[4].dependencies
             == angonoka::TaskIndices{5, 6});
-        expect(config.tasks[5].name == "task 1.2.1");
-        expect(config.tasks[5].dependencies.empty());
-        expect(config.tasks[6].name == "task 1.2.2");
-        expect(
+        REQUIRE(config.tasks[5].name == "task 1.2.1");
+        REQUIRE(config.tasks[5].dependencies.empty());
+        REQUIRE(config.tasks[6].name == "task 1.2.2");
+        REQUIRE(
             config.tasks[6].dependencies == angonoka::TaskIndices{3});
-    };
-};
+    }
+}
 
 #undef ANGONOKA_COMMON_YAML
