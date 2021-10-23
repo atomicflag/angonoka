@@ -13,8 +13,6 @@ base_test = executable(
     'main.cpp',
     'load_agents.cpp',
     'load_tasks.cpp',
-    'parse_duration.cpp',
-    'configuration.cpp',
     'validation.cpp',
     'cli/duration.cpp',
     'cli/json_schedule.cpp',

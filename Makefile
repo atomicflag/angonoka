@@ -65,7 +65,7 @@ test:
 	export OMP_NUM_THREADS=1
 	for t in $$(find build -name '*_test'); do
 		test_name=$$(basename $$t)
-		printf "$$test_name:\n  "
+		echo "$$test_name:"
 		LLVM_PROFILE_FILE=$$t.profraw $$t
 	done
 

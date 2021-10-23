@@ -29,7 +29,6 @@ if not get_option('debug')
 else
   add_project_arguments(
     ['-Dgsl_CONFIG_CONTRACT_VIOLATION_THROWS'],
-    ['-DDOCTEST_CONFIG_SUPER_FAST_ASSERTS'],
     language : 'cpp'
   )
 endif
@@ -55,3 +54,4 @@ include = include_directories('src')
 
 subdir('src')
 subdir('test')
+subdir('test2')
