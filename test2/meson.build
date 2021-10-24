@@ -14,6 +14,7 @@ base_test = executable(
     'configuration.cpp',
     'parse_duration.cpp',
     'load_tasks.cpp',
+    'load_agents.cpp',
   ],
   dependencies : [ base, test_deps ],
   cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
