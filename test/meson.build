@@ -11,7 +11,6 @@ base_test = executable(
   meson.project_name()+'_test',
   [
     'main.cpp',
-    'validation.cpp',
     'cli/duration.cpp',
     'cli/json_schedule.cpp',
     'stun/schedule.cpp',

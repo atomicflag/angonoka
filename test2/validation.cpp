@@ -1,14 +1,15 @@
 #include "config/validation.h"
-#include <boost/ut.hpp>
+#include <catch2/catch.hpp>
 #include <yaml-cpp/yaml.h>
 
-using namespace boost::ut;
+TEST_CASE("validation")
+{
+    using namespace angonoka::validation;
 
-suite validation = [] {
-    "general validation"_test = [] {
-        using namespace angonoka::validation;
-
-        "basic map"_test = [] {
+    SECTION("general validation")
+    {
+        SECTION("basic map")
+        {
             // clang-format off
             constexpr auto schema = attributes(
                 required("map", attributes(
@@ -25,10 +26,12 @@ suite validation = [] {
                 "  val2: 2\n"
             );
             // clang-format on
-            expect(static_cast<bool>(schema(node)));
-        };
 
-        "implicit required"_test = [] {
+            REQUIRE(schema(node));
+        }
+
+        SECTION("implicit required")
+        {
             // clang-format off
             constexpr auto schema = attributes(
                 required("map", attributes(
@@ -47,10 +50,12 @@ suite validation = [] {
                 "  val3: 3\n"
             );
             // clang-format on
-            expect(static_cast<bool>(schema(node)));
-        };
 
-        "basic map with extra arg"_test = [] {
+            REQUIRE(schema(node));
+        }
+
+        SECTION("basic map with extra arg")
+        {
             // clang-format off
             constexpr auto schema = attributes(
                 required("map", attributes(
@@ -68,14 +73,17 @@ suite validation = [] {
                 "  val3: 3\n"
             );
             // clang-format on
+
             const auto result = schema(node);
-            expect(!result);
-            expect(
+
+            REQUIRE_FALSE(result);
+            REQUIRE(
                 result.error()
                 == R"(Unexpected attribute "val3" in "map".)");
-        };
+        }
 
-        "empty attributes"_test = [] {
+        SECTION("empty attributes")
+        {
             // clang-format off
             constexpr auto schema = attributes(
                 required("foobar", attributes(
@@ -91,13 +99,16 @@ suite validation = [] {
                 "  : 3\n"
             );
             // clang-format on
-            const auto result = schema(node);
-            expect(!result);
-            expect(
-                result.error() == R"(Empty attribute in "foobar".)");
-        };
 
-        "map values"_test = [] {
+            const auto result = schema(node);
+
+            REQUIRE_FALSE(result);
+            REQUIRE(
+                result.error() == R"(Empty attribute in "foobar".)");
+        }
+
+        SECTION("map values")
+        {
             // clang-format off
             constexpr auto schema = attributes(
                 required("map",
@@ -114,13 +125,13 @@ suite validation = [] {
                 "  val3: 3\n"
             );
             // clang-format on
-            expect(static_cast<bool>(schema(node)));
+
+            REQUIRE(schema(node));
         };
-    };
+    }
 
-    "any_of validation"_test = [] {
-        using namespace angonoka::validation;
-
+    SECTION("any_of validation")
+    {
         // clang-format off
         constexpr auto schema = attributes(
             required("map", any_of(
@@ -137,7 +148,8 @@ suite validation = [] {
         );
         // clang-format on
 
-        "first variant"_test = [&] {
+        SECTION("first variant")
+        {
             // clang-format off
             const auto node = YAML::Load(
                 "map:\n"
@@ -146,29 +158,36 @@ suite validation = [] {
                 "    val2: 2\n"
             );
             // clang-format on
-            expect(static_cast<bool>(schema(node)));
-        };
 
-        "second variant"_test = [&] {
+            REQUIRE(schema(node));
+        }
+
+        SECTION("second variant")
+        {
             // clang-format off
             const auto node = YAML::Load(
                 "map:\n"
                 "  val3: 3\n"
             );
             // clang-format on
-            expect(static_cast<bool>(schema(node)));
+
+            REQUIRE(schema(node));
         };
 
-        "no attributes"_test = [&] {
+        SECTION("no attributes")
+        {
             const auto node = YAML::Load("map:\n");
+
             const auto result = schema(node);
-            expect(!result);
-            expect(
+
+            REQUIRE_FALSE(result);
+            REQUIRE(
                 result.error()
                 == R"("map" is missing a "val3" attribute.)");
-        };
+        }
 
-        "extra args"_test = [&] {
+        SECTION("extra args")
+        {
             // clang-format off
             const auto node = YAML::Load(
                 "map:\n"
@@ -176,17 +195,18 @@ suite validation = [] {
                 "  val2: 2\n"
             );
             // clang-format on
+
             const auto result = schema(node);
-            expect(!result);
-            expect(
+
+            REQUIRE_FALSE(result);
+            REQUIRE(
                 result.error()
                 == R"(Unexpected attribute "val2" in "map".)");
-        };
-    };
+        }
+    }
 
-    "nested location"_test = [] {
-        using namespace angonoka::validation;
-
+    SECTION("nested location")
+    {
         // clang-format off
         constexpr auto schema = attributes(
             required("first", attributes(
@@ -197,7 +217,8 @@ suite validation = [] {
         );
         // clang-format on
 
-        "deep nesting"_test = [&] {
+        SECTION("deep nesting")
+        {
             // clang-format off
             const auto node = YAML::Load(
                 "first:\n"
@@ -206,68 +227,81 @@ suite validation = [] {
                 "      error: 123\n"
             );
             // clang-format on
+
             const auto result = schema(node);
-            expect(!result);
-            expect(
+
+            REQUIRE_FALSE(result);
+            REQUIRE(
                 result.error()
                 == R"("first.second.third" has invalid type.)");
-        };
+        }
 
-        "shallow"_test = [&] {
+        SECTION("shallow")
+        {
             // clang-format off
             const auto node = YAML::Load(
                 "first:\n"
                 "  a: 123\n"
             );
             // clang-format on
+
             const auto result = schema(node);
-            expect(!result);
-            expect(
+
+            REQUIRE_FALSE(result);
+            REQUIRE(
                 result.error()
                 == R"(Unexpected attribute "a" in "first".)");
-        };
-    };
+        }
+    }
 
-    "invalid attributes"_test = [] {
-        using namespace angonoka::validation;
-
+    SECTION("invalid attributes")
+    {
         // clang-format off
         constexpr auto schema = attributes(
             required("attr")
         );
         // clang-format on
 
-        "invalid type"_test = [&] {
+        SECTION("invalid type")
+        {
             // clang-format off
             const auto node = YAML::Load(
                 "attr: []\n"
             );
             // clang-format on
-            const auto result = schema(node);
-            expect(!result);
-            expect(result.error() == R"("attr" has invalid type.)");
-        };
 
-        "empty"_test = [&] {
+            const auto result = schema(node);
+
+            REQUIRE_FALSE(result);
+            REQUIRE(result.error() == R"("attr" has invalid type.)");
+        }
+
+        SECTION("empty")
+        {
             // clang-format off
             const auto node = YAML::Load(
                 "attr:\n"
             );
             // clang-format on
-            const auto result = schema(node);
-            expect(!result);
-            expect(result.error() == R"("attr" can't be empty.)");
-        };
 
-        "empty attribute name"_test = [&] {
+            const auto result = schema(node);
+
+            REQUIRE_FALSE(result);
+            REQUIRE(result.error() == R"("attr" can't be empty.)");
+        }
+
+        SECTION("empty attribute name")
+        {
             // clang-format off
             const auto node = YAML::Load(
                 ": hello\n"
             );
             // clang-format on
+
             const auto result = schema(node);
-            expect(!result);
-            expect(result.error() == R"(Empty attribute in "".)");
-        };
-    };
-};
+
+            REQUIRE_FALSE(result);
+            REQUIRE(result.error() == R"(Empty attribute in "".)");
+        }
+    }
+}
