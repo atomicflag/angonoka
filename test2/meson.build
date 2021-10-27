@@ -17,6 +17,7 @@ base_test = executable(
     'load_agents.cpp',
     'validation.cpp',
     'stun/exp_curve_fitter.cpp',
+    'stun/makespan.cpp',
   ],
   dependencies : [ base, test_deps ],
   cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
