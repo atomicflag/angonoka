@@ -14,9 +14,7 @@ base_test = executable(
     'cli/duration.cpp',
     'cli/json_schedule.cpp',
     'stun/schedule.cpp',
-    'stun/mutate.cpp',
     'stun/optimizer.cpp',
-    'stun/optimizer_job.cpp',
     'stun/schedule_params.cpp',
     'stun/temperature.cpp'
   ],

@@ -18,6 +18,8 @@ base_test = executable(
     'validation.cpp',
     'stun/exp_curve_fitter.cpp',
     'stun/makespan.cpp',
+    'stun/mutate.cpp',
+    'stun/optimizer_job.cpp',
   ],
   dependencies : [ base, test_deps ],
   cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
