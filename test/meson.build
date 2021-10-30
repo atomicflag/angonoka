@@ -15,7 +15,6 @@ base_test = executable(
     'cli/json_schedule.cpp',
     'stun/schedule.cpp',
     'stun/optimizer.cpp',
-    'stun/schedule_params.cpp',
     'stun/temperature.cpp'
   ],
   dependencies : [ base, test_deps ]
