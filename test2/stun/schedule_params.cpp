@@ -1,53 +1,60 @@
 #include "stun/schedule_params.h"
 #include "config/load.h"
-
 #include <catch2/catch.hpp>
 
-TEST_CASE("ScheduleParams") {
-    SECTION("ScheduleParams type traits") {
+TEST_CASE("ScheduleParams")
+{
+    SECTION("ScheduleParams type traits")
+    {
         using angonoka::stun::ScheduleParams;
-        STATIC_REQUIRE(std::is_nothrow_destructible_v<ScheduleParams>);
-        STATIC_REQUIRE(std::is_nothrow_default_constructible_v<ScheduleParams>);
+        STATIC_REQUIRE(
+            std::is_nothrow_destructible_v<ScheduleParams>);
+        STATIC_REQUIRE(
+            std::is_nothrow_default_constructible_v<ScheduleParams>);
         STATIC_REQUIRE(std::is_copy_constructible_v<ScheduleParams>);
         STATIC_REQUIRE(std::is_copy_assignable_v<ScheduleParams>);
-        STATIC_REQUIRE(std::is_nothrow_move_constructible_v<ScheduleParams>);
-        STATIC_REQUIRE(std::is_nothrow_move_assignable_v<ScheduleParams>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_constructible_v<ScheduleParams>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_assignable_v<ScheduleParams>);
     }
 
-    SECTION("ScheduleParams special memeber functions") {
+    SECTION("ScheduleParams special memeber functions")
+    {
         using namespace angonoka::stun;
 
-            ScheduleParams params{
-                .agent_performance{1.F, 2.F, 3.F},
-                .task_duration{3.F, 2.F, 1.F}};
+        ScheduleParams params{
+            .agent_performance{1.F, 2.F, 3.F},
+            .task_duration{3.F, 2.F, 1.F}};
 
-            {
-                std::vector<int16>
-                    available_agents_data{2, 1, 2, 0, 1, 2};
-                auto* p = available_agents_data.data();
-                const auto n = [&](auto s) -> span<int16> {
-                    return {std::exchange(p, std::next(p, s)), s};
-                };
-                std::vector<span<int16>> available_agents
-                    = {n(1), n(2), n(3)};
-                params.available_agents
-                    = {std::move(available_agents_data),
-                       std::move(available_agents)};
-            }
-            {
-                std::vector<int16> dependencies_data{0, 0, 1};
-                auto* p = dependencies_data.data();
-                const auto n = [&](auto s) -> span<int16> {
-                    return {std::exchange(p, std::next(p, s)), s};
-                };
-                std::vector<span<int16>> dependencies
-                    = {n(0), n(1), n(2)};
-                params.dependencies
-                    = {std::move(dependencies_data),
-                       std::move(dependencies)};
-            }
+        {
+            std::vector<int16>
+                available_agents_data{2, 1, 2, 0, 1, 2};
+            auto* p = available_agents_data.data();
+            const auto n = [&](auto s) -> span<int16> {
+                return {std::exchange(p, std::next(p, s)), s};
+            };
+            std::vector<span<int16>> available_agents
+                = {n(1), n(2), n(3)};
+            params.available_agents
+                = {std::move(available_agents_data),
+                   std::move(available_agents)};
+        }
+        {
+            std::vector<int16> dependencies_data{0, 0, 1};
+            auto* p = dependencies_data.data();
+            const auto n = [&](auto s) -> span<int16> {
+                return {std::exchange(p, std::next(p, s)), s};
+            };
+            std::vector<span<int16>> dependencies
+                = {n(0), n(1), n(2)};
+            params.dependencies
+                = {std::move(dependencies_data),
+                   std::move(dependencies)};
+        }
 
-        SECTION("move ctor") {
+        SECTION("move ctor")
+        {
             ScheduleParams other{std::move(params)};
 
             REQUIRE(params.dependencies.empty());
@@ -55,7 +62,8 @@ TEST_CASE("ScheduleParams") {
             REQUIRE(other.dependencies[2u][1] == 1);
         }
 
-        SECTION("move assignment") {
+        SECTION("move assignment")
+        {
             ScheduleParams other;
             other = std::move(params);
 
@@ -64,7 +72,8 @@ TEST_CASE("ScheduleParams") {
             REQUIRE(other.dependencies[2u][1] == 1);
         }
 
-        SECTION("copy ctor") {
+        SECTION("copy ctor")
+        {
             ScheduleParams other{params};
 
             params.dependencies.clear();
@@ -72,7 +81,8 @@ TEST_CASE("ScheduleParams") {
             REQUIRE(other.dependencies[2u][1] == 1);
         }
 
-        SECTION("copy assignment") {
+        SECTION("copy assignment")
+        {
             ScheduleParams other;
             other = params;
 
@@ -81,7 +91,8 @@ TEST_CASE("ScheduleParams") {
             REQUIRE(other.dependencies[2u][1] == 1);
         }
 
-        SECTION("self copy") {
+        SECTION("self copy")
+        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             params = params;
@@ -90,7 +101,8 @@ TEST_CASE("ScheduleParams") {
             REQUIRE(params.dependencies[2u][1] == 1);
         }
 
-        SECTION("self move") {
+        SECTION("self move")
+        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             params = std::move(params);
@@ -100,32 +112,39 @@ TEST_CASE("ScheduleParams") {
         }
     }
 
-    SECTION("Vector2D type traits") {
+    SECTION("Vector2D type traits")
+    {
         using angonoka::stun::Vector2D;
         STATIC_REQUIRE(std::is_nothrow_destructible_v<Vector2D>);
-        STATIC_REQUIRE(std::is_nothrow_default_constructible_v<Vector2D>);
+        STATIC_REQUIRE(
+            std::is_nothrow_default_constructible_v<Vector2D>);
         STATIC_REQUIRE(std::is_copy_constructible_v<Vector2D>);
         STATIC_REQUIRE(std::is_copy_assignable_v<Vector2D>);
-        STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Vector2D>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_constructible_v<Vector2D>);
         STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Vector2D>);
     }
 
-    SECTION("Vector2D special memeber functions") {
+    SECTION("Vector2D special memeber functions")
+    {
         using namespace angonoka::stun;
 
-        SECTION("empty") {
+        SECTION("empty")
+        {
             Vector2D vspans;
 
             REQUIRE(vspans.empty());
 
-            SECTION("copy ctor") {
+            SECTION("copy ctor")
+            {
                 Vector2D other{vspans};
 
                 REQUIRE(other.empty());
             }
         }
 
-        SECTION("empty input arrays") {
+        SECTION("empty input arrays")
+        {
             Vector2D vspans{
                 std::vector<int16>{},
                 span<const int16>{}};
@@ -133,21 +152,24 @@ TEST_CASE("ScheduleParams") {
             REQUIRE(vspans.empty());
         }
 
-        SECTION("non-empty") {
-                std::vector<int16> data{0, 1, 2};
-                auto* b = data.data();
-                const auto f = [&](auto s) -> span<int16> {
-                    return {std::exchange(b, std::next(b, s)), s};
-                };
-                std::vector<span<int16>> spans{f(1), f(1), f(1)};
+        SECTION("non-empty")
+        {
+            std::vector<int16> data{0, 1, 2};
+            auto* b = data.data();
+            const auto f = [&](auto s) -> span<int16> {
+                return {std::exchange(b, std::next(b, s)), s};
+            };
+            std::vector<span<int16>> spans{f(1), f(1), f(1)};
 
-            SECTION("constructor") {
+            SECTION("constructor")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
 
                 REQUIRE(vspans.size() == 3);
             }
 
-            SECTION("copy ctor") {
+            SECTION("copy ctor")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other{vspans};
                 vspans.clear();
@@ -156,7 +178,8 @@ TEST_CASE("ScheduleParams") {
                 REQUIRE(other[2u][0] == 2);
             }
 
-            SECTION("copy assignment") {
+            SECTION("copy assignment")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other;
                 other = vspans;
@@ -170,7 +193,8 @@ TEST_CASE("ScheduleParams") {
                 REQUIRE(other.empty());
             }
 
-            SECTION("move ctor") {
+            SECTION("move ctor")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other{std::move(vspans)};
 
@@ -179,7 +203,8 @@ TEST_CASE("ScheduleParams") {
                 REQUIRE(other[2u][0] == 2);
             }
 
-            SECTION("move assignment"){
+            SECTION("move assignment")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other;
                 other = std::move(vspans);
@@ -189,7 +214,8 @@ TEST_CASE("ScheduleParams") {
                 REQUIRE(other[2u][0] == 2);
             }
 
-            SECTION("self copy"){
+            SECTION("self copy")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
@@ -199,7 +225,8 @@ TEST_CASE("ScheduleParams") {
                 REQUIRE(vspans[2u][0] == 2);
             }
 
-            SECTION("self move") {
+            SECTION("self move")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
@@ -210,7 +237,8 @@ TEST_CASE("ScheduleParams") {
             }
         }
 
-        SECTION("construct from array of sizes") {
+        SECTION("construct from array of sizes")
+        {
             std::vector<int16> data{1, 2, 3, 4, 5, 6};
             const std::vector<int16> sizes{1, 2, 3};
 
@@ -222,7 +250,8 @@ TEST_CASE("ScheduleParams") {
         }
     }
 
-    SECTION("initial schedule") {
+    SECTION("initial schedule")
+    {
         using namespace angonoka::stun;
 
         const ScheduleParams params{
@@ -240,15 +269,16 @@ TEST_CASE("ScheduleParams") {
         REQUIRE(
             schedule
             == std::vector<ScheduleItem>{
-                {.taskd = 5, .agentd = 2},
-                {.taskd = 4, .agentd = 1},
-                {.taskd = 3, .agentd = 0},
-                {.taskd = 2, .agentd = 2},
-                {.taskd = 1, .agentd = 1},
-                {.taskd = 0, .agentd = 0}});
+                {.task_id = 5, .agent_id = 2},
+                {.task_id = 4, .agent_id = 1},
+                {.task_id = 3, .agent_id = 0},
+                {.task_id = 2, .agent_id = 2},
+                {.task_id = 1, .agent_id = 1},
+                {.task_id = 0, .agent_id = 0}});
     }
 
-    SECTION("ScheduleParams from Configuration") {
+    SECTION("ScheduleParams from Configuration")
+    {
         using namespace angonoka::stun;
         // clang-format off
         constexpr auto text = 

@@ -21,6 +21,9 @@ base_test = executable(
     'stun/mutate.cpp',
     'stun/optimizer_job.cpp',
     'stun/schedule_params.cpp',
+    'stun/schedule.cpp',
+    'stun/optimizer.cpp',
+    'stun/temperature.cpp'
   ],
   dependencies : [ base, test_deps ],
   cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
