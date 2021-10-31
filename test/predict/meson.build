@@ -11,4 +11,4 @@ predict_test = executable(
   include_directories : ['.', include],
   cpp_args: ['-DUNIT_TEST']
 )
-test('Predict unit test', stochastic_tunneling_test)
+test('Predict unit test', predict_test)

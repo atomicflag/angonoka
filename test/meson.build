@@ -7,16 +7,4 @@ foreach d : ['boost-ext-ut', 'trompeloeil']
   ]
 endforeach
 
-base_test = executable(
-  meson.project_name()+'_test',
-  [
-    'main.cpp',
-    'cli/duration.cpp',
-    'cli/json_schedule.cpp',
-  ],
-  dependencies : [ base, test_deps ]
-)
-test('Unit tests', base_test)
-
-subdir('stun/stochastic_tunneling')
 subdir('predict')

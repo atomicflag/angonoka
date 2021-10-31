@@ -3,10 +3,8 @@
 #include "stub/temperature.h"
 #include "stub/utils.h"
 #include "stun/schedule_params.h"
-#include <boost/ut.hpp>
+#include <catch2/catch.hpp>
 #include <trompeloeil.hpp>
-
-using namespace boost::ut;
 
 namespace {
 using namespace angonoka::stun;
@@ -43,20 +41,27 @@ struct TemperatureMock final : Temperature {
 };
 } // namespace
 
-suite stochastic_tunneling = [] {
-    "StochasticTunneling type traits"_test = [] {
+TEST_CASE("StochasticTunneling ")
+{
+    SECTION("StochasticTunneling type traits")
+    {
         using angonoka::stun::StochasticTunneling;
-        expect(std::is_nothrow_destructible_v<StochasticTunneling>);
-        expect(!std::is_default_constructible_v<StochasticTunneling>);
-        expect(std::is_copy_constructible_v<StochasticTunneling>);
-        expect(std::is_copy_assignable_v<StochasticTunneling>);
-        expect(std::is_nothrow_move_constructible_v<
-               StochasticTunneling>);
-        expect(
+        STATIC_REQUIRE(
+            std::is_nothrow_destructible_v<StochasticTunneling>);
+        STATIC_REQUIRE_FALSE(
+            std::is_default_constructible_v<StochasticTunneling>);
+        STATIC_REQUIRE(
+            std::is_copy_constructible_v<StochasticTunneling>);
+        STATIC_REQUIRE(
+            std::is_copy_assignable_v<StochasticTunneling>);
+        STATIC_REQUIRE(std::is_nothrow_move_constructible_v<
+                       StochasticTunneling>);
+        STATIC_REQUIRE(
             std::is_nothrow_move_assignable_v<StochasticTunneling>);
-    };
+    }
 
-    constexpr auto run_mock = [](auto test_fn) {
+    SECTION("stochastic tunneling")
+    {
         using namespace angonoka::stun;
         using trompeloeil::_;
 
@@ -84,58 +89,39 @@ suite stochastic_tunneling = [] {
         REQUIRE_CALL(mutator, call(_)).IN_SEQUENCE(seq);
         REQUIRE_CALL(makespan, call(_)).RETURN(.1F).IN_SEQUENCE(seq);
 
-        test_fn(
-            mutator,
-            random_utils,
-            makespan,
-            temperature,
-            schedule);
-    };
+        SECTION("simple")
+        {
+            StochasticTunneling stun{
+                {.mutator{&mutator},
+                 .random{&random_utils},
+                 .makespan{&makespan},
+                 .temp{&temperature},
+                 .gamma{.5F}},
+                schedule};
+            for (int i{0}; i < 2; ++i) stun.update();
 
-    "stochastic tunneling"_test = [&] {
-        using namespace angonoka::stun;
-        "simple"_test = [&] {
-            run_mock([](auto& mutator,
-                        auto& random_utils,
-                        auto& makespan,
-                        auto& temperature,
-                        auto& schedule) {
-                StochasticTunneling stun{
-                    {.mutator{&mutator},
-                     .random{&random_utils},
-                     .makespan{&makespan},
-                     .temp{&temperature},
-                     .gamma{.5F}},
-                    schedule};
-                for (int i{0}; i < 2; ++i) stun.update();
+            REQUIRE(stun.normalized_makespan() == Approx(.1));
+            REQUIRE(stun.schedule().size() == 3);
+        }
 
-                expect(stun.normalized_makespan() == .1_d);
-                expect(stun.schedule().size() == 3);
-            });
-        };
+        SECTION("two phase construction")
+        {
+            StochasticTunneling stun{
+                {.mutator{&mutator},
+                 .random{&random_utils},
+                 .makespan{&makespan},
+                 .temp{&temperature},
+                 .gamma{.5F}}};
+            stun.reset(schedule);
+            for (int i{0}; i < 2; ++i) stun.update();
 
-        "two phase construction"_test = [&] {
-            run_mock([](auto& mutator,
-                        auto& random_utils,
-                        auto& makespan,
-                        auto& temperature,
-                        auto& schedule) {
-                StochasticTunneling stun{
-                    {.mutator{&mutator},
-                     .random{&random_utils},
-                     .makespan{&makespan},
-                     .temp{&temperature},
-                     .gamma{.5F}}};
-                stun.reset(schedule);
-                for (int i{0}; i < 2; ++i) stun.update();
+            REQUIRE(stun.normalized_makespan() == Approx(.1));
+            REQUIRE(stun.schedule().size() == 3);
+        }
+    }
 
-                expect(stun.normalized_makespan() == .1_d);
-                expect(stun.schedule().size() == 3);
-            });
-        };
-    };
-
-    "StochasticTunneling options"_test = [] {
+    SECTION("StochasticTunneling options")
+    {
         using namespace angonoka::stun;
         using trompeloeil::_;
 
@@ -156,17 +142,18 @@ suite stochastic_tunneling = [] {
 
         StochasticTunneling stun{options, schedule};
 
-        expect(stun.options().makespan == &makespan);
+        REQUIRE(stun.options().makespan == &makespan);
 
         MakespanMock makespan2;
 
         options.makespan = &makespan2;
         stun.options(options);
 
-        expect(stun.options().makespan == &makespan2);
-    };
+        REQUIRE(stun.options().makespan == &makespan2);
+    }
 
-    "StochasticTunneling special member functions"_test = [] {
+    SECTION("StochasticTunneling special member functions")
+    {
         using namespace angonoka::stun;
         using trompeloeil::_;
 
@@ -186,52 +173,54 @@ suite stochastic_tunneling = [] {
             .temp{&temperature},
             .gamma{.5F}};
 
-        "copy assignment"_test = [&] {
-            StochasticTunneling stun{options, schedule};
+        StochasticTunneling stun{options, schedule};
+
+        SECTION("copy assignment")
+        {
             StochasticTunneling stun2{options, schedule2};
             stun = stun2;
 
-            expect(stun.schedule()[0].agent_id == 3);
-        };
+            REQUIRE(stun.schedule()[0].agent_id == 3);
+        }
 
-        "move assignment"_test = [&] {
-            StochasticTunneling stun{options, schedule};
+        SECTION("move assignment")
+        {
             StochasticTunneling stun2{options, schedule2};
             stun = std::move(stun2);
 
-            expect(stun.schedule()[0].agent_id == 3);
-        };
+            REQUIRE(stun.schedule()[0].agent_id == 3);
+        }
 
-        "copy ctor"_test = [&] {
-            StochasticTunneling stun{options, schedule};
+        SECTION("copy ctor")
+        {
             StochasticTunneling stun2{stun};
 
-            expect(stun2.schedule()[1].agent_id == 1);
-        };
+            REQUIRE(stun2.schedule()[1].agent_id == 1);
+        }
 
-        "move ctor"_test = [&] {
-            StochasticTunneling stun{options, schedule};
+        SECTION("move ctor")
+        {
             StochasticTunneling stun2{std::move(stun)};
 
-            expect(stun2.schedule()[1].agent_id == 1);
-        };
+            REQUIRE(stun2.schedule()[1].agent_id == 1);
+        }
 
-        "self copy"_test = [&] {
-            StochasticTunneling stun{options, schedule};
+        SECTION("self copy")
+        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             stun = stun;
 #pragma clang diagnostic pop
-            expect(stun.schedule()[1].agent_id == 1);
-        };
+            REQUIRE(stun.schedule()[1].agent_id == 1);
+        }
 
-        "self move"_test = [&] {
-            StochasticTunneling stun{options, schedule};
+        SECTION("self move")
+        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             stun = std::move(stun);
 #pragma clang diagnostic pop
-            expect(stun.schedule()[1].agent_id == 1);
-        };
-    };
-};
+            REQUIRE(stun.schedule()[1].agent_id == 1);
+        }
+    }
+}

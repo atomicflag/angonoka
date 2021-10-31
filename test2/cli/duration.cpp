@@ -1,125 +1,143 @@
 #include "cli/humanize.h"
 #include "cli/verbose.h"
-#include <boost/ut.hpp>
+#include <catch2/catch.hpp>
 
-using namespace boost::ut;
-
-suite human_duration = [] {
+TEST_CASE("human duration")
+{
     using namespace std::chrono;
     using namespace std::literals::chrono_literals;
     using namespace angonoka::cli;
 
-    "very short duration"_test = [] {
+    SECTION("very short duration")
+    {
         constexpr auto d = humanize{5s};
         const auto text = fmt::format("{}", d);
-        expect(text == "a few seconds");
-    };
+        REQUIRE(text == "a few seconds");
+    }
 
-    "15 seconds"_test = [] {
+    SECTION("15 seconds")
+    {
         constexpr auto d = humanize{15s};
         const auto text = fmt::format("{}", d);
-        expect(text == "15 seconds");
-    };
+        REQUIRE(text == "15 seconds");
+    }
 
-    "short duration"_test = [] {
+    SECTION("short duration")
+    {
         constexpr auto d = humanize{1min + 15s};
         const auto text = fmt::format("{}", d);
-        expect(text == "about a minute");
-    };
+        REQUIRE(text == "about a minute");
+    }
 
-    "almost 2 min"_test = [] {
+    SECTION("almost 2 min")
+    {
         constexpr auto d = humanize{1min + 50s};
         const auto text = fmt::format("{}", d);
-        expect(text == "2 minutes");
-    };
+        REQUIRE(text == "2 minutes");
+    }
 
-    "medium duration"_test = [] {
+    SECTION("medium duration")
+    {
         constexpr auto d = humanize{1h + 15s};
         const auto text = fmt::format("{}", d);
-        expect(text == "about an hour");
-    };
+        REQUIRE(text == "about an hour");
+    }
 
-    "2 hours"_test = [] {
+    SECTION("2 hours")
+    {
         constexpr auto d = humanize{2h};
         const auto text = fmt::format("{}", d);
-        expect(text == "2 hours");
-    };
+        REQUIRE(text == "2 hours");
+    }
 
-    "a day"_test = [] {
+    SECTION("a day")
+    {
         constexpr auto d = humanize{23h};
         const auto text = fmt::format("{}", d);
-        expect(text == "about a day");
-    };
+        REQUIRE(text == "about a day");
+    }
 
-    "long duration"_test = [] {
+    SECTION("long duration")
+    {
         constexpr auto d = humanize{24h * 12 + 1h + 15s};
         const auto text = fmt::format("{}", d);
-        expect(text == "12 days");
-    };
+        REQUIRE(text == "12 days");
+    }
 
-    "very long duration"_test = [] {
+    SECTION("very long duration")
+    {
         constexpr auto d = humanize{24h * 35};
         const auto text = fmt::format("{}", d);
-        expect(text == "about a month");
-    };
+        REQUIRE(text == "about a month");
+    }
 
-    "2 months"_test = [] {
+    SECTION("2 months")
+    {
         constexpr auto d = humanize{24h * 70};
         const auto text = fmt::format("{}", d);
-        expect(text == "2 months");
-    };
+        REQUIRE(text == "2 months");
+    }
 
-    "0 duration"_test = [] {
+    SECTION("0 duration")
+    {
         constexpr auto d = humanize{0s};
         const auto text = fmt::format("{}", d);
-        expect(text == "a few seconds");
-    };
-};
+        REQUIRE(text == "a few seconds");
+    }
+}
 
-suite verbose_duration = [] {
+TEST_CASE("verbose duration")
+{
     using namespace std::chrono;
     using namespace std::literals::chrono_literals;
     using namespace angonoka::cli;
 
-    "very short duration"_test = [] {
+    SECTION("very short duration")
+    {
         constexpr auto d = verbose{5s};
         const auto text = fmt::format("{}", d);
-        expect(text == "5s");
-    };
+        REQUIRE(text == "5s");
+    }
 
-    "short duration"_test = [] {
+    SECTION("short duration")
+    {
         constexpr auto d = verbose{1min + 15s};
         const auto text = fmt::format("{}", d);
-        expect(text == "1m 15s");
-    };
+        REQUIRE(text == "1m 15s");
+    }
 
-    "almost 2 min"_test = [] {
+    SECTION("almost 2 min")
+    {
         constexpr auto d = verbose{1min + 50s};
         const auto text = fmt::format("{}", d);
-        expect(text == "1m 50s");
-    };
+        REQUIRE(text == "1m 50s");
+    }
 
-    "medium duration"_test = [] {
+    SECTION("medium duration")
+    {
         constexpr auto d = verbose{1h + 15s};
         const auto text = fmt::format("{}", d);
-        expect(text == "1h 15s");
-    };
+        REQUIRE(text == "1h 15s");
+    }
 
-    "long duration"_test = [] {
+    SECTION("long duration")
+    {
         constexpr auto d = verbose{24h * 12 + 1h + 15s};
         const auto text = fmt::format("{}", d);
-        expect(text == "12d 1h 15s");
-    };
+        REQUIRE(text == "12d 1h 15s");
+    }
 
-    "very long duration"_test = [] {
+    SECTION("very long duration")
+    {
         constexpr auto d = verbose{24h * 35};
         const auto text = fmt::format("{}", d);
-        expect(text == "1mo 4d 13h 30m 54s");
-    };
+        REQUIRE(text == "1mo 4d 13h 30m 54s");
+    }
 
-    "0 duration"_test = [] {
+    SECTION("0 duration")
+    {
         constexpr auto d = verbose{0s};
         const auto text = fmt::format("{}", d);
-        expect(text == "0s");
-    };
-};
+        REQUIRE(text == "0s");
+    }
+}

@@ -23,9 +23,13 @@ base_test = executable(
     'stun/schedule_params.cpp',
     'stun/schedule.cpp',
     'stun/optimizer.cpp',
+    'cli/duration.cpp',
+    'cli/json_schedule.cpp',
     'stun/temperature.cpp'
   ],
   dependencies : [ base, test_deps ],
   cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
 )
 test('Unit tests 2', base_test)
+
+subdir('stun/stochastic_tunneling')
