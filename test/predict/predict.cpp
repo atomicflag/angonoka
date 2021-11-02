@@ -2,10 +2,8 @@
 #include "configuration.h"
 #include "stub/optimizer.h"
 #include "stub/schedule_params.h"
-#include <boost/ut.hpp>
+#include <catch2/catch.hpp>
 #include <deque>
-
-using namespace boost::ut;
 
 namespace angonoka::stun {
 ScheduleParams to_schedule_params(const Configuration&)
@@ -44,8 +42,10 @@ template <typename T> auto pop(auto& events)
 }
 } // namespace
 
-suite predict_test = [] {
-    "basic prediction"_test = [] {
+TEST_CASE("prediction")
+{
+    SECTION("basic prediction")
+    {
         using namespace angonoka;
         using namespace std::literals::chrono_literals;
 
@@ -57,38 +57,42 @@ suite predict_test = [] {
         for (ProgressEvent evt; event_queue->try_dequeue(evt);)
             events.emplace_back(std::move(evt));
 
-        expect(
+        REQUIRE(
             pop<SimpleProgressEvent>(events)
             == SimpleProgressEvent::ScheduleOptimizationStart);
         {
             const auto evt = pop<ScheduleOptimizationEvent>(events);
-            expect(evt.progress == .2_d);
-            expect(evt.makespan == 50s);
+            REQUIRE(evt.progress == Approx(.2));
+            REQUIRE(evt.makespan == 50s);
         }
-        expect(
-            pop<ScheduleOptimizationEvent>(events).progress == .4_d);
-        expect(
-            pop<ScheduleOptimizationEvent>(events).progress == .6_d);
-        expect(
-            pop<ScheduleOptimizationEvent>(events).progress == .8_d);
+        REQUIRE(
+            pop<ScheduleOptimizationEvent>(events).progress
+            == Approx(.4));
+        REQUIRE(
+            pop<ScheduleOptimizationEvent>(events).progress
+            == Approx(.6));
+        REQUIRE(
+            pop<ScheduleOptimizationEvent>(events).progress
+            == Approx(.8));
         {
             const auto evt = pop<ScheduleOptimizationEvent>(events);
-            expect(evt.progress == 1._d);
-            expect(evt.makespan == 10s);
+            REQUIRE(evt.progress == Approx(1.));
+            REQUIRE(evt.makespan == 10s);
         }
         {
             const auto evt
                 = pop<ScheduleOptimizationComplete>(events);
-            expect(evt.makespan == 10s);
+            REQUIRE(evt.makespan == 10s);
         }
-        expect(
+        REQUIRE(
             pop<SimpleProgressEvent>(events)
             == SimpleProgressEvent::Finished);
-        expect(events.empty());
+        REQUIRE(events.empty());
         // TODO: implement
-    };
+    }
 
-    "a schedule without prediction"_test = [] {
+    SECTION("a schedule without prediction")
+    {
         using namespace angonoka;
         using namespace std::literals::chrono_literals;
 
@@ -96,20 +100,21 @@ suite predict_test = [] {
         auto [prediction_future, event_queue] = schedule(config);
         const auto r = prediction_future.get();
 
-        expect(!r.schedule.empty());
-        expect(r.makespan == 10s);
-        expect(
+        REQUIRE_FALSE(r.schedule.empty());
+        REQUIRE(r.makespan == 10s);
+        REQUIRE(
             r.schedule
             == std::vector<stun::ScheduleItem>{{0, 0}, {4, 2}});
-    };
+    }
 
-    "events"_test = [] {
+    SECTION("events")
+    {
         using boost::variant2::variant_alternative;
         using namespace angonoka;
-        expect(std::is_same_v<
-               variant_alternative<0, ProgressEvent>::type,
-               SimpleProgressEvent>);
-        expect(
+        REQUIRE(std::is_same_v<
+                variant_alternative<0, ProgressEvent>::type,
+                SimpleProgressEvent>);
+        REQUIRE(
             SimpleProgressEvent{} != SimpleProgressEvent::Finished);
-    };
-};
+    }
+}
