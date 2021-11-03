@@ -38,10 +38,7 @@ def test_prints_help():
         """\
     Angonoka is a time estimation software based on statistical modeling.
 
-    Usage: angonoka [OPTIONS] [input file] [SUBCOMMAND]
-
-    Positionals:
-      input file TEXT:FILE        
+    Usage: angonoka [OPTIONS] [SUBCOMMAND]
 
     Options:
       -h,--help                   Print this help message and exit
@@ -49,6 +46,9 @@ def test_prints_help():
       --color,--no-color{false}   Force colored output
       -q,--quiet                  Give less output
       -v,--verbose                Give more output
+    [Option Group: Default]
+      Positionals:
+        input file TEXT:FILE REQUIRED
 
     Subcommands:
       schedule                    Output the schedule in JSON format.
@@ -71,10 +71,10 @@ def test_version_with_file():
 
 def test_invalid_option():
     code, cout, cerr = run("--asdf")
-    assert code == 109
+    assert code == 106
     assert cerr == dedent(
         """\
-    The following argument was not expected: --asdf
+    input file is required
     Run with --help for more information.
     """
     )
@@ -253,7 +253,7 @@ def test_input_and_schedule():
     assert code == 108
     assert cerr == dedent(
         """\
-    schedule excludes input file
+    [Option Group: Default] excludes schedule
     Run with --help for more information.
     """
     )
@@ -264,7 +264,7 @@ def test_2_inputs_and_schedule():
     assert code == 108
     assert cerr == dedent(
         """\
-    schedule excludes input file
+    [Option Group: Default] excludes schedule
     Run with --help for more information.
     """
     )
@@ -356,4 +356,14 @@ def test_schedule_invalid_output():
         """\
     Error saving the schedule:
     failed opening file: No such file or directory: unspecified iostream_category error"""
+    )
+
+def test_no_args():
+    code, cout, cerr = run()
+    assert code == 106
+    assert cerr == dedent(
+        """\
+    input file is required
+    Run with --help for more information.
+    """
     )

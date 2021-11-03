@@ -30,13 +30,16 @@ int main(int argc, char** argv)
     cli.add_flag("-q,--quiet", options.quiet, "Give less output");
     cli.add_flag("-v,--verbose", options.verbose, "Give more output");
     cli.require_subcommand(-1);
-    auto* input_file = cli.add_option("input file", options.filename)
-                           ->check(CLI::ExistingFile);
+
+    auto* default_group = cli.add_option_group("Default");
+    default_group->add_option("input file", options.filename)
+        ->required()
+        ->check(CLI::ExistingFile);
 
     auto* schedule_cmd = cli.add_subcommand(
         "schedule",
         "Output the schedule in JSON format.");
-    schedule_cmd->excludes(input_file);
+    schedule_cmd->excludes(default_group);
     schedule_cmd
         ->add_option("-o,--output", "Output the schedule to a file")
         ->default_str("schedule.json");
