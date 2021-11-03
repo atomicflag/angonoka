@@ -8,7 +8,7 @@ foreach d : ['catch2', 'trompeloeil']
 endforeach
 
 base_test = executable(
-  meson.project_name()+'_2_test',
+  meson.project_name()+'_test',
   [
     'main.cpp',
     'configuration.cpp',
@@ -30,7 +30,7 @@ base_test = executable(
   dependencies : [ base, test_deps ],
   cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
 )
-test('Unit tests 2', base_test)
+test('Unit tests', base_test)
 
 subdir('stun/stochastic_tunneling')
 subdir('predict')
