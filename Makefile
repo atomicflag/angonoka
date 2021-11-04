@@ -6,6 +6,7 @@
 .ONESHELL:
 .SILENT:
 .DEFAULT_GOAL := debug
+CLANG_TIDY_FILES ?= ../src
 define RELEASE_CXXFLAGS =
 -pipe \
 -O3 \
@@ -21,12 +22,13 @@ define RELEASE_CXXFLAGS =
 -fPIC
 endef
 RELEASE_LDFLAGS := -Wl,--gc-sections,-Bsymbolic-functions
-LLVM_ROOT := $(shell readlink -m $$(which clang-tidy)/../..)
 CLANG_BUILTIN := $(shell echo | clang -v -E -x c++ - 2>&1 \
 	| sed -nE 's@^ (/[^ ]*)@-isystem\1@p' | tr '\n' ' ')
 define BUILD_ENV
 cd build
 . ./activate.sh
+endef
+define CLEAN_COMPILE_COMMANDS
 endef
 
 build/conaninfo.txt:
@@ -35,7 +37,7 @@ build/conaninfo.txt:
 	export CXXFLAGS="$$CXXFLAGS $(RELEASE_CXXFLAGS)"
 	export CFLAGS="$$CFLAGS $(RELEASE_CXXFLAGS)"
 	export LDFLAGS="$$LDFLAGS $(RELEASE_LDFLAGS)"
-	conan install -l ../conan.lock -b missing ..
+	conan install -l ../conan.lock ..
 
 build/build.ninja: build/conaninfo.txt
 	$(BUILD_ENV)
@@ -63,8 +65,8 @@ test:
 	export OMP_NUM_THREADS=1
 	for t in $$(find build -name '*_test'); do
 		test_name=$$(basename $$t)
-		printf "$$test_name:\n  "
-		LLVM_PROFILE_FILE=$$t.profraw $$t
+		echo "$$test_name:"
+		LLVM_PROFILE_FILE=$$t.profraw $$t -r compact
 	done
 
 .PHONY: test/functional
@@ -133,7 +135,7 @@ check/cov: build/cov
 	llvm-cov report \
 		build/src/angonoka-x86_64 \
 		-instr-profile=angonoka.profdata \
-		src
+		--ignore-filename-regex='.*\.a\.p'
 
 .PHONY: check/show
 check/show: check/cov
@@ -141,7 +143,7 @@ check/show: check/cov
 		build/src/angonoka-x86_64 \
 		-instr-profile=angonoka.profdata \
 		-format=html -o html \
-		src
+		--ignore-filename-regex='.*\.a\.p'
 
 .PHONY: format
 format: build/build.ninja
@@ -158,6 +160,7 @@ check/format:
 .PHONY: check/tidy
 check/tidy: build/build.ninja
 	echo Running clang-tidy
+	test -z "$(CLANG_TIDY_FILES)" && { echo No changes; exit 0; }
 	cd build
 	[ -e compile_commands.json.bak ] && \
 		mv compile_commands.json.bak \
@@ -178,8 +181,7 @@ check/tidy: build/build.ninja
 		data = tuple(filter(keep, data))
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
-	python3 $(LLVM_ROOT)/share/clang/run-clang-tidy.py \
-		-quiet ../src 2>/dev/null
+	run-clang-tidy -quiet $(CLANG_TIDY_FILES) 2>/dev/null
 	EXIT_CODE=$$?
 	mv compile_commands.json.bak compile_commands.json
 	exit $$EXIT_CODE
@@ -190,3 +192,36 @@ check: check/format check/tidy
 .PHONY: clean
 clean:
 	git clean -fxd
+
+.PHONY: install-deps
+install-deps:
+	mkdir -p deps
+	cd deps
+	export CXXFLAGS="$$CXXFLAGS $(RELEASE_CXXFLAGS)"
+	export CFLAGS="$$CFLAGS $(RELEASE_CXXFLAGS)"
+	export LDFLAGS="$$LDFLAGS $(RELEASE_LDFLAGS)"
+	conan install -u -b missing ..
+
+.PHONY: update-deps
+update-deps:
+	docker run --rm -i \
+	  --name temp \
+	  -e CONAN_TOKEN \
+	  -e CONAN_USER \
+	  -v $$(pwd):/app \
+	  --entrypoint /bin/bash \
+	  registry.gitlab.com/signal9/cpp-env:13.0.0 <<"EOF"
+	python3 -m pip --no-cache-dir install --upgrade conan
+	apt-get update
+	apt-get install -y --no-install-recommends jq
+	conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan --insert
+	conan config set general.revisions_enabled=1
+	conan user -p $$CONAN_TOKEN -r signal9 $$CONAN_USER
+	cd /app
+	make install-deps
+	cp deps/conan.lock conan.lock
+	conan info -l conan.lock -u -j deps.json .
+	deps=$$(jq -r '.[] | select(.is_ref) | "\(.reference)#\(.revision):\(.id)"' deps.json)
+	for d in $$deps; do conan upload -r signal9 --parallel $$d; done
+	rm -rf deps deps.json
+	EOF

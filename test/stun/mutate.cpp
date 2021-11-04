@@ -1,14 +1,14 @@
 #include "stun/random_utils.h"
 #include "stun/schedule_params.h"
 #include "stun/utils.h"
-#include <boost/ut.hpp>
+#include <catch2/catch.hpp>
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/view/chunk.hpp>
 
-using namespace boost::ut;
-
-suite mutate = [] {
-    "Mutate schedule"_test = [] {
+TEST_CASE("Mutate")
+{
+    SECTION("Mutate schedule")
+    {
         using namespace angonoka::stun;
 
         ScheduleParams params;
@@ -28,7 +28,8 @@ suite mutate = [] {
             = {std::vector<int16>{},
                std::vector<span<int16>>{{}, {}, {}}};
 
-        "no dependencies"_test = [&] {
+        SECTION("no dependencies")
+        {
             RandomUtils random{0};
 
             std::vector<ScheduleItem> schedule{
@@ -39,26 +40,27 @@ suite mutate = [] {
             Mutator mut{params, random};
             mut(schedule);
 
-            expect(
+            REQUIRE(
                 schedule
                 == std::vector<ScheduleItem>{{0, 0}, {2, 1}, {1, 1}});
 
             for (int i{0}; i < 100; ++i) mut(schedule);
 
-            expect(
+            REQUIRE(
                 schedule
                 == std::vector<ScheduleItem>{{1, 2}, {0, 2}, {2, 2}});
-        };
+        }
 
-        "options"_test = [&] {
+        SECTION("options")
+        {
             RandomUtils random{0};
             Mutator mut{params, random};
 
             {
                 auto [p, r] = mut.options();
 
-                expect(p == &params);
-                expect(r == &random);
+                REQUIRE(p == &params);
+                REQUIRE(r == &random);
             }
 
             RandomUtils random2{0};
@@ -68,8 +70,8 @@ suite mutate = [] {
             {
                 auto [p, r] = mut.options();
 
-                expect(p == &params);
-                expect(r == &random2);
+                REQUIRE(p == &params);
+                REQUIRE(r == &random2);
             }
 
             Mutator mut2{mut.options()};
@@ -77,12 +79,13 @@ suite mutate = [] {
             {
                 auto [p, r] = mut2.options();
 
-                expect(p == &params);
-                expect(r == &random2);
+                REQUIRE(p == &params);
+                REQUIRE(r == &random2);
             }
-        };
+        }
 
-        "with dependencies"_test = [&] {
+        SECTION("with dependencies")
+        {
             using ranges::actions::push_back;
             using ranges::views::chunk;
             std::vector<int16> dependencies_data = {0, 1};
@@ -102,18 +105,19 @@ suite mutate = [] {
             Mutator mut{params, random};
             mut(schedule);
 
-            expect(
+            REQUIRE(
                 schedule
                 == std::vector<ScheduleItem>{{0, 0}, {1, 0}, {2, 2}});
 
             for (int i{0}; i < 100; ++i) mut(schedule);
 
-            expect(
+            REQUIRE(
                 schedule
                 == std::vector<ScheduleItem>{{0, 0}, {1, 0}, {2, 1}});
-        };
+        }
 
-        "single task"_test = [&] {
+        SECTION("single task")
+        {
             params.dependencies
                 = {std::vector<int16>{},
                    std::vector<span<int16>>{{}}};
@@ -134,25 +138,28 @@ suite mutate = [] {
             Mutator mut{params, random};
             mut(schedule);
 
-            expect(schedule == std::vector<ScheduleItem>{{0, 2}});
+            REQUIRE(schedule == std::vector<ScheduleItem>{{0, 2}});
 
             for (int i{0}; i < 100; ++i) mut(schedule);
 
-            expect(schedule == std::vector<ScheduleItem>{{0, 0}});
-        };
-    };
+            REQUIRE(schedule == std::vector<ScheduleItem>{{0, 0}});
+        }
+    }
 
-    "Mutator type traits"_test = [] {
+    SECTION("Mutator type traits")
+    {
         using angonoka::stun::Mutator;
-        expect(std::is_nothrow_destructible_v<Mutator>);
-        expect(!std::is_default_constructible_v<Mutator>);
-        expect(std::is_copy_constructible_v<Mutator>);
-        expect(std::is_copy_assignable_v<Mutator>);
-        expect(std::is_nothrow_move_constructible_v<Mutator>);
-        expect(std::is_nothrow_move_assignable_v<Mutator>);
-    };
+        STATIC_REQUIRE(std::is_nothrow_destructible_v<Mutator>);
+        STATIC_REQUIRE_FALSE(
+            std::is_default_constructible_v<Mutator>);
+        STATIC_REQUIRE(std::is_copy_constructible_v<Mutator>);
+        STATIC_REQUIRE(std::is_copy_assignable_v<Mutator>);
+        STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Mutator>);
+        STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Mutator>);
+    }
 
-    "Limited available agents"_test = [] {
+    SECTION("limited available agents")
+    {
         using namespace angonoka::stun;
 
         ScheduleParams params;
@@ -180,14 +187,14 @@ suite mutate = [] {
         Mutator mut{params, random};
         mut(schedule);
 
-        expect(
+        REQUIRE(
             schedule
             == std::vector<ScheduleItem>{{0, 0}, {2, 2}, {1, 1}});
 
         for (int i{0}; i < 100; ++i) mut(schedule);
 
-        expect(
+        REQUIRE(
             schedule
             == std::vector<ScheduleItem>{{2, 2}, {1, 1}, {0, 0}});
-    };
-};
+    }
+}

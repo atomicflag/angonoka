@@ -1,265 +1,257 @@
 #include "stun/schedule_params.h"
 #include "config/load.h"
+#include <catch2/catch.hpp>
 
-#include <boost/ut.hpp>
-
-using namespace boost::ut;
-
-suite schedule_params = [] {
-    "ScheduleParams type traits"_test = [] {
+TEST_CASE("ScheduleParams")
+{
+    SECTION("ScheduleParams type traits")
+    {
         using angonoka::stun::ScheduleParams;
-        expect(std::is_nothrow_destructible_v<ScheduleParams>);
-        expect(
+        STATIC_REQUIRE(
+            std::is_nothrow_destructible_v<ScheduleParams>);
+        STATIC_REQUIRE(
             std::is_nothrow_default_constructible_v<ScheduleParams>);
-        expect(std::is_copy_constructible_v<ScheduleParams>);
-        expect(std::is_copy_assignable_v<ScheduleParams>);
-        expect(std::is_nothrow_move_constructible_v<ScheduleParams>);
-        expect(std::is_nothrow_move_assignable_v<ScheduleParams>);
-    };
+        STATIC_REQUIRE(std::is_copy_constructible_v<ScheduleParams>);
+        STATIC_REQUIRE(std::is_copy_assignable_v<ScheduleParams>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_constructible_v<ScheduleParams>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_assignable_v<ScheduleParams>);
+    }
 
-    "ScheduleParams special memeber functions"_test = [] {
+    SECTION("ScheduleParams special memeber functions")
+    {
         using namespace angonoka::stun;
 
-        constexpr auto setup = [](auto& params) {
-            {
-                std::vector<int16>
-                    available_agents_data{2, 1, 2, 0, 1, 2};
-                auto* p = available_agents_data.data();
-                const auto n = [&](auto s) -> span<int16> {
-                    return {std::exchange(p, std::next(p, s)), s};
-                };
-                std::vector<span<int16>> available_agents
-                    = {n(1), n(2), n(3)};
-                params.available_agents
-                    = {std::move(available_agents_data),
-                       std::move(available_agents)};
-            }
-            {
-                std::vector<int16> dependencies_data{0, 0, 1};
-                auto* p = dependencies_data.data();
-                const auto n = [&](auto s) -> span<int16> {
-                    return {std::exchange(p, std::next(p, s)), s};
-                };
-                std::vector<span<int16>> dependencies
-                    = {n(0), n(1), n(2)};
-                params.dependencies
-                    = {std::move(dependencies_data),
-                       std::move(dependencies)};
-            }
-        };
+        ScheduleParams params{
+            .agent_performance{1.F, 2.F, 3.F},
+            .task_duration{3.F, 2.F, 1.F}};
 
-        should("move ctor") = [&] {
-            ScheduleParams params{
-                .agent_performance{1.F, 2.F, 3.F},
-                .task_duration{3.F, 2.F, 1.F}};
-            setup(params);
+        {
+            std::vector<int16>
+                available_agents_data{2, 1, 2, 0, 1, 2};
+            auto* p = available_agents_data.data();
+            const auto n = [&](auto s) -> span<int16> {
+                return {std::exchange(p, std::next(p, s)), s};
+            };
+            std::vector<span<int16>> available_agents
+                = {n(1), n(2), n(3)};
+            params.available_agents
+                = {std::move(available_agents_data),
+                   std::move(available_agents)};
+        }
+        {
+            std::vector<int16> dependencies_data{0, 0, 1};
+            auto* p = dependencies_data.data();
+            const auto n = [&](auto s) -> span<int16> {
+                return {std::exchange(p, std::next(p, s)), s};
+            };
+            std::vector<span<int16>> dependencies
+                = {n(0), n(1), n(2)};
+            params.dependencies
+                = {std::move(dependencies_data),
+                   std::move(dependencies)};
+        }
+
+        SECTION("move ctor")
+        {
             ScheduleParams other{std::move(params)};
 
-            expect(params.dependencies.empty());
-            expect(!other.dependencies.empty());
-            expect(other.dependencies[2u][1] == 1);
-        };
+            REQUIRE(params.dependencies.empty());
+            REQUIRE(!other.dependencies.empty());
+            REQUIRE(other.dependencies[2u][1] == 1);
+        }
 
-        should("move assignment") = [&] {
-            ScheduleParams params{
-                .agent_performance{1.F, 2.F, 3.F},
-                .task_duration{3.F, 2.F, 1.F}};
-            setup(params);
+        SECTION("move assignment")
+        {
             ScheduleParams other;
             other = std::move(params);
 
-            expect(params.dependencies.empty());
-            expect(!other.dependencies.empty());
-            expect(other.dependencies[2u][1] == 1);
-        };
+            REQUIRE(params.dependencies.empty());
+            REQUIRE(!other.dependencies.empty());
+            REQUIRE(other.dependencies[2u][1] == 1);
+        }
 
-        should("copy ctor") = [&] {
-            ScheduleParams params{
-                .agent_performance{1.F, 2.F, 3.F},
-                .task_duration{3.F, 2.F, 1.F}};
-            setup(params);
+        SECTION("copy ctor")
+        {
             ScheduleParams other{params};
 
             params.dependencies.clear();
 
-            expect(other.dependencies[2u][1] == 1);
-        };
+            REQUIRE(other.dependencies[2u][1] == 1);
+        }
 
-        should("copy assignment") = [&] {
-            ScheduleParams params{
-                .agent_performance{1.F, 2.F, 3.F},
-                .task_duration{3.F, 2.F, 1.F}};
-            setup(params);
+        SECTION("copy assignment")
+        {
             ScheduleParams other;
             other = params;
 
             params.dependencies.clear();
 
-            expect(other.dependencies[2u][1] == 1);
-        };
+            REQUIRE(other.dependencies[2u][1] == 1);
+        }
 
-        should("self copy") = [&] {
-            ScheduleParams params{
-                .agent_performance{1.F, 2.F, 3.F},
-                .task_duration{3.F, 2.F, 1.F}};
-            setup(params);
+        SECTION("self copy")
+        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             params = params;
 #pragma clang diagnostic pop
 
-            expect(params.dependencies[2u][1] == 1);
-        };
+            REQUIRE(params.dependencies[2u][1] == 1);
+        }
 
-        should("self move") = [&] {
-            ScheduleParams params{
-                .agent_performance{1.F, 2.F, 3.F},
-                .task_duration{3.F, 2.F, 1.F}};
-            setup(params);
+        SECTION("self move")
+        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             params = std::move(params);
 #pragma clang diagnostic pop
 
-            expect(params.dependencies[2u][1] == 1);
-        };
-    };
+            REQUIRE(params.dependencies[2u][1] == 1);
+        }
+    }
 
-    "Vector2D type traits"_test = [] {
+    SECTION("Vector2D type traits")
+    {
         using angonoka::stun::Vector2D;
-        expect(std::is_nothrow_destructible_v<Vector2D>);
-        expect(std::is_nothrow_default_constructible_v<Vector2D>);
-        expect(std::is_copy_constructible_v<Vector2D>);
-        expect(std::is_copy_assignable_v<Vector2D>);
-        expect(std::is_nothrow_move_constructible_v<Vector2D>);
-        expect(std::is_nothrow_move_assignable_v<Vector2D>);
-    };
+        STATIC_REQUIRE(std::is_nothrow_destructible_v<Vector2D>);
+        STATIC_REQUIRE(
+            std::is_nothrow_default_constructible_v<Vector2D>);
+        STATIC_REQUIRE(std::is_copy_constructible_v<Vector2D>);
+        STATIC_REQUIRE(std::is_copy_assignable_v<Vector2D>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_constructible_v<Vector2D>);
+        STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Vector2D>);
+    }
 
-    "Vector2D special memeber functions"_test = [] {
+    SECTION("Vector2D special memeber functions")
+    {
         using namespace angonoka::stun;
 
-        "empty"_test = [] {
+        SECTION("empty")
+        {
             Vector2D vspans;
 
-            expect(vspans.empty());
+            REQUIRE(vspans.empty());
 
-            should("copy ctor") = [&] {
+            SECTION("copy ctor")
+            {
                 Vector2D other{vspans};
 
-                expect(other.empty());
-            };
-        };
+                REQUIRE(other.empty());
+            }
+        }
 
-        "empty input arrays"_test = [] {
+        SECTION("empty input arrays")
+        {
             Vector2D vspans{
                 std::vector<int16>{},
                 span<const int16>{}};
 
-            expect(vspans.empty());
-        };
+            REQUIRE(vspans.empty());
+        }
 
-        "non-empty"_test = [] {
-            constexpr auto setup = [] {
-                std::vector<int16> data{0, 1, 2};
-                auto* b = data.data();
-                const auto f = [&](auto s) -> span<int16> {
-                    return {std::exchange(b, std::next(b, s)), s};
-                };
-                std::vector<span<int16>> spans{f(1), f(1), f(1)};
-                return std::make_tuple(
-                    std::move(data),
-                    std::move(spans));
+        SECTION("non-empty")
+        {
+            std::vector<int16> data{0, 1, 2};
+            auto* b = data.data();
+            const auto f = [&](auto s) -> span<int16> {
+                return {std::exchange(b, std::next(b, s)), s};
             };
+            std::vector<span<int16>> spans{f(1), f(1), f(1)};
 
-            should("constructor") = [&] {
-                auto&& [data, spans] = setup();
+            SECTION("constructor")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
 
-                expect(vspans.size() == 3_i);
-            };
+                REQUIRE(vspans.size() == 3);
+            }
 
-            should("copy ctor") = [&] {
-                auto&& [data, spans] = setup();
+            SECTION("copy ctor")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other{vspans};
                 vspans.clear();
 
-                expect(other.size() == 3_i);
-                expect(other[2u][0] == 2);
-            };
+                REQUIRE(other.size() == 3);
+                REQUIRE(other[2u][0] == 2);
+            }
 
-            should("copy assignment") = [&] {
-                auto&& [data, spans] = setup();
+            SECTION("copy assignment")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other;
                 other = vspans;
                 vspans.clear();
 
-                expect(other.size() == 3_i);
-                expect(other[2u][0] == 2);
+                REQUIRE(other.size() == 3);
+                REQUIRE(other[2u][0] == 2);
 
                 other = vspans;
 
-                expect(other.empty());
-            };
+                REQUIRE(other.empty());
+            }
 
-            should("move ctor") = [&] {
-                auto&& [data, spans] = setup();
+            SECTION("move ctor")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other{std::move(vspans)};
 
-                expect(vspans.empty());
-                expect(other.size() == 3_i);
-                expect(other[2u][0] == 2);
-            };
+                REQUIRE(vspans.empty());
+                REQUIRE(other.size() == 3);
+                REQUIRE(other[2u][0] == 2);
+            }
 
-            should("move assignment") = [&] {
-                auto&& [data, spans] = setup();
+            SECTION("move assignment")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
                 Vector2D other;
                 other = std::move(vspans);
 
-                expect(vspans.empty());
-                expect(other.size() == 3_i);
-                expect(other[2u][0] == 2);
-            };
+                REQUIRE(vspans.empty());
+                REQUIRE(other.size() == 3);
+                REQUIRE(other[2u][0] == 2);
+            }
 
-            should("self copy") = [&] {
-                auto&& [data, spans] = setup();
+            SECTION("self copy")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
                 vspans = vspans;
 #pragma clang diagnostic pop
 
-                expect(vspans[2u][0] == 2);
-            };
+                REQUIRE(vspans[2u][0] == 2);
+            }
 
-            should("self move") = [&] {
-                auto&& [data, spans] = setup();
+            SECTION("self move")
+            {
                 Vector2D vspans{std::move(data), std::move(spans)};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
                 vspans = std::move(vspans);
 #pragma clang diagnostic pop
 
-                expect(vspans[2u][0] == 2);
-            };
-        };
+                REQUIRE(vspans[2u][0] == 2);
+            }
+        }
 
-        "construct from array of sizes"_test = [] {
+        SECTION("construct from array of sizes")
+        {
             std::vector<int16> data{1, 2, 3, 4, 5, 6};
             const std::vector<int16> sizes{1, 2, 3};
 
             const Vector2D vec{std::move(data), sizes};
 
-            expect(vec.size() == 3_i);
-            expect(vec[1u].size() == 2_i);
-            expect(vec[1u][1] == 3);
-        };
-    };
+            REQUIRE(vec.size() == 3);
+            REQUIRE(vec[1u].size() == 2);
+            REQUIRE(vec[1u][1] == 3);
+        }
+    }
 
-    "initial schedule"_test = [] {
+    SECTION("initial schedule")
+    {
         using namespace angonoka::stun;
 
         const ScheduleParams params{
@@ -274,7 +266,7 @@ suite schedule_params = [] {
 
         const auto schedule = initial_schedule(params);
 
-        expect(
+        REQUIRE(
             schedule
             == std::vector<ScheduleItem>{
                 {.task_id = 5, .agent_id = 2},
@@ -283,45 +275,46 @@ suite schedule_params = [] {
                 {.task_id = 2, .agent_id = 2},
                 {.task_id = 1, .agent_id = 1},
                 {.task_id = 0, .agent_id = 0}});
-    };
+    }
 
-    "ScheduleParams from Configuration"_test = [] {
+    SECTION("ScheduleParams from Configuration")
+    {
         using namespace angonoka::stun;
         // clang-format off
-    constexpr auto text = 
-        "agents:\n"
-        "  Bob:\n"
-        "    performance:\n"
-        "      min: 0.5\n"
-        "      max: 1.5\n"
-        "  Jack:\n"
-        "    groups:\n"
-        "      - A\n"
-        "tasks:\n"
-        "  - name: Task 1\n"
-        "    duration: 1h\n"
-        "    id: 1\n"
-        "    group: A\n"
-        "  - name: Task 2\n"
-        "    duration: 1h\n"
-        "    depends_on: 1";
+        constexpr auto text = 
+            "agents:\n"
+            "  Bob:\n"
+            "    performance:\n"
+            "      min: 0.5\n"
+            "      max: 1.5\n"
+            "  Jack:\n"
+            "    groups:\n"
+            "      - A\n"
+            "tasks:\n"
+            "  - name: Task 1\n"
+            "    duration: 1h\n"
+            "    id: 1\n"
+            "    group: A\n"
+            "  - name: Task 2\n"
+            "    duration: 1h\n"
+            "    depends_on: 1";
         // clang-format on
         const auto config = angonoka::load_text(text);
 
         const auto params = to_schedule_params(config);
 
-        expect(params.agent_performance.size() == 2_i);
-        expect(params.agent_performance[0] == 1._d);
-        expect(params.task_duration.size() == 2_i);
-        expect(params.task_duration[0] == 1._d);
-        expect(params.available_agents.size() == 2_i);
+        REQUIRE(params.agent_performance.size() == 2);
+        REQUIRE(params.agent_performance[0] == Approx(1.));
+        REQUIRE(params.task_duration.size() == 2);
+        REQUIRE(params.task_duration[0] == Approx(1.));
+        REQUIRE(params.available_agents.size() == 2);
         // Both agents
-        expect(params.available_agents[0u].size() == 2_i);
+        REQUIRE(params.available_agents[0u].size() == 2);
         // Only Jack due to group A constraint
-        expect(params.available_agents[1u].size() == 1_i);
-        expect(params.dependencies.size() == 2_i);
-        expect(params.dependencies[0u].empty());
-        expect(params.dependencies[1u].size() == 1_i);
-        expect(params.dependencies[1u][0] == 0);
-    };
-};
+        REQUIRE(params.available_agents[1u].size() == 1);
+        REQUIRE(params.dependencies.size() == 2);
+        REQUIRE(params.dependencies[0u].empty());
+        REQUIRE(params.dependencies[1u].size() == 1);
+        REQUIRE(params.dependencies[1u][0] == 0);
+    }
+}

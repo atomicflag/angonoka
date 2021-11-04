@@ -7,6 +7,10 @@ namespace angonoka::stun {
     Currently used for estimating progress during stochastic tunneling
     optimization. This class allows for fitting an exponential curve
     without requiring an array of the historical values.
+
+    Source:
+
+    https://mathworld.wolfram.com/LeastSquaresFittingExponential.html
 */
 class ExpCurveFitter {
 public:

@@ -55,6 +55,21 @@ task_duration(const Task& task, const Agent& agent)
 }
 
 /**
+    Opaque types.
+*/
+enum class AgentIndex : gsl::index {};
+enum class TaskIndex : gsl::index {};
+
+constexpr auto operator*(AgentIndex i)
+{
+    return static_cast<gsl::index>(i);
+}
+constexpr auto operator*(TaskIndex i)
+{
+    return static_cast<gsl::index>(i);
+}
+
+/**
     Utility class for calculating task durations.
 */
 class TaskDurations {
@@ -84,25 +99,25 @@ public:
         time in seconds
     */
     [[nodiscard]] auto
-    operator()(gsl::index agent_id, gsl::index task_id)
+    operator()(AgentIndex agent_id, TaskIndex task_id)
     {
-        Expects(task_done[task_id] == 0.F);
-        Expects(agent_id >= 0 && agent_id < config->agents.size());
-        Expects(task_id >= 0 && task_id < config->tasks.size());
+        Expects(task_done[*task_id] == 0.F);
+        Expects(*agent_id >= 0 && *agent_id < config->agents.size());
+        Expects(*task_id >= 0 && *task_id < config->tasks.size());
 
         const auto duration = task_duration(
-            config->tasks[task_id],
-            config->agents[agent_id]);
+            config->tasks[*task_id],
+            config->agents[*agent_id]);
         const auto expected_start = std::max(
-            agent_work_end[agent_id],
+            agent_work_end[*agent_id],
             dependencies_done(
                 task_done,
-                config->tasks[task_id].dependencies));
-        agent_work_end[agent_id] = task_done[task_id]
+                config->tasks[*task_id].dependencies));
+        agent_work_end[*agent_id] = task_done[*task_id]
             = expected_start + duration;
 
-        Ensures(task_done[task_id] > 0.F);
-        Ensures(agent_work_end[agent_id] > 0.F);
+        Ensures(task_done[*task_id] > 0.F);
+        Ensures(agent_work_end[*agent_id] > 0.F);
 
         return std::make_tuple(
             static_cast<int>(duration),
@@ -134,7 +149,7 @@ namespace detail {
             const auto t_id = static_cast<gsl::index>(t.task_id);
             const auto a_id = static_cast<gsl::index>(t.agent_id);
             const auto [duration, expected_start]
-                = durations(a_id, t_id);
+                = durations(::AgentIndex{a_id}, ::TaskIndex{t_id});
 
             tasks.emplace_back<json>(
                 {{"task", config.tasks[t_id].name},

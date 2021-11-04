@@ -1,12 +1,12 @@
 #include "cli/json_schedule.h"
 #include "config/load.h"
-#include <boost/ut.hpp>
+#include <catch2/catch.hpp>
 
-using namespace boost::ut;
-
-suite json_schedule = [] {
+TEST_CASE("JSON schedule")
+{
     using namespace angonoka;
-    "basic schedule"_test = [] {
+    SECTION("basic schedule")
+    {
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -22,17 +22,18 @@ suite json_schedule = [] {
             .makespan{3600}};
         const auto json = cli::detail::to_json(config, schedule);
 
-        expect(json["makespan"] == 3600_i);
-        expect(json["tasks"].size() == 1_i);
+        REQUIRE(json["makespan"] == 3600);
+        REQUIRE(json["tasks"].size() == 1);
         const auto& task = json["tasks"][0];
-        expect(task["agent"] == "agent1");
-        expect(task["task"] == "task 1");
-        expect(task["priority"] == 0_i);
-        expect(task["expected_duration"] == 3600_i);
-        expect(task["expected_start"] == 0_i);
-    };
+        REQUIRE(task["agent"] == "agent1");
+        REQUIRE(task["task"] == "task 1");
+        REQUIRE(task["priority"] == 0);
+        REQUIRE(task["expected_duration"] == 3600);
+        REQUIRE(task["expected_start"] == 0);
+    }
 
-    "advanced schedule"_test = [] {
+    SECTION("advanced schedule")
+    {
         // clang-format off
         constexpr auto text =
             "agents:\n"
@@ -65,7 +66,7 @@ suite json_schedule = [] {
             .makespan{3600}};
         const auto json = cli::detail::to_json(config, schedule);
 
-        expect(
+        REQUIRE(
             json
             == nlohmann::json{
                 {"makespan", 3600},
@@ -90,5 +91,5 @@ suite json_schedule = [] {
                    {"priority", 1},
                    {"expected_duration", 3600},
                    {"expected_start", 10800}}}}});
-    };
-};
+    }
+}

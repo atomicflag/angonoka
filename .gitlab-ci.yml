@@ -5,26 +5,39 @@ stages:
 variables:
   CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
   CCACHE_BASEDIR: "$CI_PROJECT_DIR"
+  CCACHE_LOGFILE: "$CI_PROJECT_DIR/ccache.log"
   CCACHE_COMPRESS: "1"
   CCACHE_COMPRESSLEVEL: "9"
+  CCACHE_SLOPPINESS: "system_headers,locale,include_file_ctime,include_file_mtime,time_macros"
+  ASAN_OPTIONS: "alloc_dealloc_mismatch=0"
 
 default:
-  image: registry.gitlab.com/signal9/cpp-env:12.0.0
+  image: registry.gitlab.com/signal9/cpp-env:13.0.0
   cache:
-    key: "$CI_COMMIT_REF_SLUG"
+    key: "$CI_COMMIT_REF_SLUG-$CI_JOB_NAME"
     paths:
-      - .conan
       - .ccache
   before_script:
-    - conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan
+    - conan remote add signal9 
+      https://signal9.jfrog.io/artifactory/api/conan/conan --insert
     - conan config set general.revisions_enabled=1
-    - conan config set storage.path="$CI_PROJECT_DIR/.conan"
     - make check/format
     - export CCACHE_DISABLE=1
     - make build/conaninfo.txt
     - unset CCACHE_DISABLE
   after_script:
-    - conan remove -b -s -f '*'
+    - ccache --show-stats
+    - |
+      to_delete="$(sed -En \
+        '/(Retrieved|Stored)/s/.*\((.*)\)/\1/gp' \
+        $CCACHE_LOGFILE | sort -u)
+      $(find $CCACHE_DIR -type f)"
+      to_delete=$(echo "$to_delete" | sort | uniq -u)
+      if [[ -n "$to_delete" ]]; then
+        rm $to_delete
+        count_deleted=$(echo "$to_delete" | wc -l)
+        echo "Removed $count_deleted cache entries"
+      fi
 
 test:
   stage: test
@@ -34,10 +47,16 @@ test:
     - pip install --no-cache-dir pytest
     - make test/functional
     - make check/cov
-
-clang-tidy:
-  stage: test
-  script:
+    - ln -sf /usr/bin/python{3,}
+    - rm -rf build
+    - |
+      pids=$(sed -En \
+        '/Result: .*miss/s/^\[[^ ]+ ([0-9]+) *\].*/\1/gp' \
+        $CCACHE_LOGFILE | sort -u)
+      pids=$(echo $pids | tr ' ' '|')
+      export CLANG_TIDY_FILES=$(sed -En \
+        "/^\[[^ ]+ ($pids) *\]/s%.*Source file: (\.\./src/.*\.cpp)$%\1%p" \
+        $CCACHE_LOGFILE | tr '\n' ' ')
     - make check/tidy
 
 build:

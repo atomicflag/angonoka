@@ -1,21 +1,24 @@
 #include "stun/optimizer.h"
 #include "config/load.h"
-#include <boost/ut.hpp>
+#include <catch2/catch.hpp>
 
-using namespace boost::ut;
-
-suite optimizer = [] {
-    "Optimizer type traits"_test = [] {
+TEST_CASE("Optimizer")
+{
+    SECTION("Optimizer type traits")
+    {
         using angonoka::stun::Optimizer;
-        expect(std::is_nothrow_destructible_v<Optimizer>);
-        expect(!std::is_default_constructible_v<Optimizer>);
-        expect(std::is_copy_constructible_v<Optimizer>);
-        expect(std::is_copy_assignable_v<Optimizer>);
-        expect(std::is_nothrow_move_constructible_v<Optimizer>);
-        expect(std::is_nothrow_move_assignable_v<Optimizer>);
-    };
+        STATIC_REQUIRE(std::is_nothrow_destructible_v<Optimizer>);
+        STATIC_REQUIRE_FALSE(
+            std::is_default_constructible_v<Optimizer>);
+        STATIC_REQUIRE(std::is_copy_constructible_v<Optimizer>);
+        STATIC_REQUIRE(std::is_copy_assignable_v<Optimizer>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_constructible_v<Optimizer>);
+        STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Optimizer>);
+    }
 
-    "basic Optimizer operations"_test = [] {
+    SECTION("basic Optimizer operations")
+    {
         using namespace angonoka::stun;
 
         // clang-format off
@@ -34,42 +37,45 @@ suite optimizer = [] {
         const auto params = to_schedule_params(config);
         Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
 
-        expect(optimizer.normalized_makespan() == 2.F);
-        expect(optimizer.estimated_progress() == 0.F);
-        expect(optimizer.schedule()[1].agent_id == 0);
+        REQUIRE(optimizer.normalized_makespan() == 2.F);
+        REQUIRE(optimizer.estimated_progress() == 0.F);
+        REQUIRE(optimizer.schedule()[1].agent_id == 0);
 
         optimizer.update();
 
-        expect(optimizer.estimated_progress() == 0.F);
+        REQUIRE(optimizer.estimated_progress() == 0.F);
 
         while (!optimizer.has_converged()) optimizer.update();
 
         // Might be non-deterministic
-        expect(optimizer.normalized_makespan() == 1.F);
-        expect(optimizer.estimated_progress() == 1.F);
+        REQUIRE(optimizer.normalized_makespan() == 1.F);
+        REQUIRE(optimizer.estimated_progress() == 1.F);
         // Each task has a different agent
-        expect(
+        REQUIRE(
             optimizer.schedule()[1].agent_id
             != optimizer.schedule()[0].agent_id);
 
-        should("reset") = [&] {
+        SECTION("reset")
+        {
             optimizer.reset();
 
-            expect(optimizer.normalized_makespan() == 2.F);
-            expect(optimizer.estimated_progress() == 0.F);
-        };
+            REQUIRE(optimizer.normalized_makespan() == 2.F);
+            REQUIRE(optimizer.estimated_progress() == 0.F);
+        }
 
-        should("rebind params") = [&] {
-            expect(&optimizer.params() == &params);
+        SECTION("rebind params")
+        {
+            REQUIRE(&optimizer.params() == &params);
             const auto params2 = params;
             optimizer.params(params2);
-            expect(&optimizer.params() == &params2);
+            REQUIRE(&optimizer.params() == &params2);
 
             while (!optimizer.has_converged()) optimizer.update();
-        };
-    };
+        }
+    }
 
-    "Optimizer special memeber functions"_test = [] {
+    SECTION("Optimizer special memeber functions")
+    {
         using namespace angonoka::stun;
 
         // clang-format off
@@ -84,39 +90,34 @@ suite optimizer = [] {
             "    duration: 1h";
         // clang-format on
         const auto config = angonoka::load_text(text);
-
         const auto params = to_schedule_params(config);
 
-        should("copy ctor") = [&] {
-            Optimizer optimizer{
-                params,
-                BatchSize{5},
-                MaxIdleIters{10}};
+        Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
+
+        SECTION("copy ctor")
+        {
             Optimizer other{optimizer};
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             while (!optimizer.has_converged()) optimizer.update();
 
-            expect(other.normalized_makespan() == 2.F);
-        };
+            REQUIRE(other.normalized_makespan() == 2.F);
+        }
 
-        should("copy assignment") = [&] {
-            Optimizer optimizer{
-                params,
-                BatchSize{5},
-                MaxIdleIters{10}};
+        SECTION("copy assignment")
+        {
             Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
             other = optimizer;
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             while (!optimizer.has_converged()) optimizer.update();
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             while (!other.has_converged()) other.update();
-            expect(other.normalized_makespan() == 1.F);
+            REQUIRE(other.normalized_makespan() == 1.F);
 
             {
                 Optimizer optimizer2{
@@ -126,45 +127,35 @@ suite optimizer = [] {
                 other = optimizer2;
             }
 
-            expect(other.normalized_makespan() == 2.F);
-        };
+            REQUIRE(other.normalized_makespan() == 2.F);
+        }
 
-        should("move ctor") = [&] {
-            Optimizer optimizer{
-                params,
-                BatchSize{5},
-                MaxIdleIters{10}};
+        SECTION("move ctor")
+        {
             Optimizer other{std::move(optimizer)};
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             while (!other.has_converged()) other.update();
 
-            expect(other.normalized_makespan() == 1.F);
-        };
+            REQUIRE(other.normalized_makespan() == 1.F);
+        }
 
-        should("move assignment") = [&] {
-            Optimizer optimizer{
-                params,
-                BatchSize{5},
-                MaxIdleIters{10}};
+        SECTION("move assignment")
+        {
             Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
             other = std::move(optimizer);
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             while (!other.has_converged()) other.update();
 
-            expect(other.normalized_makespan() == 1.F);
-        };
+            REQUIRE(other.normalized_makespan() == 1.F);
+        }
 
-        should("destructive move assignment") = [&] {
-            Optimizer optimizer{
-                params,
-                BatchSize{5},
-                MaxIdleIters{10}};
-
-            expect(optimizer.normalized_makespan() == 2.F);
+        SECTION("destructive move assignment")
+        {
+            REQUIRE(optimizer.normalized_makespan() == 2.F);
 
             {
                 Optimizer other{
@@ -174,26 +165,23 @@ suite optimizer = [] {
                 optimizer = std::move(other);
             }
 
-            expect(optimizer.normalized_makespan() == 2.F);
+            REQUIRE(optimizer.normalized_makespan() == 2.F);
 
             while (!optimizer.has_converged()) optimizer.update();
 
-            expect(optimizer.normalized_makespan() == 1.F);
-        };
+            REQUIRE(optimizer.normalized_makespan() == 1.F);
+        }
 
-        should("self copy") = [&] {
-            Optimizer optimizer{
-                params,
-                BatchSize{5},
-                MaxIdleIters{10}};
+        SECTION("self copy")
+        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             optimizer = optimizer;
 #pragma clang diagnostic pop
 
-            expect(optimizer.normalized_makespan() == 2.F);
-        };
+            REQUIRE(optimizer.normalized_makespan() == 2.F);
+        }
 
         // self move is not supported
-    };
-};
+    }
+}

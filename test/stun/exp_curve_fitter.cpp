@@ -1,44 +1,53 @@
 #include "stun/exp_curve_fitter.h"
-#include <boost/ut.hpp>
+#include <catch2/catch.hpp>
 
-using namespace boost::ut;
-
-suite stun_exp_curve_fitter = [] {
-    "ExpCurveFitter type traits"_test = [] {
+TEST_CASE("exponential curve fitting")
+{
+    SECTION("ExpCurveFitter type traits")
+    {
         using angonoka::stun::ExpCurveFitter;
-        expect(std::is_nothrow_destructible_v<ExpCurveFitter>);
-        expect(
+        STATIC_REQUIRE(
+            std::is_nothrow_destructible_v<ExpCurveFitter>);
+        STATIC_REQUIRE(
             std::is_nothrow_default_constructible_v<ExpCurveFitter>);
-        expect(
+        STATIC_REQUIRE(
 
             std::is_nothrow_copy_constructible_v<ExpCurveFitter>);
-        expect(std::is_nothrow_copy_assignable_v<ExpCurveFitter>);
-        expect(std::is_nothrow_move_constructible_v<ExpCurveFitter>);
-        expect(std::is_nothrow_move_assignable_v<ExpCurveFitter>);
-    };
+        STATIC_REQUIRE(
+            std::is_nothrow_copy_assignable_v<ExpCurveFitter>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_constructible_v<ExpCurveFitter>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_assignable_v<ExpCurveFitter>);
+    }
 
-    "ExpCurveFitter basic operations"_test = [] {
+    SECTION("ExpCurveFitter basic operations")
+    {
         using angonoka::stun::ExpCurveFitter;
         ExpCurveFitter fit;
 
-        expect(fit(0.F, 0.F) == 0._d);
+        REQUIRE(fit(0.F, 0.F) == Approx(0.));
         fit.reset();
-        fit(1.F, .011108996538242F);
-        fit(2.F, .018315638888734F);
-        fit(3.F, .030197383422319F);
-        fit(4.F, .049787068367864F);
-        expect(fit(5.F, .082084998623899F) == .0820852_d);
-        fit(6.F, .135335283236613F);
-        fit(7.F, .22313016014843F);
-        fit(8.F, .367879441171442F);
-        fit(9.F, .606530659712634F);
-        expect(fit(10.F, 1.F) == 1.0_d);
 
-        expect(fit.at(10.F) == 1.0_d);
-        expect(fit.at(0.F) == 0.0_d);
-        expect(fit.at(1.F) == 0.011109_d);
+        // exp(x / 2 - 5 * log(10))
+
+        fit(1.F, .0111089965382F);
+        fit(2.F, .0183156388887F);
+        fit(3.F, .0301973834223F);
+        fit(4.F, .0497870683679F);
+        REQUIRE(fit(5.F, .0820849986239F) == Approx(.0820849986239));
+        fit(6.F, .135335283237F);
+        fit(7.F, .223130160148F);
+        fit(8.F, .367879441171F);
+        fit(9.F, .606530659713F);
+        REQUIRE(fit(10.F, 1.F) == Approx(1.));
+
+        REQUIRE(fit.at(10.F) == Approx(1.));
+        REQUIRE(fit.at(0.F) == Approx(.00673794699909));
+        REQUIRE(fit.at(1.F) == Approx(.0111089965382));
 
         fit.reset();
-        expect(fit(0.F, 0.F) == 0._d);
-    };
-};
+
+        REQUIRE(fit(0.F, 0.F) == Approx(0.));
+    }
+}

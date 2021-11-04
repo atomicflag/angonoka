@@ -15,14 +15,6 @@ namespace detail {
         @return True if this is the final event.
     */
     bool is_final_event(ProgressEvent& evt) noexcept;
-
-    /**
-        Helper constant that checks if a given class is
-        a specialization of std::future.
-    */
-    template <typename T> inline constexpr bool is_future = false;
-    template <typename T>
-    inline constexpr bool is_future<std::future<T>> = true;
 } // namespace detail
 
 /**
@@ -39,7 +31,7 @@ struct EventHandler {
     gsl::not_null<const Options*> options;
 
     /**
-        Handler events without attributes.
+        Handle events without attributes.
 
         @param e Event
     */
@@ -61,21 +53,16 @@ struct EventHandler {
 };
 
 /**
-    Awaitable result of the prediction.
-*/
-template <typename T>
-concept Prediction = detail::is_future<T>;
-
-/**
     Consumes prediction events from the queue.
 
     @param queue        Prediction events queue
     @param prediction   Prediction result
     @param handler      Events handler
 */
+template <typename T>
 void consume_events(
     Queue<ProgressEvent>& queue,
-    Prediction auto& prediction,
+    std::future<T>& prediction,
     EventHandler handler)
 {
     Expects(prediction.valid());

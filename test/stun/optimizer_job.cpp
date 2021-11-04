@@ -1,21 +1,25 @@
 #include "stun/optimizer_job.h"
 #include "config/load.h"
-#include <boost/ut.hpp>
+#include <catch2/catch.hpp>
 
-using namespace boost::ut;
-
-suite optimizer_job = [] {
-    "OptimizerJob type traits"_test = [] {
+TEST_CASE("OptimizerJob")
+{
+    SECTION("OptimizerJob type traits")
+    {
         using angonoka::stun::OptimizerJob;
-        expect(std::is_nothrow_destructible_v<OptimizerJob>);
-        expect(!std::is_default_constructible_v<OptimizerJob>);
-        expect(std::is_copy_constructible_v<OptimizerJob>);
-        expect(std::is_copy_assignable_v<OptimizerJob>);
-        expect(std::is_nothrow_move_constructible_v<OptimizerJob>);
-        expect(std::is_nothrow_move_assignable_v<OptimizerJob>);
-    };
+        STATIC_REQUIRE(std::is_nothrow_destructible_v<OptimizerJob>);
+        STATIC_REQUIRE_FALSE(
+            std::is_default_constructible_v<OptimizerJob>);
+        STATIC_REQUIRE(std::is_copy_constructible_v<OptimizerJob>);
+        STATIC_REQUIRE(std::is_copy_assignable_v<OptimizerJob>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_constructible_v<OptimizerJob>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_assignable_v<OptimizerJob>);
+    }
 
-    "basic OptimizerJob operations"_test = [] {
+    SECTION("basic OptimizerJob operations")
+    {
         using namespace angonoka::stun;
 
         // clang-format off
@@ -35,8 +39,8 @@ suite optimizer_job = [] {
         RandomUtils random;
         OptimizerJob optimizer{params, random, BatchSize{5}};
 
-        expect(optimizer.normalized_makespan() == 2.F);
-        expect(optimizer.schedule()[1].agent_id == 0);
+        REQUIRE(optimizer.normalized_makespan() == 2.F);
+        REQUIRE(optimizer.schedule()[1].agent_id == 0);
 
         optimizer.update();
 
@@ -44,40 +48,44 @@ suite optimizer_job = [] {
             optimizer.update();
 
         // Might be non-deterministic
-        expect(optimizer.normalized_makespan() == 1.F);
+        REQUIRE(optimizer.normalized_makespan() == 1.F);
         // Each task has a different agent
-        expect(
+        REQUIRE(
             optimizer.schedule()[1].agent_id
             != optimizer.schedule()[0].agent_id);
 
-        should("reset") = [&] {
+        SECTION("reset")
+        {
             optimizer.reset();
 
-            expect(optimizer.normalized_makespan() == 2.F);
+            REQUIRE(optimizer.normalized_makespan() == 2.F);
         };
 
-        should("rebind params") = [&] {
-            expect(optimizer.options().params == &params);
-            expect(optimizer.options().random == &random);
+        SECTION("rebind params")
+        {
+            REQUIRE(optimizer.options().params == &params);
+            REQUIRE(optimizer.options().random == &random);
             const auto params2 = params;
             optimizer.options({.params{&params2}, .random{&random}});
-            expect(optimizer.options().params == &params2);
+            REQUIRE(optimizer.options().params == &params2);
 
             while (optimizer.normalized_makespan() != 1.F)
                 optimizer.update();
         };
 
-        should("options constructor") = [&] {
+        SECTION("options constructor")
+        {
             OptimizerJob optimizer2{
                 {.params{&params}, .random{&random}},
                 BatchSize{5}};
 
-            expect(optimizer2.options().params == &params);
-            expect(optimizer2.options().random == &random);
+            REQUIRE(optimizer2.options().params == &params);
+            REQUIRE(optimizer2.options().random == &random);
         };
     };
 
-    "OptimizerJob special memeber functions"_test = [] {
+    SECTION("OptimizerJob special memeber functions")
+    {
         using namespace angonoka::stun;
 
         // clang-format off
@@ -95,99 +103,99 @@ suite optimizer_job = [] {
 
         const auto params = to_schedule_params(config);
         RandomUtils random;
+        OptimizerJob job{params, random, BatchSize{5}};
 
-        should("copy ctor") = [&] {
-            OptimizerJob job{params, random, BatchSize{5}};
+        SECTION("copy ctor")
+        {
             OptimizerJob other{job};
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             job.update();
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
         };
 
-        should("copy assignment") = [&] {
-            OptimizerJob job{params, random, BatchSize{5}};
+        SECTION("copy assignment")
+        {
             OptimizerJob other{params, random, BatchSize{5}};
             other = job;
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             job.update();
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             while (other.normalized_makespan() != 1.F) other.update();
 
-            expect(other.normalized_makespan() == 1.F);
+            REQUIRE(other.normalized_makespan() == 1.F);
 
             {
                 OptimizerJob job2{params, random, BatchSize{5}};
                 other = job2;
             }
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
         };
 
-        should("move ctor") = [&] {
-            OptimizerJob job{params, random, BatchSize{5}};
+        SECTION("move ctor")
+        {
             OptimizerJob other{std::move(job)};
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             while (other.normalized_makespan() != 1.F) other.update();
 
-            expect(other.normalized_makespan() == 1.F);
+            REQUIRE(other.normalized_makespan() == 1.F);
         };
 
-        should("move assignment") = [&] {
-            OptimizerJob job{params, random, BatchSize{5}};
+        SECTION("move assignment")
+        {
             OptimizerJob other{params, random, BatchSize{5}};
             other = std::move(job);
 
-            expect(other.normalized_makespan() == 2.F);
+            REQUIRE(other.normalized_makespan() == 2.F);
 
             while (other.normalized_makespan() != 1.F) other.update();
 
-            expect(other.normalized_makespan() == 1.F);
+            REQUIRE(other.normalized_makespan() == 1.F);
         };
 
-        should("destructive move assignment") = [&] {
-            OptimizerJob job{params, random, BatchSize{5}};
-
-            expect(job.normalized_makespan() == 2.F);
+        SECTION("destructive move assignment")
+        {
+            REQUIRE(job.normalized_makespan() == 2.F);
 
             {
                 OptimizerJob other{params, random, BatchSize{5}};
                 job = std::move(other);
             }
 
-            expect(job.normalized_makespan() == 2.F);
+            REQUIRE(job.normalized_makespan() == 2.F);
 
             while (job.normalized_makespan() != 1.F) job.update();
 
-            expect(job.normalized_makespan() == 1.F);
+            REQUIRE(job.normalized_makespan() == 1.F);
         };
 
-        should("self copy") = [&] {
-            OptimizerJob job{params, random, BatchSize{5}};
+        SECTION("self copy")
+        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
             job = job;
 #pragma clang diagnostic pop
 
-            expect(job.normalized_makespan() == 2.F);
+            REQUIRE(job.normalized_makespan() == 2.F);
         };
 
-        should("self move") = [&] {
-            OptimizerJob job{params, random, BatchSize{5}};
+        SECTION("self move")
+        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-move"
             job = std::move(job);
 #pragma clang diagnostic pop
 
-            expect(job.normalized_makespan() == 2.F);
+            REQUIRE(job.normalized_makespan() == 2.F);
         };
     };
 };
