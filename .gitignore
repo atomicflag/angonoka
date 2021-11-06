@@ -1,5 +1,6 @@
 build
-dist
+dist/*
+tools/visualizer/dist/*.js
 debug
 html
 __pycache__
@@ -7,3 +8,4 @@ __pycache__
 *.profraw
 .cache
 test/functional/*.json
+node_modules
