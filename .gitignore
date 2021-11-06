@@ -1,6 +1,5 @@
 build
-dist/*
-tools/visualizer/dist/*.js
+dist
 debug
 html
 __pycache__
