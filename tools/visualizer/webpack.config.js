@@ -1,18 +1,19 @@
-const path = require('path');
+const path = require("path");
 
 const isProductionMode = process.env.NODE_ENV === "production";
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: './src/index.ts',
-  devtool: 'inline-source-map',
+  devtool: isProductionMode ? false : "eval-source-map",
+  name: "main",
   mode: isProductionMode ? "production" : "development",
   module: {
-    rules: [{
+    rules: [
+      {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: "ts-loader",
         exclude: /node_modules/,
       },
       {
@@ -20,24 +21,40 @@ module.exports = {
         use: [
           isProductionMode ? MiniCssExtractPlugin.loader : "style-loader",
           "css-loader",
-          "postcss-loader"
+          "postcss-loader",
         ],
       },
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: [".tsx", ".ts", ".js"],
   },
   plugins: [
     new MiniCssExtractPlugin({
       filename: isProductionMode ? "[name].[contenthash].css" : "[name].css",
     }),
     new HtmlWebpackPlugin({
-      title: "Schedule Visualizer"
-    })
+      title: "Schedule Visualizer",
+    }),
   ],
+  optimization: {
+    runtimeChunk: "single",
+    moduleIds: "deterministic",
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          chunks: "all",
+        },
+      },
+    },
+  },
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
+    filename: "[name].[contenthash].js",
+    clean: true,
+  },
+  devServer: {
+    port: 9000,
   },
 };

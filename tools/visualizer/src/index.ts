@@ -1,5 +1,5 @@
-import './styles.css'
+import "./styles.css";
 
-import { foo } from './main'
+import main from "./main";
 
-foo()
+main();
