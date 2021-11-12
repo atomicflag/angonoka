@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "build": "webpack",
-    "serve": "webpack serve",
+    "serve": "webpack serve --hot",
     "lint": "eslint src --ext .ts --ext .tsx",
     "fix": "eslint src --fix --ext .ts --ext .tsx",
     "format": "prettier --write src",
