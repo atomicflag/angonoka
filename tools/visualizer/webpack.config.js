@@ -1,9 +1,8 @@
-const path = require("path");
-
 const isProductionMode = process.env.NODE_ENV === "production";
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ReactRefreshTypeScript = require("react-refresh-typescript");
 
 module.exports = {
   devtool: isProductionMode ? false : "eval-source-map",
@@ -13,14 +12,32 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              getCustomTransformers: () => ({
+                before: !isProductionMode ? [ReactRefreshTypeScript()] : [],
+              }),
+              transpileOnly: !isProductionMode,
+            },
+          },
+        ],
         exclude: /node_modules/,
       },
       {
         test: /\.css$/i,
         use: [
           isProductionMode ? MiniCssExtractPlugin.loader : "style-loader",
-          "css-loader",
+          {
+            loader: "css-loader",
+            options: {
+              modules: {
+                auto: true,
+                localIdentName: "[local]--[hash:base64:5]",
+              },
+            },
+          },
           "postcss-loader",
         ],
       },
@@ -37,19 +54,21 @@ module.exports = {
       title: "Schedule Visualizer",
     }),
   ],
-  optimization: {
-    runtimeChunk: "single",
-    moduleIds: "deterministic",
-    splitChunks: {
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: "vendors",
-          chunks: "all",
+  optimization: isProductionMode
+    ? {
+        runtimeChunk: "single",
+        moduleIds: "deterministic",
+        splitChunks: {
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: "vendors",
+              chunks: "all",
+            },
+          },
         },
-      },
-    },
-  },
+      }
+    : {},
   output: {
     filename: "[name].[contenthash].js",
     clean: true,

@@ -1,14 +1,26 @@
 import React from "react";
-import { render } from "react-dom";
+import style from "./App.module.css";
 
-class App extends React.Component {
+interface IState {
+  value: string;
+}
+
+export class App extends React.Component<{}, IState> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      value: "",
+    };
+  }
+
   render() {
     return (
       <div>
-        <div className="bg-green-500 flex gap-2 p-4 text-white">
+        <div className={style.cls + " flex gap-2 p-4 text-white"}>
           <label className="self-center" htmlFor="scheduleJSON">
             Select schedule JSON:
           </label>
+          <span>{this.state.value}</span>
           <input
             className="flex-auto self-center"
             type="file"
@@ -17,6 +29,7 @@ class App extends React.Component {
           />
           <button
             type="button"
+            onClick={() => this.setState({ value: "asdf" })}
             className="bg-indigo-500 rounded py-2 px-4 self-center shadow font-semibold hover:bg-indigo-700"
           >
             Load
@@ -25,14 +38,4 @@ class App extends React.Component {
       </div>
     );
   }
-}
-
-export default function main() {
-  const element = document.createElement("div");
-
-  element.id = "root";
-
-  document.body.appendChild(element);
-
-  render(<App />, element);
 }
