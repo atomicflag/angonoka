@@ -1,5 +1,6 @@
 import React from "react";
 import style from "./App.module.css";
+import Button from "./Button";
 
 interface IState {
   value: string;
@@ -16,7 +17,7 @@ export class App extends React.Component<{}, IState> {
   render() {
     return (
       <div>
-        <div className={style.cls + " flex gap-2 p-4 text-white"}>
+        <div className={style.cls + " flex gap-2 p-2 text-white"}>
           <label className="self-center" htmlFor="scheduleJSON">
             Select schedule JSON:
           </label>
@@ -27,13 +28,7 @@ export class App extends React.Component<{}, IState> {
             id="scheduleJSON"
             name="scheduleJSON"
           />
-          <button
-            type="button"
-            onClick={() => this.setState({ value: "asdf" })}
-            className="bg-indigo-500 rounded py-2 px-4 self-center shadow font-semibold hover:bg-indigo-700"
-          >
-            Load
-          </button>
+          <Button text="Load" />
         </div>
       </div>
     );
