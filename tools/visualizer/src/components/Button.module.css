@@ -1,15 +1,15 @@
 .button {
-  @apply bg-indigo-600
+  @apply bg-sky-600
     rounded
     py-1
     px-3
     self-center
-    hover:bg-indigo-700
+    hover:bg-sky-700
     transition;
 
-  box-shadow: inset 0 0 0 1px theme("colors.indigo.700");
+  box-shadow: inset 0 0 0 1px theme("colors.sky.700");
 }
 
 .button:hover {
-  box-shadow: inset 0 0 0 2px theme("colors.indigo.900");
+  box-shadow: inset 0 0 0 2px theme("colors.sky.900");
 }

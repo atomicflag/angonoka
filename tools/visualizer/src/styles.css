@@ -1,4 +1,7 @@
+html {
+  font-size: 14px;
+}
+
 body {
   @apply bg-green-100;
-  font-size: 14px;
 }

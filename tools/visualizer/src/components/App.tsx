@@ -17,18 +17,9 @@ export class App extends React.Component<{}, IState> {
   render() {
     return (
       <div>
-        <div className={style.cls + " flex gap-2 p-2 text-white"}>
-          <label className="self-center" htmlFor="scheduleJSON">
-            Select schedule JSON:
-          </label>
-          <span>{this.state.value}</span>
-          <input
-            className="flex-auto self-center"
-            type="file"
-            id="scheduleJSON"
-            name="scheduleJSON"
-          />
-          <Button text="Load" />
+        <div className={style.topBar}>
+          <span className="text-lg font-medium">Schedule Visualizer v1</span>
+          <Button text="Load" className="ml-2" />
         </div>
       </div>
     );
