@@ -6,5 +6,5 @@ test("Button creation", () => {
 
   const button = queryByText("hello");
   expect(button.nodeName).toEqual("BUTTON");
-  expect(queryByText("hello")).toBeEnabled();
+  expect(button).toBeEnabled();
 });

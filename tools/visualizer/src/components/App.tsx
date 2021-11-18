@@ -2,16 +2,16 @@ import React from "react";
 import style from "./App.module.css";
 import Button from "./Button";
 
-interface IState {
-  value: string;
-}
+type State = {
+  schedule: any;
+};
 
-export class App extends React.Component<{}, IState> {
+export default class App extends React.Component<{}, State> {
+  fileUpload: React.RefObject<HTMLInputElement>;
+
   constructor(props: {}) {
     super(props);
-    this.state = {
-      value: "",
-    };
+    this.fileUpload = React.createRef();
   }
 
   render() {
@@ -19,9 +19,18 @@ export class App extends React.Component<{}, IState> {
       <div>
         <div className={style.topBar}>
           <span className="text-lg font-medium">Schedule Visualizer v1</span>
-          <Button text="Load" className="ml-2" />
+          <Button
+            text="Load"
+            className="ml-2"
+            onClick={this.loadSchedule.bind(this)}
+          />
+          <input type="file" ref={this.fileUpload} className="hidden" />
         </div>
       </div>
     );
+  }
+
+  private loadSchedule() {
+    this.fileUpload.current.click();
   }
 }
