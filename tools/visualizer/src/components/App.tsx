@@ -1,6 +1,8 @@
 import React from "react";
 import style from "./App.module.css";
 import Button from "./Button";
+import Agent from "./Agent";
+import lodash from "lodash";
 
 type State = {
   schedule: any;
@@ -11,7 +13,7 @@ const schedule = `
   "makespan": 720,
   "tasks": [
     {
-      "agent": "Agent 3",
+      "agent": "Agent 3 Long Name",
       "expected_duration": 180,
       "expected_start": 0.0,
       "priority": 0,
@@ -55,8 +57,9 @@ export default class App extends React.Component<{}, State> {
   }
 
   render() {
+    const agents = this.agentsNames().map((v, i) => <Agent name={v} key={i} />);
     return (
-      <div>
+      <div className="flex flex-col">
         <div className={style.topBar}>
           <span className="text-lg font-medium">Schedule Visualizer v1</span>
           <Button
@@ -72,8 +75,16 @@ export default class App extends React.Component<{}, State> {
             accept=".json"
           />
         </div>
+        <div className="flex p-4">
+          <div className="flex flex-col gap-2">{agents}</div>
+        </div>
       </div>
     );
+  }
+
+  private agentsNames() {
+    const tasks = this.state.schedule.tasks;
+    return lodash.uniq(tasks.map((t) => t.agent)).sort();
   }
 
   private async loadSchedule() {
@@ -83,3 +94,5 @@ export default class App extends React.Component<{}, State> {
     this.setState({ schedule: JSON.parse(text) });
   }
 }
+
+// TODO: tests
