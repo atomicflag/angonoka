@@ -2,7 +2,14 @@ import React from "react";
 import style from "./App.module.css";
 import Button from "./Button";
 import Agent from "./Agent";
+import AgentTimeline from "./AgentTimeline";
 import lodash from "lodash";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
 
 type State = {
   schedule: any;
@@ -57,7 +64,12 @@ export default class App extends React.Component<{}, State> {
   }
 
   render() {
-    const agents = this.agentsNames().map((v, i) => <Agent name={v} key={i} />);
+    const agentNames = this.agentNames();
+    const agents = agentNames.map((v, i) => <Agent name={v} key={i} />);
+    const agentTasks = this.agentTasks();
+    const tasks = agentNames.map((v, i) => (
+      <AgentTimeline tasks={agentTasks[v]} key={i} />
+    ));
     return (
       <div className="flex flex-col">
         <div className={style.topBar}>
@@ -74,17 +86,29 @@ export default class App extends React.Component<{}, State> {
             onChange={this.loadSchedule.bind(this)}
             accept=".json"
           />
+          <div className="flex-grow"></div>
+          <div>Makespan: {this.makespan()}</div>
         </div>
-        <div className="flex p-4">
+        <div className="flex p-4 gap-2">
           <div className="flex flex-col gap-2">{agents}</div>
+          <div className="flex flex-col gap-2 flex-grow">{tasks}</div>
         </div>
       </div>
     );
   }
 
-  private agentsNames() {
+  private makespan() {
+    return dayjs.duration(this.state.schedule.makespan, "seconds").humanize();
+  }
+
+  private agentNames() {
     const tasks = this.state.schedule.tasks;
     return lodash.uniq(tasks.map((t) => t.agent)).sort();
+  }
+
+  private agentTasks() {
+    const tasks = this.state.schedule.tasks;
+    return lodash.groupBy(tasks, lodash.property("agent"));
   }
 
   private async loadSchedule() {
