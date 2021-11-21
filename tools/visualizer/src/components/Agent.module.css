@@ -1,0 +1,10 @@
+.agent {
+  @apply bg-teal-500
+    h-10
+    flex
+    items-center
+    justify-end
+    text-white
+    p-2
+    text-right;
+}

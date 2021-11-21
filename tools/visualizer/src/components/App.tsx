@@ -11,6 +11,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
+// TODO: add a type for the schedule
+
 type State = {
   schedule: any;
 };
@@ -67,6 +69,7 @@ export default class App extends React.Component<{}, State> {
     const agentNames = this.agentNames();
     const agents = agentNames.map((v, i) => <Agent name={v} key={i} />);
     const agentTasks = this.agentTasks();
+    // TODO: handle 0 tasks for an agent
     const tasks = agentNames.map((v, i) => (
       <AgentTimeline tasks={agentTasks[v]} key={i} />
     ));
@@ -103,12 +106,16 @@ export default class App extends React.Component<{}, State> {
 
   private agentNames() {
     const tasks = this.state.schedule.tasks;
-    return lodash.uniq(tasks.map((t) => t.agent)).sort();
+    return lodash.chain(tasks).map("agent").uniq().sort().value();
   }
 
   private agentTasks() {
     const tasks = this.state.schedule.tasks;
-    return lodash.groupBy(tasks, lodash.property("agent"));
+    return lodash
+      .chain(tasks)
+      .groupBy("agent")
+      .mapValues((v) => lodash.sortBy(v, "priority"))
+      .value();
   }
 
   private async loadSchedule() {

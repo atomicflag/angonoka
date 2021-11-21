@@ -1,4 +1,5 @@
 import React from "react";
+import style from "./Agent.module.css";
 
 type Props = {
   name: string;
@@ -6,12 +7,8 @@ type Props = {
 
 export default class Agent extends React.Component<Props, {}> {
   render() {
-    return (
-      <div className="bg-teal-500 h-10 flex items-center justify-end text-white p-2 text-right">
-        {this.props.name}
-      </div>
-    );
+    return <div className={style.agent}>{this.props.name}</div>;
   }
 }
 
-// TODO: tests, css
+// TODO: tests
