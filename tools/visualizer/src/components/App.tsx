@@ -7,6 +7,7 @@ import lodash from "lodash";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { Schedule } from "../types";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -14,7 +15,7 @@ dayjs.extend(relativeTime);
 // TODO: add a type for the schedule
 
 type State = {
-  schedule: any;
+  schedule: Schedule;
 };
 
 const schedule = `
@@ -69,9 +70,12 @@ export default class App extends React.Component<{}, State> {
     const agentNames = this.agentNames();
     const agents = agentNames.map((v, i) => <Agent name={v} key={i} />);
     const agentTasks = this.agentTasks();
-    // TODO: handle 0 tasks for an agent
     const tasks = agentNames.map((v, i) => (
-      <AgentTimeline tasks={agentTasks[v]} key={i} />
+      <AgentTimeline
+        tasks={agentTasks[v] || []}
+        key={i}
+        makespan={this.state.schedule.makespan}
+      />
     ));
     return (
       <div className="flex flex-col">

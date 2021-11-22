@@ -1,26 +1,29 @@
 import React from "react";
-
-// TODO: move to a dedicated module
-type Task = {
-  agent: string;
-  expected_duration: number;
-  expected_start: number;
-  priority: number;
-  task: string;
-};
+import { Task } from "../types";
+import TaskStrip from "./TaskStrip";
 
 type Props = {
   tasks: Task[];
+  makespan: number;
 };
 
 export default class AgentTimeline extends React.Component<Props, {}> {
   render() {
-    // TODO: handle empty tasks array
     return (
-      <div className="h-10 flex items-center bg-white">
-        Tasks for {this.props.tasks[0].agent}, {this.props.tasks.length} total
-      </div>
+      <div className="h-10 flex relative bg-white">{this.taskStrips()}</div>
     );
+  }
+
+  private taskStrips() {
+    const total = this.props.makespan;
+    return this.props.tasks.map((v, i) => (
+      <TaskStrip
+        name={v.task}
+        key={i}
+        width={v.expected_duration / total}
+        offset={v.expected_start / total}
+      />
+    ));
   }
 }
 
