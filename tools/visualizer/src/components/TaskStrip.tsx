@@ -15,7 +15,7 @@ export default class TaskStrip extends React.Component<Props, {}> {
     };
     return (
       <div className={style.taskStrip} style={inlineStyle}>
-        {this.props.name}
+        <span className="mx-2">{this.props.name}</span>
       </div>
     );
   }

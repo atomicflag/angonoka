@@ -319,8 +319,8 @@ def test_schedule_output():
         "tasks": [
             {
                 "agent": "Agent",
-                "expected_duration": 1017,
-                "expected_start": 0.0,
+                "expected_duration": 2484,
+                "expected_start": 0,
                 "priority": 0,
                 "task": "Task"
             }

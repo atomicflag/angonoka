@@ -29,7 +29,7 @@ task_duration(const Task& task, const Agent& agent)
     Expects(agent.performance.average() > 0.F);
 
     return static_cast<float>(task.duration.average().count())
-        * agent.performance.average();
+        / agent.performance.average();
 }
 
 /**
@@ -121,7 +121,7 @@ public:
 
         return std::make_tuple(
             static_cast<int>(duration),
-            expected_start);
+            static_cast<int>(expected_start));
     }
 
 private:
