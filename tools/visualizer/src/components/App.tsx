@@ -1,8 +1,9 @@
 import React from "react";
 import style from "./App.module.css";
-import Button from "./Button";
+import { Button } from "./Button";
 import Agent from "./Agent";
 import AgentTimeline from "./AgentTimeline";
+import { InfoPanel } from "./InfoPanel";
 import lodash from "lodash";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -12,10 +13,9 @@ import { Schedule } from "../types";
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
-// TODO: add a type for the schedule
-
 type State = {
   schedule: Schedule;
+  isInfoPanelVisible: boolean;
 };
 
 const schedule = `
@@ -63,7 +63,7 @@ export default class App extends React.Component<{}, State> {
     // Temporary hardcode the schedule so that
     // we don't have to load it each time.
     // TODO: Remove this
-    this.state = { schedule: JSON.parse(schedule) };
+    this.state = { schedule: JSON.parse(schedule), isInfoPanelVisible: false };
   }
 
   render() {
@@ -99,9 +99,19 @@ export default class App extends React.Component<{}, State> {
         <div className="flex p-4 gap-2">
           <div className="flex flex-col gap-2">{agents}</div>
           <div className="flex flex-col gap-2 flex-grow">{tasks}</div>
+          {this.infoPanel()}
         </div>
       </div>
     );
+  }
+
+  private infoPanel() {
+    if (this.state.isInfoPanelVisible)
+      return (
+        <InfoPanel
+          onClose={() => this.setState({ isInfoPanelVisible: false })}
+        />
+      );
   }
 
   private makespan() {

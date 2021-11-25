@@ -7,7 +7,11 @@ type Props = {
 
 export default class Agent extends React.Component<Props, {}> {
   render() {
-    return <div className={style.agent}>{this.props.name}</div>;
+    return (
+      <a href="#" className={style.agent}>
+        {this.props.name}
+      </a>
+    );
   }
 }
 

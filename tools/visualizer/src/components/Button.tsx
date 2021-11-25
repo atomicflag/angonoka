@@ -7,20 +7,11 @@ type Props = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 };
 
-export default class Button extends React.Component<Props, {}> {
-  private get className() {
-    return [style.button, this.props.className].filter(Boolean).join(" ");
-  }
-
-  render() {
-    return (
-      <button
-        type="button"
-        className={this.className}
-        onClick={this.props.onClick}
-      >
-        {this.props.text}
-      </button>
-    );
-  }
-}
+export const Button = ({ text, className, onClick }: Props) => {
+  const buttonStyle = [style.button, className].filter(Boolean).join(" ");
+  return (
+    <button type="button" className={buttonStyle} onClick={onClick}>
+      {text}
+    </button>
+  );
+};
