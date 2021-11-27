@@ -1,4 +1,3 @@
-import React from "react";
 import style from "./TaskStrip.module.css";
 
 type Props = {
@@ -7,18 +6,16 @@ type Props = {
   offset: number;
 };
 
-export default class TaskStrip extends React.Component<Props, {}> {
-  render() {
-    const inlineStyle = {
-      width: this.props.width * 100 + "%",
-      left: this.props.offset * 100 + "%",
-    };
-    return (
-      <a href="#" className={style.taskStrip} style={inlineStyle}>
-        <span className="mx-2">{this.props.name}</span>
-      </a>
-    );
-  }
-}
+export const TaskStrip = ({ name, width, offset }: Props) => {
+  const inlineStyle = {
+    width: width * 100 + "%",
+    left: offset * 100 + "%",
+  };
+  return (
+    <a href="#" className={style.taskStrip} style={inlineStyle}>
+      <span className="mx-2">{name}</span>
+    </a>
+  );
+};
 
 // TODO: test, css, tooltip

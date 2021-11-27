@@ -1,24 +1,19 @@
-import React from "react";
+import { Dispatch, RefObject, useRef, useState } from "react";
 import style from "./App.module.css";
 import { Button } from "./Button";
-import Agent from "./Agent";
-import AgentTimeline from "./AgentTimeline";
+import { Agent } from "./Agent";
+import { AgentTimeline } from "./AgentTimeline";
 import { InfoPanel } from "./InfoPanel";
 import lodash from "lodash";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Schedule } from "../types";
+import { Schedule, Task } from "../types";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
-type State = {
-  schedule: Schedule;
-  isInfoPanelVisible: boolean;
-};
-
-const schedule = `
+const defaultSchedule = `
 {
   "makespan": 720,
   "tasks": [
@@ -54,90 +49,82 @@ const schedule = `
 }
 `;
 
-export default class App extends React.Component<{}, State> {
-  fileUpload: React.RefObject<HTMLInputElement>;
-
-  constructor(props: {}) {
-    super(props);
-    this.fileUpload = React.createRef();
-    // Temporary hardcode the schedule so that
-    // we don't have to load it each time.
-    // TODO: Remove this
-    this.state = { schedule: JSON.parse(schedule), isInfoPanelVisible: false };
-  }
-
-  render() {
-    const agentNames = this.agentNames();
-    const agents = agentNames.map((v, i) => <Agent name={v} key={i} />);
-    const agentTasks = this.agentTasks();
-    const tasks = agentNames.map((v, i) => (
-      <AgentTimeline
-        tasks={agentTasks[v] || []}
-        key={i}
-        makespan={this.state.schedule.makespan}
-      />
-    ));
-    return (
-      <div className="flex flex-col">
-        <div className={style.topBar}>
-          <span className="text-lg font-medium">Schedule Visualizer v1</span>
-          <Button
-            text="Load"
-            className="ml-2"
-            onClick={() => this.fileUpload.current.click()}
-          />
-          <input
-            type="file"
-            ref={this.fileUpload}
-            className="hidden"
-            onChange={this.loadSchedule.bind(this)}
-            accept=".json"
-          />
-          <div className="flex-grow"></div>
-          <div>Makespan: {this.makespan()}</div>
-        </div>
-        <div className="flex p-4 gap-2">
-          <div className="flex flex-col gap-2">{agents}</div>
-          <div className="flex flex-col gap-2 flex-grow">{tasks}</div>
-          {this.infoPanel()}
-        </div>
-      </div>
-    );
-  }
-
-  private infoPanel() {
-    if (this.state.isInfoPanelVisible)
-      return (
-        <InfoPanel
-          onClose={() => this.setState({ isInfoPanelVisible: false })}
-        />
-      );
-  }
-
-  private makespan() {
-    return dayjs.duration(this.state.schedule.makespan, "seconds").humanize();
-  }
-
-  private agentNames() {
-    const tasks = this.state.schedule.tasks;
-    return lodash.chain(tasks).map("agent").uniq().sort().value();
-  }
-
-  private agentTasks() {
-    const tasks = this.state.schedule.tasks;
-    return lodash
-      .chain(tasks)
-      .groupBy("agent")
-      .mapValues((v) => lodash.sortBy(v, "priority"))
-      .value();
-  }
-
-  private async loadSchedule() {
-    const fu = this.fileUpload.current;
-    if (fu.files.length === 0) return;
-    const text = await fu.files[0].text();
-    this.setState({ schedule: JSON.parse(text) });
-  }
+function makeInfoPanel(setInfoPanelVisible: Dispatch<boolean>) {
+  return <InfoPanel onClose={() => setInfoPanelVisible(false)} />;
 }
+
+function makeMakespan(duration: number) {
+  return <div>Makespan: {dayjs.duration(duration, "seconds").humanize()}</div>;
+}
+
+function agentNames(tasks: Task[]) {
+  return lodash.chain(tasks).map("agent").uniq().sort().value();
+}
+
+function agentTasks(tasks: Task[]) {
+  return lodash
+    .chain(tasks)
+    .groupBy("agent")
+    .mapValues((v) => lodash.sortBy(v, "priority"))
+    .value();
+}
+
+async function loadSchedule(
+  fileUpload: RefObject<HTMLInputElement>,
+  setSchedule: Dispatch<Schedule>
+) {
+  const fu = fileUpload.current;
+  if (fu.files.length === 0) return;
+  const text = await fu.files[0].text();
+  setSchedule(JSON.parse(text));
+  fileUpload.current.value = "";
+}
+
+export const App = () => {
+  const fileUpload = useRef<HTMLInputElement>();
+  const [schedule, setSchedule] = useState<Schedule>(
+    JSON.parse(defaultSchedule)
+  );
+  const [isInfoPanelVisible, setInfoPanelVisible] = useState(true);
+
+  // TODO: custom hooks?
+  const names = agentNames(schedule?.tasks || []);
+  const agents = names.map((v, i) => <Agent name={v} key={i} />);
+  const tasks = agentTasks(schedule?.tasks || []);
+  const timelines = names.map((v, i) => (
+    <AgentTimeline
+      tasks={tasks[v] || []}
+      key={i}
+      makespan={schedule.makespan}
+    />
+  ));
+
+  return (
+    <div className="flex flex-col">
+      <div className={style.topBar}>
+        <span className="text-lg font-medium">Schedule Visualizer v1</span>
+        <Button
+          text="Load"
+          className="ml-2"
+          onClick={() => fileUpload.current.click()}
+        />
+        <input
+          type="file"
+          ref={fileUpload}
+          className="hidden"
+          onInput={() => loadSchedule(fileUpload, setSchedule)}
+          accept=".json"
+        />
+        <div className="flex-grow"></div>
+        {schedule && makeMakespan(schedule.makespan)}
+      </div>
+      <div className="flex p-4 gap-2">
+        <div className="flex flex-col gap-2">{agents}</div>
+        <div className="flex flex-col gap-2 flex-grow">{timelines}</div>
+        {isInfoPanelVisible && makeInfoPanel(setInfoPanelVisible)}
+      </div>
+    </div>
+  );
+};
 
 // TODO: tests
