@@ -1,9 +1,9 @@
-import { Dispatch, RefObject, useRef, useState } from "react";
+import { Dispatch, useState } from "react";
 import style from "./App.module.css";
-import { Button } from "./Button";
 import { Agent } from "./Agent";
 import { AgentTimeline } from "./AgentTimeline";
 import { InfoPanel } from "./InfoPanel";
+import { ScheduleUpload } from "./ScheduleUpload";
 import lodash from "lodash";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -49,6 +49,7 @@ const defaultSchedule = `
 }
 `;
 
+// TODO: Show the info panel on click
 function makeInfoPanel(setInfoPanelVisible: Dispatch<boolean>) {
   return <InfoPanel onClose={() => setInfoPanelVisible(false)} />;
 }
@@ -69,28 +70,11 @@ function agentTasks(tasks: Task[]) {
     .value();
 }
 
-async function loadSchedule(
-  fileUpload: RefObject<HTMLInputElement>,
-  setSchedule: Dispatch<Schedule>
-) {
-  const fu = fileUpload.current;
-  if (fu.files.length === 0) return;
-  const text = await fu.files[0].text();
-  setSchedule(JSON.parse(text));
-  fileUpload.current.value = "";
-}
-
-export const App = () => {
-  const fileUpload = useRef<HTMLInputElement>();
-  const [schedule, setSchedule] = useState<Schedule>(
-    JSON.parse(defaultSchedule)
-  );
-  const [isInfoPanelVisible, setInfoPanelVisible] = useState(true);
-
-  // TODO: custom hooks?
-  const names = agentNames(schedule?.tasks || []);
+function agentsAndTimelines(schedule?: Schedule) {
+  if (!schedule) return [[], []];
+  const names = agentNames(schedule.tasks);
   const agents = names.map((v, i) => <Agent name={v} key={i} />);
-  const tasks = agentTasks(schedule?.tasks || []);
+  const tasks = agentTasks(schedule.tasks);
   const timelines = names.map((v, i) => (
     <AgentTimeline
       tasks={tasks[v] || []}
@@ -98,23 +82,22 @@ export const App = () => {
       makespan={schedule.makespan}
     />
   ));
+  return [agents, timelines];
+}
+
+export const App = () => {
+  const [schedule, setSchedule] = useState<Schedule>(
+    JSON.parse(defaultSchedule)
+  );
+  const [isInfoPanelVisible, setInfoPanelVisible] = useState(true);
+
+  const [agents, timelines] = agentsAndTimelines(schedule);
 
   return (
     <div className="flex flex-col">
       <div className={style.topBar}>
         <span className="text-lg font-medium">Schedule Visualizer v1</span>
-        <Button
-          text="Load"
-          className="ml-2"
-          onClick={() => fileUpload.current.click()}
-        />
-        <input
-          type="file"
-          ref={fileUpload}
-          className="hidden"
-          onInput={() => loadSchedule(fileUpload, setSchedule)}
-          accept=".json"
-        />
+        <ScheduleUpload onUpload={setSchedule} />
         <div className="flex-grow"></div>
         {schedule && makeMakespan(schedule.makespan)}
       </div>
