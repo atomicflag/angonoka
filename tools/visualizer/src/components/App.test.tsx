@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import { App } from "./App";
 
 test("App startup", () => {
-  const { queryByText } = render(<App />);
+  const { getByText } = render(<App />);
 
-  expect(queryByText("Load")).toBeTruthy();
+  expect(getByText("Load")).toBeInTheDocument();
 });

@@ -49,9 +49,24 @@ const defaultSchedule = `
 }
 `;
 
+type InfoPanelState = {
+  isVisible: boolean;
+  title?: string;
+  content?: any;
+};
+
 // TODO: Show the info panel on click
-function makeInfoPanel(setInfoPanelVisible: Dispatch<boolean>) {
-  return <InfoPanel onClose={() => setInfoPanelVisible(false)} />;
+function makeInfoPanel(
+  state: InfoPanelState,
+  setInfoPanelState: Dispatch<InfoPanelState>
+) {
+  return (
+    <InfoPanel
+      onClose={() => setInfoPanelState({ isVisible: false })}
+      title={state.title}
+      content={state.content}
+    />
+  );
 }
 
 function makeMakespan(duration: number) {
@@ -70,10 +85,27 @@ function agentTasks(tasks: Task[]) {
     .value();
 }
 
-function agentsAndTimelines(schedule?: Schedule) {
+// TODO: Show more info
+function showAgentInfo(
+  name: string,
+  setInfoPanelState: Dispatch<InfoPanelState>
+) {
+  setInfoPanelState({ isVisible: true, title: name });
+}
+
+function agentsAndTimelines(
+  setInfoPanelState: Dispatch<InfoPanelState>,
+  schedule?: Schedule
+) {
   if (!schedule) return [[], []];
   const names = agentNames(schedule.tasks);
-  const agents = names.map((v, i) => <Agent name={v} key={i} />);
+  const agents = names.map((v, i) => (
+    <Agent
+      name={v}
+      key={i}
+      onClick={() => showAgentInfo(v, setInfoPanelState)}
+    />
+  ));
   const tasks = agentTasks(schedule.tasks);
   const timelines = names.map((v, i) => (
     <AgentTimeline
@@ -89,9 +121,11 @@ export const App = () => {
   const [schedule, setSchedule] = useState<Schedule>(
     JSON.parse(defaultSchedule)
   );
-  const [isInfoPanelVisible, setInfoPanelVisible] = useState(true);
+  const [infoPanelState, setInfoPanelState] = useState<InfoPanelState>({
+    isVisible: false,
+  });
 
-  const [agents, timelines] = agentsAndTimelines(schedule);
+  const [agents, timelines] = agentsAndTimelines(setInfoPanelState, schedule);
 
   return (
     <div className="flex flex-col">
@@ -104,7 +138,8 @@ export const App = () => {
       <div className="flex p-4 gap-2">
         <div className="flex flex-col gap-2">{agents}</div>
         <div className="flex flex-col gap-2 flex-grow">{timelines}</div>
-        {isInfoPanelVisible && makeInfoPanel(setInfoPanelVisible)}
+        {infoPanelState.isVisible &&
+          makeInfoPanel(infoPanelState, setInfoPanelState)}
       </div>
     </div>
   );

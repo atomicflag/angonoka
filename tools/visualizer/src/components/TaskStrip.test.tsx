@@ -2,11 +2,11 @@ import { render } from "@testing-library/react";
 import { TaskStrip } from "./TaskStrip";
 
 test("displays task name", () => {
-  const { queryByText } = render(
+  const { getByText } = render(
     <TaskStrip name="Task Name" width={1} offset={0} />
   );
 
-  expect(queryByText("Task Name")).toBeTruthy();
+  expect(getByText("Task Name")).toBeInTheDocument();
 });
 
 test("has correct with and offset", () => {

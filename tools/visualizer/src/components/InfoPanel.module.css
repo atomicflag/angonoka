@@ -1,0 +1,20 @@
+.infoPanel {
+  @apply bg-white
+    max-w-sm
+    w-96
+    rounded
+    overflow-hidden
+    shadow-md
+    flex
+    flex-col;
+}
+
+.header {
+  @apply px-4
+    py-1
+    bg-teal-900
+    text-white
+    flex
+    gap-2
+    items-center;
+}
