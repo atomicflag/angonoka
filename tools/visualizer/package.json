@@ -10,10 +10,12 @@
     "lint": "eslint src --ext .ts --ext .tsx",
     "fix": "eslint src --fix --ext .ts --ext .tsx",
     "format": "prettier --write src",
-    "test": "jest --maxWorkers=1"
+    "test": "jest"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.1",
+    "@swc/core": "^1.2.114",
+    "@swc/jest": "^0.2.11",
     "@testing-library/jest-dom": "^5.15.0",
     "@testing-library/react": "^12.1.2",
     "@types/jest": "^27.0.2",
@@ -70,15 +72,23 @@
     "moduleDirectories": [
       "node_modules"
     ],
-    "preset": "ts-jest",
     "testEnvironment": "jsdom",
     "setupFilesAfterEnv": [
       "<rootDir>/jest-setup.ts"
     ],
-    "globals": {
-      "ts-jest": {
-        "isolatedModules": true
-      }
+    "transform": {
+      "^.+\\.(t|j)sx?$": [
+        "@swc/jest",
+        {
+          "jsc": {
+            "transform": {
+              "react": {
+                "runtime": "automatic"
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

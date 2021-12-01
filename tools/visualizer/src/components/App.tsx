@@ -52,7 +52,7 @@ const defaultSchedule = `
 type InfoPanelState = {
   isVisible: boolean;
   title?: string;
-  content?: any;
+  content?: string;
 };
 
 // TODO: Show the info panel on click

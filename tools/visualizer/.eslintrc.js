@@ -5,6 +5,7 @@ module.exports = {
   },
   extends: [
     "standard",
+    "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
     "plugin:react/jsx-runtime",
     "prettier",
