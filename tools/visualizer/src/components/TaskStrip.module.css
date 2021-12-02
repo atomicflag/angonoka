@@ -1,5 +1,5 @@
 .taskStrip {
-  @apply bg-blue-300
+  @apply bg-blue-200
     border-2
     absolute
     h-10
@@ -9,5 +9,6 @@
     overflow-hidden
     text-blue-900
     truncate
+    hover:text-blue-100
     hover:bg-blue-400;
 }

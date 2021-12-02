@@ -1,5 +1,6 @@
 .agent {
   @apply bg-teal-500
+    hover:bg-teal-400
     h-10
     flex
     items-center

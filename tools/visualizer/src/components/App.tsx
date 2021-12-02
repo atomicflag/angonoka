@@ -52,7 +52,7 @@ const defaultSchedule = `
 type InfoPanelState = {
   isVisible: boolean;
   title?: string;
-  content?: string;
+  content?: React.ReactElement;
 };
 
 // TODO: Show the info panel on click
@@ -69,8 +69,16 @@ function makeInfoPanel(
   );
 }
 
+// TODO: refactor into a component
 function makeMakespan(duration: number) {
-  return <div>Makespan: {dayjs.duration(duration, "seconds").humanize()}</div>;
+  return (
+    <div className="border border-green-200 bg-green-200 flex">
+      <div className="text-teal-900 px-2">Makespan</div>
+      <div className="px-2 bg-teal-900">
+        {dayjs.duration(duration, "seconds").humanize()}
+      </div>
+    </div>
+  );
 }
 
 function agentNames(tasks: Task[]) {
@@ -85,12 +93,41 @@ function agentTasks(tasks: Task[]) {
     .value();
 }
 
+// TODO: refactor into a component
+function renderDict(data: Record<string, unknown>) {
+  const rows = Object.entries(data).map(([k, v]) => (
+    <div key={k} className="flex">
+      <div className="w-1/2 text-right text-gray-500">{k}</div>
+      <div className="px-2">{v}</div>
+    </div>
+  ));
+  return <div className="flex flex-col">{rows}</div>;
+}
+
+function formatDuration(duration: number) {
+  if (duration < 1) return "None";
+  return dayjs.duration(duration, "seconds").humanize();
+}
+
 // TODO: Show more info
 function showAgentInfo(
   name: string,
+  tasks: Task[],
+  makespan: number,
   setInfoPanelState: Dispatch<InfoPanelState>
 ) {
-  setInfoPanelState({ isVisible: true, title: name });
+  const durationBusy = tasks.reduce((a, v) => a + v.expected_duration, 0);
+  const durationFree = makespan - durationBusy;
+  setInfoPanelState({
+    isVisible: true,
+    title: name,
+    content: renderDict({
+      "Total tasks": tasks.length,
+      "Total busy time": formatDuration(durationBusy),
+      "Total idle time": formatDuration(durationFree),
+      Utilization: ((100 * durationBusy) / makespan).toFixed(0) + "%",
+    }),
+  });
 }
 
 function agentsAndTimelines(
@@ -99,14 +136,16 @@ function agentsAndTimelines(
 ) {
   if (!schedule) return [[], []];
   const names = agentNames(schedule.tasks);
+  const tasks = agentTasks(schedule.tasks);
   const agents = names.map((v, i) => (
     <Agent
       name={v}
       key={i}
-      onClick={() => showAgentInfo(v, setInfoPanelState)}
+      onClick={() =>
+        showAgentInfo(v, tasks[v] || [], schedule.makespan, setInfoPanelState)
+      }
     />
   ));
-  const tasks = agentTasks(schedule.tasks);
   const timelines = names.map((v, i) => (
     <AgentTimeline
       tasks={tasks[v] || []}

@@ -3,7 +3,7 @@ import style from "./InfoPanel.module.css";
 type Props = {
   onClose?: () => void;
   title?: string;
-  content?: string;
+  content?: React.ReactElement;
 };
 
 export const InfoPanel = ({ onClose, title, content }: Props) => {
