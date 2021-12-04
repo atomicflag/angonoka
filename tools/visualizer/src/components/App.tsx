@@ -52,7 +52,7 @@ const defaultSchedule = `
 type InfoPanelState = {
   isVisible: boolean;
   title?: string;
-  content?: React.ReactElement;
+  content?: string[][];
 };
 
 // TODO: Show the info panel on click
@@ -65,6 +65,7 @@ function makeInfoPanel(
       onClose={() => setInfoPanelState({ isVisible: false })}
       title={state.title}
       content={state.content}
+      className="self-start w-80"
     />
   );
 }
@@ -93,17 +94,6 @@ function agentTasks(tasks: Task[]) {
     .value();
 }
 
-// TODO: refactor into a component
-function renderDict(data: Record<string, unknown>) {
-  const rows = Object.entries(data).map(([k, v]) => (
-    <div key={k} className="flex">
-      <div className="w-1/2 text-right text-gray-500">{k}</div>
-      <div className="px-2">{v}</div>
-    </div>
-  ));
-  return <div className="flex flex-col">{rows}</div>;
-}
-
 function formatDuration(duration: number) {
   if (duration < 1) return "None";
   return dayjs.duration(duration, "seconds").humanize();
@@ -121,12 +111,23 @@ function showAgentInfo(
   setInfoPanelState({
     isVisible: true,
     title: name,
-    content: renderDict({
-      "Total tasks": tasks.length,
-      "Total busy time": formatDuration(durationBusy),
-      "Total idle time": formatDuration(durationFree),
-      Utilization: ((100 * durationBusy) / makespan).toFixed(0) + "%",
-    }),
+    content: [
+      ["Total tasks", tasks.length.toString()],
+      ["Total busy time", formatDuration(durationBusy)],
+      ["Total idle time", formatDuration(durationFree)],
+      ["Utilization", ((100 * durationBusy) / makespan).toFixed(0) + "%"],
+    ],
+  });
+}
+
+function showTaskInfo(task: Task, setInfoPanelState: Dispatch<InfoPanelState>) {
+  setInfoPanelState({
+    isVisible: true,
+    title: task.task,
+    content: [
+      ["Duration", formatDuration(task.expected_duration)],
+      ["Priority", (task.priority + 1).toString()],
+    ],
   });
 }
 
@@ -151,6 +152,7 @@ function agentsAndTimelines(
       tasks={tasks[v] || []}
       key={i}
       makespan={schedule.makespan}
+      onClick={(v) => showTaskInfo(v, setInfoPanelState)}
     />
   ));
   return [agents, timelines];
