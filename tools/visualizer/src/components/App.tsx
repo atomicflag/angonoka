@@ -4,6 +4,7 @@ import { Agent } from "./Agent";
 import { AgentTimeline } from "./AgentTimeline";
 import { InfoPanel } from "./InfoPanel";
 import { ScheduleUpload } from "./ScheduleUpload";
+import { MakespanBadge } from "./MakespanBadge";
 import lodash from "lodash";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -55,7 +56,6 @@ type InfoPanelState = {
   content?: string[][];
 };
 
-// TODO: Show the info panel on click
 function makeInfoPanel(
   state: InfoPanelState,
   setInfoPanelState: Dispatch<InfoPanelState>
@@ -67,18 +67,6 @@ function makeInfoPanel(
       content={state.content}
       className="self-start w-80"
     />
-  );
-}
-
-// TODO: refactor into a component
-function makeMakespan(duration: number) {
-  return (
-    <div className="border border-green-200 bg-green-200 flex">
-      <div className="text-teal-900 px-2">Makespan</div>
-      <div className="px-2 bg-teal-900">
-        {dayjs.duration(duration, "seconds").humanize()}
-      </div>
-    </div>
   );
 }
 
@@ -99,7 +87,6 @@ function formatDuration(duration: number) {
   return dayjs.duration(duration, "seconds").humanize();
 }
 
-// TODO: Show more info
 function showAgentInfo(
   name: string,
   tasks: Task[],
@@ -174,7 +161,7 @@ export const App = () => {
         <span className="text-lg font-medium">Schedule Visualizer v1</span>
         <ScheduleUpload onUpload={setSchedule} />
         <div className="flex-grow"></div>
-        {schedule && makeMakespan(schedule.makespan)}
+        {schedule && <MakespanBadge makespan={schedule.makespan} />}
       </div>
       <div className="flex p-4 gap-2">
         <div className="flex flex-col gap-2">{agents}</div>
