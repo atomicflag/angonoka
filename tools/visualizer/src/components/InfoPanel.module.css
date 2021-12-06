@@ -17,3 +17,19 @@
     gap-2
     items-center;
 }
+
+.header > span {
+  @apply flex-grow truncate;
+}
+
+.header > a {
+  @apply text-3xl;
+}
+
+.content {
+  @apply p-6 flex justify-center;
+}
+
+.content > div {
+  @apply flex flex-col;
+}

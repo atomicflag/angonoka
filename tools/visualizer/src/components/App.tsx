@@ -5,14 +5,9 @@ import { AgentTimeline } from "./AgentTimeline";
 import { InfoPanel } from "./InfoPanel";
 import { ScheduleUpload } from "./ScheduleUpload";
 import { MakespanBadge } from "./MakespanBadge";
+import dayjs from "../dayjs";
 import lodash from "lodash";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { Schedule, Task } from "../types";
-
-dayjs.extend(duration);
-dayjs.extend(relativeTime);
 
 const defaultSchedule = `
 {

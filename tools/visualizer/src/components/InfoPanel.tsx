@@ -19,9 +19,9 @@ function renderInfo(data: string[][]) {
     </div>
   ));
   return (
-    <div className="p-6 flex justify-center">
-      <div className="flex flex-col">{titles}</div>
-      <div className="flex flex-col">{descriptions}</div>
+    <div className={style.content}>
+      <div>{titles}</div>
+      <div>{descriptions}</div>
     </div>
   );
 }
@@ -31,14 +31,12 @@ export const InfoPanel = ({ onClose, title, content, className }: Props) => {
   return (
     <div className={panelStyle}>
       <div className={style.header}>
-        <span className="flex-grow truncate">{title}</span>
-        <a href="#" className="text-3xl" onClick={onClose}>
+        <span>{title}</span>
+        <a href="#" onClick={onClose}>
           ×
         </a>
       </div>
-      {renderInfo(content)}
+      {renderInfo(content || [])}
     </div>
   );
 };
-
-// TODO: css, test

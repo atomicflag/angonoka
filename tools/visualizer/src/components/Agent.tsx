@@ -12,5 +12,3 @@ export const Agent = ({ name, onClick }: Props) => {
     </a>
   );
 };
-
-// TODO: tests

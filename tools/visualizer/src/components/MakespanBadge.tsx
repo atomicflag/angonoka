@@ -1,4 +1,5 @@
-import dayjs from "dayjs";
+import dayjs from "../dayjs";
+import style from "./MakespanBadge.module.css";
 
 type Props = {
   makespan: number;
@@ -6,13 +7,9 @@ type Props = {
 
 export const MakespanBadge = ({ makespan }: Props) => {
   return (
-    <div className="border border-green-200 bg-green-200 flex">
-      <div className="text-teal-900 px-2">Makespan</div>
-      <div className="px-2 bg-teal-900">
-        {dayjs.duration(makespan, "seconds").humanize()}
-      </div>
+    <div className={style.makespanBadge}>
+      <div>Makespan</div>
+      <div>{dayjs.duration(makespan, "seconds").humanize()}</div>
     </div>
   );
 };
-
-// TODO: test

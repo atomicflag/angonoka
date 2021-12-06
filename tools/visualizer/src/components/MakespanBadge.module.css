@@ -1,0 +1,14 @@
+.makespanBadge {
+  @apply border
+    border-green-200
+    bg-green-200
+    flex;
+}
+
+.makespanBadge > :first-child {
+  @apply text-teal-900 px-2;
+}
+
+.makespanBadge > :nth-child(2) {
+  @apply px-2 bg-teal-900;
+}
