@@ -23,5 +23,3 @@ export const TaskStrip = ({ name, width, offset, onClick }: Props) => {
     </a>
   );
 };
-
-// TODO: test, css, tooltip

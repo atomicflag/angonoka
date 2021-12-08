@@ -1,5 +1,6 @@
 import { Task } from "../types";
 import { TaskStrip } from "./TaskStrip";
+import style from "./AgentTimeline.module.css";
 
 type Props = {
   tasks: Task[];
@@ -17,7 +18,7 @@ export const AgentTimeline = ({ tasks, makespan, onClick }: Props) => {
       offset={v.expected_start / makespan}
     />
   ));
-  return <div className="h-10 flex relative bg-white">{taskStrips}</div>;
+  return <div className={style.taskStrips}>{taskStrips}</div>;
 };
 
-// TODO: tests, css
+// TODO: test

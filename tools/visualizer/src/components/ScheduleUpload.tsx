@@ -36,5 +36,3 @@ export const ScheduleUpload = ({ onUpload }: Props) => {
     </div>
   );
 };
-
-// TODO: test
