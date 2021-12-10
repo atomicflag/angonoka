@@ -20,5 +20,3 @@ export const AgentTimeline = ({ tasks, makespan, onClick }: Props) => {
   ));
   return <div className={style.taskStrips}>{taskStrips}</div>;
 };
-
-// TODO: test
