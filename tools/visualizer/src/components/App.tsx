@@ -9,6 +9,10 @@ import dayjs from "../dayjs";
 import lodash from "lodash";
 import { Schedule, Task } from "../types";
 
+type Props = {
+  schedule?: Schedule;
+};
+
 const defaultSchedule = `
 {
   "makespan": 720,
@@ -16,28 +20,28 @@ const defaultSchedule = `
     {
       "agent": "Agent 3 Long Name",
       "expected_duration": 180,
-      "expected_start": 0.0,
+      "expected_start": 0,
       "priority": 0,
       "task": "Task 1"
     },
     {
       "agent": "Agent 2",
       "expected_duration": 600,
-      "expected_start": 0.0,
+      "expected_start": 0,
       "priority": 0,
       "task": "Task 2"
     },
     {
       "agent": "Agent 1",
       "expected_duration": 330,
-      "expected_start": 0.0,
+      "expected_start": 0,
       "priority": 0,
       "task": "Task 3"
     },
     {
       "agent": "Agent 1",
       "expected_duration": 390,
-      "expected_start": 330.0,
+      "expected_start": 330,
       "priority": 1,
       "task": "Task 4"
     }
@@ -140,9 +144,9 @@ function agentsAndTimelines(
   return [agents, timelines];
 }
 
-export const App = () => {
+export const App = (props: Props) => {
   const [schedule, setSchedule] = useState<Schedule>(
-    JSON.parse(defaultSchedule)
+    props.schedule || JSON.parse(defaultSchedule)
   );
   const [infoPanelState, setInfoPanelState] = useState<InfoPanelState>({
     isVisible: false,
