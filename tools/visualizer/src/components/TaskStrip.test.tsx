@@ -16,8 +16,10 @@ test("has correct width and offset", () => {
 
   const strip = getByRole("link");
 
-  expect(strip.style.width).toEqual("25%");
-  expect(strip.style.left).toEqual("50%");
+  expect(strip).toHaveStyle({
+    width: "25%",
+    left: "50%",
+  });
 });
 
 test("callback", () => {

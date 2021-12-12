@@ -1,4 +1,4 @@
-import { getByText as byText, render } from "@testing-library/react";
+import { within, render, fireEvent } from "@testing-library/react";
 import { App } from "./App";
 
 const schedule = {
@@ -28,10 +28,22 @@ test("App startup", () => {
 
   const makespan = getByText("Makespan");
   expect(makespan).toBeInTheDocument();
-  expect(byText(makespan.parentElement, "3 minutes")).toBeInTheDocument();
+  expect(
+    within(makespan.parentElement).getByText("3 minutes")
+  ).toBeInTheDocument();
 
   expect(getByText("Agent 1")).toBeInTheDocument();
   expect(getByText("Agent 2")).toBeInTheDocument();
   expect(getByText("Task 1")).toBeInTheDocument();
   expect(getByText("Task 2")).toBeInTheDocument();
+});
+
+test("agent info panel", () => {
+  const { queryByText, getByText } = render(<App schedule={schedule} />);
+
+  expect(queryByText("Total tasks")).not.toBeInTheDocument();
+
+  fireEvent.click(getByText("Agent 1"));
+
+  expect(getByText("Total tasks")).toBeInTheDocument();
 });
