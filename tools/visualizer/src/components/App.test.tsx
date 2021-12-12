@@ -1,5 +1,6 @@
 import { within, render, fireEvent } from "@testing-library/react";
 import { App } from "./App";
+import lodash from "lodash";
 
 const schedule = {
   makespan: 180,
@@ -46,4 +47,46 @@ test("agent info panel", () => {
   fireEvent.click(getByText("Agent 1"));
 
   expect(getByText("Total tasks")).toBeInTheDocument();
+
+  const content = getByText("Total tasks").closest(".content").childNodes;
+  const info = lodash.zip(
+    Array.from(content[0].childNodes).map((v) => v.innerHTML),
+    Array.from(content[1].childNodes).map((v) => v.innerHTML)
+  );
+
+  expect(info).toEqual([
+    ["Total tasks", "1"],
+    ["Total busy time", "3 minutes"],
+    ["Total idle time", "None"],
+    ["Utilization", "100%"],
+  ]);
+
+  fireEvent.click(getByText("×"));
+
+  expect(queryByText("Total tasks")).not.toBeInTheDocument();
+});
+
+test("task info panel", () => {
+  const { queryByText, getByText } = render(<App schedule={schedule} />);
+
+  expect(queryByText("Priority")).not.toBeInTheDocument();
+
+  fireEvent.click(getByText("Task 1"));
+
+  expect(getByText("Priority")).toBeInTheDocument();
+
+  const content = getByText("Priority").closest(".content").childNodes;
+  const info = lodash.zip(
+    Array.from(content[0].childNodes).map((v) => v.innerHTML),
+    Array.from(content[1].childNodes).map((v) => v.innerHTML)
+  );
+
+  expect(info).toEqual([
+    ["Duration", "3 minutes"],
+    ["Priority", "1"],
+  ]);
+
+  fireEvent.click(getByText("×"));
+
+  expect(queryByText("Priority")).not.toBeInTheDocument();
 });
