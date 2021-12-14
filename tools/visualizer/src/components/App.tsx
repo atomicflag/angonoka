@@ -171,5 +171,3 @@ export const App = (props: Props) => {
     </div>
   );
 };
-
-// TODO: tests

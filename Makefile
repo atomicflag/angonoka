@@ -193,6 +193,29 @@ check: check/format check/tidy
 clean:
 	git clean -fxd
 
+tools/visualizer/node_modules:
+	cd tools/visualizer
+	yarn install
+
+tools/visualizer/dist: tools/visualizer/node_modules
+	cd tools/visualizer
+	yarn build
+
+.PHONY: check-js
+check-js: tools/visualizer/node_modules
+	cd tools/visualizer
+	yarn lint
+
+.PHONY: test-js
+test-js: tools/visualizer/node_modules
+	cd tools/visualizer
+	yarn test
+
+.PHONY: format-js
+format-js: tools/visualizer/node_modules
+	cd tools/visualizer
+	yarn format
+
 .PHONY: install-deps
 install-deps:
 	mkdir -p deps

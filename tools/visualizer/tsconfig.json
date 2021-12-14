@@ -10,5 +10,11 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "plugins": [{ "name": "typescript-plugin-css-modules" }]
-  }
+  },
+  "exclude": [
+    "./src/**/*.test.tsx",
+    "./src/react-refresh.ts",
+    "node_modules",
+    "./dist/"
+  ]
 }
