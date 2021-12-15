@@ -80,20 +80,34 @@ build-cpp:
     - make release
     - make install
 
-test-js:
+.js:
   image: node
-  stage: test
   variables:
     NODE_ENV: development
   only:
     changes:
       - tools/visualizer/**/*
   cache:
-    key: "$CI_COMMIT_REF_SLUG-$CI_JOB_NAME"
+    key: "$CI_COMMIT_REF_SLUG-js"
     paths:
       - tools/visualizer/node_modules
-  script:
+  before_script:
     - cd tools/visualizer
     - yarn install
+
+test-js:
+  extends: .js
+  stage: test
+  script:
     - yarn lint
     - yarn test
+
+build-js:
+  extends: .js
+  stage: build
+  artifacts:
+    paths:
+      - tools/visualizer/dist
+    expire_in: 1 day
+  script:
+    - yarn build
