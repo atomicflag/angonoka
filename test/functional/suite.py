@@ -60,13 +60,13 @@ def test_prints_help():
 def test_version():
     code, cout, cerr = run("--version")
     assert code == 0
-    assert cout == "angonoka version 0.8.0\n"
+    assert cout == "angonoka version 0.9.0\n"
 
 
 def test_version_with_file():
     code, cout, cerr = run("--version", "file.yaml")
     assert code == 0
-    assert cout == "angonoka version 0.8.0\n"
+    assert cout == "angonoka version 0.9.0\n"
 
 
 def test_invalid_option():
@@ -83,7 +83,7 @@ def test_invalid_option():
 def test_invalid_option_with_version():
     code, cout, cerr = run("--asdf", "--version")
     assert code == 0
-    assert cout == "angonoka version 0.8.0\n"
+    assert cout == "angonoka version 0.9.0\n"
 
 
 def test_basic_non_tty_output():
@@ -319,8 +319,8 @@ def test_schedule_output():
         "tasks": [
             {
                 "agent": "Agent",
-                "expected_duration": 1017,
-                "expected_start": 0.0,
+                "expected_duration": 2484,
+                "expected_start": 0,
                 "priority": 0,
                 "task": "Task"
             }

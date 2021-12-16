@@ -2,17 +2,25 @@ stages:
   - test
   - build
 
-variables:
-  CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
-  CCACHE_BASEDIR: "$CI_PROJECT_DIR"
-  CCACHE_LOGFILE: "$CI_PROJECT_DIR/ccache.log"
-  CCACHE_COMPRESS: "1"
-  CCACHE_COMPRESSLEVEL: "9"
-  CCACHE_SLOPPINESS: "system_headers,locale,include_file_ctime,include_file_mtime,time_macros"
-  ASAN_OPTIONS: "alloc_dealloc_mismatch=0"
-
-default:
+.cpp:
   image: registry.gitlab.com/signal9/cpp-env:13.0.0
+  variables:
+    CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
+    CCACHE_BASEDIR: "$CI_PROJECT_DIR"
+    CCACHE_LOGFILE: "$CI_PROJECT_DIR/ccache.log"
+    CCACHE_COMPRESS: "1"
+    CCACHE_COMPRESSLEVEL: "9"
+    CCACHE_SLOPPINESS: "system_headers,locale,include_file_ctime,include_file_mtime,time_macros"
+    ASAN_OPTIONS: "alloc_dealloc_mismatch=0"
+  only:
+    changes:
+      - src/**/*
+      - test/**/*
+      - meson.build
+      - conanfile.txt
+      - conan.lock
+      - meson_options.txt
+      - Makefile
   cache:
     key: "$CI_COMMIT_REF_SLUG-$CI_JOB_NAME"
     paths:
@@ -39,7 +47,8 @@ default:
         echo "Removed $count_deleted cache entries"
       fi
 
-test:
+test-cpp:
+  extends: .cpp
   stage: test
   script:
     - make build/cov
@@ -59,7 +68,8 @@ test:
         $CCACHE_LOGFILE | tr '\n' ' ')
     - make check/tidy
 
-build:
+build-cpp:
+  extends: .cpp
   stage: build
   artifacts:
     paths:
@@ -69,3 +79,35 @@ build:
   script:
     - make release
     - make install
+
+.js:
+  image: node
+  variables:
+    NODE_ENV: development
+  only:
+    changes:
+      - tools/visualizer/**/*
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-js"
+    paths:
+      - tools/visualizer/node_modules
+  before_script:
+    - cd tools/visualizer
+    - yarn install
+
+test-js:
+  extends: .js
+  stage: test
+  script:
+    - yarn lint
+    - yarn test
+
+build-js:
+  extends: .js
+  stage: build
+  artifacts:
+    paths:
+      - tools/visualizer/dist
+    expire_in: 1 day
+  script:
+    - yarn build

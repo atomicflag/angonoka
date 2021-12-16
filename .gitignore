@@ -7,3 +7,4 @@ __pycache__
 *.profraw
 .cache
 test/functional/*.json
+node_modules

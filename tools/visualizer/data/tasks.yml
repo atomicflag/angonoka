@@ -1,0 +1,23 @@
+agents:
+  Agent 1:
+  Agent 2:
+  Agent 3:
+tasks:
+  - name: Task 1
+    duration:
+      min: 1 minutes
+      max: 5 minutes
+  - name: Task 2
+    duration:
+      min: 5 minutes
+      max: 15 minutes
+  - name: Task 3
+    id: 1
+    duration:
+      min: 3 minutes
+      max: 8 minutes
+  - name: Task 4
+    duration:
+      min: 4 minutes
+      max: 9 minutes
+    depends_on: ["1"]

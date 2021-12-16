@@ -1,0 +1,35 @@
+.infoPanel {
+  @apply bg-white
+    whitespace-nowrap
+    rounded
+    overflow-hidden
+    shadow-md
+    flex
+    flex-col;
+}
+
+.header {
+  @apply px-4
+    py-1
+    bg-teal-900
+    text-white
+    flex
+    gap-2
+    items-center;
+}
+
+.header > span {
+  @apply flex-grow truncate;
+}
+
+.header > a {
+  @apply text-3xl;
+}
+
+.content {
+  @apply p-6 flex justify-center;
+}
+
+.content > div {
+  @apply flex flex-col;
+}
