@@ -25,6 +25,10 @@ public:
     /**
         Constructor.
 
+        TODO: Add beta_scale, stun_window,
+        gamma and restart_period
+        TODO: Add Options struct
+
         @param params           Scheduling parameters
         @param batch_size       Number of iterations per update
         @param max_idle_iters   Stopping condition

@@ -26,6 +26,10 @@ public:
     /**
         OptimizerJob options.
 
+        TODO: Add beta_scale, stun_window,
+        gamma and restart_period
+        TODO: Move batch_size here too
+
         @var params Schedule parameters
         @var random Random utils.
     */
@@ -41,7 +45,7 @@ public:
         @param random_utils     Random number generator utilities
         @param batch_size       Number of iterations per update
     */
-    OptimizerJob(
+    OptimizerJob( // TODO: Remove this ctor
         const ScheduleParams& params,
         RandomUtils& random_utils,
         BatchSize batch_size);
@@ -94,6 +98,8 @@ public:
     ~OptimizerJob() noexcept;
 
 private:
+    // TODO: expose beta_scale, stun_window, gamma and
+    // restart_period
     static constexpr auto beta_scale = 1e-4F;
     static constexpr auto stun_window = 10000;
     static constexpr auto gamma = .5F;

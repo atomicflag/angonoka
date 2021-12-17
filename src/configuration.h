@@ -126,6 +126,8 @@ struct Configuration {
     Groups groups;
     Agents agents;
     Tasks tasks;
+
+    // TODO: Add OptimizationParameters
 };
 
 /**

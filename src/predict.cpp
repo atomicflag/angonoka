@@ -56,6 +56,9 @@ OptimizedSchedule optimize(
 
     using namespace angonoka::stun;
 
+    // TODO: Expose these in the Configuration
+    // as well as beta_scale, stun_window,
+    // gamma and restart_period
     // Maximum of 50 idle batches
     constexpr auto batch_size = 30'000;
     constexpr auto max_idle_iters = batch_size * 50;
