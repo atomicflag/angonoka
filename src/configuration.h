@@ -115,20 +115,38 @@ using Groups = std::vector<std::string>;
 using Agents = std::vector<Agent>;
 using Tasks = std::vector<Task>;
 
-constexpr auto default_batch_size{30'000};
-constexpr auto default_max_idle_iters{default_batch_size * 50};
-constexpr auto default_beta_scale{1e-4F};
-constexpr auto default_stun_window{10000};
-constexpr auto default_gamma{.5F};
-constexpr auto default_restart_period{1 << 20};
+/**
+    Parameters to pass to the schedule optimization algorithm.
 
-// TODO: doc, test, expects
+    See respective definitions in the source for more details.
+
+    Note: restart_period must be a power of 2.
+
+    @var batch_size     Number of STUN iterations in each update
+    @var max_idle_iters When to halt the optimization
+    @var beta_scale     Temperature parameter's inertia
+    @var stun_window    Temperature adjustment window
+    @var gamma          Domain-specific parameter for STUN
+    @var restart_period Temperature volatility period
+*/
 struct OptimizationParameters {
+    static constexpr auto default_batch_size{30'000};
     int32 batch_size{default_batch_size};
+
+    static constexpr auto default_max_idle_iters{
+        default_batch_size * 50};
     int32 max_idle_iters{default_max_idle_iters};
+
+    static constexpr auto default_beta_scale{1e-4F};
     float beta_scale{default_beta_scale};
+
+    static constexpr auto default_stun_window{10000};
     int32 stun_window{default_stun_window};
+
+    static constexpr auto default_gamma{.5F};
     float gamma{default_gamma};
+
+    static constexpr auto default_restart_period{1 << 20};
     int32 restart_period{default_restart_period};
 };
 
