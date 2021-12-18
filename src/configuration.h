@@ -115,8 +115,27 @@ using Groups = std::vector<std::string>;
 using Agents = std::vector<Agent>;
 using Tasks = std::vector<Task>;
 
+constexpr auto default_batch_size{30'000};
+constexpr auto default_max_idle_iters{default_batch_size * 50};
+constexpr auto default_beta_scale{1e-4F};
+constexpr auto default_stun_window{10000};
+constexpr auto default_gamma{.5F};
+constexpr auto default_restart_period{1 << 20};
+
+// TODO: doc, test, expects
+struct OptimizationParameters {
+    int32 batch_size{default_batch_size};
+    int32 max_idle_iters{default_max_idle_iters};
+    float beta_scale{default_beta_scale};
+    int32 stun_window{default_stun_window};
+    float gamma{default_gamma};
+    int32 restart_period{default_restart_period};
+};
+
 /**
     Configuration that represents Tasks and Agents.
+
+    TODO: doc
 
     @var groups   Task groups
     @var agents   Agents that perform tasks
@@ -126,8 +145,7 @@ struct Configuration {
     Groups groups;
     Agents agents;
     Tasks tasks;
-
-    // TODO: Add OptimizationParameters
+    OptimizationParameters opt_params;
 };
 
 /**
