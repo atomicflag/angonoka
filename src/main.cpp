@@ -29,6 +29,7 @@ int main(int argc, char** argv)
         "Force colored output");
     cli.add_flag("-q,--quiet", options.quiet, "Give less output");
     cli.add_flag("-v,--verbose", options.verbose, "Give more output");
+    // TODO: Add optimization parameters
     cli.require_subcommand(-1);
 
     auto* default_group = cli.add_option_group("Default");

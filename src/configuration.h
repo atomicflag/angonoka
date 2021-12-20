@@ -120,10 +120,11 @@ using Tasks = std::vector<Task>;
 
     See respective definitions in the source for more details.
 
-    Note: restart_period must be a power of 2.
+    Note: For performance reasons, restart_period must be
+    a power of 2.
 
     @var batch_size     Number of STUN iterations in each update
-    @var max_idle_iters When to halt the optimization
+    @var max_idle_iters Halting condition
     @var beta_scale     Temperature parameter's inertia
     @var stun_window    Temperature adjustment window
     @var gamma          Domain-specific parameter for STUN
@@ -153,11 +154,10 @@ struct OptimizationParameters {
 /**
     Configuration that represents Tasks and Agents.
 
-    TODO: doc
-
-    @var groups   Task groups
-    @var agents   Agents that perform tasks
-    @var tasks    All of the tasks
+    @var groups     Task groups
+    @var agents     Agents that perform tasks
+    @var tasks      All of the tasks
+    @var opt_params Optimization parameters
 */
 struct Configuration {
     Groups groups;
