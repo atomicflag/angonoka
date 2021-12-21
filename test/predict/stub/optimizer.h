@@ -3,10 +3,18 @@
 #include "stun/schedule.h"
 
 namespace angonoka::stun {
-enum class BatchSize : std::int_fast32_t;
-enum class MaxIdleIters : std::int_fast32_t;
+struct ScheduleParams;
 struct Optimizer {
-    Optimizer(auto...) { }
+    struct Options {
+        const ScheduleParams* params;
+        int batch_size;
+        int max_idle_iters;
+        float beta_scale;
+        int stun_window;
+        float gamma;
+        int restart_period;
+    };
+    Optimizer(const Options&) { }
 
     bool has_converged();
     void update();

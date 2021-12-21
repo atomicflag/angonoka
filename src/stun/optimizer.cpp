@@ -124,19 +124,14 @@ struct Optimizer::Impl {
 #endif // ANGONOKA_OPENMP
 };
 
-Optimizer::Job::Job(
-    const ScheduleParams& params,
-    BatchSize batch_size)
-    : job{params, random_utils, batch_size}
+Optimizer::Job::Job(const Options& options)
+    : job{*options.params, random_utils, options.batch_size}
 {
 }
 
-Optimizer::Optimizer(
-    const ScheduleParams& params,
-    BatchSize batch_size,
-    MaxIdleIters max_idle_iters)
-    : batch_size{static_cast<std::int_fast32_t>(batch_size)}
-    , max_idle_iters{static_cast<std::int_fast32_t>(max_idle_iters)}
+Optimizer::Optimizer(const Options& options)
+    : batch_size{options.batch_size}
+    , max_idle_iters{options.max_idle_iters}
 {
     Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
     Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
@@ -147,8 +142,7 @@ Optimizer::Optimizer(
     constexpr auto max_threads = 1;
 #endif // ANGONOKA_OPENMP
     jobs.reserve(static_cast<gsl::index>(max_threads));
-    for (int i{0}; i < max_threads; ++i)
-        jobs.emplace_back(params, batch_size);
+    for (int i{0}; i < max_threads; ++i) jobs.emplace_back(options);
 
     Ensures(!jobs.empty());
 }

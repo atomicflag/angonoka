@@ -8,7 +8,7 @@ namespace angonoka::stun {
 OptimizerJob::OptimizerJob(
     const ScheduleParams& params,
     RandomUtils& random_utils,
-    BatchSize batch_size)
+    int32 batch_size)
     : batch_size{static_cast<std::int_fast32_t>(batch_size)}
     , mutator{params, random_utils}
     , makespan{params}
@@ -24,9 +24,7 @@ OptimizerJob::OptimizerJob(
     Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
 }
 
-OptimizerJob::OptimizerJob(
-    const Options& options,
-    BatchSize batch_size)
+OptimizerJob::OptimizerJob(const Options& options, int32 batch_size)
     : OptimizerJob{*options.params, *options.random, batch_size}
 {
 }

@@ -10,12 +10,6 @@
 
 namespace angonoka::stun {
 /**
-    How many stochastic tunneling iterations to go through
-    during each update.
-*/
-enum class BatchSize : std::int_fast32_t;
-
-/**
     A single optimization job, meant to be launched in a thread pool.
 
     Optimizer starts many OptimizerJobs in parallel,
@@ -48,8 +42,8 @@ public:
     OptimizerJob( // TODO: Remove this ctor
         const ScheduleParams& params,
         RandomUtils& random_utils,
-        BatchSize batch_size);
-    OptimizerJob(const Options& options, BatchSize batch_size);
+        int32 batch_size);
+    OptimizerJob(const Options& options, int32 batch_size);
 
     /**
         Run stochastic tunneling optimization batch.
@@ -106,7 +100,7 @@ private:
     static constexpr auto restart_period = 1 << 20;
     static constexpr auto initial_beta = 1.0F;
 
-    int16 batch_size;
+    int32 batch_size;
     Mutator mutator;
     Makespan makespan;
     Temperature temperature;

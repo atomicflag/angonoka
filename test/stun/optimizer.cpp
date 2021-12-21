@@ -35,7 +35,8 @@ TEST_CASE("Optimizer")
         const auto config = angonoka::load_text(text);
 
         const auto params = to_schedule_params(config);
-        Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
+        Optimizer optimizer{
+            {.params{&params}, .batch_size{5}, .max_idle_iters{10}}};
 
         REQUIRE(optimizer.normalized_makespan() == 2.F);
         REQUIRE(optimizer.estimated_progress() == 0.F);
@@ -92,7 +93,8 @@ TEST_CASE("Optimizer")
         const auto config = angonoka::load_text(text);
         const auto params = to_schedule_params(config);
 
-        Optimizer optimizer{params, BatchSize{5}, MaxIdleIters{10}};
+        Optimizer optimizer{
+            {.params{&params}, .batch_size{5}, .max_idle_iters{10}}};
 
         SECTION("copy ctor")
         {
@@ -107,7 +109,10 @@ TEST_CASE("Optimizer")
 
         SECTION("copy assignment")
         {
-            Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
+            Optimizer other{
+                {.params{&params},
+                 .batch_size{5},
+                 .max_idle_iters{10}}};
             other = optimizer;
 
             REQUIRE(other.normalized_makespan() == 2.F);
@@ -121,9 +126,9 @@ TEST_CASE("Optimizer")
 
             {
                 Optimizer optimizer2{
-                    params,
-                    BatchSize{5},
-                    MaxIdleIters{10}};
+                    {.params{&params},
+                     .batch_size{5},
+                     .max_idle_iters{10}}};
                 other = optimizer2;
             }
 
@@ -143,7 +148,10 @@ TEST_CASE("Optimizer")
 
         SECTION("move assignment")
         {
-            Optimizer other{params, BatchSize{5}, MaxIdleIters{10}};
+            Optimizer other{
+                {.params{&params},
+                 .batch_size{5},
+                 .max_idle_iters{10}}};
             other = std::move(optimizer);
 
             REQUIRE(other.normalized_makespan() == 2.F);
@@ -159,9 +167,9 @@ TEST_CASE("Optimizer")
 
             {
                 Optimizer other{
-                    params,
-                    BatchSize{5},
-                    MaxIdleIters{10}};
+                    {.params{&params},
+                     .batch_size{5},
+                     .max_idle_iters{10}}};
                 optimizer = std::move(other);
             }
 
