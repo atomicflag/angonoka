@@ -14,14 +14,6 @@ using boost::accumulators::stats;
 namespace tag = boost::accumulators::tag;
 
 /**
-    Temperature parameter.
-
-    See https://arxiv.org/pdf/physics/9903008.pdf for more details.
-*/
-struct Beta : detail::OpaqueFloat {
-};
-
-/**
     Scaling factor for beta parameter.
 
     The lower the value the slower the beta parameter
@@ -59,6 +51,8 @@ public:
     /**
         Constructor.
 
+        TODO: doc, expects
+
         Note: restart_period must be a power of 2.
 
         @param beta             Initial beta (temperature) value
@@ -67,7 +61,6 @@ public:
         @param restart_period   Number of iterations before restarting
     */
     Temperature(
-        Beta beta,
         BetaScale beta_scale,
         StunWindow stun_window,
         RestartPeriod restart_period);
@@ -104,10 +97,11 @@ public:
     [[nodiscard]] float average_stun() const noexcept;
 
     // TODO: doc, test, expects
-    Temperature& operator=(float stun);
+    void reset();
 
 private:
     float value;
+    int32 stun_window;
     accumulator_set<float, stats<tag::rolling_mean, tag::count>> acc;
     float beta_scale;
     std::size_t restart_period_mask;

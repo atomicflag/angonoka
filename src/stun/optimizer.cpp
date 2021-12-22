@@ -117,27 +117,21 @@ struct Optimizer::Impl {
             if (j.job.normalized_makespan() == best_makespan)
                 continue;
             j.job = target_job.job;
-            j.job.params(
-                {.params{params}, .random{&j.random_utils}});
+            j.job.params({.params{params}, .random{&j.random_utils}});
         }
     }
 #endif // ANGONOKA_OPENMP
 };
 
 Optimizer::Job::Job(const Options& options)
-    : job
-{
-    {
-        .params{options.params}, .random{&random_utils},
-            .batch_size{options.batch_size},
-            .beta_scale{options.beta_scale},
-            .stun_window{options.stun_window}, .gamma{options.gamma},
-            .restart_period
-        {
-            options.restart_period
-        }
-    }
-}
+    : job{
+        {.params{options.params},
+         .random{&random_utils},
+         .batch_size{options.batch_size},
+         .beta_scale{options.beta_scale},
+         .stun_window{options.stun_window},
+         .gamma{options.gamma},
+         .restart_period{options.restart_period}}}
 {
 }
 
@@ -234,8 +228,7 @@ void Optimizer::params(const ScheduleParams& params)
 
     for (auto& j : jobs) {
         const auto p = j.job.params();
-        j.job.params(
-            {.params{&params}, .random{p.random}});
+        j.job.params({.params{&params}, .random{p.random}});
     }
 }
 

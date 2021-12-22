@@ -62,13 +62,21 @@ OptimizedSchedule optimize(
     // Maximum of 50 idle batches
     constexpr auto batch_size = 30'000;
     constexpr auto max_idle_iters = batch_size * 50;
+    constexpr auto beta_scale = 1e-4F;
+    constexpr auto stun_window = 10000;
+    constexpr auto gamma = .5F;
+    constexpr auto restart_period = 1 << 20;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
     stun::Optimizer optimizer{
         {.params{&params},
          .batch_size{batch_size},
-         .max_idle_iters{max_idle_iters}}};
+         .max_idle_iters{max_idle_iters},
+         .beta_scale{beta_scale},
+         .stun_window{stun_window},
+         .gamma{gamma},
+         .restart_period{restart_period}}};
 #pragma clang diagnostic pop
     while (!optimizer.has_converged()) {
         optimizer.update();

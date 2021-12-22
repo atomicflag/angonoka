@@ -3,20 +3,23 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <gsl/gsl-lite.hpp>
 
+namespace {
+constexpr auto initial_beta = 1.0F;
+} // namespace
+
 namespace angonoka::stun {
 Temperature::Temperature(
-    Beta beta,
     BetaScale beta_scale,
     StunWindow stun_window,
     RestartPeriod restart_period)
-    : value{beta}
+    : value{initial_beta}
+    , stun_window{static_cast<std::int_fast32_t>(stun_window)}
     , acc{tag::rolling_window::window_size
           = static_cast<std::int_fast32_t>(stun_window)}
     , beta_scale{beta_scale}
     , restart_period_mask{
           static_cast<std::size_t>(restart_period) - 1}
 {
-    Expects(beta > 0.F);
     Expects(beta_scale > 0.F);
     Expects(static_cast<std::int_fast32_t>(stun_window) > 0);
     Expects(static_cast<std::size_t>(restart_period) > 0);
@@ -46,16 +49,18 @@ void Temperature::update(float stun) noexcept
     Ensures(value >= 0.F);
 }
 
-Temperature& Temperature::operator=(float stun)
+void Temperature::reset()
 {
-    // TODO: move initial Beta here, replace operator= with reset()
-    value = stun;
-    acc = {};
+    value = initial_beta;
+    acc = decltype(acc){
+        tag::rolling_window::window_size
+        = static_cast<std::int_fast32_t>(stun_window)};
 }
 
 Temperature& Temperature::operator=(Temperature&& other) noexcept
 {
     value = other.value;
+    stun_window = other.stun_window;
     try {
         acc = other.acc;
     } catch (...) {

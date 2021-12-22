@@ -34,7 +34,7 @@ public:
     /**
         Constructor.
 
-        TODO: doc
+        TODO: doc, expects
 
         @param params           Scheduling parameters
         @param batch_size       Number of iterations per update
@@ -118,7 +118,7 @@ private:
         /**
             Constructor.
 
-            TODO: doc
+            TODO: doc, expects
         */
         explicit Job(const Options& options);
         RandomUtils random_utils;

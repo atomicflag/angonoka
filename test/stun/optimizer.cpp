@@ -2,6 +2,26 @@
 #include "config/load.h"
 #include <catch2/catch.hpp>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
+
+namespace {
+using angonoka::stun::Optimizer;
+Optimizer make(auto& params)
+{
+    return Optimizer{
+        {.params{&params},
+         .batch_size{5},
+         .max_idle_iters{10},
+         .beta_scale{1e-4F},
+         .stun_window{10000},
+         .gamma{.5F},
+         .restart_period{1 << 20}}};
+}
+} // namespace
+
+#pragma clang diagnostic pop
+
 TEST_CASE("Optimizer")
 {
     SECTION("Optimizer type traits")
@@ -35,8 +55,7 @@ TEST_CASE("Optimizer")
         const auto config = angonoka::load_text(text);
 
         const auto params = to_schedule_params(config);
-        Optimizer optimizer{
-            {.params{&params}, .batch_size{5}, .max_idle_iters{10}}};
+        Optimizer optimizer = make(params);
 
         REQUIRE(optimizer.normalized_makespan() == 2.F);
         REQUIRE(optimizer.estimated_progress() == 0.F);
@@ -93,8 +112,7 @@ TEST_CASE("Optimizer")
         const auto config = angonoka::load_text(text);
         const auto params = to_schedule_params(config);
 
-        Optimizer optimizer{
-            {.params{&params}, .batch_size{5}, .max_idle_iters{10}}};
+        Optimizer optimizer = make(params);
 
         SECTION("copy ctor")
         {
@@ -109,10 +127,7 @@ TEST_CASE("Optimizer")
 
         SECTION("copy assignment")
         {
-            Optimizer other{
-                {.params{&params},
-                 .batch_size{5},
-                 .max_idle_iters{10}}};
+            Optimizer other = make(params);
             other = optimizer;
 
             REQUIRE(other.normalized_makespan() == 2.F);
@@ -125,10 +140,7 @@ TEST_CASE("Optimizer")
             REQUIRE(other.normalized_makespan() == 1.F);
 
             {
-                Optimizer optimizer2{
-                    {.params{&params},
-                     .batch_size{5},
-                     .max_idle_iters{10}}};
+                Optimizer optimizer2 = make(params);
                 other = optimizer2;
             }
 
@@ -148,10 +160,7 @@ TEST_CASE("Optimizer")
 
         SECTION("move assignment")
         {
-            Optimizer other{
-                {.params{&params},
-                 .batch_size{5},
-                 .max_idle_iters{10}}};
+            Optimizer other = make(params);
             other = std::move(optimizer);
 
             REQUIRE(other.normalized_makespan() == 2.F);
@@ -166,10 +175,7 @@ TEST_CASE("Optimizer")
             REQUIRE(optimizer.normalized_makespan() == 2.F);
 
             {
-                Optimizer other{
-                    {.params{&params},
-                     .batch_size{5},
-                     .max_idle_iters{10}}};
+                Optimizer other = make(params);
                 optimizer = std::move(other);
             }
 

@@ -44,7 +44,7 @@ public:
     /**
         Constructor.
 
-        TODO: doc
+        TODO: doc, expects
         @param params           Scheduling parameters
         @param random_utils     Random number generator utilities
         @param batch_size       Number of iterations per update
@@ -80,7 +80,7 @@ public:
     /**
         Get current options.
 
-        TODO: docs
+        TODO: docs, expects
 
         @return Options.
     */
@@ -89,7 +89,7 @@ public:
     /**
         Set options.
 
-        TODO: docs
+        TODO: docs, expects
 
         @param options Options.
     */
@@ -102,8 +102,6 @@ public:
     ~OptimizerJob() noexcept;
 
 private:
-    static constexpr auto initial_beta = 1.0F;
-
     int32 batch_size;
     Mutator mutator;
     Makespan makespan;

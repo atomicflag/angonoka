@@ -4,7 +4,13 @@
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
 
-// TODO: test
+#ifndef NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) base_value(x)
+#else // NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) x
+#endif // NDEBUG
 
 namespace angonoka::stun {
 OptimizerJob::OptimizerJob(
@@ -12,7 +18,7 @@ const Options& options)
     : batch_size{options.batch_size}
     , mutator{*options.params, *options.random}
     , makespan{*options.params}
-    , temperature{Beta{initial_beta}, BetaScale{options.beta_scale}, StunWindow{static_cast<std::underlying_type_t<StunWindow>>(options.stun_window)}, RestartPeriod{static_cast<std::size_t>(options.restart_period)}}
+    , temperature{BetaScale{options.beta_scale}, StunWindow{INT(options.stun_window)}, RestartPeriod{static_cast<std::size_t>(INT(options.restart_period))}}
     , stun{
           {.mutator{&mutator},
            .random{options.random},
@@ -46,7 +52,7 @@ void OptimizerJob::reset()
     Expects(batch_size > 0);
 
     stun.reset(initial_schedule(*mutator.options().params));
-    temperature = initial_beta;
+    temperature.reset();
 }
 
 OptimizerJob::OptimizerJob(const OptimizerJob& other)
@@ -127,3 +133,5 @@ auto OptimizerJob::params() const -> Params
 
 OptimizerJob::~OptimizerJob() noexcept = default;
 } // namespace angonoka::stun
+
+#undef INT
