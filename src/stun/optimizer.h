@@ -19,7 +19,7 @@ public:
     /**
         Optimizer options.
 
-        TODO: doc
+        TODO: doc, test
     */
     struct Options {
         gsl::not_null<const ScheduleParams*> params;

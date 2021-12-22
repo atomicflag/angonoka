@@ -46,6 +46,13 @@ void Temperature::update(float stun) noexcept
     Ensures(value >= 0.F);
 }
 
+Temperature& Temperature::operator=(float stun)
+{
+    // TODO: move initial Beta here, replace operator= with reset()
+    value = stun;
+    acc = {};
+}
+
 Temperature& Temperature::operator=(Temperature&& other) noexcept
 {
     value = other.value;

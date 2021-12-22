@@ -20,9 +20,7 @@ public:
     /**
         OptimizerJob options.
 
-        TODO: Add beta_scale, stun_window,
-        gamma and restart_period
-        TODO: Move batch_size here too
+        TODO: doc
 
         @var params Schedule parameters
         @var random Random utils.
@@ -30,20 +28,28 @@ public:
     struct Options {
         gsl::not_null<const ScheduleParams*> params;
         gsl::not_null<RandomUtils*> random;
+        int32 batch_size;
+        float beta_scale;
+        int32 stun_window;
+        float gamma;
+        int32 restart_period;
+    };
+
+    // TODO: doc, test, expects
+    struct Params {
+        gsl::not_null<const ScheduleParams*> params;
+        gsl::not_null<RandomUtils*> random;
     };
 
     /**
         Constructor.
 
+        TODO: doc
         @param params           Scheduling parameters
         @param random_utils     Random number generator utilities
         @param batch_size       Number of iterations per update
     */
-    OptimizerJob( // TODO: Remove this ctor
-        const ScheduleParams& params,
-        RandomUtils& random_utils,
-        int32 batch_size);
-    OptimizerJob(const Options& options, int32 batch_size);
+    explicit OptimizerJob(const Options& options);
 
     /**
         Run stochastic tunneling optimization batch.
@@ -74,16 +80,20 @@ public:
     /**
         Get current options.
 
+        TODO: docs
+
         @return Options.
     */
-    [[nodiscard]] Options options() const;
+    [[nodiscard]] Params params() const;
 
     /**
         Set options.
 
+        TODO: docs
+
         @param options Options.
     */
-    void options(const Options& options);
+    void params(const Params& params);
 
     OptimizerJob(const OptimizerJob& other);
     OptimizerJob(OptimizerJob&& other) noexcept;
@@ -92,12 +102,6 @@ public:
     ~OptimizerJob() noexcept;
 
 private:
-    // TODO: expose beta_scale, stun_window, gamma and
-    // restart_period
-    static constexpr auto beta_scale = 1e-4F;
-    static constexpr auto stun_window = 10000;
-    static constexpr auto gamma = .5F;
-    static constexpr auto restart_period = 1 << 20;
     static constexpr auto initial_beta = 1.0F;
 
     int32 batch_size;

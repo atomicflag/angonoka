@@ -112,12 +112,12 @@ struct Optimizer::Impl {
               });
         const auto best_makespan
             = target_job.job.normalized_makespan();
-        const auto params = best_job(self).options().params;
+        const auto params = best_job(self).params().params;
         for (auto& j : self.jobs) {
             if (j.job.normalized_makespan() == best_makespan)
                 continue;
             j.job = target_job.job;
-            j.job.options(
+            j.job.params(
                 {.params{params}, .random{&j.random_utils}});
         }
     }
@@ -125,7 +125,19 @@ struct Optimizer::Impl {
 };
 
 Optimizer::Job::Job(const Options& options)
-    : job{*options.params, random_utils, options.batch_size}
+    : job
+{
+    {
+        .params{options.params}, .random{&random_utils},
+            .batch_size{options.batch_size},
+            .beta_scale{options.beta_scale},
+            .stun_window{options.stun_window}, .gamma{options.gamma},
+            .restart_period
+        {
+            options.restart_period
+        }
+    }
+}
 {
 }
 
@@ -221,7 +233,9 @@ void Optimizer::params(const ScheduleParams& params)
     Expects(!jobs.empty());
 
     for (auto& j : jobs) {
-        j.job.options({.params{&params}, .random{&j.random_utils}});
+        const auto p = j.job.params();
+        j.job.params(
+            {.params{&params}, .random{p.random}});
     }
 }
 
@@ -229,7 +243,7 @@ const ScheduleParams& Optimizer::params() const
 {
     Expects(!jobs.empty());
 
-    return *Impl::best_job(*this).options().params;
+    return *Impl::best_job(*this).params().params;
 }
 } // namespace angonoka::stun
 

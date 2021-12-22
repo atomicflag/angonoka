@@ -103,6 +103,9 @@ public:
     */
     [[nodiscard]] float average_stun() const noexcept;
 
+    // TODO: doc, test, expects
+    Temperature& operator=(float stun);
+
 private:
     float value;
     accumulator_set<float, stats<tag::rolling_mean, tag::count>> acc;

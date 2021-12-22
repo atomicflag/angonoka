@@ -37,7 +37,7 @@ TEST_CASE("OptimizerJob")
 
         const auto params = to_schedule_params(config);
         RandomUtils random;
-        OptimizerJob optimizer{params, random, 5};
+        OptimizerJob optimizer{{.params{&params}, .random{&random}, .batch_size{5}, .beta_scale{1e-4F}, .stun_window{10000},.gamma{.5F},.restart_period{1 << 20}}};
 
         REQUIRE(optimizer.normalized_makespan() == 2.F);
         REQUIRE(optimizer.schedule()[1].agent_id == 0);
@@ -63,11 +63,11 @@ TEST_CASE("OptimizerJob")
 
         SECTION("rebind params")
         {
-            REQUIRE(optimizer.options().params == &params);
-            REQUIRE(optimizer.options().random == &random);
+            REQUIRE(optimizer.params().params == &params);
+            REQUIRE(optimizer.params().random == &random);
             const auto params2 = params;
-            optimizer.options({.params{&params2}, .random{&random}});
-            REQUIRE(optimizer.options().params == &params2);
+            optimizer.params({.params{&params2}, .random{&random}});
+            REQUIRE(optimizer.params().params == &params2);
 
             while (optimizer.normalized_makespan() != 1.F)
                 optimizer.update();
@@ -75,12 +75,10 @@ TEST_CASE("OptimizerJob")
 
         SECTION("options constructor")
         {
-            OptimizerJob optimizer2{
-                {.params{&params}, .random{&random}},
-                5};
+        OptimizerJob optimizer2{{.params{&params}, .random{&random}, .batch_size{5}, .beta_scale{1e-4F}, .stun_window{10000},.gamma{.5F},.restart_period{1 << 20}}};
 
-            REQUIRE(optimizer2.options().params == &params);
-            REQUIRE(optimizer2.options().random == &random);
+            REQUIRE(optimizer2.params().params == &params);
+            REQUIRE(optimizer2.params().random == &random);
         };
     };
 
@@ -103,7 +101,8 @@ TEST_CASE("OptimizerJob")
 
         const auto params = to_schedule_params(config);
         RandomUtils random;
-        OptimizerJob job{params, random, 5};
+
+        OptimizerJob job{{.params{&params}, .random{&random}, .batch_size{5}, .beta_scale{1e-4F}, .stun_window{10000},.gamma{.5F},.restart_period{1 << 20}}};
 
         SECTION("copy ctor")
         {
@@ -118,7 +117,7 @@ TEST_CASE("OptimizerJob")
 
         SECTION("copy assignment")
         {
-            OptimizerJob other{params, random, 5};
+        OptimizerJob other{{.params{&params}, .random{&random}, .batch_size{5}, .beta_scale{1e-4F}, .stun_window{10000},.gamma{.5F},.restart_period{1 << 20}}};
             other = job;
 
             REQUIRE(other.normalized_makespan() == 2.F);
@@ -132,7 +131,7 @@ TEST_CASE("OptimizerJob")
             REQUIRE(other.normalized_makespan() == 1.F);
 
             {
-                OptimizerJob job2{params, random, 5};
+        OptimizerJob job2{{.params{&params}, .random{&random}, .batch_size{5}, .beta_scale{1e-4F}, .stun_window{10000},.gamma{.5F},.restart_period{1 << 20}}};
                 other = job2;
             }
 
@@ -152,7 +151,7 @@ TEST_CASE("OptimizerJob")
 
         SECTION("move assignment")
         {
-            OptimizerJob other{params, random, 5};
+        OptimizerJob other{{.params{&params}, .random{&random}, .batch_size{5}, .beta_scale{1e-4F}, .stun_window{10000},.gamma{.5F},.restart_period{1 << 20}}};
             other = std::move(job);
 
             REQUIRE(other.normalized_makespan() == 2.F);
@@ -167,7 +166,7 @@ TEST_CASE("OptimizerJob")
             REQUIRE(job.normalized_makespan() == 2.F);
 
             {
-                OptimizerJob other{params, random, 5};
+        OptimizerJob other{{.params{&params}, .random{&random}, .batch_size{5}, .beta_scale{1e-4F}, .stun_window{10000},.gamma{.5F},.restart_period{1 << 20}}};
                 job = std::move(other);
             }
 

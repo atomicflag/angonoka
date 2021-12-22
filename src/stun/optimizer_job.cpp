@@ -4,29 +4,24 @@
 #pragma clang diagnostic ignored "-Wmissing-braces"
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
 
+// TODO: test
+
 namespace angonoka::stun {
 OptimizerJob::OptimizerJob(
-    const ScheduleParams& params,
-    RandomUtils& random_utils,
-    int32 batch_size)
-    : batch_size{static_cast<std::int_fast32_t>(batch_size)}
-    , mutator{params, random_utils}
-    , makespan{params}
-    , temperature{Beta{initial_beta}, BetaScale{beta_scale}, StunWindow{stun_window}, RestartPeriod{restart_period}}
+const Options& options)
+    : batch_size{options.batch_size}
+    , mutator{*options.params, *options.random}
+    , makespan{*options.params}
+    , temperature{Beta{initial_beta}, BetaScale{options.beta_scale}, StunWindow{static_cast<std::underlying_type_t<StunWindow>>(options.stun_window)}, RestartPeriod{static_cast<std::size_t>(options.restart_period)}}
     , stun{
           {.mutator{&mutator},
-           .random{&random_utils},
+           .random{options.random},
            .makespan{&makespan},
            .temp{&temperature},
-           .gamma{gamma}},
-          initial_schedule(params)}
+           .gamma{options.gamma}},
+          initial_schedule(*options.params)}
 {
-    Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
-}
-
-OptimizerJob::OptimizerJob(const Options& options, int32 batch_size)
-    : OptimizerJob{*options.params, *options.random, batch_size}
-{
+    Expects(static_cast<std::int_fast32_t>(options.batch_size) > 0);
 }
 
 void OptimizerJob::update() noexcept
@@ -51,11 +46,7 @@ void OptimizerJob::reset()
     Expects(batch_size > 0);
 
     stun.reset(initial_schedule(*mutator.options().params));
-    temperature
-        = {Beta{initial_beta},
-           BetaScale{beta_scale},
-           StunWindow{stun_window},
-           RestartPeriod{restart_period}};
+    temperature = initial_beta;
 }
 
 OptimizerJob::OptimizerJob(const OptimizerJob& other)
@@ -65,12 +56,13 @@ OptimizerJob::OptimizerJob(const OptimizerJob& other)
     , temperature{other.temperature}
     , stun{other.stun}
 {
+    const auto options = stun.options();
     stun.options(
         {.mutator{&mutator},
          .random{mutator.options().random},
          .makespan{&makespan},
          .temp{&temperature},
-         .gamma{gamma}});
+         .gamma{options.gamma}});
 }
 
 OptimizerJob::OptimizerJob(OptimizerJob&& other) noexcept
@@ -80,12 +72,13 @@ OptimizerJob::OptimizerJob(OptimizerJob&& other) noexcept
     , temperature{std::move(other.temperature)}
     , stun{std::move(other.stun)}
 {
+    const auto options = stun.options();
     stun.options(
         {.mutator{&mutator},
          .random{mutator.options().random},
          .makespan{&makespan},
          .temp{&temperature},
-         .gamma{gamma}});
+         .gamma{options.gamma}});
 }
 
 OptimizerJob& OptimizerJob::operator=(const OptimizerJob& other)
@@ -103,28 +96,30 @@ OptimizerJob& OptimizerJob::operator=(OptimizerJob&& other) noexcept
     makespan = std::move(other.makespan);
     temperature = std::move(other.temperature);
     stun = std::move(other.stun);
+    const auto options = stun.options();
     stun.options(
         {.mutator{&mutator},
          .random{mutator.options().random},
          .makespan{&makespan},
          .temp{&temperature},
-         .gamma{gamma}});
+         .gamma{options.gamma}});
     return *this;
 }
 
-void OptimizerJob::options(const Options& options)
+void OptimizerJob::params(const Params& params)
 {
-    mutator.options(
-        {.params{options.params}, .random{options.random}});
+
+    mutator.options({.params{params.params}, .random{params.random}});
+    const auto options = stun.options();
     stun.options(
         {.mutator{&mutator},
-         .random{options.random},
+         .random{params.random},
          .makespan{&makespan},
          .temp{&temperature},
-         .gamma{gamma}});
+         .gamma{options.gamma}});
 }
 
-auto OptimizerJob::options() const -> Options
+auto OptimizerJob::params() const -> Params
 {
     auto [p, r] = mutator.options();
     return {p, r};
