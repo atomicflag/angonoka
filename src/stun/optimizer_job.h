@@ -35,7 +35,12 @@ public:
         int32 restart_period;
     };
 
-    // TODO: doc, test, expects
+    /**
+        OptimizerJob parameters.
+
+        @var params Schedule parameters
+        @var random Random utils.
+    */
     struct Params {
         gsl::not_null<const ScheduleParams*> params;
         gsl::not_null<RandomUtils*> random;
@@ -44,10 +49,9 @@ public:
     /**
         Constructor.
 
-        TODO: doc, expects
-        @param params           Scheduling parameters
-        @param random_utils     Random number generator utilities
-        @param batch_size       Number of iterations per update
+        TODO: expects
+
+        @param options Job tunables
     */
     explicit OptimizerJob(const Options& options);
 
@@ -78,20 +82,20 @@ public:
     void reset();
 
     /**
-        Get current options.
+        Get current parameters.
 
-        TODO: docs, expects
+        TODO: expects
 
-        @return Options.
+        @return Parameters.
     */
     [[nodiscard]] Params params() const;
 
     /**
-        Set options.
+        Set parameters.
 
-        TODO: docs, expects
+        TODO: expects
 
-        @param options Options.
+        @param params Parameters.
     */
     void params(const Params& params);
 

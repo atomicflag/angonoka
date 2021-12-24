@@ -227,8 +227,7 @@ void Optimizer::params(const ScheduleParams& params)
     Expects(!jobs.empty());
 
     for (auto& j : jobs) {
-        const auto p = j.job.params();
-        j.job.params({.params{&params}, .random{p.random}});
+        j.job.params({.params{&params}, .random{&j.random_utils}});
     }
 }
 
