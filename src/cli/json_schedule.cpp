@@ -62,11 +62,11 @@ enum class TaskIndex : gsl::index {};
 
 constexpr auto operator*(AgentIndex i)
 {
-    return static_cast<gsl::index>(i);
+    return static_cast<std::underlying_type_t<AgentIndex>>(i);
 }
 constexpr auto operator*(TaskIndex i)
 {
-    return static_cast<gsl::index>(i);
+    return static_cast<std::underlying_type_t<TaskIndex>>(i);
 }
 
 /**

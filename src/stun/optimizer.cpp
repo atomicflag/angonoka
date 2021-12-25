@@ -1,5 +1,6 @@
 #include "optimizer.h"
 #include "config.h"
+#include <bit>
 #include <range/v3/algorithm/min.hpp>
 #ifdef ANGONOKA_OPENMP
 #include <omp.h>
@@ -8,10 +9,17 @@
 #ifndef NDEBUG
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define TO_FLOAT(x) static_cast<float>(base_value(x))
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) base_value(x)
 #else // NDEBUG
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define TO_FLOAT(x) static_cast<float>(x)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) x
 #endif // NDEBUG
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define UNSIGNED(x) static_cast<std::make_unsigned_t<decltype(x)>>(x)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
@@ -137,15 +145,16 @@ Optimizer::JobSlot::JobSlot(const Options& options)
     Expects(options.beta_scale > 0.F);
     Expects(options.stun_window > 0);
     Expects(options.restart_period > 0);
-    // TODO: should restart_period be greater than stun_window?
+    Expects(
+        std::popcount(UNSIGNED(INT(options.restart_period))) == 1);
 }
 
 Optimizer::Optimizer(const Options& options)
     : batch_size{options.batch_size}
     , max_idle_iters{options.max_idle_iters}
 {
-    Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
-    Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
+    Expects(options.batch_size > 0);
+    Expects(options.max_idle_iters > 0);
 
 #ifdef ANGONOKA_OPENMP
     const auto max_threads = omp_get_max_threads();
@@ -247,3 +256,5 @@ const ScheduleParams& Optimizer::params() const
 #pragma clang diagnostic pop
 
 #undef TO_FLOAT
+#undef INT
+#undef UNSIGNED

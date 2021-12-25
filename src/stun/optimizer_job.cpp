@@ -27,7 +27,7 @@ const Options& options)
            .gamma{options.gamma}},
           initial_schedule(*options.params)}
 {
-    Expects(static_cast<std::int_fast32_t>(options.batch_size) > 0);
+    Expects(options.batch_size > 0);
 }
 
 void OptimizerJob::update() noexcept

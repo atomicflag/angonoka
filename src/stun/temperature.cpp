@@ -3,8 +3,28 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <gsl/gsl-lite.hpp>
 
+#ifndef NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) base_value(x)
+#else // NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) x
+#endif // NDEBUG
+
 namespace {
+using namespace angonoka::stun;
+
 constexpr auto initial_beta = 1.0F;
+
+constexpr auto operator*(StunWindow i)
+{
+    return static_cast<std::underlying_type_t<StunWindow>>(i);
+}
+
+constexpr auto operator*(RestartPeriod i)
+{
+    return static_cast<std::underlying_type_t<RestartPeriod>>(i);
+}
 } // namespace
 
 namespace angonoka::stun {
@@ -13,19 +33,15 @@ Temperature::Temperature(
     StunWindow stun_window,
     RestartPeriod restart_period)
     : value{initial_beta}
-    , stun_window{static_cast<std::int_fast32_t>(stun_window)}
-    , acc{tag::rolling_window::window_size
-          = static_cast<std::int_fast32_t>(stun_window)}
+    , stun_window{*stun_window}
+    , acc{tag::rolling_window::window_size = *stun_window}
     , beta_scale{beta_scale}
-    , restart_period_mask{
-          static_cast<std::size_t>(restart_period) - 1}
+    , restart_period_mask{*restart_period - 1}
 {
     Expects(beta_scale > 0.F);
-    Expects(static_cast<std::int_fast32_t>(stun_window) > 0);
-    Expects(static_cast<std::size_t>(restart_period) > 0);
-    Expects(
-        std::popcount(static_cast<std::size_t>(restart_period)) == 1);
-    // TODO: should restart_period be greater than stun_window?
+    Expects(*stun_window > 0);
+    Expects(*restart_period > 0);
+    Expects(std::popcount(*restart_period) == 1);
 }
 
 [[nodiscard]] float Temperature::average_stun() const noexcept
@@ -54,8 +70,7 @@ void Temperature::reset()
 {
     value = initial_beta;
     acc = decltype(acc){
-        tag::rolling_window::window_size
-        = static_cast<std::int_fast32_t>(stun_window)};
+        tag::rolling_window::window_size = INT(stun_window)};
 }
 
 Temperature& Temperature::operator=(Temperature&& other) noexcept
@@ -83,3 +98,5 @@ Temperature& Temperature::operator=(const Temperature& other)
     = default;
 Temperature::~Temperature() noexcept = default;
 } // namespace angonoka::stun
+
+#undef INT
