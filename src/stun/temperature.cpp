@@ -25,6 +25,7 @@ Temperature::Temperature(
     Expects(static_cast<std::size_t>(restart_period) > 0);
     Expects(
         std::popcount(static_cast<std::size_t>(restart_period)) == 1);
+    // TODO: should restart_period be greater than stun_window?
 }
 
 [[nodiscard]] float Temperature::average_stun() const noexcept

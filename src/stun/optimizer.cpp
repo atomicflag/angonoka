@@ -123,7 +123,7 @@ struct Optimizer::Impl {
 #endif // ANGONOKA_OPENMP
 };
 
-Optimizer::Job::Job(const Options& options)
+Optimizer::JobSlot::JobSlot(const Options& options)
     : job{
         {.params{options.params},
          .random{&random_utils},
@@ -133,6 +133,11 @@ Optimizer::Job::Job(const Options& options)
          .gamma{options.gamma},
          .restart_period{options.restart_period}}}
 {
+    Expects(options.batch_size > 0);
+    Expects(options.beta_scale > 0.F);
+    Expects(options.stun_window > 0);
+    Expects(options.restart_period > 0);
+    // TODO: should restart_period be greater than stun_window?
 }
 
 Optimizer::Optimizer(const Options& options)

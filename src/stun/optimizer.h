@@ -19,7 +19,13 @@ public:
     /**
         Optimizer options.
 
-        TODO: doc, test
+        @var params         An instance of schedule parameters
+        @var batch_size     Number of STUN iterations in each update
+        @var max_idle_iters Halting condition
+        @var beta_scale     Temperature parameter's inertia
+        @var stun_window    Temperature adjustment window
+        @var gamma          Domain-specific parameter for STUN
+        @var restart_period Temperature volatility period
     */
     struct Options {
         gsl::not_null<const ScheduleParams*> params;
@@ -34,11 +40,9 @@ public:
     /**
         Constructor.
 
-        TODO: doc, expects
+        TODO: expects
 
-        @param params           Scheduling parameters
-        @param batch_size       Number of iterations per update
-        @param max_idle_iters   Stopping condition
+        @param options Optimizer tunables
     */
     explicit Optimizer(const Options& options);
 
@@ -114,16 +118,19 @@ private:
         @var random_utils   Random number generator utilities
         @var job            Optimization job
     */
-    struct Job {
+    struct JobSlot {
         /**
             Constructor.
 
-            TODO: doc, expects
+            TODO: expects
+
+            @params options Job options
         */
-        explicit Job(const Options& options);
+        explicit JobSlot(const Options& options);
+
         RandomUtils random_utils;
         OptimizerJob job;
     };
-    std::vector<Job> jobs;
+    std::vector<JobSlot> jobs;
 };
 } // namespace angonoka::stun
