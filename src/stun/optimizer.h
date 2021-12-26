@@ -40,8 +40,6 @@ public:
     /**
         Constructor.
 
-        TODO: expects
-
         @param options Optimizer tunables
     */
     explicit Optimizer(const Options& options);
@@ -121,8 +119,6 @@ private:
     struct JobSlot {
         /**
             Constructor.
-
-            TODO: expects
 
             @params options Job options
         */

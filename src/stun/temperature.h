@@ -51,11 +51,10 @@ public:
     /**
         Constructor.
 
-        TODO: doc, expects
+        Initial temperature is 1.0.
 
         Note: restart_period must be a power of 2.
 
-        @param beta             Initial beta (temperature) value
         @param beta_scale       Scaling factor
         @param stun_window      STUN rolling mean window
         @param restart_period   Number of iterations before restarting
@@ -74,11 +73,7 @@ public:
     /**
         Updates the internal counters, averages and the beta value.
 
-        The dampening parameter reduces the rate of change of
-        the beta value, where 0 means no dampening and 1
-        reduces the rate to 0.
-
-        @param stun         Current STUN value
+        @param stun Current STUN value
     */
     void update(float stun) noexcept;
 
@@ -96,7 +91,9 @@ public:
     */
     [[nodiscard]] float average_stun() const noexcept;
 
-    // TODO: doc, test, expects
+    /**
+        Reset the temperature to the initial value of 1.0.
+    */
     void reset();
 
 private:

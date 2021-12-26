@@ -20,10 +20,13 @@ public:
     /**
         OptimizerJob options.
 
-        TODO: doc
-
-        @var params Schedule parameters
-        @var random Random utils.
+        @var params         Schedule parameters
+        @var random         Random utils.
+        @var batch_size     Number of STUN iterations in each update
+        @var beta_scale     Temperature parameter's inertia
+        @var stun_window    Temperature adjustment window
+        @var gamma          Domain-specific parameter for STUN
+        @var restart_period Temperature volatility period
     */
     struct Options {
         gsl::not_null<const ScheduleParams*> params;
@@ -48,8 +51,6 @@ public:
 
     /**
         Constructor.
-
-        TODO: expects
 
         @param options Job tunables
     */
@@ -84,16 +85,12 @@ public:
     /**
         Get current parameters.
 
-        TODO: expects
-
         @return Parameters.
     */
     [[nodiscard]] Params params() const;
 
     /**
         Set parameters.
-
-        TODO: expects
 
         @param params Parameters.
     */

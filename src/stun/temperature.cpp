@@ -68,9 +68,13 @@ void Temperature::update(float stun) noexcept
 
 void Temperature::reset()
 {
+    Expects(stun_window > 0);
+
     value = initial_beta;
     acc = decltype(acc){
         tag::rolling_window::window_size = INT(stun_window)};
+
+    Ensures(value == 1.0F);
 }
 
 Temperature& Temperature::operator=(Temperature&& other) noexcept

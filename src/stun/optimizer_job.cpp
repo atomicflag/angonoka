@@ -1,4 +1,5 @@
 #include "optimizer_job.h"
+#include <bit>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
@@ -11,6 +12,9 @@
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define INT(x) x
 #endif // NDEBUG
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define UNSIGNED(x) static_cast<std::make_unsigned_t<decltype(x)>>(x)
 
 namespace angonoka::stun {
 OptimizerJob::OptimizerJob(
@@ -28,6 +32,11 @@ const Options& options)
           initial_schedule(*options.params)}
 {
     Expects(options.batch_size > 0);
+    Expects(options.beta_scale > 0.F);
+    Expects(options.stun_window > 0);
+    Expects(options.restart_period > 0);
+    Expects(
+        std::popcount(UNSIGNED(INT(options.restart_period))) == 1);
 }
 
 void OptimizerJob::update() noexcept
@@ -135,3 +144,4 @@ OptimizerJob::~OptimizerJob() noexcept = default;
 } // namespace angonoka::stun
 
 #undef INT
+#undef UNSIGNED
