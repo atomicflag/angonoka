@@ -45,6 +45,7 @@ std::chrono::seconds makespan(
 */
 OptimizedSchedule optimize(
     const stun::ScheduleParams& params,
+    const OptimizationParameters& opt_params,
     Queue<ProgressEvent>& events)
 {
     Expects(!params.agent_performance.empty());
@@ -56,27 +57,16 @@ OptimizedSchedule optimize(
 
     using namespace angonoka::stun;
 
-    // TODO: Expose these in the Configuration
-    // as well as beta_scale, stun_window,
-    // gamma and restart_period
-    // Maximum of 50 idle batches
-    constexpr auto batch_size = 30'000;
-    constexpr auto max_idle_iters = batch_size * 50;
-    constexpr auto beta_scale = 1e-4F;
-    constexpr auto stun_window = 10000;
-    constexpr auto gamma = .5F;
-    constexpr auto restart_period = 1 << 20;
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wbraced-scalar-init"
     stun::Optimizer optimizer{
         {.params{&params},
-         .batch_size{batch_size},
-         .max_idle_iters{max_idle_iters},
-         .beta_scale{beta_scale},
-         .stun_window{stun_window},
-         .gamma{gamma},
-         .restart_period{restart_period}}};
+         .batch_size{opt_params.batch_size},
+         .max_idle_iters{opt_params.max_idle_iters},
+         .beta_scale{opt_params.beta_scale},
+         .stun_window{opt_params.stun_window},
+         .gamma{opt_params.gamma},
+         .restart_period{opt_params.restart_period}}};
 #pragma clang diagnostic pop
     while (!optimizer.has_converged()) {
         optimizer.update();
@@ -104,7 +94,8 @@ predict(const Configuration& config)
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationStart);
         const auto schedule_params = stun::to_schedule_params(config);
-        const auto opt_result = optimize(schedule_params, *events);
+        const auto opt_result
+            = optimize(schedule_params, config.opt_params, *events);
         events->enqueue(ScheduleOptimizationComplete{
             .makespan{opt_result.makespan}});
         // TODO: WIP do other stuff here
@@ -125,7 +116,8 @@ schedule(const Configuration& config)
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationStart);
         const auto schedule_params = stun::to_schedule_params(config);
-        auto opt_result = optimize(schedule_params, *events);
+        auto opt_result
+            = optimize(schedule_params, config.opt_params, *events);
         events->enqueue(ScheduleOptimizationComplete{
             .makespan{opt_result.makespan}});
         events->enqueue(SimpleProgressEvent::Finished);
