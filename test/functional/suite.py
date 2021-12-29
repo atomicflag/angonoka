@@ -46,6 +46,12 @@ def test_prints_help():
       --color,--no-color{false}   Force colored output
       -q,--quiet                  Give less output
       -v,--verbose                Give more output
+      --batch-size=30000          Optimization batch size
+      --max-idle-iters=1500000    Optimization halting condition
+      --beta-scale=0.0001         Optimization temperature parameter inertia
+      --stun-window=10000         Optimization temperature adjustment window
+      --gamma=0.5                 Optimization STUN parameter
+      --restart-period=1048576    Optimization temperature volatility period
     [Option Group: Default]
       Positionals:
         input file TEXT:FILE REQUIRED
