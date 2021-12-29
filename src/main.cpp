@@ -29,7 +29,15 @@ int main(int argc, char** argv)
         "Force colored output");
     cli.add_flag("-q,--quiet", options.quiet, "Give less output");
     cli.add_flag("-v,--verbose", options.verbose, "Give more output");
-    // TODO: Add CLI optimization parameters
+
+    cli.add_flag("--batch-size", "Optimization batch size")->default_str("30000");
+    cli.add_flag("--max-idle-iters", "Optimization halting condition")->default_str("1500000");
+    cli.add_flag("--beta-scale",  "Optimization temperature parameter inertia")->default_str("1e-4F");
+    cli.add_flag("--stun-window", "Optimization temperature adjustment window")->default_str("10000");
+    cli.add_flag("--gamma",  "Optimization STUN parameter")->default_str("0.5");
+    cli.add_flag("--restart-period",  "Optimization temperature volatility period")->default_str("1048576");
+    // TODO: Add validation
+
     cli.require_subcommand(-1);
 
     auto* default_group = cli.add_option_group("Default");
@@ -51,6 +59,7 @@ int main(int argc, char** argv)
     try {
         CLI11_PARSE(cli, argc, argv);
         const auto config = parse_config(options);
+        // TODO: Assign optimization parameters
 
         // schedule subcommand
         if (schedule_cmd->parsed()) {
