@@ -16,12 +16,11 @@ struct UserError : std::exception {
 /**
     CLI options.
 
-    TODO: doc
-
     @var filename   Path to tasks.yaml file
     @var verbose    Debug messages
     @var color      Colored text
     @var quiet      Suppress output
+    @var output     File to write the result to
 */
 struct Options {
     std::string filename;

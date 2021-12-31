@@ -11,24 +11,36 @@ void optimization_options(CLI::App& cli)
 {
     using Params = angonoka::OptimizationParameters;
 
-    cli.add_flag("--batch-size", "Optimization batch size")
-        ->default_val(Params::default_batch_size);
-    cli.add_flag("--max-idle-iters", "Optimization halting condition")
-        ->default_val(Params::default_max_idle_iters);
-    cli.add_flag(
+    cli.add_option("--batch-size", "Optimization batch size")
+        ->default_val(Params::default_batch_size)
+        ->check(CLI::TypeValidator<int>())
+        ->check(CLI::PositiveNumber);
+    cli.add_option(
+           "--max-idle-iters",
+           "Optimization halting condition")
+        ->default_val(Params::default_max_idle_iters)
+        ->check(CLI::TypeValidator<int>())
+        ->check(CLI::PositiveNumber);
+    cli.add_option(
            "--beta-scale",
            "Optimization temperature parameter inertia")
-        ->default_val(Params::default_beta_scale);
-    cli.add_flag(
+        ->default_val(Params::default_beta_scale)
+        ->check(CLI::PositiveNumber);
+    cli.add_option(
            "--stun-window",
            "Optimization temperature adjustment window")
-        ->default_val(Params::default_stun_window);
-    cli.add_flag("--gamma", "Optimization STUN parameter")
-        ->default_val(Params::default_gamma);
-    cli.add_flag(
+        ->default_val(Params::default_stun_window)
+        ->check(CLI::TypeValidator<int>())
+        ->check(CLI::PositiveNumber);
+    cli.add_option("--gamma", "Optimization STUN parameter")
+        ->default_val(Params::default_gamma)
+        ->check(CLI::PositiveNumber);
+    cli.add_option(
            "--restart-period",
            "Optimization temperature volatility period")
-        ->default_val(Params::default_restart_period);
+        ->default_val(Params::default_restart_period)
+        ->check(CLI::TypeValidator<int>())
+        ->check(CLI::PositiveNumber);
     // TODO: Add validation
 }
 
