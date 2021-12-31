@@ -27,6 +27,7 @@ void print_yaml_error(
         e.msg);
 }
 
+// TODO: doc, test, expects
 template <typename T> void assign_safe(T& val, const CLI::Option* opt)
 {
     using boost::safe_numerics::base_type;
