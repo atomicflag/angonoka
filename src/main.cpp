@@ -109,8 +109,7 @@ int main(int argc, char** argv)
     try {
         CLI11_PARSE(cli, argc, argv);
         auto config = parse_config(options);
-        // TODO: add parse_opt_params in src/cli/cli.h
-        // parse_opt_params(cli, config.opt_params);
+        parse_opt_params(cli, config.opt_params);
 
         // schedule subcommand
         if (schedule_cmd->parsed()) {

@@ -2,6 +2,7 @@
 
 #include "configuration.h"
 #include "options.h"
+#include <CLI/App.hpp>
 
 namespace angonoka::cli {
 /**
@@ -22,4 +23,7 @@ Configuration parse_config(const Options& options);
 void run_prediction(
     const Configuration& config,
     const Options& options);
+
+// TODO: doc, test, expects
+void parse_opt_params(CLI::App& cli, OptimizationParameters& params);
 } // namespace angonoka::cli

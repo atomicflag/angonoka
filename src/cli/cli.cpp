@@ -26,6 +26,12 @@ void print_yaml_error(
         e.mark.column + 1,
         e.msg);
 }
+
+template <typename T> void assign_safe(T& val, const CLI::Option* opt)
+{
+    using boost::safe_numerics::base_type;
+    val = opt->as<typename base_type<T>::type>();
+}
 } // namespace
 
 namespace angonoka::cli {
@@ -74,5 +80,15 @@ void run_prediction(
     prediction_future.get();
     // TODO: implement
     fmt::print("Done.\n");
+}
+
+void parse_opt_params(CLI::App& cli, OptimizationParameters& params)
+{
+    assign_safe(params.batch_size, cli["--batch-size"]);
+    assign_safe(params.max_idle_iters, cli["--max-idle-iters"]);
+    assign_safe(params.beta_scale, cli["--beta-scale"]);
+    assign_safe(params.stun_window, cli["--stun-window"]);
+    assign_safe(params.gamma, cli["--gamma"]);
+    assign_safe(params.restart_period, cli["--restart-period"]);
 }
 } // namespace angonoka::cli
