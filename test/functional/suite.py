@@ -369,6 +369,7 @@ def test_schedule_invalid_output():
     failed opening file: No such file or directory: unspecified iostream_category error"""
     )
 
+
 def test_no_args():
     code, cout, cerr = run()
     assert code == 106
@@ -378,3 +379,28 @@ def test_no_args():
     Run with --help for more information.
     """
     )
+
+
+@pytest.mark.parametrize(
+    "parameter,value",
+    [
+        ("--batch-size", "0"),
+        ("--batch-size", "-1"),
+        ("--max-idle-iters", "0"),
+        ("--max-idle-iters", "-1"),
+        ("--beta-scale", "0"),
+        ("--beta-scale", "-1"),
+        ("--stun-window", "0"),
+        ("--stun-window", "-1"),
+        ("--gamma", "0"),
+        ("--gamma", "-1"),
+        ("--restart-period", "0"),
+        ("--restart-period", "-1"),
+    ],
+)
+def test_optimization_parameters(parameter, value):
+    code, cout, cerr = run(parameter, value)
+    assert code == 105
+    assert parameter in cerr
+
+# TODO: test --restart-period to be power of 2
