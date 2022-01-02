@@ -98,7 +98,7 @@ predict(const Configuration& config)
             = optimize(schedule_params, config.opt_params, *events);
         events->enqueue(ScheduleOptimizationComplete{
             .makespan{opt_result.makespan}});
-        // TODO: WIP do other stuff here
+        // TODO: Run the simulation
         events->enqueue(SimpleProgressEvent::Finished);
         return Prediction{};
     });

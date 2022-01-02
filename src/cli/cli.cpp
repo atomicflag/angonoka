@@ -27,11 +27,18 @@ void print_yaml_error(
         e.msg);
 }
 
-// TODO: doc, test, expects
-template <typename T> void assign_safe(T& val, const CLI::Option* opt)
+/**
+    CLI can't convert Option types to safe_numerics
+    so we have to do it manually.
+
+    @param value    Value to assign to
+    @param option   CLI Option
+*/
+template <typename T>
+void assign_safe(T& value, const CLI::Option& option)
 {
     using boost::safe_numerics::base_type;
-    val = opt->as<typename base_type<T>::type>();
+    value = option.as<typename base_type<T>::type>();
 }
 } // namespace
 
@@ -79,17 +86,17 @@ void run_prediction(
             EventHandler{&progress, &options});
     }
     prediction_future.get();
-    // TODO: implement
+    // TODO: Show simulation results
     fmt::print("Done.\n");
 }
 
 void parse_opt_params(CLI::App& cli, OptimizationParameters& params)
 {
-    assign_safe(params.batch_size, cli["--batch-size"]);
-    assign_safe(params.max_idle_iters, cli["--max-idle-iters"]);
-    assign_safe(params.beta_scale, cli["--beta-scale"]);
-    assign_safe(params.stun_window, cli["--stun-window"]);
-    assign_safe(params.gamma, cli["--gamma"]);
-    assign_safe(params.restart_period, cli["--restart-period"]);
+    assign_safe(params.batch_size, *cli["--batch-size"]);
+    assign_safe(params.max_idle_iters, *cli["--max-idle-iters"]);
+    assign_safe(params.beta_scale, *cli["--beta-scale"]);
+    assign_safe(params.stun_window, *cli["--stun-window"]);
+    assign_safe(params.gamma, *cli["--gamma"]);
+    assign_safe(params.restart_period, *cli["--restart-period"]);
 }
 } // namespace angonoka::cli

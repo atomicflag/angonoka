@@ -24,6 +24,13 @@ void run_prediction(
     const Configuration& config,
     const Options& options);
 
-// TODO: doc, test, expects
+/**
+    Parse optimization-related CLI parameters.
+
+    TODO: test
+
+    @param cli      App instance
+    @param params   Optimization parameters to be set
+*/
 void parse_opt_params(CLI::App& cli, OptimizationParameters& params);
 } // namespace angonoka::cli

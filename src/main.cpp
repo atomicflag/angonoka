@@ -41,7 +41,7 @@ void optimization_options(CLI::App& cli)
         ->default_val(Params::default_restart_period)
         ->check(CLI::TypeValidator<int>())
         ->check(CLI::PositiveNumber);
-    // TODO: Add validation
+    // TODO: Add validation and test
 }
 
 void common_options(CLI::App& cli, Options& options)
