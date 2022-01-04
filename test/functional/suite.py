@@ -403,4 +403,8 @@ def test_optimization_parameters(parameter, value):
     assert code == 105
     assert parameter in cerr
 
-# TODO: test --restart-period to be power of 2
+
+def test_restart_period_power_of_2(parameter, value):
+    code, cout, cerr = run("--restart-period", "3")
+    assert code == 105
+    assert parameter in cerr
