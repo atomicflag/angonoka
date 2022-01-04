@@ -2,11 +2,25 @@
 #include "cli/json_schedule.h"
 #include "config.h"
 #include <CLI/CLI.hpp>
+#include <bit>
 #include <fmt/printf.h>
 
 namespace {
 using namespace angonoka::cli;
 
+// TODO: doc, test, expects
+std::string power_of_2_validator(const std::string& v)
+{
+    try {
+        const auto i = static_cast<unsigned int>(std::stoi(v));
+        if (std::popcount(i) != 1) return "Must be a power of 2";
+    } catch (...) {
+        return "Must be a number";
+    }
+    return {};
+}
+
+// TODO: doc, test, expects
 void optimization_options(CLI::App& cli)
 {
     using Params = angonoka::OptimizationParameters;
@@ -40,10 +54,12 @@ void optimization_options(CLI::App& cli)
            "Optimization temperature volatility period")
         ->default_val(Params::default_restart_period)
         ->check(CLI::TypeValidator<int>())
-        ->check(CLI::PositiveNumber);
+        ->check(CLI::PositiveNumber)
+        ->check(CLI::Validator(power_of_2_validator, "POWER_OF_2"));
     // TODO: Add validation and test
 }
 
+// TODO: doc, test, expects
 void common_options(CLI::App& cli, Options& options)
 {
     cli.set_version_flag(
@@ -58,6 +74,7 @@ void common_options(CLI::App& cli, Options& options)
     cli.add_flag("-v,--verbose", options.verbose, "Give more output");
 }
 
+// TODO: doc, test, expects
 auto schedule_subcommand(
     CLI::App& cli,
     Options& options,
@@ -76,6 +93,7 @@ auto schedule_subcommand(
     return schedule_cmd;
 }
 
+// TODO: doc, test, expects
 auto default_group(CLI::App& cli, Options& options)
 {
     auto* group = cli.add_option_group("Default");

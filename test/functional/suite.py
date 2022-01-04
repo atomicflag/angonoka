@@ -55,7 +55,7 @@ def test_prints_help():
       --stun-window :INT:POSITIVE=10000
                                   Optimization temperature adjustment window
       --gamma :POSITIVE=0.5       Optimization STUN parameter
-      --restart-period :INT:POSITIVE=1048576
+      --restart-period :INT:POSITIVE:POWER_OF_2=1048576
                                   Optimization temperature volatility period
     [Option Group: Default]
       Positionals:
@@ -404,7 +404,7 @@ def test_optimization_parameters(parameter, value):
     assert parameter in cerr
 
 
-def test_restart_period_power_of_2(parameter, value):
+def test_restart_period_power_of_2():
     code, cout, cerr = run("--restart-period", "3")
     assert code == 105
-    assert parameter in cerr
+    assert "--restart-period" in cerr
