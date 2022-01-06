@@ -27,10 +27,12 @@ void run_prediction(
 /**
     Parse optimization-related CLI parameters.
 
-    TODO: test
+    TODO: Doc, test
 
     @param cli      App instance
     @param params   Optimization parameters to be set
 */
-void parse_opt_params(CLI::App& cli, OptimizationParameters& params);
+void parse_opt_params(
+    const OptParams& in_params,
+    OptimizationParameters& params);
 } // namespace angonoka::cli

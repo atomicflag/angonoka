@@ -36,7 +36,7 @@ const Options& options)
     Expects(options.stun_window > 0);
     Expects(options.restart_period > 0);
     Expects(
-        std::popcount(UNSIGNED(INT(options.restart_period))) == 1);
+        std::has_single_bit(UNSIGNED(INT(options.restart_period))));
 }
 
 void OptimizerJob::update() noexcept

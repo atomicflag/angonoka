@@ -41,7 +41,7 @@ Temperature::Temperature(
     Expects(beta_scale > 0.F);
     Expects(*stun_window > 0);
     Expects(*restart_period > 0);
-    Expects(std::popcount(*restart_period) == 1);
+    Expects(std::has_single_bit(*restart_period));
 }
 
 [[nodiscard]] float Temperature::average_stun() const noexcept

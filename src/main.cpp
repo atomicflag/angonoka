@@ -21,8 +21,7 @@ std::string power_of_2_validator(const std::string& v)
 {
     try {
         const auto i = static_cast<unsigned int>(std::stoi(v));
-        // TODO: check if LLVM 13 has is_power_of_two
-        if (std::popcount(i) != 1) return "Must be a power of 2";
+        if (!std::has_single_bit(i)) return "Must be a power of 2";
     } catch (...) {
         return "Must be a number";
     }
@@ -32,45 +31,52 @@ std::string power_of_2_validator(const std::string& v)
 /**
     Add CLI11 options related to schedule optimization.
 
+    TODO: doc
+
     @param cli Instance of CLI::App
 */
-void optimization_options(CLI::App& cli)
+void optimization_options(CLI::App& cli, OptParams& params)
 {
     using Params = angonoka::OptimizationParameters;
 
-    cli.add_option("--batch-size", "Optimization batch size")
+    cli.add_option(
+           "--batch-size",
+           params.batch_size,
+           "Optimization batch size")
         ->default_val(Params::default_batch_size)
-        ->check(CLI::TypeValidator<int>())
         ->check(CLI::PositiveNumber);
     cli.add_option(
            "--max-idle-iters",
+           params.max_idle_iters,
            "Optimization halting condition")
         ->default_val(Params::default_max_idle_iters)
-        ->check(CLI::TypeValidator<int>())
         ->check(CLI::PositiveNumber);
     cli.add_option(
            "--beta-scale",
+           params.beta_scale,
            "Optimization temperature parameter inertia")
         ->default_val(Params::default_beta_scale)
         ->check(CLI::PositiveNumber);
     cli.add_option(
            "--stun-window",
+           params.stun_window,
            "Optimization temperature adjustment window")
         ->default_val(Params::default_stun_window)
-        ->check(CLI::TypeValidator<int>())
         ->check(CLI::PositiveNumber);
-    cli.add_option("--gamma", "Optimization STUN parameter")
+    cli.add_option(
+           "--gamma",
+           params.gamma,
+           "Optimization STUN parameter")
         ->default_val(Params::default_gamma)
         ->check(CLI::PositiveNumber);
     cli.add_option(
            "--restart-period",
+           params.restart_period,
            "Optimization temperature volatility period")
         ->default_val(Params::default_restart_period)
-        ->check(CLI::TypeValidator<int>())
         ->check(CLI::PositiveNumber)
         ->check(CLI::Validator(power_of_2_validator, "POWER_OF_2"));
     // TODO: Add validation and test
-    // TODO: Move optimization options to Options?
 }
 
 /**
@@ -93,8 +99,6 @@ void common_options(CLI::App& cli, Options& options)
     cli.add_flag("-v,--verbose", options.verbose, "Give more output");
 }
 
-// TODO: Replace all pointer parameters with references
-
 /**
     Add a subcommand for generating a schedule JSON.
 
@@ -107,12 +111,12 @@ void common_options(CLI::App& cli, Options& options)
 auto schedule_subcommand(
     CLI::App& cli,
     Options& options,
-    CLI::Option_group* default_group)
+    CLI::Option_group& default_group)
 {
     auto* schedule_cmd = cli.add_subcommand(
         "schedule",
         "Output the schedule in JSON format.");
-    schedule_cmd->excludes(default_group);
+    schedule_cmd->excludes(&default_group);
     schedule_cmd
         ->add_option("-o,--output", "Output the schedule to a file")
         ->default_str("schedule.json");
@@ -155,16 +159,16 @@ int main(int argc, char** argv)
         "modeling.\n",
         ANGONOKA_NAME};
     common_options(cli, options);
-    optimization_options(cli);
+    optimization_options(cli, options.opt_params);
     cli.require_subcommand(-1);
     auto* default_grp = default_group(cli, options);
     auto* schedule_cmd
-        = schedule_subcommand(cli, options, default_grp);
+        = schedule_subcommand(cli, options, *default_grp);
 
     try {
         CLI11_PARSE(cli, argc, argv);
         auto config = parse_config(options);
-        parse_opt_params(cli, config.opt_params);
+        parse_opt_params(options.opt_params, config.opt_params);
 
         // schedule subcommand
         if (schedule_cmd->parsed()) {

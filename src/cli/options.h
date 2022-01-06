@@ -13,6 +13,16 @@ namespace angonoka::cli {
 struct UserError : std::exception {
 };
 
+// TODO: doc, test, expects
+struct OptParams {
+    int batch_size;
+    int max_idle_iters;
+    float beta_scale;
+    int stun_window;
+    float gamma;
+    int restart_period;
+};
+
 /**
     CLI options.
 
@@ -28,5 +38,6 @@ struct Options {
     bool color{output_is_terminal()};
     bool quiet{false};
     std::string output;
+    OptParams opt_params;
 };
 } // namespace angonoka::cli

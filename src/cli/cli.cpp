@@ -90,13 +90,15 @@ void run_prediction(
     fmt::print("Done.\n");
 }
 
-void parse_opt_params(CLI::App& cli, OptimizationParameters& params)
+void parse_opt_params(
+    const OptParams& in_params,
+    OptimizationParameters& params)
 {
-    assign_safe(params.batch_size, *cli["--batch-size"]);
-    assign_safe(params.max_idle_iters, *cli["--max-idle-iters"]);
-    assign_safe(params.beta_scale, *cli["--beta-scale"]);
-    assign_safe(params.stun_window, *cli["--stun-window"]);
-    assign_safe(params.gamma, *cli["--gamma"]);
-    assign_safe(params.restart_period, *cli["--restart-period"]);
+    params.batch_size = in_params.batch_size;
+    params.max_idle_iters = in_params.max_idle_iters;
+    params.beta_scale = in_params.beta_scale;
+    params.stun_window = in_params.stun_window;
+    params.gamma = in_params.gamma;
+    params.restart_period = in_params.restart_period;
 }
 } // namespace angonoka::cli
