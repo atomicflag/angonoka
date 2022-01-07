@@ -27,12 +27,14 @@ void run_prediction(
 /**
     Parse optimization-related CLI parameters.
 
-    TODO: Doc, test
+    All CLI parameters should be validated by CLI itself
+    before calling this function, so it simply copies
+    parameters from one struct to another.
 
-    @param cli      App instance
-    @param params   Optimization parameters to be set
+    @param cli_params   CLI optimization parameters
+    @param params       Optimization parameters to be set
 */
 void parse_opt_params(
-    const OptParams& in_params,
+    const OptParams& cli_params,
     OptimizationParameters& params);
 } // namespace angonoka::cli

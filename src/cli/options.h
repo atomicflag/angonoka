@@ -13,7 +13,24 @@ namespace angonoka::cli {
 struct UserError : std::exception {
 };
 
-// TODO: doc, test, expects
+/**
+    CLI optimization parameters.
+
+    A structure to hold parameters to be copied to the
+    optimization section of the prediction configuration.
+
+    Can't use safe numerics here because CLI11
+    can't assign those.
+
+    Same variables as angonoka::OptimizationParameters.
+
+    @var batch_size     Number of STUN iterations in each update
+    @var max_idle_iters Halting condition
+    @var beta_scale     Temperature parameter's inertia
+    @var stun_window    Temperature adjustment window
+    @var gamma          Domain-specific parameter for STUN
+    @var restart_period Temperature volatility period
+*/
 struct OptParams {
     int batch_size;
     int max_idle_iters;

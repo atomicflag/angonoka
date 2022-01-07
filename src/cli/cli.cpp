@@ -26,20 +26,6 @@ void print_yaml_error(
         e.mark.column + 1,
         e.msg);
 }
-
-/**
-    CLI can't convert Option types to safe_numerics
-    so we have to do it manually.
-
-    @param value    Value to assign to
-    @param option   CLI Option
-*/
-template <typename T>
-void assign_safe(T& value, const CLI::Option& option)
-{
-    using boost::safe_numerics::base_type;
-    value = option.as<typename base_type<T>::type>();
-}
 } // namespace
 
 namespace angonoka::cli {
@@ -91,14 +77,14 @@ void run_prediction(
 }
 
 void parse_opt_params(
-    const OptParams& in_params,
+    const OptParams& cli_params,
     OptimizationParameters& params)
 {
-    params.batch_size = in_params.batch_size;
-    params.max_idle_iters = in_params.max_idle_iters;
-    params.beta_scale = in_params.beta_scale;
-    params.stun_window = in_params.stun_window;
-    params.gamma = in_params.gamma;
-    params.restart_period = in_params.restart_period;
+    params.batch_size = cli_params.batch_size;
+    params.max_idle_iters = cli_params.max_idle_iters;
+    params.beta_scale = cli_params.beta_scale;
+    params.stun_window = cli_params.stun_window;
+    params.gamma = cli_params.gamma;
+    params.restart_period = cli_params.restart_period;
 }
 } // namespace angonoka::cli

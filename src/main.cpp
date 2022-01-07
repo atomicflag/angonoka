@@ -31,9 +31,8 @@ std::string power_of_2_validator(const std::string& v)
 /**
     Add CLI11 options related to schedule optimization.
 
-    TODO: doc
-
-    @param cli Instance of CLI::App
+    @param cli      Instance of CLI::App
+    @param params   CLI optimization parameters
 */
 void optimization_options(CLI::App& cli, OptParams& params)
 {
@@ -76,7 +75,6 @@ void optimization_options(CLI::App& cli, OptParams& params)
         ->default_val(Params::default_restart_period)
         ->check(CLI::PositiveNumber)
         ->check(CLI::Validator(power_of_2_validator, "POWER_OF_2"));
-    // TODO: Add validation and test
 }
 
 /**
