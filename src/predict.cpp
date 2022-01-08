@@ -70,6 +70,7 @@ OptimizedSchedule optimize(
 #pragma clang diagnostic pop
     while (!optimizer.has_converged()) {
         optimizer.update();
+        // TODO: Log epochs
         events.enqueue(ScheduleOptimizationEvent{
             .progress = optimizer.estimated_progress(),
             .makespan = makespan(optimizer, params)});

@@ -99,6 +99,8 @@ public:
     */
     void params(const ScheduleParams& params);
 
+    // TODO: Expose epochs
+
 private:
     struct Impl;
 

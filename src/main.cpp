@@ -75,6 +75,7 @@ void optimization_options(CLI::App& cli, OptParams& params)
         ->default_val(Params::default_restart_period)
         ->check(CLI::PositiveNumber)
         ->check(CLI::Validator(power_of_2_validator, "POWER_OF_2"));
+    // TODO: Add optimization progress log option
 }
 
 /**

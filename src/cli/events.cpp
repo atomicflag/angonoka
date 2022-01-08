@@ -33,6 +33,7 @@ void EventHandler::operator()(
     Expects(e.progress >= 0.F && e.progress <= 1.F);
 
     update(*progress, e.progress, "Optimization progress");
+    // TODO: Log makespan, progress, epochs to csv
 }
 
 void EventHandler::operator()(
