@@ -9,12 +9,6 @@
 
 namespace angonoka::stun {
 /**
-    How many iterations without improvement before
-    considering optimization complete.
-*/
-enum class MaxIdleIters : std::int_fast32_t;
-
-/**
     Optimization algorithm based on stochastic tunneling.
 
     This is the primary facade for doing stochastic tunneling
@@ -23,16 +17,32 @@ enum class MaxIdleIters : std::int_fast32_t;
 class Optimizer {
 public:
     /**
+        Optimizer options.
+
+        @var params         An instance of schedule parameters
+        @var batch_size     Number of STUN iterations in each update
+        @var max_idle_iters Halting condition
+        @var beta_scale     Temperature parameter's inertia
+        @var stun_window    Temperature adjustment window
+        @var gamma          Domain-specific parameter for STUN
+        @var restart_period Temperature volatility period
+    */
+    struct Options {
+        gsl::not_null<const ScheduleParams*> params;
+        int32 batch_size;
+        int32 max_idle_iters;
+        float beta_scale;
+        int32 stun_window;
+        float gamma;
+        int32 restart_period;
+    };
+
+    /**
         Constructor.
 
-        @param params           Scheduling parameters
-        @param batch_size       Number of iterations per update
-        @param max_idle_iters   Stopping condition
+        @param options Optimizer tunables
     */
-    Optimizer(
-        const ScheduleParams& params,
-        BatchSize batch_size,
-        MaxIdleIters max_idle_iters);
+    explicit Optimizer(const Options& options);
 
     /**
         Run stochastic tunneling optimization batch.
@@ -92,10 +102,10 @@ public:
 private:
     struct Impl;
 
-    int16 batch_size;
-    int16 max_idle_iters;
-    int16 idle_iters{0};
-    int16 epochs{0};
+    int32 batch_size;
+    int32 max_idle_iters;
+    int32 idle_iters{0};
+    int32 epochs{0};
     float last_progress{0.F};
     float last_makespan{0.F};
     ExpCurveFitter exp_curve;
@@ -106,17 +116,17 @@ private:
         @var random_utils   Random number generator utilities
         @var job            Optimization job
     */
-    struct Job {
+    struct JobSlot {
         /**
             Constructor.
 
-            @param params       Scheduling parameters
-            @param batch_size   Number of iterations per update
+            @params options Job options
         */
-        Job(const ScheduleParams& params, BatchSize batch_size);
+        explicit JobSlot(const Options& options);
+
         RandomUtils random_utils;
         OptimizerJob job;
     };
-    std::vector<Job> jobs;
+    std::vector<JobSlot> jobs;
 };
 } // namespace angonoka::stun

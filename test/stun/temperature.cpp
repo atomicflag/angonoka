@@ -27,7 +27,6 @@ TEST_CASE("Temperature")
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
         Temperature temp{
-            Beta{1.f},
             BetaScale{1e-3f},
             StunWindow{5},
             RestartPeriod{64}};
@@ -50,7 +49,6 @@ TEST_CASE("Temperature")
         using namespace angonoka::stun;
 
         Temperature temp{
-            Beta{1.f},
             BetaScale{1e-3f},
             StunWindow{5},
             RestartPeriod{64}};
@@ -58,27 +56,28 @@ TEST_CASE("Temperature")
         SECTION("copy assignment")
         {
             Temperature temp2{
-                Beta{2.f},
                 BetaScale{1e-3f},
                 StunWindow{5},
                 RestartPeriod{64}};
 
+            for (int i{0}; i < 10; ++i) temp2.update(1000.f);
+
             temp = temp2;
 
-            REQUIRE(temp == 2.f);
+            REQUIRE(temp > 2.F);
         }
 
         SECTION("move assignment")
         {
             Temperature temp2{
-                Beta{2.f},
                 BetaScale{1e-3f},
                 StunWindow{5},
                 RestartPeriod{64}};
+            for (int i{0}; i < 10; ++i) temp2.update(1000.f);
 
             temp = std::move(temp2);
 
-            REQUIRE(temp == 2.f);
+            REQUIRE(temp > 2.F);
         }
 
         SECTION("copy ctor")

@@ -46,6 +46,17 @@ def test_prints_help():
       --color,--no-color{false}   Force colored output
       -q,--quiet                  Give less output
       -v,--verbose                Give more output
+      --batch-size INT:POSITIVE=30000
+                                  Optimization batch size
+      --max-idle-iters INT:POSITIVE=1500000
+                                  Optimization halting condition
+      --beta-scale FLOAT:POSITIVE=0.0001
+                                  Optimization temperature parameter inertia
+      --stun-window INT:POSITIVE=10000
+                                  Optimization temperature adjustment window
+      --gamma FLOAT:POSITIVE=0.5  Optimization STUN parameter
+      --restart-period INT:POSITIVE:POWER_OF_2=1048576
+                                  Optimization temperature volatility period
     [Option Group: Default]
       Positionals:
         input file TEXT:FILE REQUIRED
@@ -358,6 +369,7 @@ def test_schedule_invalid_output():
     failed opening file: No such file or directory: unspecified iostream_category error"""
     )
 
+
 def test_no_args():
     code, cout, cerr = run()
     assert code == 106
@@ -367,3 +379,32 @@ def test_no_args():
     Run with --help for more information.
     """
     )
+
+
+@pytest.mark.parametrize(
+    "parameter,value",
+    [
+        ("--batch-size", "0"),
+        ("--batch-size", "-1"),
+        ("--max-idle-iters", "0"),
+        ("--max-idle-iters", "-1"),
+        ("--beta-scale", "0"),
+        ("--beta-scale", "-1"),
+        ("--stun-window", "0"),
+        ("--stun-window", "-1"),
+        ("--gamma", "0"),
+        ("--gamma", "-1"),
+        ("--restart-period", "0"),
+        ("--restart-period", "-1"),
+    ],
+)
+def test_optimization_parameters(parameter, value):
+    code, cout, cerr = run(parameter, value)
+    assert code == 105
+    assert parameter in cerr
+
+
+def test_restart_period_power_of_2():
+    code, cout, cerr = run("--restart-period", "3")
+    assert code == 105
+    assert "--restart-period" in cerr

@@ -3,25 +3,45 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <gsl/gsl-lite.hpp>
 
+#ifndef NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) base_value(x)
+#else // NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) x
+#endif // NDEBUG
+
+namespace {
+using namespace angonoka::stun;
+
+constexpr auto initial_beta = 1.0F;
+
+constexpr auto operator*(StunWindow i)
+{
+    return static_cast<std::underlying_type_t<StunWindow>>(i);
+}
+
+constexpr auto operator*(RestartPeriod i)
+{
+    return static_cast<std::underlying_type_t<RestartPeriod>>(i);
+}
+} // namespace
+
 namespace angonoka::stun {
 Temperature::Temperature(
-    Beta beta,
     BetaScale beta_scale,
     StunWindow stun_window,
     RestartPeriod restart_period)
-    : value{beta}
-    , acc{tag::rolling_window::window_size
-          = static_cast<std::int_fast32_t>(stun_window)}
+    : value{initial_beta}
+    , stun_window{*stun_window}
+    , acc{tag::rolling_window::window_size = *stun_window}
     , beta_scale{beta_scale}
-    , restart_period_mask{
-          static_cast<std::size_t>(restart_period) - 1}
+    , restart_period_mask{*restart_period - 1}
 {
-    Expects(beta > 0.F);
     Expects(beta_scale > 0.F);
-    Expects(static_cast<std::int_fast32_t>(stun_window) > 0);
-    Expects(static_cast<std::size_t>(restart_period) > 0);
-    Expects(
-        std::popcount(static_cast<std::size_t>(restart_period)) == 1);
+    Expects(*stun_window > 0);
+    Expects(*restart_period > 0);
+    Expects(std::has_single_bit(*restart_period));
 }
 
 [[nodiscard]] float Temperature::average_stun() const noexcept
@@ -46,9 +66,21 @@ void Temperature::update(float stun) noexcept
     Ensures(value >= 0.F);
 }
 
+void Temperature::reset()
+{
+    Expects(stun_window > 0);
+
+    value = initial_beta;
+    acc = decltype(acc){
+        tag::rolling_window::window_size = INT(stun_window)};
+
+    Ensures(value == 1.0F);
+}
+
 Temperature& Temperature::operator=(Temperature&& other) noexcept
 {
     value = other.value;
+    stun_window = other.stun_window;
     try {
         acc = other.acc;
     } catch (...) {
@@ -70,3 +102,5 @@ Temperature& Temperature::operator=(const Temperature& other)
     = default;
 Temperature::~Temperature() noexcept = default;
 } // namespace angonoka::stun
+
+#undef INT

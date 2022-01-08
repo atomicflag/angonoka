@@ -1,5 +1,6 @@
 #include "optimizer.h"
 #include "config.h"
+#include <bit>
 #include <range/v3/algorithm/min.hpp>
 #ifdef ANGONOKA_OPENMP
 #include <omp.h>
@@ -8,10 +9,17 @@
 #ifndef NDEBUG
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define TO_FLOAT(x) static_cast<float>(base_value(x))
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) base_value(x)
 #else // NDEBUG
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define TO_FLOAT(x) static_cast<float>(x)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INT(x) x
 #endif // NDEBUG
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define UNSIGNED(x) static_cast<std::make_unsigned_t<decltype(x)>>(x)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-braces"
@@ -112,34 +120,41 @@ struct Optimizer::Impl {
               });
         const auto best_makespan
             = target_job.job.normalized_makespan();
-        const auto params = best_job(self).options().params;
+        const auto params = best_job(self).params().params;
         for (auto& j : self.jobs) {
             if (j.job.normalized_makespan() == best_makespan)
                 continue;
             j.job = target_job.job;
-            j.job.options(
-                {.params{params}, .random{&j.random_utils}});
+            j.job.params({.params{params}, .random{&j.random_utils}});
         }
     }
 #endif // ANGONOKA_OPENMP
 };
 
-Optimizer::Job::Job(
-    const ScheduleParams& params,
-    BatchSize batch_size)
-    : job{params, random_utils, batch_size}
+Optimizer::JobSlot::JobSlot(const Options& options)
+    : job{
+        {.params{options.params},
+         .random{&random_utils},
+         .batch_size{options.batch_size},
+         .beta_scale{options.beta_scale},
+         .stun_window{options.stun_window},
+         .gamma{options.gamma},
+         .restart_period{options.restart_period}}}
 {
+    Expects(options.batch_size > 0);
+    Expects(options.beta_scale > 0.F);
+    Expects(options.stun_window > 0);
+    Expects(options.restart_period > 0);
+    Expects(
+        std::has_single_bit(UNSIGNED(INT(options.restart_period))));
 }
 
-Optimizer::Optimizer(
-    const ScheduleParams& params,
-    BatchSize batch_size,
-    MaxIdleIters max_idle_iters)
-    : batch_size{static_cast<std::int_fast32_t>(batch_size)}
-    , max_idle_iters{static_cast<std::int_fast32_t>(max_idle_iters)}
+Optimizer::Optimizer(const Options& options)
+    : batch_size{options.batch_size}
+    , max_idle_iters{options.max_idle_iters}
 {
-    Expects(static_cast<std::int_fast32_t>(batch_size) > 0);
-    Expects(static_cast<std::int_fast32_t>(max_idle_iters) > 0);
+    Expects(options.batch_size > 0);
+    Expects(options.max_idle_iters > 0);
 
 #ifdef ANGONOKA_OPENMP
     const auto max_threads = omp_get_max_threads();
@@ -147,8 +162,7 @@ Optimizer::Optimizer(
     constexpr auto max_threads = 1;
 #endif // ANGONOKA_OPENMP
     jobs.reserve(static_cast<gsl::index>(max_threads));
-    for (int i{0}; i < max_threads; ++i)
-        jobs.emplace_back(params, batch_size);
+    for (int i{0}; i < max_threads; ++i) jobs.emplace_back(options);
 
     Ensures(!jobs.empty());
 }
@@ -227,7 +241,7 @@ void Optimizer::params(const ScheduleParams& params)
     Expects(!jobs.empty());
 
     for (auto& j : jobs) {
-        j.job.options({.params{&params}, .random{&j.random_utils}});
+        j.job.params({.params{&params}, .random{&j.random_utils}});
     }
 }
 
@@ -235,10 +249,12 @@ const ScheduleParams& Optimizer::params() const
 {
     Expects(!jobs.empty());
 
-    return *Impl::best_job(*this).options().params;
+    return *Impl::best_job(*this).params().params;
 }
 } // namespace angonoka::stun
 
 #pragma clang diagnostic pop
 
 #undef TO_FLOAT
+#undef INT
+#undef UNSIGNED

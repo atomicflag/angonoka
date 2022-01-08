@@ -10,12 +10,6 @@
 
 namespace angonoka::stun {
 /**
-    How many stochastic tunneling iterations to go through
-    during each update.
-*/
-enum class BatchSize : std::int_fast32_t;
-
-/**
     A single optimization job, meant to be launched in a thread pool.
 
     Optimizer starts many OptimizerJobs in parallel,
@@ -26,10 +20,31 @@ public:
     /**
         OptimizerJob options.
 
+        @var params         Schedule parameters
+        @var random         Random utils.
+        @var batch_size     Number of STUN iterations in each update
+        @var beta_scale     Temperature parameter's inertia
+        @var stun_window    Temperature adjustment window
+        @var gamma          Domain-specific parameter for STUN
+        @var restart_period Temperature volatility period
+    */
+    struct Options {
+        gsl::not_null<const ScheduleParams*> params;
+        gsl::not_null<RandomUtils*> random;
+        int32 batch_size;
+        float beta_scale;
+        int32 stun_window;
+        float gamma;
+        int32 restart_period;
+    };
+
+    /**
+        OptimizerJob parameters.
+
         @var params Schedule parameters
         @var random Random utils.
     */
-    struct Options {
+    struct Params {
         gsl::not_null<const ScheduleParams*> params;
         gsl::not_null<RandomUtils*> random;
     };
@@ -37,15 +52,9 @@ public:
     /**
         Constructor.
 
-        @param params           Scheduling parameters
-        @param random_utils     Random number generator utilities
-        @param batch_size       Number of iterations per update
+        @param options Job tunables
     */
-    OptimizerJob(
-        const ScheduleParams& params,
-        RandomUtils& random_utils,
-        BatchSize batch_size);
-    OptimizerJob(const Options& options, BatchSize batch_size);
+    explicit OptimizerJob(const Options& options);
 
     /**
         Run stochastic tunneling optimization batch.
@@ -74,18 +83,18 @@ public:
     void reset();
 
     /**
-        Get current options.
+        Get current parameters.
 
-        @return Options.
+        @return Parameters.
     */
-    [[nodiscard]] Options options() const;
+    [[nodiscard]] Params params() const;
 
     /**
-        Set options.
+        Set parameters.
 
-        @param options Options.
+        @param params Parameters.
     */
-    void options(const Options& options);
+    void params(const Params& params);
 
     OptimizerJob(const OptimizerJob& other);
     OptimizerJob(OptimizerJob&& other) noexcept;
@@ -94,13 +103,7 @@ public:
     ~OptimizerJob() noexcept;
 
 private:
-    static constexpr auto beta_scale = 1e-4F;
-    static constexpr auto stun_window = 10000;
-    static constexpr auto gamma = .5F;
-    static constexpr auto restart_period = 1 << 20;
-    static constexpr auto initial_beta = 1.0F;
-
-    int16 batch_size;
+    int32 batch_size;
     Mutator mutator;
     Makespan makespan;
     Temperature temperature;

@@ -72,7 +72,19 @@ void run_prediction(
             EventHandler{&progress, &options});
     }
     prediction_future.get();
-    // TODO: implement
+    // TODO: Show simulation results
     fmt::print("Done.\n");
+}
+
+void parse_opt_params(
+    const OptParams& cli_params,
+    OptimizationParameters& params)
+{
+    params.batch_size = cli_params.batch_size;
+    params.max_idle_iters = cli_params.max_idle_iters;
+    params.beta_scale = cli_params.beta_scale;
+    params.stun_window = cli_params.stun_window;
+    params.gamma = cli_params.gamma;
+    params.restart_period = cli_params.restart_period;
 }
 } // namespace angonoka::cli

@@ -4,19 +4,19 @@
 
 TEST_CASE("Configuration")
 {
-    SECTION("configuration type traits")
+    SECTION("Configuration type traits")
     {
         using angonoka::Configuration;
         STATIC_REQUIRE(std::is_nothrow_destructible_v<Configuration>);
         STATIC_REQUIRE(
-            std::is_nothrow_default_constructible_v<Configuration>);
+            std::is_default_constructible_v<Configuration>);
         STATIC_REQUIRE(std::is_copy_constructible_v<Configuration>);
         STATIC_REQUIRE(std::is_copy_assignable_v<Configuration>);
         STATIC_REQUIRE(std::is_move_constructible_v<Configuration>);
         STATIC_REQUIRE(std::is_move_assignable_v<Configuration>);
     }
 
-    SECTION("agent type traits")
+    SECTION("Agent type traits")
     {
         using angonoka::Agent;
         STATIC_REQUIRE(std::is_nothrow_destructible_v<Agent>);
@@ -27,7 +27,7 @@ TEST_CASE("Configuration")
         STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Agent>);
     }
 
-    SECTION("task type traits")
+    SECTION("Task type traits")
     {
         using angonoka::Task;
         STATIC_REQUIRE(std::is_nothrow_destructible_v<Task>);
@@ -36,6 +36,23 @@ TEST_CASE("Configuration")
         STATIC_REQUIRE(std::is_copy_assignable_v<Task>);
         STATIC_REQUIRE(std::is_nothrow_move_constructible_v<Task>);
         STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Task>);
+    }
+
+    SECTION("OptimizationParameters type traits")
+    {
+        using angonoka::OptimizationParameters;
+        STATIC_REQUIRE(
+            std::is_nothrow_destructible_v<OptimizationParameters>);
+        STATIC_REQUIRE(
+            std::is_default_constructible_v<OptimizationParameters>);
+        STATIC_REQUIRE(
+            std::is_copy_constructible_v<OptimizationParameters>);
+        STATIC_REQUIRE(
+            std::is_copy_assignable_v<OptimizationParameters>);
+        STATIC_REQUIRE(std::is_nothrow_move_constructible_v<
+                       OptimizationParameters>);
+        STATIC_REQUIRE(std::is_nothrow_move_assignable_v<
+                       OptimizationParameters>);
     }
 
     SECTION("configuration utility functions")

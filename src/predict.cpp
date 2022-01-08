@@ -45,6 +45,7 @@ std::chrono::seconds makespan(
 */
 OptimizedSchedule optimize(
     const stun::ScheduleParams& params,
+    const OptimizationParameters& opt_params,
     Queue<ProgressEvent>& events)
 {
     Expects(!params.agent_performance.empty());
@@ -56,14 +57,17 @@ OptimizedSchedule optimize(
 
     using namespace angonoka::stun;
 
-    // Maximum of 50 idle batches
-    constexpr auto batch_size = 30'000;
-    constexpr auto max_idle_iters = batch_size * 50;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wbraced-scalar-init"
     stun::Optimizer optimizer{
-        params,
-        BatchSize{batch_size},
-        MaxIdleIters{max_idle_iters}};
+        {.params{&params},
+         .batch_size{opt_params.batch_size},
+         .max_idle_iters{opt_params.max_idle_iters},
+         .beta_scale{opt_params.beta_scale},
+         .stun_window{opt_params.stun_window},
+         .gamma{opt_params.gamma},
+         .restart_period{opt_params.restart_period}}};
+#pragma clang diagnostic pop
     while (!optimizer.has_converged()) {
         optimizer.update();
         events.enqueue(ScheduleOptimizationEvent{
@@ -90,10 +94,11 @@ predict(const Configuration& config)
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationStart);
         const auto schedule_params = stun::to_schedule_params(config);
-        const auto opt_result = optimize(schedule_params, *events);
+        const auto opt_result
+            = optimize(schedule_params, config.opt_params, *events);
         events->enqueue(ScheduleOptimizationComplete{
             .makespan{opt_result.makespan}});
-        // TODO: WIP do other stuff here
+        // TODO: Run the simulation
         events->enqueue(SimpleProgressEvent::Finished);
         return Prediction{};
     });
@@ -111,7 +116,8 @@ schedule(const Configuration& config)
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationStart);
         const auto schedule_params = stun::to_schedule_params(config);
-        auto opt_result = optimize(schedule_params, *events);
+        auto opt_result
+            = optimize(schedule_params, config.opt_params, *events);
         events->enqueue(ScheduleOptimizationComplete{
             .makespan{opt_result.makespan}});
         events->enqueue(SimpleProgressEvent::Finished);
