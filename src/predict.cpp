@@ -70,10 +70,10 @@ OptimizedSchedule optimize(
 #pragma clang diagnostic pop
     while (!optimizer.has_converged()) {
         optimizer.update();
-        // TODO: Log epochs
         events.enqueue(ScheduleOptimizationEvent{
             .progress = optimizer.estimated_progress(),
-            .makespan = makespan(optimizer, params)});
+            .makespan = makespan(optimizer, params),
+            .current_epoch = optimizer.current_epoch()});
     }
 
     return {

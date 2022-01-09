@@ -21,6 +21,7 @@ struct Optimizer {
     Schedule schedule();
     float estimated_progress();
     float normalized_makespan() const;
+    int current_epoch() const;
 
     int steps{0};
 };

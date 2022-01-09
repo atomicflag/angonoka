@@ -251,6 +251,10 @@ const ScheduleParams& Optimizer::params() const
 
     return *Impl::best_job(*this).params().params;
 }
+
+[[nodiscard]] int32 Optimizer::current_epoch() const noexcept {
+    return epochs;
+}
 } // namespace angonoka::stun
 
 #pragma clang diagnostic pop

@@ -99,7 +99,8 @@ public:
     */
     void params(const ScheduleParams& params);
 
-    // TODO: Expose epochs
+    // TODO: doc, test, expects
+    [[nodiscard]] int32 current_epoch() const noexcept;
 
 private:
     struct Impl;
