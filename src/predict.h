@@ -42,10 +42,9 @@ enum class SimpleProgressEvent {
 /**
     Emitted during the schedule optimization step.
 
-    TODO: doc, test
-
-    @var progress Optimization progress from 0.0 to 1.0
-    @var makespan The best makespan so far
+    @var progress       Optimization progress, 0 to 1
+    @var makespan       The best makespan so far
+    @var current_epoch  Last optimization epoch
 */
 struct ScheduleOptimizationEvent {
     float progress;

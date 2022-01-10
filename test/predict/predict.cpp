@@ -31,10 +31,7 @@ float Optimizer::normalized_makespan() const
 {
     return 5.f / static_cast<float>(steps);
 }
-int Optimizer::current_epoch() const
-{
-    return steps;
-}
+int Optimizer::current_epoch() const { return steps; }
 } // namespace angonoka::stun
 
 namespace {
@@ -68,7 +65,7 @@ TEST_CASE("prediction")
             const auto evt = pop<ScheduleOptimizationEvent>(events);
             REQUIRE(evt.progress == Approx(.2));
             REQUIRE(evt.makespan == 50s);
-            REQUIRE(evt.current_epoch == 0);
+            REQUIRE(evt.current_epoch == 1);
         }
         REQUIRE(
             pop<ScheduleOptimizationEvent>(events).progress
@@ -83,7 +80,7 @@ TEST_CASE("prediction")
             const auto evt = pop<ScheduleOptimizationEvent>(events);
             REQUIRE(evt.progress == Approx(1.));
             REQUIRE(evt.makespan == 10s);
-            REQUIRE(evt.current_epoch == 4);
+            REQUIRE(evt.current_epoch == 5);
         }
         {
             const auto evt

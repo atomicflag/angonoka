@@ -252,7 +252,10 @@ const ScheduleParams& Optimizer::params() const
     return *Impl::best_job(*this).params().params;
 }
 
-[[nodiscard]] int32 Optimizer::current_epoch() const noexcept {
+[[nodiscard]] int32 Optimizer::current_epoch() const noexcept
+{
+    Expects(epochs >= 0);
+
     return epochs;
 }
 } // namespace angonoka::stun
