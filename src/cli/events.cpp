@@ -20,6 +20,11 @@ void EventHandler::operator()(const SimpleProgressEvent& e) const
     case SimpleProgressEvent::ScheduleOptimizationStart:
         fmt::print("Optimizing the schedule...\n");
         start(*progress);
+        // TODO: test
+        if(options->log_optimization) {
+            opt_log = fmt::output_file("optimization_log.csv");
+            opt_log.print("progress,makespan,current_epoch\n");
+        }
         return;
     case SimpleProgressEvent::Finished:
         fmt::print("Probability estimation complete.\n");
@@ -33,7 +38,9 @@ void EventHandler::operator()(
     Expects(e.progress >= 0.F && e.progress <= 1.F);
 
     update(*progress, e.progress, "Optimization progress");
-    // TODO: Log makespan, progress, epochs to csv
+    if(options->log_optimization) {
+        opt_log.print("{},{},{}\n", e.progress, e.makespan.count(), e.current_epoch);
+    }
 }
 
 void EventHandler::operator()(
