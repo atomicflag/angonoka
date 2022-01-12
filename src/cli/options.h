@@ -43,6 +43,8 @@ struct OptParams {
 /**
     CLI options.
 
+    TODO: doc
+
     @var filename   Path to tasks.yaml file
     @var verbose    Debug messages
     @var color      Colored text
@@ -56,5 +58,6 @@ struct Options {
     bool quiet{false};
     std::string output;
     OptParams opt_params;
+    bool log_optimization{false};
 };
 } // namespace angonoka::cli
