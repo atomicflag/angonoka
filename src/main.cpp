@@ -75,10 +75,6 @@ void optimization_options(CLI::App& cli, OptParams& params)
         ->default_val(Params::default_restart_period)
         ->check(CLI::PositiveNumber)
         ->check(CLI::Validator(power_of_2_validator, "POWER_OF_2"));
-    cli.add_option(
-           "--log-optimization-progress",
-           params.log_optimization,
-           "Log optimization progress to optimization.csv");
 }
 
 /**
@@ -99,6 +95,10 @@ void common_options(CLI::App& cli, Options& options)
         "Force colored output");
     cli.add_flag("-q,--quiet", options.quiet, "Give less output");
     cli.add_flag("-v,--verbose", options.verbose, "Give more output");
+    cli.add_flag(
+        "--log-optimization-progress",
+        options.log_optimization,
+        "Log optimization progress to optimization.csv");
 }
 
 /**

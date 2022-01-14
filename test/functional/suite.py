@@ -46,6 +46,7 @@ def test_prints_help():
       --color,--no-color{false}   Force colored output
       -q,--quiet                  Give less output
       -v,--verbose                Give more output
+      --log-optimization-progress Log optimization progress to optimization.csv
       --batch-size INT:POSITIVE=30000
                                   Optimization batch size
       --max-idle-iters INT:POSITIVE=1500000
