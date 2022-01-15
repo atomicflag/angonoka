@@ -409,3 +409,12 @@ def test_restart_period_power_of_2():
     code, cout, cerr = run("--restart-period", "3")
     assert code == 105
     assert "--restart-period" in cerr
+
+
+def test_optimization_log():
+    code, cout, cerr = run("--log-optimization-progress", "tasks.yml")
+    log = Path("optimization_log.csv")
+    assert log.exists()
+    log_text = log.read_text().splitlines()
+    assert log_text[0] == "progress,makespan,current_epoch"
+    assert log_text[-1] == "1,2484,1"
