@@ -20,7 +20,6 @@ void EventHandler::operator()(const SimpleProgressEvent& e)
     case SimpleProgressEvent::ScheduleOptimizationStart:
         fmt::print("Optimizing the schedule...\n");
         start(*progress);
-        // TODO: test
         if (options->log_optimization) {
             opt_log.emplace(fmt::output_file("optimization_log.csv"));
             opt_log->print("progress,makespan,current_epoch\n");

@@ -9,3 +9,4 @@ __pycache__
 test/functional/*.json
 test/functional/*.csv
 node_modules
+*.db
