@@ -72,7 +72,7 @@ TEST_CASE("Optimizer")
         // Might be non-deterministic
         REQUIRE(optimizer.normalized_makespan() == 1.F);
         REQUIRE(optimizer.estimated_progress() == 1.F);
-        REQUIRE(optimizer.current_epoch() == 1);
+        REQUIRE(optimizer.current_epoch() >= 1);
         // Each task has a different agent
         REQUIRE(
             optimizer.schedule()[1].agent_id

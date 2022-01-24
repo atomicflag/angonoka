@@ -47,16 +47,16 @@ def test_prints_help():
       -q,--quiet                  Give less output
       -v,--verbose                Give more output
       --log-optimization-progress Log optimization progress to optimization.csv
-      --batch-size INT:POSITIVE=30000
+      --batch-size INT:POSITIVE=10000
                                   Optimization batch size
-      --max-idle-iters INT:POSITIVE=1500000
+      --max-idle-iters INT:POSITIVE=100000
                                   Optimization halting condition
-      --beta-scale FLOAT:POSITIVE=0.0001
+      --beta-scale FLOAT:POSITIVE=0.001
                                   Optimization temperature parameter inertia
-      --stun-window INT:POSITIVE=10000
+      --stun-window INT:POSITIVE=100
                                   Optimization temperature adjustment window
-      --gamma FLOAT:POSITIVE=0.5  Optimization STUN parameter
-      --restart-period INT:POSITIVE:POWER_OF_2=1048576
+      --gamma FLOAT:POSITIVE=2    Optimization STUN parameter
+      --restart-period INT:POSITIVE:POWER_OF_2=256
                                   Optimization temperature volatility period
     [Option Group: Default]
       Positionals:
