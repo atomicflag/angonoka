@@ -99,6 +99,13 @@ public:
     */
     void params(const ScheduleParams& params);
 
+    /**
+        Get the current optimization epoch.
+
+        @return Current epoch
+    */
+    [[nodiscard]] int32 current_epoch() const noexcept;
+
 private:
     struct Impl;
 

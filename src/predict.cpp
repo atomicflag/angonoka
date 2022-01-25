@@ -72,7 +72,8 @@ OptimizedSchedule optimize(
         optimizer.update();
         events.enqueue(ScheduleOptimizationEvent{
             .progress = optimizer.estimated_progress(),
-            .makespan = makespan(optimizer, params)});
+            .makespan = makespan(optimizer, params),
+            .current_epoch = optimizer.current_epoch()});
     }
 
     return {

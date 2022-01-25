@@ -131,23 +131,22 @@ using Tasks = std::vector<Task>;
     @var restart_period Temperature volatility period
 */
 struct OptimizationParameters {
-    static constexpr auto default_batch_size{30'000};
+    static constexpr auto default_batch_size{10'000};
     int32 batch_size{default_batch_size};
 
-    static constexpr auto default_max_idle_iters{
-        default_batch_size * 50};
+    static constexpr auto default_max_idle_iters{100'000};
     int32 max_idle_iters{default_max_idle_iters};
 
-    static constexpr auto default_beta_scale{1e-4F};
+    static constexpr auto default_beta_scale{1e-3F};
     float beta_scale{default_beta_scale};
 
-    static constexpr auto default_stun_window{10000};
+    static constexpr auto default_stun_window{100};
     int32 stun_window{default_stun_window};
 
-    static constexpr auto default_gamma{.5F};
+    static constexpr auto default_gamma{2.F};
     float gamma{default_gamma};
 
-    static constexpr auto default_restart_period{1 << 20};
+    static constexpr auto default_restart_period{256};
     int32 restart_period{default_restart_period};
 };
 

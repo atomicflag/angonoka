@@ -3,7 +3,9 @@
 #include "options.h"
 #include "predict.h"
 #include "progress.h"
+#include <fmt/os.h>
 #include <gsl/gsl-lite.hpp>
+#include <optional>
 
 namespace angonoka::cli {
 namespace detail {
@@ -23,26 +25,28 @@ namespace detail {
     Prints various progress messages and results as
     the prediction algorithm runs.
 
-    @var progress Chosen progress bar implementation
-    @var options CLI options
+    @var progress   Chosen progress bar implementation
+    @var options    CLI options
+    @var opt_log    Optimization log
 */
 struct EventHandler {
     gsl::not_null<Progress*> progress;
     gsl::not_null<const Options*> options;
+    std::optional<fmt::ostream> opt_log{};
 
     /**
         Handle events without attributes.
 
         @param e Event
     */
-    void operator()(const SimpleProgressEvent& e) const;
+    void operator()(const SimpleProgressEvent& e);
 
     /**
         Handle schedule optimization events.
 
         @param e Event
     */
-    void operator()(const ScheduleOptimizationEvent& e) const;
+    void operator()(const ScheduleOptimizationEvent& e);
 
     /**
         Handle schedule optimization completion.

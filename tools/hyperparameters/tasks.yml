@@ -1,0 +1,134 @@
+agents:
+  Agent 1:
+    performance: 1
+    groups:
+      - A
+  Agent 2:
+    performance: 0.9
+    groups:
+      - A
+  Agent 3:
+    performance: 0.8
+    groups:
+      - A
+      - B
+  Agent 4:
+    performance: 0.7
+    groups:
+      - B
+  Agent 5:
+    performance: 0.6
+    groups:
+      - B
+  Agent 6:
+    performance: 0.5
+    groups:
+      - B
+      - C
+  Agent 7:
+    performance: 0.6
+    groups:
+      - C
+  Agent 8:
+    performance: 0.7
+    groups:
+      - C
+  Agent 9:
+    performance: 0.8
+    groups:
+      - C
+      - A
+  Agent 10:
+    performance: 0.9
+    groups:
+      - A
+      - B
+      - C
+tasks:
+  - name: Task 1
+    duration: 10 minutes
+    group: A
+    subtasks:
+    - name: Task 1.1
+      duration: 11 minutes
+      group: A
+      subtasks:
+      - name: Task 1.1.1
+        duration: 11 minutes
+        group: A
+      - name: Task 1.1.2
+        duration: 12 minutes
+        group: A
+      - name: Task 1.1.3
+        duration: 13 minutes
+        group: A
+    - name: Task 1.2
+      duration: 12 minutes
+      group: A
+    - name: Task 1.3
+      duration: 13 minutes
+      group: A
+    - name: Task 1.4
+      duration: 14 minutes
+      group: A
+    - name: Task 1.5
+      duration: 15 minutes
+      group: A
+  - name: Task 2
+    duration: 10 minutes
+    group: B
+    subtasks:
+    - name: Task 2.1
+      duration: 11 minutes
+      group: B
+      subtasks:
+      - name: Task 1.2.1
+        duration: 11 minutes
+        group: B
+      - name: Task 1.2.2
+        duration: 12 minutes
+        group: B
+      - name: Task 1.2.3
+        duration: 13 minutes
+        group: B
+    - name: Task 2.2
+      duration: 12 minutes
+      group: B
+    - name: Task 2.3
+      duration: 13 minutes
+      group: B
+    - name: Task 2.4
+      duration: 14 minutes
+      group: B
+    - name: Task 2.5
+      duration: 15 minutes
+      group: B
+  - name: Task 3
+    duration: 10 minutes
+    group: C
+    subtasks:
+    - name: Task 3.1
+      duration: 11 minutes
+      group: C
+      subtasks:
+      - name: Task 1.3.1
+        duration: 11 minutes
+        group: C
+      - name: Task 1.3.2
+        duration: 12 minutes
+        group: C
+      - name: Task 1.3.3
+        duration: 13 minutes
+        group: C
+    - name: Task 3.2
+      duration: 12 minutes
+      group: C
+    - name: Task 3.3
+      duration: 13 minutes
+      group: C
+    - name: Task 3.4
+      duration: 14 minutes
+      group: C
+    - name: Task 3.5
+      duration: 15 minutes
+      group: C

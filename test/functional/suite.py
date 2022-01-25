@@ -46,16 +46,17 @@ def test_prints_help():
       --color,--no-color{false}   Force colored output
       -q,--quiet                  Give less output
       -v,--verbose                Give more output
-      --batch-size INT:POSITIVE=30000
+      --log-optimization-progress Log optimization progress to optimization.csv
+      --batch-size INT:POSITIVE=10000
                                   Optimization batch size
-      --max-idle-iters INT:POSITIVE=1500000
+      --max-idle-iters INT:POSITIVE=100000
                                   Optimization halting condition
-      --beta-scale FLOAT:POSITIVE=0.0001
+      --beta-scale FLOAT:POSITIVE=0.001
                                   Optimization temperature parameter inertia
-      --stun-window INT:POSITIVE=10000
+      --stun-window INT:POSITIVE=100
                                   Optimization temperature adjustment window
-      --gamma FLOAT:POSITIVE=0.5  Optimization STUN parameter
-      --restart-period INT:POSITIVE:POWER_OF_2=1048576
+      --gamma FLOAT:POSITIVE=2    Optimization STUN parameter
+      --restart-period INT:POSITIVE:POWER_OF_2=256
                                   Optimization temperature volatility period
     [Option Group: Default]
       Positionals:
@@ -71,13 +72,13 @@ def test_prints_help():
 def test_version():
     code, cout, cerr = run("--version")
     assert code == 0
-    assert cout == "angonoka version 0.9.0\n"
+    assert cout == "angonoka version 0.10.0\n"
 
 
 def test_version_with_file():
     code, cout, cerr = run("--version", "file.yaml")
     assert code == 0
-    assert cout == "angonoka version 0.9.0\n"
+    assert cout == "angonoka version 0.10.0\n"
 
 
 def test_invalid_option():
@@ -94,7 +95,7 @@ def test_invalid_option():
 def test_invalid_option_with_version():
     code, cout, cerr = run("--asdf", "--version")
     assert code == 0
-    assert cout == "angonoka version 0.9.0\n"
+    assert cout == "angonoka version 0.10.0\n"
 
 
 def test_basic_non_tty_output():
@@ -408,3 +409,12 @@ def test_restart_period_power_of_2():
     code, cout, cerr = run("--restart-period", "3")
     assert code == 105
     assert "--restart-period" in cerr
+
+
+def test_optimization_log():
+    code, cout, cerr = run("--log-optimization-progress", "tasks.yml")
+    log = Path("optimization_log.csv")
+    assert log.exists()
+    log_text = log.read_text().splitlines()
+    assert log_text[0] == "progress,makespan,current_epoch"
+    assert log_text[-1] == "1,2484,1"

@@ -95,6 +95,10 @@ void common_options(CLI::App& cli, Options& options)
         "Force colored output");
     cli.add_flag("-q,--quiet", options.quiet, "Give less output");
     cli.add_flag("-v,--verbose", options.verbose, "Give more output");
+    cli.add_flag(
+        "--log-optimization-progress",
+        options.log_optimization,
+        "Log optimization progress to optimization.csv");
 }
 
 /**

@@ -57,6 +57,7 @@ TEST_CASE("Optimizer")
         const auto params = to_schedule_params(config);
         Optimizer optimizer = make(params);
 
+        REQUIRE(optimizer.current_epoch() == 0);
         REQUIRE(optimizer.normalized_makespan() == 2.F);
         REQUIRE(optimizer.estimated_progress() == 0.F);
         REQUIRE(optimizer.schedule()[1].agent_id == 0);
@@ -64,12 +65,14 @@ TEST_CASE("Optimizer")
         optimizer.update();
 
         REQUIRE(optimizer.estimated_progress() == 0.F);
+        REQUIRE(optimizer.current_epoch() == 1);
 
         while (!optimizer.has_converged()) optimizer.update();
 
         // Might be non-deterministic
         REQUIRE(optimizer.normalized_makespan() == 1.F);
         REQUIRE(optimizer.estimated_progress() == 1.F);
+        REQUIRE(optimizer.current_epoch() >= 1);
         // Each task has a different agent
         REQUIRE(
             optimizer.schedule()[1].agent_id
