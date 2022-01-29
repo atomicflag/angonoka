@@ -46,8 +46,9 @@ Done.
 
   * [Requirements](#requirements)
   * [Usage](#usage)
-    * [Defining a project](#defining-a-project)
-    * [Defining an agent](#defining-an-agent)
+    * [Project configuration](#project-configuration)
+    * [Agent](#agent)
+    * [Task](#task)
   * [Contributing](#contributing)
   * [License](#license)
 
@@ -73,9 +74,9 @@ The basic idea of Angonoka is to estimate how long a project would take to compl
 
 Agent performances and task durations can be set as a pair of min/max values, for when there is an uncertainty about the true value of the parameter.
 
-### Defining a project
+### Project configuration
 
-Agents and tasks are defined in YAML format. The minimal configuration must have at least 1 agent and 1 task:
+Agents and tasks are defined in YAML format. The minimal configuration must include at least 1 agent and 1 task:
 
 ```yaml
 agents:
@@ -85,7 +86,7 @@ tasks:
     duration: 5 min
 ```
 
-### Defining an agent
+### Agent
 
 Each agent section can have the following parameters:
 
@@ -137,6 +138,30 @@ All 3 agents can `Make coffee`.
 Only `Full Stack Developer` and `Frontend Developer` can work on `Develop frontend`. 
 
 Only `Full Stack Developer` and `Backend Developer` can work on `Develop backend`.
+
+### Task
+
+Each task can have the following parameters:
+
+```yaml
+name: Task name # required
+duration: 15 min # required
+# or
+duration:
+  min: 5 min
+  max: 30 min
+id: TaskID # default ""
+group: Task group # default ""
+# or
+groups:
+  - Group 1
+  - Group 2
+# or
+agent: Agent 1
+subtasks: # default []
+  - # Tasks
+depends_on: TaskID # default ""
+```
 
 *WIP: Add release links, building instructions...*
 
