@@ -161,7 +161,53 @@ agent: Agent 1
 subtasks: # default []
   - # Tasks
 depends_on: TaskID # default ""
+# or
+depends_on:
+  - TaskID1
+  - TaskID2
 ```
+
+**name** can be any text, doesn't have to be unique.
+
+**duration** defines how long this task is expected to take. It should be chosen with respect to the average agent's performance, i.e. the performance value of 1. Most human-readable durations are accepted, "5 min", "24h", "3 weeks 2 days 42 seconds", etc.
+
+**id** uniquely identifies a task. This parameter is only needed when you want to reference this task in `depends_on` of another task.
+
+**group**/**groups** is one or more groups that this task belongs to. If you assign multiple groups, only agents that belong to all listed groups will work on this task.
+
+Example:
+
+```yaml
+agents:
+  Senior Developer:
+    groups:
+      - Seniors
+      - Developers
+  Junior Developer:
+    groups:
+      - Developers
+tasks:
+  - name: A very difficult task
+    duration: 45 min
+    groups:
+      - Developers
+      - Seniors
+  - name: An easy task
+    duration: 5 min
+    groups:
+      - Developers
+```
+
+`Senior Developer` and `Junior Developer` can work on `An easy task`.
+
+Only `Senior Developer` can work on `A very difficult task`.
+
+
+**agent** can be set when you want this task to be assigned to a specific agent. Only one of `group`, `groups` or `agent` can be set at the same time.
+
+**subtasks** is an array of tasks that this task implicitly depends on. Meaning, tasks from this list will be scheduled before the parent task. You don't have to assign `id`s to subtasks.
+
+**depends_on** can be set when you want this task to be scheduled after the listed tasks. Note that you have to use task ids and not task names.
 
 *WIP: Add release links, building instructions...*
 
