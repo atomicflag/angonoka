@@ -43,18 +43,23 @@ Done.
 ```
 
 ## Table of Contents
-
+  * [Downloads](#downloads)
   * [Requirements](#requirements)
   * [Usage](#usage)
     * [Project configuration](#project-configuration)
     * [Agent](#agent)
     * [Task](#task)
+    * [Schedule](#schedule)
+    * [Time estimation](#time-estimation)
+  * [Build instructions](#build-instructions)
   * [Contributing](#contributing)
   * [License](#license)
 
-## Requirements
+## Downloads
 
-[Pre-built binaries](https://gitlab.com/signal9/angonoka/-/pipelines?page=1&scope=branches&ref=master) are available for Linux (`x86_64-unknown-linux-gnu`/`glibc`). This packaged version of Angonoka comes with all of the dependencies included.
+[Pre-built binaries](https://gitlab.com/signal9/angonoka/-/jobs/artifacts/master/browse?job=build-cpp) are available for Linux (`x86_64-unknown-linux-gnu`/`glibc`). This packaged version of Angonoka comes with all of the dependencies included.
+
+## Requirements
 
 To build Angonoka from source you need:
 
@@ -133,10 +138,8 @@ tasks:
     group: Frontend
 ```
 
-All 3 agents can `Make coffee`.
-
-Only `Full Stack Developer` and `Frontend Developer` can work on `Develop frontend`. 
-
+All 3 agents can `Make coffee`.  
+Only `Full Stack Developer` and `Frontend Developer` can work on `Develop frontend`.  
 Only `Full Stack Developer` and `Backend Developer` can work on `Develop backend`.
 
 ### Task
@@ -198,8 +201,7 @@ tasks:
       - Developers
 ```
 
-`Senior Developer` and `Junior Developer` can work on `An easy task`.
-
+`Senior Developer` and `Junior Developer` can work on `An easy task`.  
 Only `Senior Developer` can work on `A very difficult task`.
 
 
@@ -209,11 +211,57 @@ Only `Senior Developer` can work on `A very difficult task`.
 
 **depends_on** can be set when you want this task to be scheduled after the listed tasks. Note that you have to use task ids and not task names.
 
-*WIP: Add release links, building instructions...*
+### Schedule
+
+Once you have defined a project configuration you can make Angonoka find an optimal schedule for you. Scheduling, being an NP-hard problem, is generally hard to optimize, however Angonoka tries it's best to find the best schedule possible in the shortest amount of time.
+
+To find a schedule you can invoke Angonoka CLI like so:
+
+```console
+$ angonoka schedule project_configuration.yml
+```
+
+This will output a schedule to `schedule.json` in the following format:
+
+```js
+{
+    "makespan": 226278,
+    "tasks": [
+        {
+            "agent": "Joshua Snell",
+            "expected_duration": 517,
+            "expected_start": 0,
+            "priority": 0,
+            "task": "Task name"
+        },
+        // ...
+    ]
+}
+```
+
+Note that all durations are averaged. During the schedule optimization Angonoka doesn't take into accout performance or duration variability.
+
+**makespan** is the total project runtime in seconds.
+
+**expected_duration** is how long a task is expected to take in seconds.
+
+**expected_start** is when the task is expected to be scheduled with relation to the start of the project.
+
+**priority** is used to sort the tasks. Lower numbers should be scheduled before higher numbers.
+
+To get a better view of what the schedule would look like you can use the schedule visualizer from [tools/visualizer](/tools/visualizer).
+
+### Time estimation
+
+*WIP*
+
+## Build instructions
+
+*WIP*
 
 ## Contributing
 
-WIP
+*WIP*
 
 ## License
 
