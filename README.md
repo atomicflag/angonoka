@@ -219,6 +219,10 @@ To find a schedule you can invoke Angonoka CLI like so:
 
 ```console
 $ angonoka schedule project_configuration.yml
+Parsing configuration... OK
+Optimizing the schedule... OK
+Optimal makespan: 3 days.
+Probability estimation complete.
 ```
 
 This will output a schedule to `schedule.json` in the following format:
@@ -253,7 +257,21 @@ To get a better view of what the schedule would look like you can use the schedu
 
 ### Time estimation
 
-*WIP*
+:warning: *Only average (expected) time estimation is available at the moment.* :warning:
+
+Time estimation side of Angonoka builds a histogram of likely completion times. It makes a statistical model and runs the simulation enough times to estimate the most likely durations, taking into account performance and task duration variations.
+
+To output a histogram:
+
+```console
+$ angonoka project_configuration.yml
+Parsing configuration... OK
+Optimizing the schedule... OK
+Optimal makespan: 14 days.
+Running simulations... OK
+Time estimation written to "time_estimation.json"
+Done.
+```
 
 ## Build instructions
 
