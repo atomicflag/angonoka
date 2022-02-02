@@ -170,6 +170,8 @@ depends_on:
   - TaskID2
 ```
 
+A bare minimum task must have a name and a duration, all other parameters are optional.
+
 **name** can be any text, doesn't have to be unique.
 
 **duration** defines how long this task is expected to take. It should be chosen with respect to the average agent's performance, i.e. the performance value of 1. Most human-readable durations are accepted, "5 min", "24h", "3 weeks 2 days 42 seconds", etc.
@@ -213,7 +215,7 @@ Only `Senior Developer` can work on `A very difficult task`.
 
 ### Schedule
 
-Once you have defined a project configuration you can make Angonoka find an optimal schedule for you. Scheduling, being an NP-hard problem, is generally hard to optimize, however Angonoka tries it's best to find the best schedule possible in the shortest amount of time.
+Once you have defined a project configuration you can make Angonoka find an optimal schedule for you. Scheduling, being an NP-hard problem, is generally hard to optimize, however Angonoka tries to find the best schedule possible in the shortest amount of time.
 
 To find a schedule you can invoke Angonoka CLI like so:
 
@@ -275,7 +277,25 @@ Done.
 
 ## Build instructions
 
-*WIP*
+Angonoka uses [conan] package manager and [meson] build system. The latter is provided by conan so you don't have to install both.
+
+To build the release version of Angonoka from source:
+
+```console
+$ mkdir build && cd build
+$ conan install ..
+$ . ./activate.sh
+$ export PKG_CONFIG_PATH=$(pwd)
+$ meson --buildtype release ..
+$ ninja
+$ ninja install # optionally
+```
+
+See [meson_options.txt](/meson_options.txt) for additional build-time options.
+
+In principle, you can build Angonoka without conan, using system dependencies if you provide meson with compatible pkg-config files.
+
+A proper `conanfile.py` is planned. This addition would allow anyone to build Angonoka with a single command, without having to deal with meson/ninja.
 
 ## Contributing
 
@@ -287,6 +307,7 @@ Angonoka is licensed under the [MIT](/LICENSE) license.
 Copyright &copy; 2019, Andrew
 
 [conan]: https://conan.io/
+[meson]: https://mesonbuild.com/
 
 <!--
 https://gist.github.com/rowanmanning/77f31b2392dda1b58674#file-readme-md
