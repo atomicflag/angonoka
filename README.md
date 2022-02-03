@@ -299,7 +299,29 @@ A proper `conanfile.py` is planned. This addition would allow anyone to build An
 
 ## Contributing
 
-*WIP*
+CI, coverage, tests, linting, etc. all use an [LLVM 13+][llvm] toolchain. You can pull a pre-built [Docker][docker] image from [signal9/cpp-env](https://gitlab.com/signal9/cpp-env) repo:
+
+```console
+$ docker pull registry.gitlab.com/signal9/cpp-env:13.0.0
+```
+
+This toolchain is also used in CI builds.
+
+Angonoka has a [Makefile](/Makefile) for CI builds which can also be used for local development. Using the Makefile is not required, but it is convinient.
+
+Make sure that all tests are green before opening a pull request:
+
+```console
+$ make test # unit tests
+$ make check # Formatting, linting
+$ make test/functional # functional tests, requires pytest
+```
+
+Fixing the formatting with `clang-format`:
+
+```console
+$ make format
+```
 
 ## License
 
@@ -308,6 +330,8 @@ Copyright &copy; 2019, Andrew
 
 [conan]: https://conan.io/
 [meson]: https://mesonbuild.com/
+[llvm]: https://llvm.org/
+[docker]: https://www.docker.com/
 
 <!--
 https://gist.github.com/rowanmanning/77f31b2392dda1b58674#file-readme-md
