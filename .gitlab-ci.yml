@@ -85,9 +85,9 @@ build-cpp:
   image: node
   variables:
     NODE_ENV: development
-  only:
-    changes:
-      - tools/visualizer/**/*
+  # only:
+  #   changes:
+  #     - tools/visualizer/**/*
   cache:
     key: "$CI_COMMIT_REF_SLUG-js"
     paths:
@@ -117,6 +117,9 @@ pages:
   stage: deploy
   dependencies:
     - build-js
+  # only:
+  #   changes:
+  #     - tools/visualizer/**/*
   script:
     - mkdir public
     - mv tools/visualizer/dist public/visualizer
