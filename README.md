@@ -176,6 +176,8 @@ A bare minimum task must have a name and a duration, all other parameters are op
 
 **duration** defines how long this task is expected to take. It should be chosen with respect to the average agent's performance, i.e. the performance value of 1. Most human-readable durations are accepted, "5 min", "24h", "3 weeks 2 days 42 seconds", etc.
 
+Note: To better estimate the makespan all task durations should have the same unit of time. The reason for this is that if one task is defined as "3 hours" and another as "3 days", the algorithm doesn't account for the fact that the "3 days" task doesn't literally take 3 days to complete but rather it is implied that the actual duration is 8 work hours over 3 days, i.e. 24 hours or 1 day.
+
 **id** uniquely identifies a task. This parameter is only needed when you want to reference this task in `depends_on` of another task.
 
 **group**/**groups** is one or more groups that this task belongs to. If you assign multiple groups, only agents that belong to all listed groups will work on this task.
@@ -245,7 +247,7 @@ This will output a schedule to `schedule.json` in the following format:
 }
 ```
 
-Note that all durations are averaged. During the schedule optimization Angonoka doesn't take into accout performance or duration variability.
+Note that all durations and performances are averaged. Angonoka doesn't take into account performance or duration variability during the schedule optimization process.
 
 **makespan** is the total project runtime in seconds.
 
@@ -305,16 +307,14 @@ CI, coverage, tests, linting, etc. all use an [LLVM 13+][llvm] toolchain. You ca
 $ docker pull registry.gitlab.com/signal9/cpp-env:13.0.0
 ```
 
-This toolchain is also used in CI builds.
-
-Angonoka has a [Makefile](/Makefile) for CI builds which can also be used for local development. Using the Makefile is not required, but it is convinient.
+Angonoka uses a [Makefile](/Makefile) for CI builds which can be reused for local development. See the rule definitions and adapt accordingly if you choose to use a non-LLVM toolchain since the Makefile is only compatible with LLVM.
 
 Make sure that all tests are green before opening a pull request:
 
 ```console
-$ make test # unit tests
+$ make test # Unit tests
 $ make check # Formatting, linting
-$ make test/functional # functional tests, requires pytest
+$ make test/functional # Functional tests, requires pytest
 ```
 
 Fixing the formatting with `clang-format`:
