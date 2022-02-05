@@ -257,7 +257,7 @@ Note that all durations and performances are averaged. Angonoka doesn't take int
 
 **priority** is used to sort the tasks. Lower numbers should be scheduled before higher numbers.
 
-To get a better view of what the schedule would look like you can use the schedule visualizer from [tools/visualizer](/tools/visualizer).
+To get a better view of what the schedule would look like you can use the [schedule visualizer](https://signal9.gitlab.io/angonoka/visualizer/).
 
 ### Time estimation
 
