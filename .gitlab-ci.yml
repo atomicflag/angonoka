@@ -1,6 +1,7 @@
 stages:
   - test
   - build
+  - deploy
 
 .cpp:
   image: registry.gitlab.com/signal9/cpp-env:13.0.0
@@ -87,6 +88,8 @@ build-cpp:
   only:
     changes:
       - tools/visualizer/**/*
+    refs:
+      - master
   cache:
     key: "$CI_COMMIT_REF_SLUG-js"
     paths:
@@ -111,3 +114,19 @@ build-js:
     expire_in: 1 day
   script:
     - yarn build
+
+pages:
+  stage: deploy
+  dependencies:
+    - build-js
+  only:
+    changes:
+      - tools/visualizer/**/*
+    refs:
+      - master
+  script:
+    - mkdir public
+    - mv tools/visualizer/dist public/visualizer
+  artifacts:
+    paths:
+      - public
