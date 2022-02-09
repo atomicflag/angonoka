@@ -28,8 +28,6 @@ define BUILD_ENV
 cd build
 . ./activate.sh
 endef
-define CLEAN_COMPILE_COMMANDS
-endef
 
 build/conaninfo.txt:
 	mkdir -p build
