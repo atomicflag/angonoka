@@ -207,5 +207,10 @@ void save_json(const nlohmann::json& json, const Options& options)
             e.what());
         throw UserError{};
     }
+    print(
+        options,
+        R"(Saving the optimized schedule to "{}".)"
+        "\n",
+        options.output);
 }
 } // namespace angonoka::cli

@@ -323,6 +323,7 @@ def test_inaccessible_file_tty():
 def test_schedule_output():
     code, cout, cerr = run("schedule", "-o", "schedule2.json", "tasks.yml")
     assert code == 0
+    assert 'Saving the optimized schedule to "schedule2.json".' in cout
     assert not cerr
     assert Path("schedule2.json").read_text() == dedent(
         """\
