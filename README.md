@@ -38,8 +38,7 @@ $ angonoka tasks.yaml
 Parsing configuration... OK
 Optimizing the schedule... OK
 Optimal makespan: 14 days.
-Probability estimation complete.
-Done.
+Time estimation written to "time_estimation.json"
 ```
 
 ## Table of Contents
@@ -226,7 +225,7 @@ $ angonoka schedule project_configuration.yml
 Parsing configuration... OK
 Optimizing the schedule... OK
 Optimal makespan: 3 days.
-Probability estimation complete.
+Saving the optimized schedule to "schedule.json".
 ```
 
 This will output a schedule to `schedule.json` in the following format:
@@ -274,7 +273,6 @@ Optimizing the schedule... OK
 Optimal makespan: 14 days.
 Running simulations... OK
 Time estimation written to "time_estimation.json"
-Done.
 ```
 
 ## Build instructions
