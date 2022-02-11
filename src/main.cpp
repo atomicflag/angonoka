@@ -182,6 +182,7 @@ int main(int argc, char** argv)
 
         // no subcommand
         run_prediction(config, options);
+        fmt::print("Probability estimation complete.\n");
         return EXIT_SUCCESS;
     } catch (const UserError&) {
         return EXIT_FAILURE;
