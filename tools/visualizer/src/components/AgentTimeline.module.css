@@ -1,3 +1,9 @@
 .taskStrips {
-  @apply h-10 flex relative bg-white;
+  @apply h-8
+    border-2
+    box-content
+    border-gray-200
+    flex
+    relative
+    bg-gray-50;
 }

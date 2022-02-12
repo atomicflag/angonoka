@@ -1,6 +1,7 @@
 .makespanBadge {
-  @apply border
-    border-green-200
+  @apply outline
+    outline-1
+    outline-green-200
     bg-green-200
     flex;
 }

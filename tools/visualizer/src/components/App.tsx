@@ -157,7 +157,7 @@ export const App = (props: Props) => {
   return (
     <div className="flex flex-col">
       <div className={style.topBar}>
-        <span className="text-lg font-medium">Schedule Visualizer v1</span>
+        <span className="text-lg font-medium">Schedule Visualizer v2</span>
         <ScheduleUpload onUpload={setSchedule} />
         <div className="flex-grow"></div>
         {schedule && <MakespanBadge makespan={schedule.makespan} />}

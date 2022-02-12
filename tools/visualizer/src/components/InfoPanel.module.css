@@ -2,8 +2,11 @@
   @apply bg-white
     whitespace-nowrap
     rounded
+    outline
+    outline-1
+    outline-gray-300
     overflow-hidden
-    shadow-md
+    shadow
     flex
     flex-col;
 }
@@ -27,7 +30,7 @@
 }
 
 .content {
-  @apply p-6 flex justify-center;
+  @apply p-6 flex;
 }
 
 .content > div {

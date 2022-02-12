@@ -1,12 +1,13 @@
 .agent {
-  @apply bg-teal-500
-    hover:bg-teal-400
-    h-10
+  @apply hover:bg-teal-50
+    box-content
+    border-2
+    border-white
+    hover:border-teal-50
+    h-8
     flex
     items-center
-    justify-end
-    text-white
-    block
-    p-2
-    text-right;
+    text-teal-900
+    font-bold
+    px-2;
 }
