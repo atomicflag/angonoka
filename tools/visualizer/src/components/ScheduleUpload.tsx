@@ -22,7 +22,7 @@ export const ScheduleUpload = ({ onUpload }: Props) => {
   return (
     <div>
       <Button
-        text="Load"
+        text="Upload"
         className="ml-2"
         onClick={() => fileUpload.current.click()}
       />
