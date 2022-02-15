@@ -8,11 +8,7 @@ type Props = {
 export const SchedulePaste = ({ onPaste }: Props) => {
   return (
     <div>
-      <Button
-        text="Paste"
-        className="ml-2"
-        onClick={() => {}}
-      />
+      <Button text="Paste" className="ml-2" onClick={() => {}} />
       <div className=""></div>
     </div>
   );
