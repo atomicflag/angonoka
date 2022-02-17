@@ -7,9 +7,9 @@ type Props = {
 
 export const SchedulePaste = ({ onPaste }: Props) => {
   return (
-    <div>
-      <Button text="Paste" className="ml-2" onClick={() => {}} />
-      <div className=""></div>
+    <div className="flex flex-col items-stretch">
+      <textarea rows="4" />
+      <Button text="Load" className="mt-4" onClick={() => {}} />
     </div>
   );
 };
