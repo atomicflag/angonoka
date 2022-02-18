@@ -8,12 +8,23 @@ type Props = {
   onOpen: (schedule: Schedule) => void;
 };
 
+function Opener(
+  setIsVisible: Dispatch<boolean>,
+  onOpen: (schedule: Schedule) => void
+) {
+  return (schedule: Schedule) => {
+    setIsVisible(false);
+    onOpen(schedule);
+  };
+}
+
 function dialog(
   isVisible: boolean,
   setIsVisible: Dispatch<boolean>,
   onOpen: (schedule: Schedule) => void
 ) {
   if (!isVisible) return;
+  const opener = Opener(setIsVisible, onOpen);
   return (
     <div className="fixed top-0 left-0 w-screen h-screen z-20">
       <div
@@ -34,14 +45,14 @@ function dialog(
           <div className="flex flex-col items-stretch justify-evenly h-full">
             <div className="flex flex-col justify-center items-center">
               <span className="mb-4">Upload an optimized schedule JSON</span>
-              <ScheduleUpload onUpload={onOpen} />
+              <ScheduleUpload onUpload={opener} />
             </div>
             <div className="flex justify-center items-center">─── or ───</div>
             <div className="flex flex-col justify-center items-stretch">
               <span className="mb-4 text-center">
                 paste the schedule from clipboard
               </span>
-              <SchedulePaste onPaste={onOpen} />
+              <SchedulePaste onPaste={opener} />
             </div>
           </div>
         </div>
@@ -51,7 +62,7 @@ function dialog(
 }
 
 export const OpenDialog = ({ onOpen }: Props) => {
-  const [isVisible, setIsVisible] = useState<boolean>(true);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
   return (
     <div>
       <Button text="Open" className="ml-2" onClick={() => setIsVisible(true)} />

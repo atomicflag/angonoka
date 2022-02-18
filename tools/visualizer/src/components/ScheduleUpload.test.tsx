@@ -4,7 +4,7 @@ import { ScheduleUpload } from "./ScheduleUpload";
 test("has text", () => {
   const { getByText } = render(<ScheduleUpload onUpload={() => {}} />);
 
-  const button = getByText("Load");
+  const button = getByText("Upload");
   expect(button.nodeName).toEqual("BUTTON");
   expect(button).toBeEnabled();
 });
@@ -21,7 +21,7 @@ test("callback", (done) => {
   const input = container.getElementsByTagName("INPUT")[0];
   expect(input).toBeInTheDocument();
 
-  fireEvent.click(getByText("Load"));
+  fireEvent.click(getByText("Upload"));
 
   const file = {
     text: async () => '{"hello":"world"}',
