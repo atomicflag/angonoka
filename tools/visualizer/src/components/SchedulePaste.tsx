@@ -7,23 +7,27 @@ type Props = {
 };
 
 function loadSchedule(
-  text: RefObject<HTMLInputElement>,
+  text: RefObject<HTMLTextAreaElement>,
   onPaste: (schedule: Schedule) => void,
   setErrorText: Dispatch<string>
 ) {
   try {
     onPaste(JSON.parse(text.current.value));
   } catch (e) {
-    setErrorText("Invalid JSON");
+    if (e instanceof SyntaxError) {
+      setErrorText("Invalid JSON");
+    } else {
+      throw e;
+    }
   }
 }
 
 export const SchedulePaste = ({ onPaste }: Props) => {
-  const text = useRef<HTMLInputElement>();
+  const text = useRef<HTMLTextAreaElement>();
   const [errorText, setErrorText] = useState<string>("");
   return (
     <div className="flex flex-col items-stretch">
-      <textarea className="text-black" ref={text} rows="4" />
+      <textarea className="text-black" ref={text} rows={4}></textarea>
       {errorText && (
         <div className="text-center text-red-500 mt-2">{errorText}</div>
       )}
@@ -36,4 +40,4 @@ export const SchedulePaste = ({ onPaste }: Props) => {
   );
 };
 
-// TODO: test, css
+// TODO: css
