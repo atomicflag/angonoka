@@ -1,0 +1,7 @@
+.schedulePaste {
+  @apply flex flex-col items-stretch;
+}
+
+.errorText {
+  @apply text-center text-red-500 mt-2;
+}

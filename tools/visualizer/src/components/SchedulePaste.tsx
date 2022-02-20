@@ -1,6 +1,7 @@
 import { Schedule } from "../types";
 import { Button } from "./Button";
 import { Dispatch, useState, RefObject, useRef } from "react";
+import style from "./SchedulePaste.module.css";
 
 type Props = {
   onPaste: (schedule: Schedule) => void;
@@ -26,11 +27,9 @@ export const SchedulePaste = ({ onPaste }: Props) => {
   const text = useRef<HTMLTextAreaElement>();
   const [errorText, setErrorText] = useState<string>("");
   return (
-    <div className="flex flex-col items-stretch">
+    <div className={style.schedulePaste}>
       <textarea className="text-black" ref={text} rows={4}></textarea>
-      {errorText && (
-        <div className="text-center text-red-500 mt-2">{errorText}</div>
-      )}
+      {errorText && <div className={style.errorText}>{errorText}</div>}
       <Button
         text="Load"
         className="mt-4"
@@ -39,5 +38,3 @@ export const SchedulePaste = ({ onPaste }: Props) => {
     </div>
   );
 };
-
-// TODO: css

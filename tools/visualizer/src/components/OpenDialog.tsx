@@ -3,6 +3,7 @@ import { Schedule } from "../types";
 import { Dispatch, useState } from "react";
 import { ScheduleUpload } from "./ScheduleUpload";
 import { SchedulePaste } from "./SchedulePaste";
+import style from "./OpenDialog.module.css";
 
 type Props = {
   onOpen: (schedule: Schedule) => void;
@@ -18,6 +19,7 @@ function Opener(
   };
 }
 
+// TODO: refactor
 function dialog(
   isVisible: boolean,
   setIsVisible: Dispatch<boolean>,
@@ -26,29 +28,26 @@ function dialog(
   if (!isVisible) return;
   const opener = Opener(setIsVisible, onOpen);
   return (
-    <div className="fixed top-0 left-0 w-screen h-screen z-20">
-      <div
-        className="fixed top-0 left-0 w-screen h-screen z-20 opacity-50 bg-black"
-        onClick={() => setIsVisible(false)}
-      >
+    <div className={style.openDialog}>
+      <div className={style.background} onClick={() => setIsVisible(false)}>
         &nbsp;
       </div>
-      <div className="fixed top-0 left-0 w-screen h-screen z-30 flex flex-col justify-center items-center pointer-events-none">
-        <div className="bg-teal-900 lg:w-1/3 lg:h-2/3 h-full w-full rounded p-8 pointer-events-auto shadow-md flex flex-col items-stretch justify-stretch absolute">
+      <div className={style.windowContainer}>
+        <div className={style.window}>
           <a
             href="#"
-            className="absolute top-0 right-0 pr-4 pt-2 text-2xl"
+            className={style.closeButton}
             onClick={() => setIsVisible(false)}
           >
             ×
           </a>
-          <div className="flex flex-col items-stretch justify-evenly h-full">
-            <div className="flex flex-col justify-center items-center">
+          <div className={style.layout}>
+            <div className={style.upload}>
               <span className="mb-4">Upload an optimized schedule JSON</span>
               <ScheduleUpload onUpload={opener} />
             </div>
-            <div className="flex justify-center items-center">─── or ───</div>
-            <div className="flex flex-col justify-center items-stretch">
+            <div className={style.separator}>─── or ───</div>
+            <div className={style.clipboard}>
               <span className="mb-4 text-center">
                 paste the schedule from clipboard
               </span>
@@ -71,4 +70,4 @@ export const OpenDialog = ({ onOpen }: Props) => {
   );
 };
 
-// TODO: test, css
+// TODO: test
