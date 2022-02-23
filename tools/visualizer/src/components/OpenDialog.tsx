@@ -100,5 +100,3 @@ export const OpenDialog = ({ onOpen }: Props) => {
     </div>
   );
 };
-
-// TODO: test
