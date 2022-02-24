@@ -1,7 +1,7 @@
 project(
   'angonoka',
   'cpp',
-  version : '0.11.0',
+  version : '0.12.0',
   default_options : ['warning_level=3', 'cpp_std=c++20']
 )
 
