@@ -72,13 +72,13 @@ def test_prints_help():
 def test_version():
     code, cout, cerr = run("--version")
     assert code == 0
-    assert cout == "angonoka version 0.11.0\n"
+    assert cout == "angonoka version 0.12.0\n"
 
 
 def test_version_with_file():
     code, cout, cerr = run("--version", "file.yaml")
     assert code == 0
-    assert cout == "angonoka version 0.11.0\n"
+    assert cout == "angonoka version 0.12.0\n"
 
 
 def test_invalid_option():
@@ -95,7 +95,7 @@ def test_invalid_option():
 def test_invalid_option_with_version():
     code, cout, cerr = run("--asdf", "--version")
     assert code == 0
-    assert cout == "angonoka version 0.11.0\n"
+    assert cout == "angonoka version 0.12.0\n"
 
 
 def test_basic_non_tty_output():
@@ -115,7 +115,6 @@ def test_basic_non_tty_output():
     Schedule optimization complete.
     Optimal makespan: about an hour.
     Probability estimation complete.
-    Done.
     """
     )
     match(cout, text)
@@ -146,7 +145,6 @@ def test_basic_tty_output():
     Optimizing the schedule... OK
     Optimal makespan: about an hour.
     Probability estimation complete.
-    Done.
     """
     )
     match(cout, text)
@@ -155,7 +153,7 @@ def test_basic_tty_output():
 def test_quiet_non_tty_output():
     code, cout, cerr = run("--no-color", "-q", "tasks.yml")
     assert code == 0
-    assert cout == "Done.\n"
+    assert cout == "Probability estimation complete.\n"
 
 
 def test_verbose_non_tty_output():
@@ -175,7 +173,6 @@ def test_verbose_non_tty_output():
     Schedule optimization complete.
     Optimal makespan: 41m 24s.
     Probability estimation complete.
-    Done.
     """
     )
     match(cout, text)
@@ -323,6 +320,8 @@ def test_inaccessible_file_tty():
 def test_schedule_output():
     code, cout, cerr = run("schedule", "-o", "schedule2.json", "tasks.yml")
     assert code == 0
+    assert 'Saving the optimized schedule to "schedule2.json".' in cout
+    assert 'Probability estimation complete.' not in cout
     assert not cerr
     assert Path("schedule2.json").read_text() == dedent(
         """\

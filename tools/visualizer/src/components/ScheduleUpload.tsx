@@ -21,11 +21,7 @@ export const ScheduleUpload = ({ onUpload }: Props) => {
   const fileUpload = useRef<HTMLInputElement>();
   return (
     <div>
-      <Button
-        text="Load"
-        className="ml-2"
-        onClick={() => fileUpload.current.click()}
-      />
+      <Button text="Upload" onClick={() => fileUpload.current.click()} />
       <input
         type="file"
         ref={fileUpload}

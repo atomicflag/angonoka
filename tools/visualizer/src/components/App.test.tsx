@@ -25,7 +25,7 @@ const schedule = {
 test("App startup", () => {
   const { getByText } = render(<App schedule={schedule} />);
 
-  expect(getByText("Load")).toBeInTheDocument();
+  expect(getByText("Open")).toBeInTheDocument();
 
   const makespan = getByText("Makespan");
   expect(makespan).toBeInTheDocument();

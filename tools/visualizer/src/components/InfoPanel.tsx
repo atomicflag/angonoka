@@ -9,12 +9,12 @@ type Props = {
 
 function renderInfo(data: string[][]) {
   const titles = data.map(([v], i) => (
-    <div className="text-right text-gray-500" key={i}>
+    <div className="text-gray-400" key={i}>
       {v}
     </div>
   ));
   const descriptions = data.map(([, v], i) => (
-    <div className="px-2" key={i}>
+    <div className="pl-4" key={i}>
       {v}
     </div>
   ));

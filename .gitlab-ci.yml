@@ -88,8 +88,6 @@ build-cpp:
   only:
     changes:
       - tools/visualizer/**/*
-    refs:
-      - master
   cache:
     key: "$CI_COMMIT_REF_SLUG-js"
     paths:

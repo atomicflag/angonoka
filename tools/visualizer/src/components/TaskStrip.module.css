@@ -1,14 +1,15 @@
 .taskStrip {
-  @apply bg-blue-200
-    border-2
+  @apply bg-blue-100
+    outline
+    outline-2
+    outline-blue-400
     absolute
-    h-10
-    border-blue-400
+    h-8
     flex
     items-center
     overflow-hidden
     text-blue-900
     truncate
-    hover:text-blue-100
+    hover:text-blue-50
     hover:bg-blue-400;
 }

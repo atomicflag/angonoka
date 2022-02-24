@@ -3,7 +3,7 @@ import style from "./App.module.css";
 import { Agent } from "./Agent";
 import { AgentTimeline } from "./AgentTimeline";
 import { InfoPanel } from "./InfoPanel";
-import { ScheduleUpload } from "./ScheduleUpload";
+import { OpenDialog } from "./OpenDialog";
 import { MakespanBadge } from "./MakespanBadge";
 import dayjs from "../dayjs";
 import lodash from "lodash";
@@ -157,8 +157,8 @@ export const App = (props: Props) => {
   return (
     <div className="flex flex-col">
       <div className={style.topBar}>
-        <span className="text-lg font-medium">Schedule Visualizer v1</span>
-        <ScheduleUpload onUpload={setSchedule} />
+        <span className="text-lg font-medium pr-2">Schedule Visualizer v2</span>
+        <OpenDialog onOpen={setSchedule} />
         <div className="flex-grow"></div>
         {schedule && <MakespanBadge makespan={schedule.makespan} />}
       </div>

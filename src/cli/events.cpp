@@ -25,9 +25,7 @@ void EventHandler::operator()(const SimpleProgressEvent& e)
             opt_log->print("progress,makespan,current_epoch\n");
         }
         return;
-    case SimpleProgressEvent::Finished:
-        fmt::print("Probability estimation complete.\n");
-        return;
+    default: return;
     }
 }
 

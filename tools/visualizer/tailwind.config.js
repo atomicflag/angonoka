@@ -1,9 +1,7 @@
 const colors = require("tailwindcss/colors");
 
 module.exports = {
-  mode: "jit",
-  purge: ["src/**/*.tsx", "src/**/*.ts", "src/**/*.css"],
-  darkMode: false, // or 'media' or 'class'
+  content: ["src/**/*.{ts,tsx,css}"],
   theme: {
     extend: {
       colors: {
@@ -11,9 +9,6 @@ module.exports = {
         sky: colors.sky,
       },
     },
-  },
-  variants: {
-    extend: {},
   },
   plugins: [],
 };

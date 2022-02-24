@@ -73,7 +73,6 @@ void run_prediction(
     }
     prediction_future.get();
     // TODO: Show simulation results
-    fmt::print("Done.\n");
 }
 
 void parse_opt_params(
