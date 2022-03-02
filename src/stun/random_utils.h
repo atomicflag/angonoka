@@ -44,7 +44,18 @@ public:
     */
     int16 uniform_int(int16 max) noexcept;
 
-    // TODO: doc, test, expects
+    /**
+        Normally distributed real value.
+
+        Mean is at the midpoint between min and max.
+        The distance between min and max is 4 standard
+        deviations.
+
+        @param min Value at -2 std devs
+        @param max Value at 2 std devs
+
+        @return Random number
+    */
     float normal(float min, float max) noexcept;
 
 private:
