@@ -23,6 +23,7 @@ base_test = executable(
     'stun/schedule_params.cpp',
     'stun/schedule.cpp',
     'stun/optimizer.cpp',
+    'simulation.cpp',
     'cli/duration.cpp',
     'cli/json_schedule.cpp',
     'stun/temperature.cpp'
