@@ -1,11 +1,16 @@
 #include "simulation.h"
-#include <catch2/catch.hpp>
 #include "config/load.h"
 #include "predict.h"
+#include <catch2/catch.hpp>
 
-TEST_CASE("simulation")
+TEST_CASE("Simulation")
 {
-    SECTION("running simulation") {
+    using namespace angonoka;
+
+    // TODO: type traits
+
+    SECTION("running simulation")
+    {
         // clang-format off
         constexpr auto text = 
             "agents:\n"
@@ -28,12 +33,11 @@ TEST_CASE("simulation")
             "      max: 3h\n";
         // clang-format on
 
-        const auto config = angonoka::load_text(text);
-        const angonoka::OptimizedSchedule schedule{
-            .schedule{{0,0},{1,1}}
-        };
-        angonoka::stun::RandomUtils random{0};
+        const auto config = load_text(text);
+        const OptimizedSchedule schedule{.schedule{{0, 0}, {1, 1}}};
+        stun::RandomUtils random{0};
 
-        const auto duration = angonoka::detail::run_simulation(config, schedule, random);
+        detail::Simulation sim{config, schedule, random};
+        const auto duration = sim();
     }
 }

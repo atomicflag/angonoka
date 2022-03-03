@@ -18,6 +18,7 @@ base_lib = static_library(
     'configuration.cpp',
     'exceptions.cpp',
     'predict.cpp',
+    'simulation.cpp',
     'stun/schedule.cpp',
     'stun/exp_curve_fitter.cpp',
     'stun/optimizer.cpp',
