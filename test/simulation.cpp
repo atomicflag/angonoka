@@ -7,7 +7,18 @@ TEST_CASE("Simulation")
 {
     using namespace angonoka;
 
-    // TODO: type traits
+    SECTION("Simulation type traits")
+    {
+        using angonoka::detail::Simulation;
+        STATIC_REQUIRE(std::is_nothrow_destructible_v<Simulation>);
+        STATIC_REQUIRE_FALSE(
+            std::is_default_constructible_v<Simulation>);
+        STATIC_REQUIRE(std::is_copy_constructible_v<Simulation>);
+        STATIC_REQUIRE(std::is_copy_assignable_v<Simulation>);
+        STATIC_REQUIRE(
+            std::is_nothrow_move_constructible_v<Simulation>);
+        STATIC_REQUIRE(std::is_nothrow_move_assignable_v<Simulation>);
+    }
 
     SECTION("running simulation")
     {
@@ -37,7 +48,10 @@ TEST_CASE("Simulation")
         const OptimizedSchedule schedule{.schedule{{0, 0}, {1, 1}}};
         stun::RandomUtils random{0};
 
-        detail::Simulation sim{config, schedule, random};
+        detail::Simulation sim{
+            {.config{&config},
+             .schedule{&schedule},
+             .random{&random}}};
         const auto duration = sim();
     }
 }

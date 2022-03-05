@@ -13,13 +13,25 @@ namespace angonoka::detail {
 class Simulation {
 public:
     // TODO: doc, test, expects
-    Simulation(
-        const Configuration& config,
-        const OptimizedSchedule& schedule,
-        stun::RandomUtils& random);
+    struct Params {
+        gsl::not_null<const Configuration*> config;
+        gsl::not_null<const OptimizedSchedule*> schedule;
+        gsl::not_null<stun::RandomUtils*> random;
+    };
+
+    // TODO: doc, test, expects
+    Simulation(const Params& params);
 
     // TODO: doc, test, expects
     [[nodiscard]] std::chrono::seconds operator()() noexcept;
+
+    // TODO: doc, test, expects
+    [[nodiscard]] Params params() const;
+
+    // TODO: doc, test, expects
+    void params(const Params& params);
+
+    // TODO: rule of 5
 
 private:
     struct Impl;
