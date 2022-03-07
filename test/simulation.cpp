@@ -6,6 +6,7 @@
 TEST_CASE("Simulation")
 {
     using namespace angonoka;
+    using namespace std::literals::chrono_literals;
 
     SECTION("Simulation type traits")
     {
@@ -48,10 +49,10 @@ TEST_CASE("Simulation")
         const OptimizedSchedule schedule{.schedule{{0, 0}, {1, 1}}};
         stun::RandomUtils random{0};
 
-        detail::Simulation sim{
-            {.config{&config},
-             .schedule{&schedule},
-             .random{&random}}};
-        const auto duration = sim();
+        detail::Simulation sim{{.config{&config}, .random{&random}}};
+        const auto duration = sim(schedule);
+
+        // Expected duration is 2h (7200s)
+        REQUIRE(duration == 7397s);
     }
 }

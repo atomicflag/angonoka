@@ -15,7 +15,6 @@ public:
     // TODO: doc, test, expects
     struct Params {
         gsl::not_null<const Configuration*> config;
-        gsl::not_null<const OptimizedSchedule*> schedule;
         gsl::not_null<stun::RandomUtils*> random;
     };
 
@@ -23,7 +22,8 @@ public:
     Simulation(const Params& params);
 
     // TODO: doc, test, expects
-    [[nodiscard]] std::chrono::seconds operator()() noexcept;
+    [[nodiscard]] std::chrono::seconds
+    operator()(const OptimizedSchedule& schedule) noexcept;
 
     // TODO: doc, test, expects
     [[nodiscard]] Params params() const;
@@ -36,7 +36,6 @@ public:
 private:
     struct Impl;
     gsl::not_null<const Configuration*> config;
-    gsl::not_null<const OptimizedSchedule*> schedule;
     gsl::not_null<stun::RandomUtils*> random;
     std::vector<float> buffer;
     ranges::span<float> agent_performance;

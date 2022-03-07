@@ -1,6 +1,12 @@
 #include "simulation.h"
+#include <range/v3/algorithm/fill.hpp>
+#include <range/v3/algorithm/max.hpp>
+#include <range/v3/view/transform.hpp>
 
 namespace angonoka::detail {
+using angonoka::stun::int16;
+using index_type = ranges::span<float>::index_type;
+
 // TODO: doc, test, expects
 struct Simulation::Impl {
     // TODO: doc, test, expects
@@ -40,16 +46,11 @@ struct Simulation::Impl {
     // TODO: doc, test, expects
     static void random_agent_performances(Simulation& self)
     {
-        using index = decltype(self.agent_performance)::index_type;
-        for (index i = 0; auto&& agent : self.config->agents) {
-            float perf = self.random->normal(
-                agent.performance.min,
-                agent.performance.max);
-            while (perf <= 0.F) {
-                perf = self.random->normal(
-                    agent.performance.min,
-                    agent.performance.max);
-            }
+        for (index_type i = 0; auto&& agent : self.config->agents) {
+            const auto min = agent.performance.min;
+            const auto max = agent.performance.max;
+            float perf = self.random->normal(min, max);
+            while (perf <= 0.F) perf = self.random->normal(min, max);
             self.agent_performance[i] = perf;
             ++i;
         }
@@ -58,25 +59,56 @@ struct Simulation::Impl {
     // TODO: doc, test, expects
     static void random_task_durations(Simulation& self)
     {
-        using index = decltype(self.task_duration)::index_type;
-        for (index i = 0; auto&& task : self.config->tasks) {
+        for (index_type i = 0; auto&& task : self.config->tasks) {
             const auto min
                 = static_cast<float>(task.duration.min.count());
             const auto max
                 = static_cast<float>(task.duration.max.count());
             float duration = self.random->normal(min, max);
-            while (duration <= 0.F) {
+            while (duration <= 0.F)
                 duration = self.random->normal(min, max);
-            }
             self.task_duration[i] = duration;
             ++i;
         }
+    }
+
+    // TODO: doc, test, expects
+    [[nodiscard]] static float task_duration(
+        const Simulation& self,
+        int16 task_id,
+        int16 agent_id)
+    {
+        Expects(agent_id >= 0);
+        Expects(agent_id < std::ssize(self.config->agents));
+        Expects(task_id >= 0);
+        Expects(task_id < std::ssize(self.config->tasks));
+
+        const auto performance = self.agent_performance[agent_id];
+        const auto task_duration = self.task_duration[task_id];
+
+        Expects(performance > 0.F);
+        Expects(task_duration > 0.F);
+
+        return static_cast<float>(task_duration) / performance;
+    }
+
+    // TODO: doc, test, expects
+    [[nodiscard]] static float
+    dependencies_done(const Simulation& self, const TaskIndices& deps)
+    {
+        Expects(!self.task_done.empty());
+
+        using ranges::max;
+        using ranges::views::transform;
+        if (deps.empty()) return 0.F;
+        return max(deps | transform([&](auto dep_id) {
+                       return self.task_done[dep_id];
+                   }));
     }
 };
 
 Simulation::Simulation(const Params& params)
     : config{params.config}
-    , schedule{params.schedule}
     , random{params.random}
 {
     Expects(!config->agents.empty());
@@ -96,7 +128,7 @@ Simulation::Simulation(const Params& params)
 
 [[nodiscard]] auto Simulation::params() const -> Params
 {
-    return {.config{config}, .schedule{schedule}, .random{random}};
+    return {.config{config}, .random{random}};
 }
 
 void Simulation::params(const Params& params)
@@ -105,7 +137,6 @@ void Simulation::params(const Params& params)
     Expects(!config->tasks.empty());
 
     config = params.config;
-    schedule = params.schedule;
     random = params.random;
     Impl::assign_buffers(*this);
 
@@ -119,10 +150,31 @@ void Simulation::params(const Params& params)
     Ensures(task_done.size() == std::ssize(config->tasks));
 }
 
-[[nodiscard]] std::chrono::seconds Simulation::operator()() noexcept
+[[nodiscard]] std::chrono::seconds
+Simulation::operator()(const OptimizedSchedule& schedule) noexcept
 {
+    Expects(!buffer.empty());
+    Expects(!agent_performance.empty());
+    Expects(!task_duration.empty());
+    Expects(!agent_work_end.empty());
+    Expects(!task_done.empty());
+    Expects(std::ssize(schedule.schedule) == task_done.size());
+    Expects(agent_performance.data() == buffer.data());
+
+    ranges::fill(buffer, 0.F);
     Impl::random_agent_performances(*this);
     Impl::random_task_durations(*this);
-    return {};
+    for (auto [task_id, agent_id] : schedule.schedule) {
+        const auto deps_done = Impl::dependencies_done(
+            *this,
+            config->tasks[task_id].dependencies);
+        const auto done
+            = std::max(deps_done, agent_work_end[agent_id])
+            + Impl::task_duration(*this, task_id, agent_id);
+        agent_work_end[agent_id] = task_done[task_id] = done;
+    }
+    using rep = std::chrono::seconds::rep;
+    return std::chrono::seconds{
+        static_cast<rep>(ranges::max(agent_work_end))};
 }
 } // namespace angonoka::detail
