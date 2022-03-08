@@ -9,26 +9,61 @@
 #include <vector>
 
 namespace angonoka::detail {
-// TODO: doc, test, expects
+/**
+    Simulation of agents doing tasks according to the schedule.
+*/
 class Simulation {
 public:
-    // TODO: doc, test, expects
+    /**
+      Simulation parameters.
+
+      @var config An instance of Configuration
+      @var random An instance of RandomUtils
+    */
     struct Params {
         gsl::not_null<const Configuration*> config;
         gsl::not_null<stun::RandomUtils*> random;
     };
 
-    // TODO: doc, test, expects
+    /**
+        Constructor.
+
+        TODO: test
+
+        @param params Simulation parameters
+    */
     Simulation(const Params& params);
 
-    // TODO: doc, test, expects
+    /**
+        Run the simulation w.r.t. the schedule.
+
+        TODO: we don't need the whole OptimizedSchedule
+        just the .schedule member variable. Refactor
+        TODO: test, expects
+
+        @param schedule An instance of OptimizedSchedule
+
+        @return Possible makespan
+    */
     [[nodiscard]] std::chrono::seconds
     operator()(const OptimizedSchedule& schedule) noexcept;
 
-    // TODO: doc, test, expects
+    /**
+        Get current parameters.
+
+        TODO: test
+
+        @return Parameters.
+    */
     [[nodiscard]] Params params() const;
 
-    // TODO: doc, test, expects
+    /**
+        Set parameters.
+
+        TODO: test
+
+        @param params Parameters
+    */
     void params(const Params& params);
 
     // TODO: rule of 5

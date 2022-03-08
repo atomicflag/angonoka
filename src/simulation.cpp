@@ -7,9 +7,19 @@ namespace angonoka::detail {
 using angonoka::stun::int16;
 using index_type = ranges::span<float>::index_type;
 
-// TODO: doc, test, expects
+/**
+    Implementation details.
+*/
 struct Simulation::Impl {
-    // TODO: doc, test, expects
+    /**
+        Reset the buffer and assign views.
+
+        Resizes the buffer to the new size and
+        reassignes the spans to subsections of the
+        new buffer.
+
+        TODO: expects, test
+    */
     static void assign_buffers(Simulation& self)
     {
         using ranges::span;
@@ -43,7 +53,14 @@ struct Simulation::Impl {
         Ensures(self.task_done.size() == std::ssize(tasks));
     }
 
-    // TODO: doc, test, expects
+    /**
+        Picks random agent performances.
+
+        Agent performances follow the gaussian distribution.
+
+        TODO: Short circuit when min equals max.
+        TODO: test, expects
+    */
     static void random_agent_performances(Simulation& self)
     {
         for (index_type i = 0; auto&& agent : self.config->agents) {
@@ -56,7 +73,14 @@ struct Simulation::Impl {
         }
     }
 
-    // TODO: doc, test, expects
+    /**
+        Picks random task durations.
+
+        Task durations follow the gaussian distribution.
+
+        TODO: short circuit when min equals max.
+        TODO: expects, test
+    */
     static void random_task_durations(Simulation& self)
     {
         for (index_type i = 0; auto&& task : self.config->tasks) {
@@ -72,7 +96,19 @@ struct Simulation::Impl {
         }
     }
 
-    // TODO: doc, test, expects
+    /**
+        How long it will take for a given agent to complete a given
+        task.
+
+        Factors in agent's performace.
+
+        TODO: test
+
+        @param task_id Task's index
+        @param agent_id Agent's index
+
+        @return Time in seconds
+    */
     [[nodiscard]] static float task_duration(
         const Simulation& self,
         int16 task_id,
@@ -92,7 +128,16 @@ struct Simulation::Impl {
         return static_cast<float>(task_duration) / performance;
     }
 
-    // TODO: doc, test, expects
+    /**
+        The time when the last dependency of a given task will be
+        completed.
+
+        TODO: test
+
+        @param task_id Task's index
+
+        @return Time in seconds
+    */
     [[nodiscard]] static float
     dependencies_done(const Simulation& self, const TaskIndices& deps)
     {
