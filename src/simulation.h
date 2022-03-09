@@ -1,8 +1,8 @@
 #pragma once
 
 #include "configuration.h"
-#include "predict.h"
 #include "stun/random_utils.h"
+#include "stun/schedule.h"
 #include <chrono>
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
@@ -37,16 +37,14 @@ public:
     /**
         Run the simulation w.r.t. the schedule.
 
-        TODO: we don't need the whole OptimizedSchedule
-        just the .schedule member variable. Refactor
-        TODO: test, expects
+        TODO: test
 
         @param schedule An instance of OptimizedSchedule
 
         @return Possible makespan
     */
-    [[nodiscard]] std::chrono::seconds
-    operator()(const OptimizedSchedule& schedule) noexcept;
+    [[nodiscard]] std::chrono::seconds operator()(
+        ranges::span<const stun::ScheduleItem> schedule) noexcept;
 
     /**
         Get current parameters.

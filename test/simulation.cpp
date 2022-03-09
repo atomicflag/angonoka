@@ -46,7 +46,9 @@ TEST_CASE("Simulation")
         // clang-format on
 
         const auto config = load_text(text);
-        const OptimizedSchedule schedule{.schedule{{0, 0}, {1, 1}}};
+        const std::vector<stun::ScheduleItem> schedule{
+            {0, 0},
+            {1, 1}};
         stun::RandomUtils random{0};
 
         detail::Simulation sim{{.config{&config}, .random{&random}}};

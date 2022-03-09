@@ -18,7 +18,7 @@ struct Simulation::Impl {
         reassignes the spans to subsections of the
         new buffer.
 
-        TODO: expects, test
+        TODO: test
     */
     static void assign_buffers(Simulation& self)
     {
@@ -58,14 +58,23 @@ struct Simulation::Impl {
 
         Agent performances follow the gaussian distribution.
 
-        TODO: Short circuit when min equals max.
-        TODO: test, expects
+        TODO: test
     */
     static void random_agent_performances(Simulation& self)
     {
+        Expects(!self.config->agents.empty());
+        Expects(
+            std::ssize(self.config->agents)
+            == self.agent_performance.size());
+
         for (index_type i = 0; auto&& agent : self.config->agents) {
             const auto min = agent.performance.min;
             const auto max = agent.performance.max;
+            if (min == max) {
+                self.agent_performance[i] = min;
+                ++i;
+                continue;
+            }
             float perf = self.random->normal(min, max);
             while (perf <= 0.F) perf = self.random->normal(min, max);
             self.agent_performance[i] = perf;
@@ -78,16 +87,25 @@ struct Simulation::Impl {
 
         Task durations follow the gaussian distribution.
 
-        TODO: short circuit when min equals max.
-        TODO: expects, test
+        TODO: test
     */
     static void random_task_durations(Simulation& self)
     {
+        Expects(!self.config->tasks.empty());
+        Expects(
+            std::ssize(self.config->tasks)
+            == self.task_duration.size());
+
         for (index_type i = 0; auto&& task : self.config->tasks) {
             const auto min
                 = static_cast<float>(task.duration.min.count());
             const auto max
                 = static_cast<float>(task.duration.max.count());
+            if (min == max) {
+                self.task_duration[i] = min;
+                ++i;
+                continue;
+            }
             float duration = self.random->normal(min, max);
             while (duration <= 0.F)
                 duration = self.random->normal(min, max);
@@ -195,24 +213,25 @@ void Simulation::params(const Params& params)
     Ensures(task_done.size() == std::ssize(config->tasks));
 }
 
-[[nodiscard]] std::chrono::seconds
-Simulation::operator()(const OptimizedSchedule& schedule) noexcept
+[[nodiscard]] std::chrono::seconds Simulation::operator()(
+    ranges::span<const stun::ScheduleItem> schedule) noexcept
 {
     Expects(!buffer.empty());
     Expects(!agent_performance.empty());
     Expects(!task_duration.empty());
     Expects(!agent_work_end.empty());
     Expects(!task_done.empty());
-    Expects(std::ssize(schedule.schedule) == task_done.size());
+    Expects(schedule.size() == task_done.size());
     Expects(agent_performance.data() == buffer.data());
 
     ranges::fill(buffer, 0.F);
     Impl::random_agent_performances(*this);
     Impl::random_task_durations(*this);
-    for (auto [task_id, agent_id] : schedule.schedule) {
-        const auto deps_done = Impl::dependencies_done(
-            *this,
-            config->tasks[task_id].dependencies);
+    for (auto [task_id, agent_id] : schedule) {
+        const auto& task
+            = config->tasks[static_cast<gsl::index>(task_id)];
+        const auto deps_done
+            = Impl::dependencies_done(*this, task.dependencies);
         const auto done
             = std::max(deps_done, agent_work_end[agent_id])
             + Impl::task_duration(*this, task_id, agent_id);
