@@ -64,7 +64,11 @@ public:
     */
     void params(const Params& params);
 
-    // TODO: rule of 5
+    Simulation(const Simulation& other);
+    Simulation(Simulation&& other) noexcept;
+    Simulation& operator=(const Simulation& other);
+    Simulation& operator=(Simulation&& other) noexcept;
+    ~Simulation() noexcept;
 
 private:
     struct Impl;

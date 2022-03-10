@@ -79,7 +79,7 @@ TEST_CASE("OptimizerJob")
             optimizer.reset();
 
             REQUIRE(optimizer.normalized_makespan() == 2.F);
-        };
+        }
 
         SECTION("rebind params")
         {
@@ -91,8 +91,8 @@ TEST_CASE("OptimizerJob")
 
             while (optimizer.normalized_makespan() != 1.F)
                 optimizer.update();
-        };
-    };
+        }
+    }
 
     SECTION("OptimizerJob special memeber functions")
     {
@@ -125,7 +125,7 @@ TEST_CASE("OptimizerJob")
             job.update();
 
             REQUIRE(other.normalized_makespan() == 2.F);
-        };
+        }
 
         SECTION("copy assignment")
         {
@@ -148,7 +148,7 @@ TEST_CASE("OptimizerJob")
             }
 
             REQUIRE(other.normalized_makespan() == 2.F);
-        };
+        }
 
         SECTION("move ctor")
         {
@@ -159,7 +159,7 @@ TEST_CASE("OptimizerJob")
             while (other.normalized_makespan() != 1.F) other.update();
 
             REQUIRE(other.normalized_makespan() == 1.F);
-        };
+        }
 
         SECTION("move assignment")
         {
@@ -171,7 +171,7 @@ TEST_CASE("OptimizerJob")
             while (other.normalized_makespan() != 1.F) other.update();
 
             REQUIRE(other.normalized_makespan() == 1.F);
-        };
+        }
 
         SECTION("destructive move assignment")
         {
@@ -187,7 +187,7 @@ TEST_CASE("OptimizerJob")
             while (job.normalized_makespan() != 1.F) job.update();
 
             REQUIRE(job.normalized_makespan() == 1.F);
-        };
+        }
 
         SECTION("self copy")
         {
@@ -197,7 +197,7 @@ TEST_CASE("OptimizerJob")
 #pragma clang diagnostic pop
 
             REQUIRE(job.normalized_makespan() == 2.F);
-        };
+        }
 
         SECTION("self move")
         {
@@ -207,6 +207,6 @@ TEST_CASE("OptimizerJob")
 #pragma clang diagnostic pop
 
             REQUIRE(job.normalized_makespan() == 2.F);
-        };
-    };
-};
+        }
+    }
+}

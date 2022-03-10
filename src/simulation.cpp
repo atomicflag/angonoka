@@ -241,4 +241,40 @@ void Simulation::params(const Params& params)
     return std::chrono::seconds{
         static_cast<rep>(ranges::max(agent_work_end))};
 }
+
+Simulation::Simulation(const Simulation& other)
+    : config{other.config}
+    , random{other.random}
+    , buffer{other.buffer}
+{
+    Expects(!other.buffer.empty());
+
+    Impl::assign_buffers(*this);
+
+    Ensures(!buffer.empty());
+    Ensures(buffer.size() == other.buffer.size());
+}
+
+Simulation::Simulation(Simulation&& other) noexcept = default;
+
+Simulation& Simulation::operator=(const Simulation& other)
+{
+    Expects(!other.buffer.empty());
+
+    config = other.config;
+    random = other.random;
+    buffer = other.buffer;
+
+    Impl::assign_buffers(*this);
+
+    Ensures(!buffer.empty());
+    Ensures(buffer.size() == other.buffer.size());
+
+    return *this;
+}
+
+Simulation&
+Simulation::operator=(Simulation&& other) noexcept = default;
+
+Simulation::~Simulation() noexcept = default;
 } // namespace angonoka::detail
