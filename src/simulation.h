@@ -35,8 +35,6 @@ public:
     /**
         Run the simulation w.r.t. the schedule.
 
-        TODO: test
-
         @param schedule An instance of OptimizedSchedule
 
         @return Possible makespan

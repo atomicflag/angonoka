@@ -151,5 +151,45 @@ TEST_CASE("Simulation")
         REQUIRE(avg == Approx(9546.38F));
     }
 
-    // TODO: test negative performance and duration
+    SECTION("negative values")
+    {
+        // The simulation uses normal distribution
+        // to pick values for performance and duration.
+        // Due to the fact that the normal distribution
+        // is unbounded, some values might fall below
+        // or equal to 0, which violates the constraints
+        // of our statistical model.
+        //
+        // This test checks if the simulation picks new
+        // values in case that happens.
+
+        // clang-format off
+        constexpr auto text_neg = 
+            "agents:\n"
+            "  Bob:\n"
+            "    performance:\n"
+            "      min: 0.001\n"
+            "      max: 2.0\n"
+            "tasks:\n"
+            "  - name: Task 1\n"
+            "    duration:\n"
+            "      min: 1s\n"
+            "      max: 1d\n";
+        // clang-format on
+
+        const auto config = load_text(text_neg);
+        const std::vector<stun::ScheduleItem> schedule{{0, 0}};
+        stun::RandomUtils random{0};
+
+        detail::Simulation sim{{.config{&config}, .random{&random}}};
+
+        float min = 9999.F;
+
+        for (int i{0}; i < 100; ++i) {
+            const auto v = static_cast<float>(sim(schedule).count());
+            min = std::min(min, v);
+        }
+
+        REQUIRE(min == Approx(1517.F));
+    }
 }
