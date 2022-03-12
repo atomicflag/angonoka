@@ -107,4 +107,49 @@ TEST_CASE("Simulation")
 
         // Don't want to bother with self-move or self-copy
     }
+
+    SECTION("params")
+    {
+        const auto config = load_text(text);
+        const std::vector<stun::ScheduleItem> schedule{
+            {0, 0},
+            {1, 1}};
+        stun::RandomUtils random{0};
+
+        detail::Simulation sim{{.config{&config}, .random{&random}}};
+
+        const auto params = sim.params();
+
+        REQUIRE(params.random == &random);
+        REQUIRE(params.config == &config);
+
+        stun::RandomUtils random2{42};
+        sim.params({.config{&config}, .random{&random2}});
+        REQUIRE(sim(schedule) == 10043s);
+        REQUIRE(sim.params().random == &random2);
+    }
+
+    SECTION("average")
+    {
+        const auto config = load_text(text);
+        const std::vector<stun::ScheduleItem> schedule{
+            {0, 0},
+            {1, 1}};
+        stun::RandomUtils random{0};
+
+        detail::Simulation sim{{.config{&config}, .random{&random}}};
+
+        float count = 1.F;
+        float avg = static_cast<float>(sim(schedule).count());
+        for (int i{0}; i < 100; ++i) {
+            const auto v = static_cast<float>(sim(schedule).count());
+            avg = avg * (count / (count + 1.F))
+                + v * (1.F / (count + 1.F));
+            ++count;
+        }
+
+        REQUIRE(avg == Approx(9546.38F));
+    }
+
+    // TODO: test negative performance and duration
 }

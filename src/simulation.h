@@ -28,8 +28,6 @@ public:
     /**
         Constructor.
 
-        TODO: test
-
         @param params Simulation parameters
     */
     Simulation(const Params& params);
@@ -49,16 +47,12 @@ public:
     /**
         Get current parameters.
 
-        TODO: test
-
         @return Parameters.
     */
     [[nodiscard]] Params params() const;
 
     /**
         Set parameters.
-
-        TODO: test
 
         @param params Parameters
     */

@@ -17,8 +17,6 @@ struct Simulation::Impl {
         Resizes the buffer to the new size and
         reassignes the spans to subsections of the
         new buffer.
-
-        TODO: test
     */
     static void assign_buffers(Simulation& self)
     {
@@ -57,8 +55,6 @@ struct Simulation::Impl {
         Picks random agent performances.
 
         Agent performances follow the gaussian distribution.
-
-        TODO: test
     */
     static void random_agent_performances(Simulation& self)
     {
@@ -86,8 +82,6 @@ struct Simulation::Impl {
         Picks random task durations.
 
         Task durations follow the gaussian distribution.
-
-        TODO: test
     */
     static void random_task_durations(Simulation& self)
     {
@@ -120,8 +114,6 @@ struct Simulation::Impl {
 
         Factors in agent's performace.
 
-        TODO: test
-
         @param task_id Task's index
         @param agent_id Agent's index
 
@@ -149,8 +141,6 @@ struct Simulation::Impl {
     /**
         The time when the last dependency of a given task will be
         completed.
-
-        TODO: test
 
         @param task_id Task's index
 
