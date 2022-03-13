@@ -193,3 +193,35 @@ TEST_CASE("Simulation")
         REQUIRE(min == Approx(1517.F));
     }
 }
+
+TEST_CASE("histogram")
+{
+    using namespace angonoka;
+
+    // clang-format off
+    constexpr auto text = 
+        "agents:\n"
+        "  Bob:\n"
+        "    performance:\n"
+        "      min: 0.5\n"
+        "      max: 1.5\n"
+        "  Jack:\n"
+        "    performance:\n"
+        "      min: 0.5\n"
+        "      max: 1.5\n"
+        "tasks:\n"
+        "  - name: Task 1\n"
+        "    duration:\n"
+        "      min: 1h\n"
+        "      max: 3h\n"
+        "  - name: Task 2\n"
+        "    duration:\n"
+        "      min: 1h\n"
+        "      max: 3h\n";
+    // clang-format on
+
+    const auto config = load_text(text);
+    const OptimizedSchedule schedule{.schedule{{0, 0}, {1, 1}}};
+    histogram(config, schedule);
+    // TODO: wip
+}

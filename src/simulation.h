@@ -1,8 +1,10 @@
 #pragma once
 
 #include "configuration.h"
+#include "predict.h"
 #include "stun/random_utils.h"
 #include "stun/schedule.h"
+#include <boost/histogram.hpp>
 #include <chrono>
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
@@ -75,7 +77,15 @@ private:
 } // namespace angonoka::detail
 
 namespace angonoka {
-// boost::histogram histogram(
-//   const Configuration& config,
-//   const OptimizedSchedule& schedule);
+using Histogram = boost::histogram::histogram<
+    std::tuple<boost::histogram::axis::regular<
+        float,
+        boost::use_default,
+        boost::histogram::axis::null_type,
+        boost::histogram::axis::option::growth_t>>>;
+
+// TODO: doc, test, expects
+Histogram histogram(
+    const Configuration& config,
+    const OptimizedSchedule& schedule);
 } // namespace angonoka

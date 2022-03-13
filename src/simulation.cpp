@@ -3,6 +3,10 @@
 #include <range/v3/algorithm/max.hpp>
 #include <range/v3/view/transform.hpp>
 
+// TODO: remove
+#include <boost/histogram/ostream.hpp>
+#include <iostream>
+
 namespace angonoka::detail {
 using angonoka::stun::int16;
 using index_type = ranges::span<float>::index_type;
@@ -268,3 +272,20 @@ Simulation::operator=(Simulation&& other) noexcept = default;
 
 Simulation::~Simulation() noexcept = default;
 } // namespace angonoka::detail
+
+namespace angonoka {
+// TODO: nodiscrad
+Histogram histogram(
+    const Configuration& config,
+    const OptimizedSchedule& schedule)
+{
+    Histogram hist{{{1, 0.F, 1000.F}}};
+    stun::RandomUtils random;
+    detail::Simulation sim{{.config{&config}, .random{&random}}};
+    for (int i{0}; i < 100000; ++i)
+        hist(sim(schedule.schedule).count());
+
+    std::cout << hist;
+    return hist;
+}
+} // namespace angonoka
