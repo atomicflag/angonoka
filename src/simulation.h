@@ -74,6 +74,9 @@ private:
     ranges::span<float> agent_work_end;
     ranges::span<float> task_done;
 };
+
+// TODO: doc, test, expects
+[[nodiscard]] float granularity(std::chrono::seconds makespan);
 } // namespace angonoka::detail
 
 namespace angonoka {
@@ -85,7 +88,7 @@ using Histogram = boost::histogram::histogram<
         boost::histogram::axis::option::growth_t>>>;
 
 // TODO: doc, test, expects
-Histogram histogram(
+[[nodiscard]] Histogram histogram(
     const Configuration& config,
     const OptimizedSchedule& schedule);
 } // namespace angonoka

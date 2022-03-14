@@ -198,30 +198,46 @@ TEST_CASE("histogram")
 {
     using namespace angonoka;
 
-    // clang-format off
-    constexpr auto text = 
-        "agents:\n"
-        "  Bob:\n"
-        "    performance:\n"
-        "      min: 0.5\n"
-        "      max: 1.5\n"
-        "  Jack:\n"
-        "    performance:\n"
-        "      min: 0.5\n"
-        "      max: 1.5\n"
-        "tasks:\n"
-        "  - name: Task 1\n"
-        "    duration:\n"
-        "      min: 1h\n"
-        "      max: 3h\n"
-        "  - name: Task 2\n"
-        "    duration:\n"
-        "      min: 1h\n"
-        "      max: 3h\n";
-    // clang-format on
+    SECTION("granularity")
+    {
+        using angonoka::detail::granularity;
+        using namespace std::chrono_literals;
+        using std::chrono::days;
 
-    const auto config = load_text(text);
-    const OptimizedSchedule schedule{.schedule{{0, 0}, {1, 1}}};
-    histogram(config, schedule);
-    // TODO: wip
+        REQUIRE(granularity(1h) == 60.F);
+        REQUIRE(granularity(4h) == 60.F);
+        REQUIRE(granularity(5h) == 3600.F);
+        REQUIRE(granularity(days{12}) == 3600.F);
+        REQUIRE(granularity(days{13}) == 86400.F);
+    }
+
+    SECTION("basic histogram")
+    {
+        // clang-format off
+        constexpr auto text = 
+            "agents:\n"
+            "  Bob:\n"
+            "    performance:\n"
+            "      min: 0.5\n"
+            "      max: 1.5\n"
+            "  Jack:\n"
+            "    performance:\n"
+            "      min: 0.5\n"
+            "      max: 1.5\n"
+            "tasks:\n"
+            "  - name: Task 1\n"
+            "    duration:\n"
+            "      min: 1h\n"
+            "      max: 3h\n"
+            "  - name: Task 2\n"
+            "    duration:\n"
+            "      min: 1h\n"
+            "      max: 3h\n";
+        // clang-format on
+
+        const auto config = load_text(text);
+        const OptimizedSchedule schedule{.schedule{{0, 0}, {1, 1}}};
+        histogram(config, schedule);
+        // TODO: wip
+    }
 }
