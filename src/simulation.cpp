@@ -1,21 +1,13 @@
 #include "simulation.h"
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/variance.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/max.hpp>
 #include <range/v3/view/transform.hpp>
+#include <boost/histogram/accumulators/mean.hpp>
 
 // TODO: remove
 #include <boost/histogram/ostream.hpp>
 #include <iostream>
 
-namespace {
-using boost::accumulators::accumulator_set;
-using boost::accumulators::stats;
-namespace tag = boost::accumulators::tag;
-using VarianceAcc = accumulator_set<int, stats<tag::variance>>;
-} // namespace
 
 namespace angonoka::detail {
 using angonoka::stun::int16;
@@ -300,28 +292,26 @@ namespace angonoka {
     const Configuration& config,
     const OptimizedSchedule& schedule)
 {
-    using boost::accumulators::variance;
+    using boost::histogram::accumulators::mean;
     using detail::granularity;
 
     stun::RandomUtils random;
     detail::Simulation sim{{.config{&config}, .random{&random}}};
-
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
-    VarianceAcc var_acc;
+    mean<float> var_acc;
     for (int i{0}; i < 1000; ++i) {
         const auto makespan = sim(schedule.schedule).count();
         var_acc(makespan);
         hist(makespan);
     }
-    const auto var = variance(var_acc);
+    const auto var = var_acc.variance();
     // (4*Z^2*var)/(W^2)
     // (4*1.96^2*var)/(60 sec ^2)
     const auto sample_coeff = 0.004268F;
     const int sample_size = std::ceil(sample_coeff * var);
-    // std::cout << sample_size << std::endl;
     for (int i{0}; i < sample_size; ++i)
         hist(sim(schedule.schedule).count());
-    // std::cout << hist;
+
     return hist;
 }
 } // namespace angonoka

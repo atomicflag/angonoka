@@ -237,7 +237,7 @@ TEST_CASE("histogram")
 
         const auto config = load_text(text);
         const OptimizedSchedule schedule{.schedule{{0, 0}, {1, 1}}};
-        histogram(config, schedule);
-        // TODO: wip
+        const auto h = histogram(config, schedule);
+        // TODO: find the mean
     }
 }
