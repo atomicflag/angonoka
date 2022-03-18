@@ -4,6 +4,7 @@ ragel = generator(
   arguments : ['@INPUT@', '-G2', '-e', '-o@OUTPUT@']
 )
 
+parse_duration_cpp = ragel.process('config/parse_duration.rl.cpp')
 base_lib = static_library(
   'base',
   [
@@ -28,7 +29,7 @@ base_lib = static_library(
     'stun/stochastic_tunneling.cpp',
     'stun/temperature.cpp',
     'stun/utils.cpp',
-    ragel.process('config/parse_duration.rl.cpp')
+    parse_duration_cpp
   ],
   include_directories : include,
   dependencies : dependencies,

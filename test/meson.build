@@ -35,3 +35,4 @@ test('Unit tests', base_test)
 
 subdir('stun/stochastic_tunneling')
 subdir('predict')
+subdir('histogram')

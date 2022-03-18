@@ -2,13 +2,18 @@
 
 #include "configuration.h"
 #include "predict.h"
-#include "stun/random_utils.h"
 #include "stun/schedule.h"
 #include <boost/histogram.hpp>
 #include <chrono>
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
 #include <vector>
+
+#ifndef UNIT_TEST
+#include "stun/random_utils.h"
+#else // UNIT_TEST
+#include "stub/random_utils.h"
+#endif // UNIT_TEST
 
 namespace angonoka::detail {
 /**
