@@ -1,13 +1,12 @@
 #include "simulation.h"
+#include <boost/histogram/accumulators/mean.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/max.hpp>
 #include <range/v3/view/transform.hpp>
-#include <boost/histogram/accumulators/mean.hpp>
 
 // TODO: remove
 #include <boost/histogram/ostream.hpp>
 #include <iostream>
-
 
 namespace angonoka::detail {
 using angonoka::stun::int16;
@@ -307,6 +306,8 @@ namespace angonoka {
     const auto var = var_acc.variance();
     // (4*Z^2*var)/(W^2)
     // (4*1.96^2*var)/(60 sec ^2)
+    // sample_coeff = (4*1.96^2)/(60^2)
+    // TODO: make accuracy (60 sec) customizable
     const auto sample_coeff = 0.004268F;
     const int sample_size = std::ceil(sample_coeff * var);
     for (int i{0}; i < sample_size; ++i)
