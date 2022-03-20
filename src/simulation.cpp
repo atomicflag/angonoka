@@ -4,10 +4,6 @@
 #include <range/v3/algorithm/max.hpp>
 #include <range/v3/view/transform.hpp>
 
-// TODO: remove
-#include <boost/histogram/ostream.hpp>
-#include <iostream>
-
 namespace angonoka::detail {
 using angonoka::stun::int16;
 using index_type = ranges::span<float>::index_type;
@@ -279,6 +275,9 @@ Simulation::~Simulation() noexcept = default;
     using std::chrono::days;
     using std::chrono::duration_cast;
     using std::chrono::seconds;
+
+    Expects(makespan >= 1s);
+
     if (makespan < 5h) return duration_cast<seconds>(1min).count();
     if (makespan < days{13})
         return duration_cast<seconds>(1h).count();

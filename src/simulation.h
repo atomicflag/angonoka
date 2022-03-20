@@ -80,11 +80,26 @@ private:
     ranges::span<float> task_done;
 };
 
-// TODO: doc, test, expects
+/**
+    Pick the histogram bin width based on the expected makespan.
+
+    @param makespan Expected makespan
+
+    @return Histogram bin width in seconds.
+*/
 [[nodiscard]] float granularity(std::chrono::seconds makespan);
 } // namespace angonoka::detail
 
 namespace angonoka {
+/**
+    Histogram type alias.
+
+    Used as a return type of the histogram function.
+
+    The size of the bins is picked dynamically according to
+    the expected makespan. Each bin contains the count of
+    simulations within the bin's makespan range.
+*/
 using Histogram = boost::histogram::histogram<
     std::tuple<boost::histogram::axis::regular<
         float,
