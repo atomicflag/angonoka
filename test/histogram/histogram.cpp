@@ -1,15 +1,16 @@
+#include "config/load.h"
+#include "predict.h"
+#include "simulation.h"
+#include "stub/random_utils.h"
 #include <catch2/catch.hpp>
 #include <range/v3/algorithm/max_element.hpp>
-#include "simulation.h"
-#include "predict.h"
-#include "config/load.h"
-#include "stub/random_utils.h"
 
 namespace angonoka::stun {
-float RandomUtils::normal(float min, float max) noexcept {
-    return std::midpoint(min,max);
+float RandomUtils::normal(float min, float max) noexcept
+{
+    return std::midpoint(min, max);
 }
-}
+} // namespace angonoka::stun
 
 TEST_CASE("histogram")
 {
@@ -53,10 +54,12 @@ TEST_CASE("histogram")
         // clang-format on
 
         const auto config = load_text(text);
-        const OptimizedSchedule schedule{.schedule{{0, 0}, {1, 1}}};
+        const OptimizedSchedule schedule{
+            .schedule{{0, 0}, {1, 1}},
+            .makespan{std::chrono::seconds{7230}}};
         const auto h = histogram(config, schedule);
-        auto max_bin
-            = std::distance(h.begin(), ranges::max_element(h));
+        const int max_bin = static_cast<int>(
+            std::distance(h.begin(), ranges::max_element(h)));
 
         REQUIRE(h.size() == 121);
         REQUIRE(h.axis().bin(0).lower() == 0.F);

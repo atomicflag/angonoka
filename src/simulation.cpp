@@ -278,8 +278,11 @@ Simulation::~Simulation() noexcept = default;
 
     Expects(makespan >= 1s);
 
-    if (makespan < 5h) return duration_cast<seconds>(1min).count();
-    if (makespan < days{13})
+    constexpr auto minutes_threshold = 5h;
+    if (makespan < minutes_threshold)
+        return duration_cast<seconds>(1min).count();
+    constexpr auto hours_threshold = days{13};
+    if (makespan < hours_threshold)
         return duration_cast<seconds>(1h).count();
     return duration_cast<seconds>(days{1}).count();
 }
@@ -293,13 +296,18 @@ namespace angonoka {
     using boost::histogram::accumulators::mean;
     using detail::granularity;
 
+    Expects(!config.tasks.empty());
+    Expects(!config.agents.empty());
+    Expects(!schedule.schedule.empty());
+
     stun::RandomUtils random;
     detail::Simulation sim{{.config{&config}, .random{&random}}};
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
     mean<float> var_acc;
-    for (int i{0}; i < 1000; ++i) {
+    constexpr auto burn_in_count = 1000;
+    for (int i{0}; i < burn_in_count; ++i) {
         const auto makespan = sim(schedule.schedule).count();
-        var_acc(makespan);
+        var_acc(static_cast<float>(makespan));
         hist(makespan);
     }
     const auto var = var_acc.variance();
@@ -308,7 +316,8 @@ namespace angonoka {
     // sample_coeff = (4*1.96^2)/(60^2)
     // TODO: make accuracy (60 sec) customizable
     const auto sample_coeff = 0.004268F;
-    const int sample_size = std::ceil(sample_coeff * var);
+    const int sample_size
+        = static_cast<int>(std::ceil(sample_coeff * var));
     for (int i{0}; i < sample_size; ++i)
         hist(sim(schedule.schedule).count());
 

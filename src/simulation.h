@@ -107,7 +107,14 @@ using Histogram = boost::histogram::histogram<
         boost::histogram::axis::null_type,
         boost::histogram::axis::option::growth_t>>>;
 
-// TODO: doc, test, expects
+/**
+    Make a histogram of simulation runs.
+
+    @param config   Tasks and agents
+    @param schedule An optimized schedule
+
+    @return Makespan histogram
+*/
 [[nodiscard]] Histogram histogram(
     const Configuration& config,
     const OptimizedSchedule& schedule);
