@@ -107,6 +107,15 @@ using Histogram = boost::histogram::histogram<
         boost::histogram::axis::null_type,
         boost::histogram::axis::option::growth_t>>>;
 
+// TODO: doc, test, expects
+struct HistogramStats {
+    std::chrono::seconds p25;
+    std::chrono::seconds p50;
+    std::chrono::seconds p75;
+    std::chrono::seconds p95;
+    std::chrono::seconds p99;
+};
+
 /**
     Make a histogram of simulation runs.
 
@@ -118,4 +127,7 @@ using Histogram = boost::histogram::histogram<
 [[nodiscard]] Histogram histogram(
     const Configuration& config,
     const OptimizedSchedule& schedule);
+
+// TODO: doc, test, expects
+HistogramStats stats(const Histogram& histogram);
 } // namespace angonoka

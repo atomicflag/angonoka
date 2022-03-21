@@ -2,7 +2,20 @@
 #include <boost/histogram/accumulators/mean.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/max.hpp>
+#include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/transform.hpp>
+
+namespace {
+using namespace angonoka;
+// TODO: doc, test, expects
+std::chrono::seconds bin_center(const Histogram& histogram, int bin)
+{
+    using std::chrono::seconds;
+    using rep = seconds::rep;
+    return seconds{
+        gsl::narrow<rep>(histogram.axis().bin(bin).center())};
+}
+} // namespace
 
 namespace angonoka::detail {
 using angonoka::stun::int16;
@@ -307,7 +320,7 @@ namespace angonoka {
     constexpr auto burn_in_count = 1000;
     for (int i{0}; i < burn_in_count; ++i) {
         const auto makespan = sim(schedule.schedule).count();
-        var_acc(static_cast<float>(makespan));
+        var_acc(gsl::narrow_cast<float>(makespan));
         hist(makespan);
     }
     const auto var = var_acc.variance();
@@ -317,10 +330,42 @@ namespace angonoka {
     // TODO: make accuracy (60 sec) customizable
     const auto sample_coeff = 0.004268F;
     const int sample_size
-        = static_cast<int>(std::ceil(sample_coeff * var));
+        = gsl::narrow_cast<int>(std::ceil(sample_coeff * var));
     for (int i{0}; i < sample_size; ++i)
         hist(sim(schedule.schedule).count());
 
     return hist;
+}
+
+HistogramStats stats(const Histogram& histogram)
+{
+    const float total = ranges::accumulate(histogram, 0.F);
+    HistogramStats stats;
+    float count = 0;
+    int bin = 0;
+
+    const auto accum_until = [&](auto threshold) {
+        for (; bin < std::ssize(histogram); ++bin) {
+            count += static_cast<float>(histogram[bin]);
+            if (count / total >= threshold) break;
+        }
+    };
+
+    accum_until(total * 0.25F);
+    stats.p25 = bin_center(histogram, bin);
+
+    accum_until(total * 0.50F);
+    stats.p50 = bin_center(histogram, bin);
+
+    accum_until(total * 0.75F);
+    stats.p75 = bin_center(histogram, bin);
+
+    accum_until(total * 0.95F);
+    stats.p95 = bin_center(histogram, bin);
+
+    accum_until(total * 0.99F);
+    stats.p99 = bin_center(histogram, bin);
+
+    return stats;
 }
 } // namespace angonoka
