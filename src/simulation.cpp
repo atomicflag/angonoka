@@ -12,6 +12,8 @@ std::chrono::seconds bin_center(const Histogram& histogram, int bin)
 {
     using std::chrono::seconds;
     using rep = seconds::rep;
+    if (bin >= std::ssize(histogram))
+        bin = gsl::narrow<int>(std::ssize(histogram) - 1);
     return seconds{
         gsl::narrow<rep>(histogram.axis().bin(bin).center())};
 }
@@ -342,12 +344,13 @@ HistogramStats stats(const Histogram& histogram)
     const float total = ranges::accumulate(histogram, 0.F);
     HistogramStats stats;
     float count = 0;
-    int bin = 0;
+    int bin = -1;
 
     const auto accum_until = [&](auto threshold) {
+        ++bin;
         for (; bin < std::ssize(histogram); ++bin) {
             count += static_cast<float>(histogram[bin]);
-            if (count / total >= threshold) break;
+            if (count >= threshold) break;
         }
     };
 

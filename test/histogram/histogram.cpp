@@ -69,3 +69,29 @@ TEST_CASE("histogram")
         REQUIRE(h.axis().bin(max_bin).center() == 7230.F);
     }
 }
+
+TEST_CASE("histogram stats")
+{
+    using namespace angonoka;
+    using namespace std::chrono_literals;
+
+    Histogram hist{{{1, 0.F, 10.F}}};
+
+    hist(1.F);
+    hist(101.F);
+    hist(101.F);
+    hist(201.F);
+    hist(201.F);
+    hist(201.F);
+    hist(301.F);
+    hist(301.F);
+    hist(401.F);
+
+    const auto s = stats(hist);
+
+    REQUIRE(s.p25 == 105s);
+    REQUIRE(s.p50 == 205s);
+    REQUIRE(s.p75 == 305s);
+    REQUIRE(s.p95 == 405s);
+    REQUIRE(s.p99 == 405s);
+}
