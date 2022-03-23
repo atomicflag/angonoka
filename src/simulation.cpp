@@ -7,11 +7,23 @@
 
 namespace {
 using namespace angonoka;
-// TODO: doc, test, expects
-std::chrono::seconds bin_center(const Histogram& histogram, int bin)
+/**
+    Return the middle value of the histogram bin.
+
+    @param histogram Histogram of simulation makespans
+    @param bin       Index of the bin
+
+    @return Bin middle value in seconds.
+*/
+std::chrono::seconds
+bin_middle_value(const Histogram& histogram, int bin)
 {
     using std::chrono::seconds;
     using rep = seconds::rep;
+
+    Expects(bin >= 0);
+    Expects(histogram.size() > 0);
+
     if (bin >= std::ssize(histogram))
         bin = gsl::narrow<int>(std::ssize(histogram) - 1);
     return seconds{
@@ -332,7 +344,7 @@ namespace angonoka {
     // TODO: make accuracy (60 sec) customizable
     const auto sample_coeff = 0.004268F;
     const int sample_size
-        = gsl::narrow_cast<int>(std::ceil(sample_coeff * var));
+        = gsl::narrow<int>(std::ceil(sample_coeff * var));
     for (int i{0}; i < sample_size; ++i)
         hist(sim(schedule.schedule).count());
 
@@ -344,30 +356,23 @@ HistogramStats stats(const Histogram& histogram)
     const float total = ranges::accumulate(histogram, 0.F);
     HistogramStats stats;
     float count = 0;
-    int bin = -1;
+    int bin = 0;
 
-    const auto accum_until = [&](auto threshold) {
-        ++bin;
+    // Accumulates histogram bins until the threshold is reached
+    const auto accumulate_until = [&](auto threshold) {
         for (; bin < std::ssize(histogram); ++bin) {
             count += static_cast<float>(histogram[bin]);
-            if (count >= threshold) break;
+            if (count >= threshold)
+                return bin_middle_value(histogram, bin++);
         }
+        return bin_middle_value(histogram, bin);
     };
 
-    accum_until(total * 0.25F);
-    stats.p25 = bin_center(histogram, bin);
-
-    accum_until(total * 0.50F);
-    stats.p50 = bin_center(histogram, bin);
-
-    accum_until(total * 0.75F);
-    stats.p75 = bin_center(histogram, bin);
-
-    accum_until(total * 0.95F);
-    stats.p95 = bin_center(histogram, bin);
-
-    accum_until(total * 0.99F);
-    stats.p99 = bin_center(histogram, bin);
+    stats.p25 = accumulate_until(total * 0.25F);
+    stats.p50 = accumulate_until(total * 0.50F);
+    stats.p75 = accumulate_until(total * 0.75F);
+    stats.p95 = accumulate_until(total * 0.95F);
+    stats.p99 = accumulate_until(total * 0.99F);
 
     return stats;
 }
