@@ -353,6 +353,8 @@ namespace angonoka {
 
 HistogramStats stats(const Histogram& histogram)
 {
+    Expects(histogram.size() > 0);
+
     const float total = ranges::accumulate(histogram, 0.F);
     HistogramStats stats;
     float count = 0;
@@ -368,11 +370,11 @@ HistogramStats stats(const Histogram& histogram)
         return bin_middle_value(histogram, bin);
     };
 
-    stats.p25 = accumulate_until(total * 0.25F);
-    stats.p50 = accumulate_until(total * 0.50F);
-    stats.p75 = accumulate_until(total * 0.75F);
-    stats.p95 = accumulate_until(total * 0.95F);
-    stats.p99 = accumulate_until(total * 0.99F);
+    stats.p25 = accumulate_until(total * 0.25F); // NOLINT
+    stats.p50 = accumulate_until(total * 0.50F); // NOLINT
+    stats.p75 = accumulate_until(total * 0.75F); // NOLINT
+    stats.p95 = accumulate_until(total * 0.95F); // NOLINT
+    stats.p99 = accumulate_until(total * 0.99F); // NOLINT
 
     return stats;
 }
