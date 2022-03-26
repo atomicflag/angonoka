@@ -138,13 +138,11 @@ TEST_CASE("Simulation")
 
         detail::Simulation sim{{.config{&config}, .random{&random}}};
 
-        float count = 1.F;
         float avg = static_cast<float>(sim(schedule).count());
-        for (int i{0}; i < 100; ++i) {
+        for (float count{1.F}; count <= 100.F; ++count) {
             const auto v = static_cast<float>(sim(schedule).count());
             avg = avg * (count / (count + 1.F))
                 + v * (1.F / (count + 1.F));
-            ++count;
         }
 
         REQUIRE(avg == Approx(9546.38F));
@@ -182,13 +180,11 @@ TEST_CASE("Simulation")
 
         detail::Simulation sim{{.config{&config}, .random{&random}}};
 
-        float min = 9999.F;
+        std::chrono::seconds min{9999};
 
-        for (int i{0}; i < 100; ++i) {
-            const auto v = static_cast<float>(sim(schedule).count());
-            min = std::min(min, v);
-        }
+        for (int i{0}; i < 100; ++i)
+            min = std::min(min, sim(schedule));
 
-        REQUIRE(min == Approx(1517.F));
+        REQUIRE(min == 1517s);
     }
 }
