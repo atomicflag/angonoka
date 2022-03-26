@@ -111,7 +111,7 @@ Agent Name:
 
 **groups** is an array of group labels that the agent belongs to. This parameter restricts tasks available to the agent. An agent with `groups` can either work on tasks belonging to one of the groups or tasks without groups.
 
-The idea behind `groups` parameter is to allow you to specify that certain agents (i.e. backend developers) are the only ones who can work on certain tasks (i.e. backend tasks).
+The use case for the `groups` parameter is to allow you to specify that certain agents (i.e. backend developers) are the only ones who can work on certain tasks (i.e. backend tasks).
 
 An agent without `groups` can work on any task (including tasks from groups).
 
@@ -175,7 +175,7 @@ A bare minimum task must have a name and a duration, all other parameters are op
 
 **duration** defines how long this task is expected to take. It should be chosen with respect to the average agent's performance, i.e. the performance value of 1. Most human-readable durations are accepted, "5 min", "24h", "3 weeks 2 days 42 seconds", etc.
 
-Note: To better estimate the makespan all task durations should have the same unit of time. The reason for this is that if one task is defined as "3 hours" and another as "3 days", the algorithm doesn't account for the fact that the "3 days" task doesn't literally take 3 days to complete but rather it is implied that the actual duration is 8 work hours over 3 days, i.e. 24 hours or 1 day.
+> Note: To better estimate the makespan all task durations should have the same unit of time. The reason for this is that if one task is defined as "3 hours" and another as "3 days", the algorithm doesn't account for the fact that the "3 days" task doesn't literally take 3 days to complete but rather it is implied that the actual duration is 8 work hours over 3 days, i.e. 24 hours or 1 day.
 
 **id** uniquely identifies a task. This parameter is only needed when you want to reference this task in `depends_on` of another task.
 
@@ -283,6 +283,7 @@ To build the release version of Angonoka from source:
 
 ```console
 $ mkdir build && cd build
+$ conan remote add signal9 https://signal9.jfrog.io/artifactory/api/conan/conan
 $ conan install ..
 $ . ./activate.sh
 $ export PKG_CONFIG_PATH=$(pwd)

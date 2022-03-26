@@ -107,7 +107,9 @@ using Histogram = boost::histogram::histogram<
         boost::histogram::axis::null_type,
         boost::histogram::axis::option::growth_t>>>;
 
-// TODO: doc, test, expects
+/**
+    Histogram percentiles.
+*/
 struct HistogramStats {
     std::chrono::seconds p25;
     std::chrono::seconds p50;

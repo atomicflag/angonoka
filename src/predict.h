@@ -15,6 +15,7 @@ using variant = boost::variant2::variant<Ts...>;
 
 // TODO: doc, test, expects
 struct Prediction {
+    // Histogram and stats
 };
 
 /**
