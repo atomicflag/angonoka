@@ -8,6 +8,7 @@
 #include <memory>
 #include <readerwriterqueue/readerwriterqueue.h>
 #include <tuple>
+#include "simulation.h"
 
 namespace angonoka {
 template <typename... Ts>
@@ -15,7 +16,8 @@ using variant = boost::variant2::variant<Ts...>;
 
 // TODO: doc, test, expects
 struct Prediction {
-    // Histogram and stats
+    Histogram histogram;
+    HistogramStats stats;
 };
 
 /**
@@ -37,6 +39,7 @@ using Queue = moodycamel::ReaderWriterQueue<Ts...>;
 */
 enum class SimpleProgressEvent {
     ScheduleOptimizationStart,
+    SimulationStart,
     Finished
 };
 

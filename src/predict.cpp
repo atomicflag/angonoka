@@ -99,9 +99,12 @@ predict(const Configuration& config)
             = optimize(schedule_params, config.opt_params, *events);
         events->enqueue(ScheduleOptimizationComplete{
             .makespan{opt_result.makespan}});
-        // TODO: Run the simulation
+        events->enqueue(SimpleProgressEvent::SimulationStart);
+        auto hist = histogram(config, opt_result);
+        auto stats = stats(hist);
+
         events->enqueue(SimpleProgressEvent::Finished);
-        return Prediction{};
+        return Prediction{std::move(hist), std::move(stats)};
     });
     return {std::move(future), std::move(events)};
 }
