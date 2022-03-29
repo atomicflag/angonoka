@@ -2,6 +2,7 @@
 #include "configuration.h"
 #include "stub/optimizer.h"
 #include "stub/schedule_params.h"
+#include "stub/simulation.h"
 #include <catch2/catch.hpp>
 #include <deque>
 
@@ -42,6 +43,15 @@ template <typename T> auto pop(auto& events)
     return v;
 }
 } // namespace
+
+namespace angonoka {
+[[nodiscard]] Histogram
+histogram(const Configuration&, const OptimizedSchedule&)
+{
+    return {};
+}
+HistogramStats stats(const Histogram&) { return {}; }
+} // namespace angonoka
 
 TEST_CASE("prediction")
 {
@@ -87,6 +97,9 @@ TEST_CASE("prediction")
                 = pop<ScheduleOptimizationComplete>(events);
             REQUIRE(evt.makespan == 10s);
         }
+        REQUIRE(
+            pop<SimpleProgressEvent>(events)
+            == SimpleProgressEvent::SimulationStart);
         REQUIRE(
             pop<SimpleProgressEvent>(events)
             == SimpleProgressEvent::Finished);

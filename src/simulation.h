@@ -3,7 +3,6 @@
 #include "configuration.h"
 #include "predict.h"
 #include "stun/schedule.h"
-#include <boost/histogram.hpp>
 #include <chrono>
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/view/span.hpp>
@@ -91,33 +90,6 @@ private:
 } // namespace angonoka::detail
 
 namespace angonoka {
-/**
-    Histogram type alias.
-
-    Used as a return type of the histogram function.
-
-    The size of the bins is picked dynamically according to
-    the expected makespan. Each bin contains the count of
-    simulations within the bin's makespan range.
-*/
-using Histogram = boost::histogram::histogram<
-    std::tuple<boost::histogram::axis::regular<
-        float,
-        boost::use_default,
-        boost::histogram::axis::null_type,
-        boost::histogram::axis::option::growth_t>>>;
-
-/**
-    Histogram percentiles.
-*/
-struct HistogramStats {
-    std::chrono::seconds p25;
-    std::chrono::seconds p50;
-    std::chrono::seconds p75;
-    std::chrono::seconds p95;
-    std::chrono::seconds p99;
-};
-
 /**
     Make a histogram of simulation runs.
 
