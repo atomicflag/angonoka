@@ -2,7 +2,7 @@
 
 #include "predict.h"
 
-namespace angonoka{
+namespace angonoka {
 [[nodiscard]] Histogram histogram(
     const Configuration& config,
     const OptimizedSchedule& schedule);

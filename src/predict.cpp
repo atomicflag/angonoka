@@ -106,7 +106,7 @@ predict(const Configuration& config)
         auto hist_stats = stats(hist);
 
         events->enqueue(SimpleProgressEvent::Finished);
-        return Prediction{std::move(hist), std::move(hist_stats)};
+        return Prediction{std::move(hist), hist_stats};
     });
     return {std::move(future), std::move(events)};
 }
