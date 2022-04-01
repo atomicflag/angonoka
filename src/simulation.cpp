@@ -329,23 +329,30 @@ namespace angonoka {
 
     stun::RandomUtils random;
     detail::Simulation sim{{.config{&config}, .random{&random}}};
+    fmt::print("DBG: granularity = {}\n", granularity(schedule.makespan));
+    fmt::print("DBG: granularity = {}\n", granularity(schedule.makespan));
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
     mean<float> var_acc;
-    constexpr auto burn_in_count = 1000;
+    const auto burn_in_count = std::max(1000LL, schedule.makespan.count());
+    fmt::print("DBG: burn_in_count = {}\n", burn_in_count);
+    fmt::print("DBG: burn_in_count = {}\n", burn_in_count);
     for (int i{0}; i < burn_in_count; ++i) {
         const auto makespan = sim(schedule.schedule).count();
         var_acc(gsl::narrow_cast<float>(makespan));
         hist(makespan);
     }
     const auto var = var_acc.variance();
+    fmt::print("DBG: variance = {}\n", var);
     // (4*Z^2*var)/(W^2)
     // (4*1.96^2*var)/(60 sec ^2)
     // sample_coeff = (4*1.96^2)/(60^2)
     // TODO: make accuracy (60 sec) customizable
     const auto sample_coeff = 0.004268F;
-    const int sample_size
-        = gsl::narrow<int>(std::ceil(sample_coeff * var));
-    for (int i{0}; i < sample_size; ++i)
+    const std::uint64_t sample_size
+        = gsl::narrow<std::uint64_t>(std::ceil(sample_coeff * var));
+    fmt::print("DBG: sample_size = {}\n", sample_size);
+    // TODO: this is too slow
+    for (std::uint64_t i{0U}; i < sample_size; ++i)
         hist(sim(schedule.schedule).count());
 
     return hist;
