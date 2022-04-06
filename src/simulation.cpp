@@ -231,6 +231,7 @@ void Simulation::params(const Params& params)
     Ensures(task_done.size() == std::ssize(config->tasks));
 }
 
+// TODO: benchmark and optimize
 [[nodiscard]] std::chrono::seconds Simulation::operator()(
     ranges::span<const stun::ScheduleItem> schedule) noexcept
 {
@@ -329,11 +330,16 @@ namespace angonoka {
 
     stun::RandomUtils random;
     detail::Simulation sim{{.config{&config}, .random{&random}}};
-    fmt::print("DBG: granularity = {}\n", granularity(schedule.makespan));
-    fmt::print("DBG: granularity = {}\n", granularity(schedule.makespan));
+    fmt::print(
+        "DBG: granularity = {}\n",
+        granularity(schedule.makespan));
+    fmt::print(
+        "DBG: granularity = {}\n",
+        granularity(schedule.makespan));
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
     mean<float> var_acc;
-    const auto burn_in_count = std::max(1000LL, schedule.makespan.count());
+    const auto burn_in_count
+        = std::max(1000LL, schedule.makespan.count());
     fmt::print("DBG: burn_in_count = {}\n", burn_in_count);
     fmt::print("DBG: burn_in_count = {}\n", burn_in_count);
     for (int i{0}; i < burn_in_count; ++i) {

@@ -1,6 +1,6 @@
 root_dir = '../../'
 
-predict_test = executable(
+histogram_test = executable(
   'histogram_test',
   [
     'main.cpp',
@@ -17,4 +17,4 @@ predict_test = executable(
   include_directories : ['.', include],
   cpp_args: ['-DUNIT_TEST']
 )
-test('histogram unit test', predict_test)
+test('histogram unit test', histogram_test)

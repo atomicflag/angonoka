@@ -74,19 +74,19 @@ void run_prediction(
     }
     const auto prediction_result = prediction_future.get();
     const auto& stats = prediction_result.stats;
-    print(options, "Estimated makespan:\n"
-    "25%: {}\n"
-    "50%: {}\n"
-    "75%: {}\n"
-    "95%: {}\n"
-    "99%: {}\n",
-    verbose{stats.p25},
-    verbose{stats.p50},
-    verbose{stats.p75},
-    verbose{stats.p95},
-    verbose{stats.p99}
-    );
-
+    print(
+        options,
+        "Estimated makespan:\n"
+        "25%: {}\n"
+        "50%: {}\n"
+        "75%: {}\n"
+        "95%: {}\n"
+        "99%: {}\n",
+        verbose{stats.p25},
+        verbose{stats.p50},
+        verbose{stats.p75},
+        verbose{stats.p95},
+        verbose{stats.p99});
 }
 
 void parse_opt_params(

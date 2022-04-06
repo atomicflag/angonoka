@@ -13,6 +13,7 @@ readerwriterqueue/1.0.5
 cli11/2.1.1
 nlohmann_json/3.10.4
 catch2/2.13.7
+nanobench/4.3.6
 
 [build_requires]
 meson/0.60.0

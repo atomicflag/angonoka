@@ -72,6 +72,10 @@ test/functional:
 	cd test/functional
 	pytest -qx suite.py
 
+.PHONY: benchmark
+benchmark:
+	build/test/simulationbench/simulation_benchmark
+
 .PHONY: ninja
 ninja: build/build.ninja
 	$(BUILD_ENV)
@@ -110,7 +114,8 @@ release: MESON_ARGS=--prefix \
 	--buildtype release \
 	-Db_lto=true \
 	-Db_ndebug=true \
-	-Dstrip=false
+	-Dstrip=false \
+	-Dbenchmarks=enabled
 release: CXXFLAGS=$(RELEASE_CXXFLAGS)
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
