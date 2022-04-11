@@ -1,9 +1,10 @@
 #include "simulation.h"
-#include <boost/histogram/accumulators/mean.hpp>
+#include <boost/accumulators/statistics/extended_p_square.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/max.hpp>
 #include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/transform.hpp>
+#include <array>
 
 namespace {
 using namespace angonoka;
@@ -240,7 +241,7 @@ void Simulation::params(const Params& params)
     Expects(!task_duration.empty());
     Expects(!agent_work_end.empty());
     Expects(!task_done.empty());
-    Expects(schedule.size() == task_done.size());
+    Expects(std::ssize(schedule) == task_done.size());
     Expects(agent_performance.data() == buffer.data());
 
     ranges::fill(buffer, 0.F);
@@ -321,7 +322,8 @@ namespace angonoka {
     const Configuration& config,
     const OptimizedSchedule& schedule)
 {
-    using boost::histogram::accumulators::mean;
+    using namespace boost::accumulators;
+    using accumulator = accumulator_set<float, stats<tag::extended_p_square> >;
     using detail::granularity;
 
     Expects(!config.tasks.empty());
@@ -337,29 +339,19 @@ namespace angonoka {
         "DBG: granularity = {}\n",
         granularity(schedule.makespan));
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
-    mean<float> var_acc;
-    const auto burn_in_count
-        = std::max(1000LL, schedule.makespan.count());
-    fmt::print("DBG: burn_in_count = {}\n", burn_in_count);
-    fmt::print("DBG: burn_in_count = {}\n", burn_in_count);
-    for (int i{0}; i < burn_in_count; ++i) {
+    std::array probs = { 0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
+    accumulator acc{tag::extended_p_square::probabilities = probs};
+    std::array quantiles = { 0.F, 0.F, 0.F, 0.F, 0.F};
+    for (int i = 0; i < 1000; ++i) {
         const auto makespan = sim(schedule.schedule).count();
-        var_acc(gsl::narrow_cast<float>(makespan));
+        acc(gsl::narrow_cast<float>(makespan));
         hist(makespan);
     }
-    const auto var = var_acc.variance();
-    fmt::print("DBG: variance = {}\n", var);
-    // (4*Z^2*var)/(W^2)
-    // (4*1.96^2*var)/(60 sec ^2)
-    // sample_coeff = (4*1.96^2)/(60^2)
-    // TODO: make accuracy (60 sec) customizable
-    const auto sample_coeff = 0.004268F;
-    const std::uint64_t sample_size
-        = gsl::narrow<std::uint64_t>(std::ceil(sample_coeff * var));
-    fmt::print("DBG: sample_size = {}\n", sample_size);
-    // TODO: this is too slow
-    for (std::uint64_t i{0U}; i < sample_size; ++i)
-        hist(sim(schedule.schedule).count());
+    while (needs_more_samples(acc, quantiles)) {
+        const auto makespan = sim(schedule.schedule).count();
+        acc(gsl::narrow_cast<float>(makespan));
+        hist(makespan);
+    }
 
     return hist;
 }
