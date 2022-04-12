@@ -2,12 +2,17 @@
 #include <boost/accumulators/statistics/extended_p_square.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/max.hpp>
+#include <range/v3/algorithm/copy.hpp>
 #include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/transform.hpp>
+#include <range/v3/view/zip.hpp>
 #include <array>
 
 namespace {
+using namespace boost::accumulators;
+using Accumulator = accumulator_set<float, stats<tag::extended_p_square> >;
 using namespace angonoka;
+
 /**
     Return the middle value of the histogram bin.
 
@@ -29,6 +34,20 @@ bin_middle_value(const Histogram& histogram, int bin)
         bin = gsl::narrow<int>(std::ssize(histogram) - 1);
     return seconds{
         gsl::narrow<rep>(histogram.axis().bin(bin).center())};
+}
+
+// TODO: doc, test, expects
+bool needs_more_samples(const Accumulator& acc, std::array<float,5>& quantiles) {
+    using ranges::accumulate;
+    using ranges::zip;
+    using ranges::transform;
+    using ranges::copy;
+
+    const auto mse = accumulate(zip(acc,quantiles) | transform([](auto a, auto b){return (a-b)*(a-b);}), 0.F);
+    copy(acc, quantiles.begin());
+
+    fmt::print("0.25F = {}\n0.50F = {}\n0.75F = {}\n0.95F = {}\n0.99F = {}\nmse = {}\n", acc[0], acc[1],acc[2],acc[3],acc[4], mse);
+    return mse/acc[2] < 1.F;
 }
 } // namespace
 
@@ -322,8 +341,6 @@ namespace angonoka {
     const Configuration& config,
     const OptimizedSchedule& schedule)
 {
-    using namespace boost::accumulators;
-    using accumulator = accumulator_set<float, stats<tag::extended_p_square> >;
     using detail::granularity;
 
     Expects(!config.tasks.empty());
@@ -340,8 +357,9 @@ namespace angonoka {
         granularity(schedule.makespan));
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
     std::array probs = { 0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
-    accumulator acc{tag::extended_p_square::probabilities = probs};
-    std::array quantiles = { 0.F, 0.F, 0.F, 0.F, 0.F};
+    Accumulator acc{tag::extended_p_square::probabilities = probs};
+    std::array<float,5> quantiles;
+    ranges::fill(quantiles, 1.F);
     for (int i = 0; i < 1000; ++i) {
         const auto makespan = sim(schedule.schedule).count();
         acc(gsl::narrow_cast<float>(makespan));
