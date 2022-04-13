@@ -1,11 +1,16 @@
 #include "simulation.h"
 #include <boost/accumulators/statistics/extended_p_square.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <algorithm>
+#include <boost/accumulators/statistics/stats.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/max.hpp>
-#include <range/v3/algorithm/copy.hpp>
+#include <range/v3/algorithm/copy_n.hpp>
 #include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/zip.hpp>
+
+#include <range/v3/view/take.hpp>
 #include <array>
 
 namespace {
@@ -38,16 +43,20 @@ bin_middle_value(const Histogram& histogram, int bin)
 
 // TODO: doc, test, expects
 bool needs_more_samples(const Accumulator& acc, std::array<float,5>& quantiles) {
-    using ranges::accumulate;
-    using ranges::zip;
-    using ranges::transform;
-    using ranges::copy;
+    const auto p_square = extended_p_square(acc);
+    auto mse = 0.F;
+    for(int i{0}; i < quantiles.size(); ++i) {
+        const auto a = quantiles[i];
+        const auto b = p_square[i];
+        mse += (a-b)*(a-b);
+    }
 
-    const auto mse = accumulate(zip(acc,quantiles) | transform([](auto a, auto b){return (a-b)*(a-b);}), 0.F);
-    copy(acc, quantiles.begin());
+    // range/v3 version is too strict
+    std::copy(p_square.begin(), p_square.end(), quantiles.begin());
 
-    fmt::print("0.25F = {}\n0.50F = {}\n0.75F = {}\n0.95F = {}\n0.99F = {}\nmse = {}\n", acc[0], acc[1],acc[2],acc[3],acc[4], mse);
-    return mse/acc[2] < 1.F;
+    fmt::print("0.25F = {}\n0.50F = {}\n0.75F = {}\n0.95F = {}\n0.99F = {}\nmse = {}\ndiff = {}\n\n\n\n", p_square[0], p_square[1],p_square[2],p_square[3],p_square[4], mse, mse/p_square[2]);
+    // TODO: too volatile, neeeds smoothing
+    return mse/p_square[2] > .1F;
 }
 } // namespace
 
@@ -359,17 +368,26 @@ namespace angonoka {
     std::array probs = { 0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
     Accumulator acc{tag::extended_p_square::probabilities = probs};
     std::array<float,5> quantiles;
-    ranges::fill(quantiles, 1.F);
-    for (int i = 0; i < 1000; ++i) {
+    ranges::fill(quantiles, 0.F);
+
+    constexpr auto batch_size = 10'000;
+    auto count = batch_size; // TODO: Debug
+
+    for (int i = 0; i < batch_size; ++i) {
         const auto makespan = sim(schedule.schedule).count();
         acc(gsl::narrow_cast<float>(makespan));
         hist(makespan);
     }
     while (needs_more_samples(acc, quantiles)) {
+    for (int i = 0; i < batch_size; ++i) {
         const auto makespan = sim(schedule.schedule).count();
         acc(gsl::narrow_cast<float>(makespan));
         hist(makespan);
     }
+        count += batch_size;
+    }
+    fmt::print("count: {}\n\n\n", count);
+    // TODO: sometimes crashes after this for some reason
 
     return hist;
 }
