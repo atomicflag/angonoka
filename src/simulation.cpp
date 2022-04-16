@@ -45,23 +45,18 @@ bin_middle_value(const Histogram& histogram, int bin)
 }
 
 // TODO: doc, test, expects
-float mse(const PSquareAcc& acc, std::array<float,4>& quantiles) {
+float mean_absolute_pct_error(const PSquareAcc& acc, std::array<float,5>& quantiles) {
     const auto p_square = extended_p_square(acc);
-    auto mse = 0.F;
+    auto error = 0.F;
     for(int i{0}; i < quantiles.size(); ++i) {
         const auto a = quantiles[i];
         const auto b = p_square[i];
-        // mse += (a-b)*(a-b);
-        mse += std::abs((a-b)/a);
+        error += std::abs((a-b)/a);
     }
-    mse = mse/quantiles.size();
-
     // range/v3 version is too strict
     std::copy(p_square.begin(), p_square.end(), quantiles.begin());
 
-    // fmt::print("0.25F = {}\n0.50F = {}\n0.75F = {}\n0.95F = {}\n0.99F = {}\nmse = {}\ndiff = {}\n\n\n\n", p_square[0], p_square[1],p_square[2],p_square[3],p_square[4], mse, mse/p_square[2]);
-    // return mse/p_square[2];
-    return mse;
+    return error/quantiles.size();
 }
 } // namespace
 
@@ -370,10 +365,10 @@ namespace angonoka {
         "DBG: granularity = {}\n",
         granularity(schedule.makespan));
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
-    std::array probs = { 0.25F, 0.50F, 0.75F, 0.95F};
+    std::array probs = { 0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
     PSquareAcc acc{tag::extended_p_square::probabilities = probs};
-    RollingMeanAcc rolling_mse{tag::rolling_window::window_size = 15};
-    std::array<float,4> quantiles;
+    RollingMeanAcc rolling_error{tag::rolling_window::window_size = 15};
+    std::array<float,5> quantiles;
     ranges::fill(quantiles, 1.F);
 
     constexpr auto batch_size = 10'000;
@@ -384,16 +379,16 @@ namespace angonoka {
         acc(gsl::narrow_cast<float>(makespan));
         hist(makespan);
     }
-    rolling_mse(mse(acc, quantiles));
+    rolling_error(mean_absolute_pct_error(acc, quantiles));
     // TODO: Good enough?
-    while (rolling_mean(rolling_mse) > 0.01F) {
+    while (rolling_mean(rolling_error) > 0.01F) {
     for (int i = 0; i < batch_size; ++i) {
         const auto makespan = sim(schedule.schedule).count();
         acc(gsl::narrow_cast<float>(makespan));
         hist(makespan);
     }
-        rolling_mse(mse(acc, quantiles));
-        fmt::print("rolling_mse: {}\n\n\n", rolling_mean(rolling_mse));
+        rolling_error(mean_absolute_pct_error(acc, quantiles));
+        fmt::print("rolling_error: {}\n\n\n", rolling_mean(rolling_error));
         count += batch_size;
     }
     fmt::print("count: {}\n\n\n", count);
@@ -406,15 +401,20 @@ HistogramStats stats(const Histogram& histogram)
 {
     Expects(histogram.size() > 0);
 
+    fmt::print("DBG: before total\n\n");
     const float total = ranges::accumulate(histogram, 0.F);
+    fmt::print("DBG: total = {}\n\n\n", total);
     HistogramStats stats;
     float count = 0;
     int bin = 0;
 
+    // TODO: infinite loop below
+
     // Accumulates histogram bins until the threshold is reached
     const auto accumulate_until = [&](auto threshold) {
+        Expects(std::isnormal(threshold));
         for (; bin < std::ssize(histogram); ++bin) {
-            count += static_cast<float>(histogram[bin]);
+            count += histogram[bin];
             if (count >= threshold)
                 return bin_middle_value(histogram, bin++);
         }
