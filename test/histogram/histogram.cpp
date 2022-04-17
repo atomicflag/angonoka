@@ -75,23 +75,40 @@ TEST_CASE("histogram stats")
     using namespace angonoka;
     using namespace std::chrono_literals;
 
-    Histogram hist{{{1, 0.F, 10.F}}};
+    SECTION("regular")
+    {
+        Histogram hist{{{1, 0.F, 10.F}}};
 
-    hist(1.F);
-    hist(101.F);
-    hist(101.F);
-    hist(201.F);
-    hist(201.F);
-    hist(201.F);
-    hist(301.F);
-    hist(301.F);
-    hist(401.F);
+        hist(1.F);
+        hist(101.F);
+        hist(101.F);
+        hist(201.F);
+        hist(201.F);
+        hist(201.F);
+        hist(301.F);
+        hist(301.F);
+        hist(401.F);
 
-    const auto s = stats(hist);
+        const auto s = stats(hist);
 
-    REQUIRE(s.p25 == 105s);
-    REQUIRE(s.p50 == 205s);
-    REQUIRE(s.p75 == 305s);
-    REQUIRE(s.p95 == 405s);
-    REQUIRE(s.p99 == 405s);
+        REQUIRE(s.p25 == 105s);
+        REQUIRE(s.p50 == 205s);
+        REQUIRE(s.p75 == 305s);
+        REQUIRE(s.p95 == 405s);
+        REQUIRE(s.p99 == 405s);
+    }
+
+    SECTION("rounding bug")
+    {
+        Histogram hist{{{1, 0.F, 11.F}}};
+
+        hist(1.F);
+
+        const auto s = stats(hist);
+        REQUIRE(s.p25 == 6s);
+        REQUIRE(s.p50 == 6s);
+        REQUIRE(s.p75 == 6s);
+        REQUIRE(s.p95 == 6s);
+        REQUIRE(s.p99 == 6s);
+    }
 }
