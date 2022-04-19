@@ -48,15 +48,15 @@ float mean_absolute_pct_error(
 {
     const auto p_square = extended_p_square(acc);
     auto error = 0.F;
-    for (int i{0}; i < quantiles.size(); ++i) {
+    for (gsl::index i{0}; i < quantiles.size(); ++i) {
         const auto a = quantiles[i];
-        const auto b = p_square[i];
+        const auto b = p_square[gsl::narrow<long>(i)];
         error += std::abs((a - b) / a);
     }
     // range/v3 version is too strict
     std::copy(p_square.begin(), p_square.end(), quantiles.begin());
 
-    return error / quantiles.size();
+    return error / gsl::narrow<float>(quantiles.size());
 }
 } // namespace
 
@@ -400,7 +400,7 @@ HistogramStats stats(const Histogram& histogram)
         Expects(threshold >= 0.F);
 
         for (; bin < std::ssize(histogram); ++bin) {
-            count += histogram[bin];
+            count += static_cast<float>(histogram[bin]);
             if (count >= threshold)
                 return bin_middle_value(histogram, bin++);
         }

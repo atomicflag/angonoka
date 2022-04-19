@@ -18,25 +18,20 @@ args = compiler.get_supported_arguments([
 ])
 add_project_arguments(args, language : 'cpp')
 
-# if not get_option('debug')
-#   add_project_arguments(
-#     [
-#       '-Dgsl_CONFIG_CONTRACT_CHECKING_OFF',
-#       '-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME',
-#     ] + compiler.get_supported_arguments(['-ffast-math']),
-#     language : 'cpp'
-#   )
-# else
-#   add_project_arguments(
-#     ['-Dgsl_CONFIG_CONTRACT_VIOLATION_THROWS'],
-#     language : 'cpp'
-#   )
-# endif
-
+if not get_option('debug')
+  add_project_arguments(
+    [
+      '-Dgsl_CONFIG_CONTRACT_CHECKING_OFF',
+      '-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ASSUME',
+    ] + compiler.get_supported_arguments(['-ffast-math']),
+    language : 'cpp'
+  )
+else
   add_project_arguments(
     ['-Dgsl_CONFIG_CONTRACT_VIOLATION_THROWS'],
     language : 'cpp'
   )
+endif
 
 openmp = dependency('openmp', required : get_option('openmp'))
 

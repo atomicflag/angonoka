@@ -1,3 +1,2 @@
 option('tests', type : 'feature', value : 'disabled')
-option('benchmarks', type : 'feature', value : 'disabled')
 option('openmp', type : 'feature', value : 'enabled')

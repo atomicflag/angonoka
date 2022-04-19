@@ -72,10 +72,6 @@ test/functional:
 	cd test/functional
 	pytest -qx suite.py
 
-.PHONY: benchmark
-benchmark:
-	build/test/simulationbench/simulation_benchmark
-
 .PHONY: ninja
 ninja: build/build.ninja
 	$(BUILD_ENV)
