@@ -17,7 +17,8 @@ using PSquareAcc
 using RollingMeanAcc
     = accumulator_set<float, stats<tag::rolling_mean>>;
 using namespace angonoka;
-using Quantiles = std::array<float, 5>;
+constexpr auto quantile_count = 5;
+using Quantiles = std::array<float, quantile_count>;
 
 /**
     Return the middle value of the histogram bin.
@@ -359,9 +360,11 @@ namespace angonoka {
     stun::RandomUtils random;
     detail::Simulation sim{{.config{&config}, .random{&random}}};
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
     std::array probs = {0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
     PSquareAcc acc{tag::extended_p_square::probabilities = probs};
     RollingMeanAcc rolling_error{
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
         tag::rolling_window::window_size = 15};
     Quantiles quantiles;
     ranges::fill(quantiles, 1.F);
@@ -374,7 +377,8 @@ namespace angonoka {
         hist(makespan);
     }
     rolling_error(mean_absolute_pct_error(acc, quantiles));
-    while (rolling_mean(rolling_error) > 0.01F) {
+    constexpr auto target_error = 0.01F;
+    while (rolling_mean(rolling_error) > target_error) {
         for (int i = 0; i < batch_size; ++i) {
             const auto makespan = sim(schedule.schedule).count();
             acc(gsl::narrow_cast<float>(makespan));

@@ -114,6 +114,13 @@ def test_basic_non_tty_output():
         """\
     Schedule optimization complete.
     Optimal makespan: about an hour.
+    Estimated makespan:
+    """
+    )
+    match(cout, text)
+
+    text = dedent(
+        """\
     Probability estimation complete.
     """
     )
@@ -144,6 +151,13 @@ def test_basic_tty_output():
         """\
     Optimizing the schedule... OK
     Optimal makespan: about an hour.
+    Estimated makespan:
+    """
+    )
+    match(cout, text)
+
+    text = dedent(
+        """\
     Probability estimation complete.
     """
     )
@@ -172,6 +186,13 @@ def test_verbose_non_tty_output():
         """\
     Schedule optimization complete.
     Optimal makespan: 41m 24s.
+    Estimated makespan:
+    """
+    )
+    match(cout, text)
+
+    text = dedent(
+        """\
     Probability estimation complete.
     """
     )
@@ -246,14 +267,16 @@ def test_abort():
     global TEST_IDX
     env = {**os.environ, "LLVM_PROFILE_FILE": f"functional{TEST_IDX}.profraw"}
     TEST_IDX += 1
+    # May fail spuriously
     r = subprocess.run(
-        f"timeout 1 {EXE} --color ../../tasks.yml",
+        f"timeout 0.3 {EXE} --color ../../tasks.yml",
         capture_output=True,
         universal_newlines=True,
         shell=True,
         env=env,
     )
     code, cout, cerr = r.returncode, r.stdout, r.stderr
+    assert code == 124
     assert cout.endswith("\x1b[?25h")
 
 

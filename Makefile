@@ -110,8 +110,7 @@ release: MESON_ARGS=--prefix \
 	--buildtype release \
 	-Db_lto=true \
 	-Db_ndebug=true \
-	-Dstrip=false \
-	-Dbenchmarks=enabled
+	-Dstrip=false
 release: CXXFLAGS=$(RELEASE_CXXFLAGS)
 release: LDFLAGS=$(RELEASE_LDFLAGS)
 release: ninja
