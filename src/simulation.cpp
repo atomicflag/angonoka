@@ -42,7 +42,23 @@ bin_middle_value(const Histogram& histogram, int bin)
     return seconds{gsl::narrow<seconds::rep>(std::round(center))};
 }
 
-// TODO: doc, test, expects
+/**
+    Mean absolute percentage error of the histogram quantiles.
+
+    TODO: Expects, test
+
+    Quick and dirty way to tell how the accuracy of the histogram
+    improved since the last batch. We don't need sub-minute accuracy
+    but we also don't want too sparse of a histogram. This function
+    is used as a stopping condition for the simulation. The
+    simulation stops when we see very little further improvement,
+    when the simulation converges.
+
+    @param acc			Histogram accumulator with new samples
+    @param quantiles    Last batch's quantiles
+
+    @return Error value, smaller values mean higher accuracy
+*/
 float mean_absolute_pct_error(
     const PSquareAcc& acc,
     Quantiles& quantiles)
@@ -54,7 +70,7 @@ float mean_absolute_pct_error(
         const auto b = p_square[gsl::narrow<long>(i)];
         error += std::abs((a - b) / a);
     }
-    // range/v3 version is too strict
+    // range/v3 version is too strict w.r.t range requirements
     std::copy(p_square.begin(), p_square.end(), quantiles.begin());
 
     return error / gsl::narrow<float>(quantiles.size());
@@ -261,7 +277,6 @@ void Simulation::params(const Params& params)
     Ensures(task_done.size() == std::ssize(config->tasks));
 }
 
-// TODO: benchmark and optimize
 [[nodiscard]] std::chrono::seconds Simulation::operator()(
     ranges::span<const stun::ScheduleItem> schedule) noexcept
 {
@@ -347,6 +362,7 @@ Simulation::~Simulation() noexcept = default;
 } // namespace angonoka::detail
 
 namespace angonoka {
+// TODO: Refactor into a function object
 [[nodiscard]] Histogram histogram(
     const Configuration& config,
     const OptimizedSchedule& schedule)
@@ -360,6 +376,8 @@ namespace angonoka {
     stun::RandomUtils random;
     detail::Simulation sim{{.config{&config}, .random{&random}}};
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
+    // TODO: Can we reuse the Quantiles type alias or
+    // pass the initializer list as-is?
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
     std::array probs = {0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
     PSquareAcc acc{tag::extended_p_square::probabilities = probs};
