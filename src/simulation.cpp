@@ -376,10 +376,8 @@ namespace angonoka {
     stun::RandomUtils random;
     detail::Simulation sim{{.config{&config}, .random{&random}}};
     Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
-    // TODO: Can we reuse the Quantiles type alias or
-    // pass the initializer list as-is?
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-    std::array probs = {0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
+    constexpr Quantiles probs = {0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
     PSquareAcc acc{tag::extended_p_square::probabilities = probs};
     RollingMeanAcc rolling_error{
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)

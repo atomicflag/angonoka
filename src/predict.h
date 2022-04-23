@@ -41,7 +41,20 @@ struct HistogramStats {
     std::chrono::seconds p99;
 };
 
-// TODO: doc, test, expects
+/**
+    The result of running the simulations.
+
+    Angonoka uses statistical modeling to run the simulations
+    to figure out the most likely durations for tasks. The
+    result contains the histogram of simulation runs and
+    quantiles for various probabilities.
+
+    For example stats.p95 will contain the total duration
+    in seconds for the 95% quantile.
+
+    @var histogram  Histogram for the simulation
+    @var stats      Quantiles for the histogram
+*/
 struct Prediction {
     Histogram histogram;
     HistogramStats stats;
@@ -105,8 +118,6 @@ using ProgressEvent = variant<
 
     The event queue provides a way to monitor the progress
     of the prediction function.
-
-    // TODO: test
 
     @param config Tasks, agents and other data.
 
