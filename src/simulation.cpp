@@ -45,8 +45,6 @@ bin_middle_value(const Histogram& histogram, int bin)
 /**
     Mean absolute percentage error of the histogram quantiles.
 
-    TODO: Expects, test
-
     Quick and dirty way to tell how the accuracy of the histogram
     improved since the last batch. We don't need sub-minute accuracy
     but we also don't want too sparse of a histogram. This function
@@ -63,6 +61,8 @@ float mean_absolute_pct_error(
     const PSquareAcc& acc,
     Quantiles& quantiles)
 {
+    Expects(!quantiles.empty());
+
     const auto p_square = extended_p_square(acc);
     auto error = 0.F;
     for (gsl::index i{0}; i < quantiles.size(); ++i) {
@@ -72,6 +72,8 @@ float mean_absolute_pct_error(
     }
     // range/v3 version is too strict w.r.t range requirements
     std::copy(p_square.begin(), p_square.end(), quantiles.begin());
+
+    Ensures(error >= 0.F);
 
     return error / gsl::narrow<float>(quantiles.size());
 }

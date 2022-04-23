@@ -102,10 +102,7 @@ predict(const Configuration& config)
         events->enqueue(ScheduleOptimizationComplete{
             .makespan{opt_result.makespan}});
         events->enqueue(SimpleProgressEvent::SimulationStart);
-        // __builtin_debugtrap();
-        auto hist
-            = histogram(config, opt_result); // TODO: coredumps here
-        // __builtin_debugtrap();
+        auto hist = histogram(config, opt_result);
         auto hist_stats = stats(hist);
 
         events->enqueue(SimpleProgressEvent::Finished);
