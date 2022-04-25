@@ -363,49 +363,63 @@ Simulation::~Simulation() noexcept = default;
 }
 } // namespace angonoka::detail
 
+namespace {
+using namespace angonoka;
+using angonoka::detail::granularity;
+using angonoka::detail::Simulation;
+
+// TODO: doc, test, expects
+struct HistogramOp {
+    gsl::not_null<const Configuration*> config;
+    gsl::not_null<const OptimizedSchedule*> schedule;
+    stun::RandomUtils random{};
+    Simulation sim{{.config{config}, .random{&random}}};
+    Histogram hist{{{1, 0.F, granularity(schedule->makespan)}}};
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+    static constexpr Quantiles probs
+        = {0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
+    PSquareAcc acc{tag::extended_p_square::probabilities = probs};
+    RollingMeanAcc rolling_error{
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+        tag::rolling_window::window_size = 15};
+    Quantiles quantiles{};
+    static constexpr auto batch_size = 10'000;
+
+    void run_simulation_batch()
+    {
+        for (int i = 0; i < batch_size; ++i) {
+            const auto makespan = sim(schedule->schedule).count();
+            acc(gsl::narrow_cast<float>(makespan));
+            hist(makespan);
+        }
+    }
+
+    // TODO: doc, test, expects
+    [[nodiscard]] Histogram operator()()
+    {
+        ranges::fill(quantiles, 1.F);
+        run_simulation_batch();
+        rolling_error(mean_absolute_pct_error(acc, quantiles));
+        constexpr auto target_error = 0.01F;
+        while (rolling_mean(rolling_error) > target_error) {
+            run_simulation_batch();
+            rolling_error(mean_absolute_pct_error(acc, quantiles));
+        }
+        return hist;
+    }
+};
+} // namespace
+
 namespace angonoka {
 // TODO: Refactor into a function object
 [[nodiscard]] Histogram histogram(
     const Configuration& config,
     const OptimizedSchedule& schedule)
 {
-    using detail::granularity;
-
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());
     Expects(!schedule.schedule.empty());
-
-    stun::RandomUtils random;
-    detail::Simulation sim{{.config{&config}, .random{&random}}};
-    Histogram hist{{{1, 0.F, granularity(schedule.makespan)}}};
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-    constexpr Quantiles probs = {0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
-    PSquareAcc acc{tag::extended_p_square::probabilities = probs};
-    RollingMeanAcc rolling_error{
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-        tag::rolling_window::window_size = 15};
-    Quantiles quantiles;
-    ranges::fill(quantiles, 1.F);
-
-    constexpr auto batch_size = 10'000;
-
-    for (int i = 0; i < batch_size; ++i) {
-        const auto makespan = sim(schedule.schedule).count();
-        acc(gsl::narrow_cast<float>(makespan));
-        hist(makespan);
-    }
-    rolling_error(mean_absolute_pct_error(acc, quantiles));
-    constexpr auto target_error = 0.01F;
-    while (rolling_mean(rolling_error) > target_error) {
-        for (int i = 0; i < batch_size; ++i) {
-            const auto makespan = sim(schedule.schedule).count();
-            acc(gsl::narrow_cast<float>(makespan));
-            hist(makespan);
-        }
-        rolling_error(mean_absolute_pct_error(acc, quantiles));
-    }
-
-    return hist;
+    return HistogramOp{&config, &schedule}();
 }
 
 HistogramStats stats(const Histogram& histogram)
