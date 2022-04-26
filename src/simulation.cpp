@@ -46,16 +46,18 @@ bin_middle_value(const Histogram& histogram, int bin)
     Mean absolute percentage error of the histogram quantiles.
 
     Quick and dirty way to tell how the accuracy of the histogram
-    improved since the last batch. We don't need sub-minute accuracy
-    but we also don't want too sparse of a histogram. This function
-    is used as a stopping condition for the simulation. The
-    simulation stops when we see very little further improvement,
-    when the simulation converges.
+    improved since the last batch.
 
-    @param acc			Histogram accumulator with new samples
+    We don't need sub-minute accuracy but we also don't want too
+    sparse of a histogram. This function is used as a stopping
+    condition for the simulation. The simulation stops when we
+    measure very little further improvement, when the simulation
+    converges.
+
+    @param acc			Quantile accumulator with new samples
     @param quantiles    Last batch's quantiles
 
-    @return Error value, smaller values mean higher accuracy
+    @return Error value, smaller value means higher accuracy
 */
 float mean_absolute_pct_error(
     const PSquareAcc& acc,
@@ -368,7 +370,9 @@ using namespace angonoka;
 using angonoka::detail::granularity;
 using angonoka::detail::Simulation;
 
-// TODO: doc, test, expects
+/**
+    Function object for making a histogram of simulation results.
+*/
 struct HistogramOp {
     gsl::not_null<const Configuration*> config;
     gsl::not_null<const OptimizedSchedule*> schedule;
@@ -385,8 +389,15 @@ struct HistogramOp {
     Quantiles quantiles{};
     static constexpr auto batch_size = 10'000;
 
+    /**
+        Run batch_size simulations and log results.
+
+        Logs P-square quantiles and accumulates the histogram.
+    */
     void run_simulation_batch()
     {
+        Expects(!schedule->schedule.empty());
+
         for (int i = 0; i < batch_size; ++i) {
             const auto makespan = sim(schedule->schedule).count();
             acc(gsl::narrow_cast<float>(makespan));
@@ -394,24 +405,34 @@ struct HistogramOp {
         }
     }
 
-    // TODO: doc, test, expects
+    /**
+        Run the simulations and build a histogram.
+
+        First runs one batch to get the baseline for the makespan
+        quantiles and then runs simulations until batch-to-batch
+        quantile estimation accuracy improvement falls below the
+        threshold.
+    */
     [[nodiscard]] Histogram operator()()
     {
+        Expects(quantiles.size() > 1);
+
         ranges::fill(quantiles, 1.F);
         run_simulation_batch();
         rolling_error(mean_absolute_pct_error(acc, quantiles));
-        constexpr auto target_error = 0.01F;
-        while (rolling_mean(rolling_error) > target_error) {
+        constexpr auto error_threshold = 0.01F;
+        while (rolling_mean(rolling_error) > error_threshold) {
             run_simulation_batch();
             rolling_error(mean_absolute_pct_error(acc, quantiles));
         }
+
+        Ensures(hist.size() > 0);
         return hist;
     }
 };
 } // namespace
 
 namespace angonoka {
-// TODO: Refactor into a function object
 [[nodiscard]] Histogram histogram(
     const Configuration& config,
     const OptimizedSchedule& schedule)
