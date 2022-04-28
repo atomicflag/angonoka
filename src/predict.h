@@ -2,6 +2,7 @@
 
 #include "configuration.h"
 #include "stun/schedule.h"
+#include <boost/histogram.hpp>
 #include <boost/variant2/variant.hpp>
 #include <chrono>
 #include <future>
@@ -13,8 +14,50 @@ namespace angonoka {
 template <typename... Ts>
 using variant = boost::variant2::variant<Ts...>;
 
-// TODO: doc, test, expects
+/**
+    Histogram type alias.
+
+    Used as a return type of the histogram function.
+
+    The size of the bins is picked dynamically according to
+    the expected makespan. Each bin contains the count of
+    simulations within the bin's makespan range.
+*/
+using Histogram = boost::histogram::histogram<
+    std::tuple<boost::histogram::axis::regular<
+        float,
+        boost::use_default,
+        boost::histogram::axis::null_type,
+        boost::histogram::axis::option::growth_t>>>;
+
+/**
+    Histogram percentiles.
+*/
+struct HistogramStats {
+    std::chrono::seconds p25;
+    std::chrono::seconds p50;
+    std::chrono::seconds p75;
+    std::chrono::seconds p95;
+    std::chrono::seconds p99;
+};
+
+/**
+    The result of running the simulations.
+
+    Angonoka uses statistical modeling to run the simulations
+    to figure out the most likely durations for tasks. The
+    result contains the histogram of simulation runs and
+    quantiles for various probabilities.
+
+    For example stats.p95 will contain the total duration
+    in seconds for the 95% quantile.
+
+    @var histogram  Histogram for the simulation
+    @var stats      Quantiles for the histogram
+*/
 struct Prediction {
+    Histogram histogram;
+    HistogramStats stats;
 };
 
 /**
@@ -36,6 +79,7 @@ using Queue = moodycamel::ReaderWriterQueue<Ts...>;
 */
 enum class SimpleProgressEvent {
     ScheduleOptimizationStart,
+    SimulationStart,
     Finished
 };
 
@@ -74,8 +118,6 @@ using ProgressEvent = variant<
 
     The event queue provides a way to monitor the progress
     of the prediction function.
-
-    // TODO: test
 
     @param config Tasks, agents and other data.
 

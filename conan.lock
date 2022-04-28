@@ -15,11 +15,12 @@
      "11",
      "12",
      "13",
-     "14"
+     "14",
+     "15"
     ],
     "build_requires": [
-     "15",
-     "17"
+     "16",
+     "18"
     ],
     "path": "../conanfile.txt",
     "context": "host"
@@ -127,23 +128,30 @@
     "context": "host"
    },
    "15": {
+    "ref": "nanobench/4.3.6#4fc2d1fafa825e50bd3ff08214295169",
+    "options": "",
+    "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
+    "prev": "d2f39b526a4616676fd2aaad62c1f0c2",
+    "context": "host"
+   },
+   "16": {
     "ref": "meson/0.60.0#b98d6aee3666deadebfb256eebbba4a9",
     "options": "",
     "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
     "prev": "77c3454b78333d5d5cb41a63d3e6be70",
     "requires": [
-     "16"
+     "17"
     ],
     "context": "host"
    },
-   "16": {
+   "17": {
     "ref": "ninja/1.10.2#0ed34363d5683eb57a22bd2ccd7b62fc",
     "options": "",
     "package_id": "24647d9fe8ec489125dfbae4b3ebefaf7581674c",
     "prev": "4d1bb64a438fff596e46919a9dcb929d",
     "context": "host"
    },
-   "17": {
+   "18": {
     "ref": "ragel/6.10#0af6e8774e2ce8c6e54a37cd34bd4e63",
     "options": "",
     "package_id": "4db1be536558d833e52e862fd84d64d75c2b3656",

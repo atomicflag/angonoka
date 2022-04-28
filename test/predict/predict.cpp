@@ -2,6 +2,7 @@
 #include "configuration.h"
 #include "stub/optimizer.h"
 #include "stub/schedule_params.h"
+#include "stub/simulation.h"
 #include <catch2/catch.hpp>
 #include <deque>
 
@@ -43,6 +44,18 @@ template <typename T> auto pop(auto& events)
 }
 } // namespace
 
+namespace angonoka {
+[[nodiscard]] Histogram
+histogram(const Configuration&, const OptimizedSchedule&)
+{
+    return {};
+}
+HistogramStats stats(const Histogram&)
+{
+    return {std::chrono::seconds{25}};
+}
+} // namespace angonoka
+
 TEST_CASE("prediction")
 {
     SECTION("basic prediction")
@@ -52,7 +65,10 @@ TEST_CASE("prediction")
 
         Configuration config;
         auto [prediction_future, event_queue] = predict(config);
-        prediction_future.get();
+        const auto prediction_result = prediction_future.get();
+
+        REQUIRE(
+            prediction_result.stats.p25 == std::chrono::seconds{25});
 
         std::deque<ProgressEvent> events;
         for (ProgressEvent evt; event_queue->try_dequeue(evt);)
@@ -89,9 +105,11 @@ TEST_CASE("prediction")
         }
         REQUIRE(
             pop<SimpleProgressEvent>(events)
+            == SimpleProgressEvent::SimulationStart);
+        REQUIRE(
+            pop<SimpleProgressEvent>(events)
             == SimpleProgressEvent::Finished);
         REQUIRE(events.empty());
-        // TODO: implement
     }
 
     SECTION("a schedule without prediction")
