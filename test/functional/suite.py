@@ -114,7 +114,7 @@ def test_basic_non_tty_output():
         """\
     Schedule optimization complete.
     Optimal makespan: about an hour.
-    Estimated makespan:
+    Estimation:
     """
     )
     match(cout, text)
@@ -151,7 +151,7 @@ def test_basic_tty_output():
         """\
     Optimizing the schedule... OK
     Optimal makespan: about an hour.
-    Estimated makespan:
+    Estimation:
     """
     )
     match(cout, text)
@@ -186,7 +186,7 @@ def test_verbose_non_tty_output():
         """\
     Schedule optimization complete.
     Optimal makespan: 41m 24s.
-    Estimated makespan:
+    Estimation:
     """
     )
     match(cout, text)

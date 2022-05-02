@@ -76,12 +76,12 @@ void run_prediction(
     const auto& stats = prediction_result.stats;
     print(
         options,
-        "Estimated makespan:\n"
-        "25%: {}\n"
-        "50%: {}\n"
-        "75%: {}\n"
-        "95%: {}\n"
-        "99%: {}\n",
+        "Estimation:\n"
+        "  25% chance to complete the project in under {}.\n"
+        "  50% chance to complete the project in under {}.\n"
+        "  75% chance to complete the project in under {}.\n"
+        "  95% chance to complete the project in under {}.\n"
+        "  99% chance to complete the project in under {}.\n",
         verbose{stats.p25},
         verbose{stats.p50},
         verbose{stats.p75},
