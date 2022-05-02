@@ -119,6 +119,7 @@ auto schedule_subcommand(
         "schedule",
         "Output the schedule in JSON format.");
     schedule_cmd->excludes(&default_group);
+    // TODO: Why not bind this to options.output?
     schedule_cmd
         ->add_option("-o,--output", "Output the schedule to a file")
         ->default_str("schedule.json");
@@ -143,6 +144,9 @@ auto default_group(CLI::App& cli, Options& options)
     group->add_option("input file", options.filename)
         ->required()
         ->check(CLI::ExistingFile);
+    group
+        ->add_option("-o,--output", "Output the histogram to a file")
+        ->default_str("time_estimation.json");
     return group;
 }
 } // namespace

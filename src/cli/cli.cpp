@@ -27,6 +27,23 @@ void print_yaml_error(
         e.mark.column + 1,
         e.msg);
 }
+
+// TODO: doc, test, expects
+void print_histogram_stats(const Options& options, const HistogramStats& stats) {
+    print(
+        options,
+        "Estimation:\n"
+        "  25% chance to complete the project in under {}.\n"
+        "  50% chance to complete the project in under {}.\n"
+        "  75% chance to complete the project in under {}.\n"
+        "  95% chance to complete the project in under {}.\n"
+        "  99% chance to complete the project in under {}.\n",
+        verbose{stats.p25},
+        verbose{stats.p50},
+        verbose{stats.p75},
+        verbose{stats.p95},
+        verbose{stats.p99});
+}
 } // namespace
 
 namespace angonoka::cli {
@@ -73,20 +90,7 @@ void run_prediction(
             EventHandler{&progress, &options});
     }
     const auto prediction_result = prediction_future.get();
-    const auto& stats = prediction_result.stats;
-    print(
-        options,
-        "Estimation:\n"
-        "  25% chance to complete the project in under {}.\n"
-        "  50% chance to complete the project in under {}.\n"
-        "  75% chance to complete the project in under {}.\n"
-        "  95% chance to complete the project in under {}.\n"
-        "  99% chance to complete the project in under {}.\n",
-        verbose{stats.p25},
-        verbose{stats.p50},
-        verbose{stats.p75},
-        verbose{stats.p95},
-        verbose{stats.p99});
+    print_histogram_stats(options, prediction_result.stats);
 }
 
 void parse_opt_params(
