@@ -9,6 +9,7 @@
 
 namespace {
 using namespace angonoka::cli;
+using namespace angonoka;
 /**
     Pretty-print YAML library exception to stdout.
 
@@ -29,7 +30,10 @@ void print_yaml_error(
 }
 
 // TODO: doc, test, expects
-void print_histogram_stats(const Options& options, const HistogramStats& stats) {
+void print_histogram_stats(
+    const Options& options,
+    const HistogramStats& stats)
+{
     print(
         options,
         "Estimation:\n"

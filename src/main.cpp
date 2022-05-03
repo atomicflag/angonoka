@@ -119,10 +119,12 @@ auto schedule_subcommand(
         "schedule",
         "Output the schedule in JSON format.");
     schedule_cmd->excludes(&default_group);
-    // TODO: Why not bind this to options.output?
     schedule_cmd
-        ->add_option("-o,--output", "Output the schedule to a file")
-        ->default_str("schedule.json");
+        ->add_option(
+            "-o,--output",
+            options.output,
+            "Output the schedule to a file")
+        ->default_val("schedule.json");
     schedule_cmd->add_option("input file", options.filename)
         ->required()
         ->check(CLI::ExistingFile);
@@ -145,8 +147,11 @@ auto default_group(CLI::App& cli, Options& options)
         ->required()
         ->check(CLI::ExistingFile);
     group
-        ->add_option("-o,--output", "Output the histogram to a file")
-        ->default_str("time_estimation.json");
+        ->add_option(
+            "-o,--output",
+            options.output,
+            "Output the histogram to a file")
+        ->default_val("time_estimation.json");
     return group;
 }
 } // namespace
@@ -178,7 +183,6 @@ int main(int argc, char** argv)
 
         // schedule subcommand
         if (schedule_cmd->parsed()) {
-            options.output = (*schedule_cmd)["-o"]->as<std::string>();
             const auto json = json_schedule(config, options);
             save_json(json, options);
             return EXIT_SUCCESS;

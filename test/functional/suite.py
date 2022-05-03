@@ -61,6 +61,9 @@ def test_prints_help():
     [Option Group: Default]
       Positionals:
         input file TEXT:FILE REQUIRED
+      Options:
+        -o,--output TEXT=time_estimation.json
+                                    Output the histogram to a file
 
     Subcommands:
       schedule                    Output the schedule in JSON format.
@@ -377,7 +380,8 @@ def test_schedule_doc():
 
     Options:
       -h,--help                   Print this help message and exit
-      -o,--output=schedule.json   Output the schedule to a file
+      -o,--output TEXT=schedule.json
+                                  Output the schedule to a file
 
     """
     )
