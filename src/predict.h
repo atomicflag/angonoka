@@ -42,6 +42,17 @@ struct HistogramStats {
 };
 
 /**
+    The result of the schedule optimization process.
+
+    @var schedule Optimized schedule
+    @var makespan Makespan in seconds
+*/
+struct OptimizedSchedule {
+    std::vector<stun::ScheduleItem> schedule;
+    std::chrono::seconds makespan;
+};
+
+/**
     The result of running the simulations.
 
     Angonoka uses statistical modeling to run the simulations
@@ -52,21 +63,14 @@ struct HistogramStats {
     For example stats.p95 will contain the total duration
     in seconds for the 95% quantile.
 
+    TODO: docs, test
+
     @var histogram  Histogram for the simulation
     @var stats      Quantiles for the histogram
 */
 struct Prediction {
     Histogram histogram;
     HistogramStats stats;
-};
-
-/**
-    The result of the schedule optimization process.
-
-    @var schedule Optimized schedule
-    @var makespan Makespan in seconds
-*/
-struct OptimizedSchedule {
     std::vector<stun::ScheduleItem> schedule;
     std::chrono::seconds makespan;
 };
