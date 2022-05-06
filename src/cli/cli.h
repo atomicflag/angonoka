@@ -17,6 +17,8 @@ Configuration parse_config(const Options& options);
 /**
     Run the prediction algorithm on given configuration.
 
+    TODO: return json, use detail::to_json
+
     @param config   Agent and tasks configuration
     @param options  CLI options
 */
@@ -37,4 +39,7 @@ void run_prediction(
 void parse_opt_params(
     const OptParams& cli_params,
     OptimizationParameters& params);
+
+// TODO: add save_prediction_json
+
 } // namespace angonoka::cli

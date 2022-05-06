@@ -63,10 +63,10 @@ struct OptimizedSchedule {
     For example stats.p95 will contain the total duration
     in seconds for the 95% quantile.
 
-    TODO: docs, test
-
     @var histogram  Histogram for the simulation
     @var stats      Quantiles for the histogram
+    @var schedule   Optimized schedule
+    @var makespan   Makespan in seconds
 */
 struct Prediction {
     Histogram histogram;

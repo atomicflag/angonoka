@@ -29,7 +29,12 @@ void print_yaml_error(
         e.msg);
 }
 
-// TODO: doc, test, expects
+/**
+    Print the histogram quantiles.
+
+    @param options  CLI options
+    @param stats    Histogram stats
+*/
 void print_histogram_stats(
     const Options& options,
     const HistogramStats& stats)

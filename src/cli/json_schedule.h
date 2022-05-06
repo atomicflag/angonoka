@@ -52,6 +52,8 @@ json_schedule(const Configuration& config, const Options& options);
 
     Currently used for exporting the optimized schedule.
 
+    TODO: Rename to save_schedule_json
+
     @param json     JSON to be saved
     @param options  CLI options
 */
