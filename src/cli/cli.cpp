@@ -4,6 +4,7 @@
 #include "exceptions.h"
 #include "predict.h"
 #include "progress.h"
+#include "schedule.h"
 #include "utils.h"
 #include "verbose.h"
 #include <boost/iostreams/device/file_descriptor.hpp>
@@ -83,9 +84,8 @@ Configuration parse_config(const Options& options)
     }
 }
 
-void run_prediction(
-    const Configuration& config,
-    const Options& options)
+nlohmann::json
+run_prediction(const Configuration& config, const Options& options)
 {
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());
@@ -102,6 +102,12 @@ void run_prediction(
     }
     const auto prediction_result = prediction_future.get();
     print_histogram_stats(options, prediction_result.stats);
+
+    // TODO: WIP
+    return detail::to_json(
+        config,
+        {.schedule{prediction_result.schedule},
+         .makespan{prediction_result.makespan}});
 }
 
 void parse_opt_params(

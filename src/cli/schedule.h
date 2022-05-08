@@ -48,9 +48,7 @@ namespace detail {
 json_schedule(const Configuration& config, const Options& options);
 
 /**
-    Save JSON to a file with formatting.
-
-    Currently used for exporting the optimized schedule.
+    Save JSON schedule to a file with formatting.
 
     @param json     JSON to be saved
     @param options  CLI options

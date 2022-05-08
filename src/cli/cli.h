@@ -18,14 +18,15 @@ Configuration parse_config(const Options& options);
 /**
     Run the prediction algorithm on given configuration.
 
-    TODO: return json, use detail::to_json
+    TODO: test
 
     @param config   Agent and tasks configuration
     @param options  CLI options
+
+    @return JSON object with prediction data
 */
-void run_prediction(
-    const Configuration& config,
-    const Options& options);
+[[nodiscard]] nlohmann::json
+run_prediction(const Configuration& config, const Options& options);
 
 /**
     Parse optimization-related CLI parameters.
@@ -41,7 +42,14 @@ void parse_opt_params(
     const OptParams& cli_params,
     OptimizationParameters& params);
 
-// TODO: doc, test, expects
+/**
+    Save JSON prediction to a file with formatting.
+
+    TODO: test
+
+    @param json     JSON to be saved
+    @param options  CLI options
+*/
 void save_prediction_json(
     const nlohmann::json& json,
     const Options& options);
