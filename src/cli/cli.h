@@ -3,6 +3,7 @@
 #include "configuration.h"
 #include "options.h"
 #include <CLI/App.hpp>
+#include <nlohmann/json.hpp>
 
 namespace angonoka::cli {
 /**
@@ -40,6 +41,6 @@ void parse_opt_params(
     const OptParams& cli_params,
     OptimizationParameters& params);
 
-// TODO: add save_prediction_json
-
+// TODO: doc, test, expects
+void save_prediction_json(const nlohmann::json& json, const Options& options);
 } // namespace angonoka::cli

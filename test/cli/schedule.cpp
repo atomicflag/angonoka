@@ -1,4 +1,4 @@
-#include "cli/json_schedule.h"
+#include "cli/schedule.h"
 #include "config/load.h"
 #include <catch2/catch.hpp>
 

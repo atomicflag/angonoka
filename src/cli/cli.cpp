@@ -6,6 +6,8 @@
 #include "progress.h"
 #include "utils.h"
 #include "verbose.h"
+#include <boost/iostreams/device/file_descriptor.hpp>
+#include <boost/iostreams/stream.hpp>
 
 namespace {
 using namespace angonoka::cli;
@@ -112,5 +114,30 @@ void parse_opt_params(
     params.stun_window = cli_params.stun_window;
     params.gamma = cli_params.gamma;
     params.restart_period = cli_params.restart_period;
+}
+
+void save_prediction_json(const nlohmann::json& json, const Options& options) {
+    using boost::iostreams::file_descriptor_sink;
+    using boost::iostreams::stream;
+
+    Expects(!options.output.empty());
+    Expects(!json.empty());
+
+    try {
+        stream<file_descriptor_sink> output{options.output};
+        output << std::setw(4) << json;
+    } catch (const std::runtime_error& e) {
+        print_error(
+            options,
+            stderr,
+            "Error saving the prediction results:\n{}",
+            e.what());
+        throw UserError{};
+    }
+    print(
+        options,
+        R"(Time estimation written to "{}")"
+        "\n",
+        options.output);
 }
 } // namespace angonoka::cli

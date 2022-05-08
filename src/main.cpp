@@ -1,5 +1,5 @@
 #include "cli/cli.h"
-#include "cli/json_schedule.h"
+#include "cli/schedule.h"
 #include "config.h"
 #include <CLI/CLI.hpp>
 #include <bit>
@@ -184,7 +184,7 @@ int main(int argc, char** argv)
         // schedule subcommand
         if (schedule_cmd->parsed()) {
             const auto json = json_schedule(config, options);
-            save_json(json, options);
+            save_schedule_json(json, options);
             return EXIT_SUCCESS;
         }
 
