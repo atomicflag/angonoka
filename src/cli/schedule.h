@@ -55,5 +55,7 @@ json_schedule(const Configuration& config, const Options& options);
     @param json     JSON to be saved
     @param options  CLI options
 */
-void save_schedule_json(const nlohmann::json& json, const Options& options);
+void save_schedule_json(
+    const nlohmann::json& json,
+    const Options& options);
 } // namespace angonoka::cli

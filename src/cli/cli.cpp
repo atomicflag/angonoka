@@ -116,7 +116,10 @@ void parse_opt_params(
     params.restart_period = cli_params.restart_period;
 }
 
-void save_prediction_json(const nlohmann::json& json, const Options& options) {
+void save_prediction_json(
+    const nlohmann::json& json,
+    const Options& options)
+{
     using boost::iostreams::file_descriptor_sink;
     using boost::iostreams::stream;
 

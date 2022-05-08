@@ -42,5 +42,7 @@ void parse_opt_params(
     OptimizationParameters& params);
 
 // TODO: doc, test, expects
-void save_prediction_json(const nlohmann::json& json, const Options& options);
+void save_prediction_json(
+    const nlohmann::json& json,
+    const Options& options);
 } // namespace angonoka::cli
