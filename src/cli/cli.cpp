@@ -56,6 +56,16 @@ void print_histogram_stats(
         verbose{stats.p95},
         verbose{stats.p99});
 }
+
+// TODO: doc, test, expects
+    void add_stats( nlohmann::json& result, const HistogramStats& stats) {
+        auto s = result["stats"];
+        s["p25"] = stats.p25.count();
+        s["p50"] = stats.p50.count();
+        s["p75"] = stats.p75.count();
+        s["p95"] = stats.p95.count();
+        s["p99"] = stats.p99.count();
+    }
 } // namespace
 
 namespace angonoka::cli {
@@ -103,11 +113,16 @@ run_prediction(const Configuration& config, const Options& options)
     const auto prediction_result = prediction_future.get();
     print_histogram_stats(options, prediction_result.stats);
 
-    // TODO: WIP
-    return detail::to_json(
+    auto result = detail::to_json(
         config,
         {.schedule{prediction_result.schedule},
          .makespan{prediction_result.makespan}});
+
+    add_stats(result, prediction_result.stats);
+
+    // TODO: add "add_histogram" function
+
+    return result;
 }
 
 void parse_opt_params(
