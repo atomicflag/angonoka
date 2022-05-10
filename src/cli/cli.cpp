@@ -2,7 +2,6 @@
 #include "config/load.h"
 #include "events.h"
 #include "exceptions.h"
-#include "predict.h"
 #include "progress.h"
 #include "schedule.h"
 #include "utils.h"
@@ -56,17 +55,27 @@ void print_histogram_stats(
         verbose{stats.p95},
         verbose{stats.p99});
 }
+} // namespace
+
+namespace angonoka::cli::detail {
+// TODO: doc, test, expects
+nlohmann::json to_json(const HistogramStats& stats)
+{
+    return {
+        {"p25", stats.p25.count()},
+        {"p50", stats.p50.count()},
+        {"p75", stats.p75.count()},
+        {"p95", stats.p95.count()},
+        {"p99", stats.p99.count()}};
+}
 
 // TODO: doc, test, expects
-    void add_stats( nlohmann::json& result, const HistogramStats& stats) {
-        auto s = result["stats"];
-        s["p25"] = stats.p25.count();
-        s["p50"] = stats.p50.count();
-        s["p75"] = stats.p75.count();
-        s["p95"] = stats.p95.count();
-        s["p99"] = stats.p99.count();
-    }
-} // namespace
+nlohmann::json to_json(const Histogram& histogram)
+{
+    // TODO: WIP
+    return {};
+}
+} // namespace angonoka::cli::detail
 
 namespace angonoka::cli {
 Configuration parse_config(const Options& options)
@@ -118,9 +127,9 @@ run_prediction(const Configuration& config, const Options& options)
         {.schedule{prediction_result.schedule},
          .makespan{prediction_result.makespan}});
 
-    add_stats(result, prediction_result.stats);
-
-    // TODO: add "add_histogram" function
+    result["stats"] = detail::to_json(prediction_result.stats);
+    result["histogram"]
+        = detail::to_json(prediction_result.histogram);
 
     return result;
 }

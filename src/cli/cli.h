@@ -2,10 +2,18 @@
 
 #include "configuration.h"
 #include "options.h"
+#include "predict.h"
 #include <CLI/App.hpp>
 #include <nlohmann/json.hpp>
 
 namespace angonoka::cli {
+namespace detail {
+    // TODO: doc, test, expects
+    [[nodiscard]] nlohmann::json to_json(const HistogramStats& stats);
+    // TODO: doc, test, expects
+    [[nodiscard]] nlohmann::json to_json(const Histogram& histogram);
+} // namespace detail
+
 /**
     Parse the configuration YAML.
 
