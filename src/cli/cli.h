@@ -11,7 +11,7 @@ namespace detail {
     /**
         Output histogram stats to JSON.
 
-        TODO: test, expects
+        TODO: test
 
         @param stats Histogram quantiles
 

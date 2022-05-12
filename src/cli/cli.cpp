@@ -78,10 +78,9 @@ nlohmann::json to_json(const Histogram& histogram)
         // cursed but succinct innit?
         buckets.emplace_back() = {static_cast<int>(bin.lower()), val};
     }
-    return {
-        {"bucket_size",
-         static_cast<int>(histogram.axis(0).begin()->width())},
-        {"buckets", buckets}};
+    const auto bucket_size
+        = static_cast<int>(histogram.axis(0).begin()->width());
+    return {{"bucket_size", bucket_size}, {"buckets", buckets}};
 }
 } // namespace angonoka::cli::detail
 

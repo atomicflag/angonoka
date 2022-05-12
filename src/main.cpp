@@ -151,6 +151,7 @@ auto default_group(CLI::App& cli, Options& options)
             "-o,--output",
             options.output,
             "Output the histogram to a file")
+        // TODO: doesn't work
         ->default_val("time_estimation.json");
     return group;
 }
@@ -189,8 +190,8 @@ int main(int argc, char** argv)
         }
 
         // no subcommand
-        run_prediction(config, options);
-        fmt::print("Probability estimation complete.\n");
+        const auto json = run_prediction(config, options);
+        save_prediction_json(json, options);
         return EXIT_SUCCESS;
     } catch (const UserError&) {
         return EXIT_FAILURE;
