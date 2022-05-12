@@ -58,7 +58,6 @@ void print_histogram_stats(
 } // namespace
 
 namespace angonoka::cli::detail {
-// TODO: doc, test, expects
 nlohmann::json to_json(const HistogramStats& stats)
 {
     return {
@@ -69,11 +68,20 @@ nlohmann::json to_json(const HistogramStats& stats)
         {"p99", stats.p99.count()}};
 }
 
-// TODO: doc, test, expects
 nlohmann::json to_json(const Histogram& histogram)
 {
-    // TODO: WIP
-    return {};
+    nlohmann::json buckets;
+    for (gsl::index i{0}; i < histogram.size(); ++i) {
+        const auto val = static_cast<int>(histogram[i]);
+        if (val == 0) continue;
+        const auto bin = histogram.axis(0).bin(i);
+        // cursed but succinct innit?
+        buckets.emplace_back() = {static_cast<int>(bin.lower()), val};
+    }
+    return {
+        {"bucket_size",
+         static_cast<int>(histogram.axis(0).begin()->width())},
+        {"buckets", buckets}};
 }
 } // namespace angonoka::cli::detail
 

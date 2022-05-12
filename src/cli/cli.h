@@ -8,9 +8,26 @@
 
 namespace angonoka::cli {
 namespace detail {
-    // TODO: doc, test, expects
+    /**
+        Output histogram stats to JSON.
+
+        TODO: test, expects
+
+        @param stats Histogram quantiles
+
+        @return JSON object
+    */
     [[nodiscard]] nlohmann::json to_json(const HistogramStats& stats);
-    // TODO: doc, test, expects
+
+    /**
+        Output a sparse histogram to JSON.
+
+        TODO: test, expects
+
+        @param histogram Prediction histogram
+
+        @return JSON object
+    */
     [[nodiscard]] nlohmann::json to_json(const Histogram& histogram);
 } // namespace detail
 
