@@ -3,6 +3,7 @@ import subprocess
 from textwrap import dedent
 import os
 from pathlib import Path
+from json import loads
 
 EXE = "../../build/src/angonoka-x86_64"
 TEST_IDX = 0
@@ -62,7 +63,7 @@ def test_prints_help():
       Positionals:
         input file TEXT:FILE REQUIRED
       Options:
-        -o,--output TEXT=time_estimation.json
+        -o,--output=time_estimation.json
                                     Output the histogram to a file
 
     Subcommands:
@@ -124,7 +125,7 @@ def test_basic_non_tty_output():
 
     text = dedent(
         """\
-    Probability estimation complete.
+    Time estimation written to "time_estimation.json"
     """
     )
     match(cout, text)
@@ -161,7 +162,7 @@ def test_basic_tty_output():
 
     text = dedent(
         """\
-    Probability estimation complete.
+    Time estimation written to "time_estimation.json"
     """
     )
     match(cout, text)
@@ -170,7 +171,7 @@ def test_basic_tty_output():
 def test_quiet_non_tty_output():
     code, cout, cerr = run("--no-color", "-q", "tasks.yml")
     assert code == 0
-    assert cout == "Probability estimation complete.\n"
+    assert cout == ""
 
 
 def test_verbose_non_tty_output():
@@ -196,7 +197,7 @@ def test_verbose_non_tty_output():
 
     text = dedent(
         """\
-    Probability estimation complete.
+    Time estimation written to "time_estimation.json"
     """
     )
     match(cout, text)
@@ -347,11 +348,9 @@ def test_schedule_output():
     code, cout, cerr = run("schedule", "-o", "schedule2.json", "tasks.yml")
     assert code == 0
     assert 'Saving the optimized schedule to "schedule2.json".' in cout
-    assert 'Probability estimation complete.' not in cout
+    assert "Probability estimation complete." not in cout
     assert not cerr
-    assert Path("schedule2.json").read_text() == dedent(
-        """\
-    {
+    assert loads(Path("schedule2.json").read_text()) == {
         "makespan": 2484,
         "tasks": [
             {
@@ -359,11 +358,10 @@ def test_schedule_output():
                 "expected_duration": 2484,
                 "expected_start": 0,
                 "priority": 0,
-                "task": "Task"
+                "task": "Task",
             }
-        ]
-    }"""
-    )
+        ],
+    }
 
 
 def test_schedule_doc():
@@ -380,8 +378,7 @@ def test_schedule_doc():
 
     Options:
       -h,--help                   Print this help message and exit
-      -o,--output TEXT=schedule.json
-                                  Output the schedule to a file
+      -o,--output=schedule.json   Output the schedule to a file
 
     """
     )
@@ -444,3 +441,45 @@ def test_optimization_log():
     log_text = log.read_text().splitlines()
     assert log_text[0] == "progress,makespan,current_epoch"
     assert log_text[-1] == "1,2484,1"
+
+
+def test_quantiles():
+    code, cout, cerr = run("--no-color", "tasks.yml")
+    assert code == 0
+    cout = cout.splitlines()
+    text = dedent(
+        """\
+    Estimation:
+      25% chance to complete the project in under 37m 30s.
+      50% chance to complete the project in under 41m 30s.
+      75% chance to complete the project in under 45m 30s.
+      95% chance to complete the project in under 53m 30s.
+      99% chance to complete the project in under 58m 30s."""
+    )
+    match(cout, text)
+
+
+def test_histogram():
+    code, cout, cerr = run("--no-color", "tasks.yml")
+    assert code == 0
+    p = Path("time_estimation.json")
+    assert p.exists()
+    j = loads(p.read_text())
+    assert j["makespan"] == 2484
+    assert j["stats"] == {
+        "p25": 2250,
+        "p50": 2490,
+        "p75": 2730,
+        "p95": 3210,
+        "p99": 3510,
+    }
+    assert j["tasks"] == [
+        {
+            "agent": "Agent",
+            "expected_duration": 2484,
+            "expected_start": 0,
+            "priority": 0,
+            "task": "Task",
+        }
+    ]
+    # TODO: test the histogram

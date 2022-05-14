@@ -70,8 +70,10 @@ nlohmann::json to_json(const HistogramStats& stats)
 
 nlohmann::json to_json(const Histogram& histogram)
 {
+    Expects(histogram.size() >= 1);
+
     nlohmann::json buckets;
-    for (gsl::index i{0}; i < histogram.size(); ++i) {
+    for (int i{0}; i < std::ssize(histogram); ++i) {
         const auto val = static_cast<int>(histogram[i]);
         if (val == 0) continue;
         const auto bin = histogram.axis(0).bin(i);
