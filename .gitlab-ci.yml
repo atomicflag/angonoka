@@ -51,7 +51,7 @@ stages:
 test-cpp:
   extends: .cpp
   stage: test
-  coverage: '/TOTAL +\d+ +\d+ (\d+\.\d+)/'
+  coverage: '/\d+\.\d+%\s+\d+\s+\d+\s+\d+\.\d+%\s+\d+\s+\d+\s+\d+\.\d+%\s+\d+\s+\d+\s+\d+\.\d+%/'
   script:
     - make build/cov
     - make test
