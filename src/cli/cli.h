@@ -11,8 +11,6 @@ namespace detail {
     /**
         Output histogram stats to JSON.
 
-        TODO: test
-
         @param stats Histogram quantiles
 
         @return JSON object
@@ -21,8 +19,6 @@ namespace detail {
 
     /**
         Output a sparse histogram to JSON.
-
-        TODO: test, expects
 
         @param histogram Prediction histogram
 
@@ -42,8 +38,6 @@ Configuration parse_config(const Options& options);
 
 /**
     Run the prediction algorithm on given configuration.
-
-    TODO: test
 
     @param config   Agent and tasks configuration
     @param options  CLI options
@@ -69,8 +63,6 @@ void parse_opt_params(
 
 /**
     Save JSON prediction to a file with formatting.
-
-    TODO: test
 
     @param json     JSON to be saved
     @param options  CLI options
