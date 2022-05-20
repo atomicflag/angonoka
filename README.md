@@ -289,10 +289,10 @@ This will output a histogram, stats and the optimized schedule to `time_estimati
 ```js
 {
     "histogram": {
-        "bucket_size": 3599,
+        "bucket_size": 3600,
         "buckets": [
             [
-                197999,
+                198000,
                 1
             ],
             // ...

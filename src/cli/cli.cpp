@@ -78,10 +78,11 @@ nlohmann::json to_json(const Histogram& histogram)
         if (val == 0) continue;
         const auto bin = histogram.axis(0).bin(i);
         // cursed but succinct innit?
-        buckets.emplace_back() = {static_cast<int>(bin.lower()), val};
+        buckets.emplace_back()
+            = {static_cast<int>(std::round(bin.lower())), val};
     }
-    const auto bucket_size
-        = static_cast<int>(histogram.axis(0).begin()->width());
+    const auto bucket_size = static_cast<int>(
+        std::round(histogram.axis(0).begin()->width()));
     return {{"bucket_size", bucket_size}, {"buckets", buckets}};
 }
 } // namespace angonoka::cli::detail
