@@ -378,6 +378,7 @@ struct HistogramOp {
     gsl::not_null<const OptimizedSchedule*> schedule;
     stun::RandomUtils random{};
     Simulation sim{{.config{config}, .random{&random}}};
+    // TODO: pick granularity from config
     Histogram hist{{{1, 0.F, granularity(schedule->makespan)}}};
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
     static constexpr Quantiles probs

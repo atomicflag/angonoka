@@ -59,5 +59,6 @@ struct Options {
     std::string output;
     OptParams opt_params;
     bool log_optimization{false};
+    int bucket_size; // TODO: default
 };
 } // namespace angonoka::cli
