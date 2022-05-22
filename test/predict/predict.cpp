@@ -67,8 +67,11 @@ TEST_CASE("prediction")
         auto [prediction_future, event_queue] = predict(config);
         const auto prediction_result = prediction_future.get();
 
-        REQUIRE(
-            prediction_result.stats.p25 == std::chrono::seconds{25});
+        REQUIRE(prediction_result.stats.p25 == 25s);
+        REQUIRE(prediction_result.schedule.size() == 2);
+        // normalized makespan is 1
+        // duration_multiplier is 10
+        REQUIRE(prediction_result.makespan == 10s);
 
         std::deque<ProgressEvent> events;
         for (ProgressEvent evt; event_queue->try_dequeue(evt);)

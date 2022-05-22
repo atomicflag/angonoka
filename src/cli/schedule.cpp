@@ -1,4 +1,4 @@
-#include "json_schedule.h"
+#include "schedule.h"
 #include "events.h"
 #include "progress.h"
 #include "utils.h"
@@ -188,7 +188,9 @@ json_schedule(const Configuration& config, const Options& options)
     return detail::to_json(config, schedule);
 }
 
-void save_json(const nlohmann::json& json, const Options& options)
+void save_schedule_json(
+    const nlohmann::json& json,
+    const Options& options)
 {
     using boost::iostreams::file_descriptor_sink;
     using boost::iostreams::stream;

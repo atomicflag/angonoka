@@ -3,6 +3,7 @@ import subprocess
 from textwrap import dedent
 import os
 from pathlib import Path
+from json import loads
 
 EXE = "../../build/src/angonoka-x86_64"
 TEST_IDX = 0
@@ -61,6 +62,9 @@ def test_prints_help():
     [Option Group: Default]
       Positionals:
         input file TEXT:FILE REQUIRED
+      Options:
+        -o,--output=time_estimation.json
+                                    Output the histogram to a file
 
     Subcommands:
       schedule                    Output the schedule in JSON format.
@@ -114,14 +118,14 @@ def test_basic_non_tty_output():
         """\
     Schedule optimization complete.
     Optimal makespan: about an hour.
-    Estimated makespan:
+    Estimation:
     """
     )
     match(cout, text)
 
     text = dedent(
         """\
-    Probability estimation complete.
+    Time estimation written to "time_estimation.json"
     """
     )
     match(cout, text)
@@ -151,14 +155,14 @@ def test_basic_tty_output():
         """\
     Optimizing the schedule... OK
     Optimal makespan: about an hour.
-    Estimated makespan:
+    Estimation:
     """
     )
     match(cout, text)
 
     text = dedent(
         """\
-    Probability estimation complete.
+    Time estimation written to "time_estimation.json"
     """
     )
     match(cout, text)
@@ -167,7 +171,7 @@ def test_basic_tty_output():
 def test_quiet_non_tty_output():
     code, cout, cerr = run("--no-color", "-q", "tasks.yml")
     assert code == 0
-    assert cout == "Probability estimation complete.\n"
+    assert cout == ""
 
 
 def test_verbose_non_tty_output():
@@ -186,14 +190,14 @@ def test_verbose_non_tty_output():
         """\
     Schedule optimization complete.
     Optimal makespan: 41m 24s.
-    Estimated makespan:
+    Estimation:
     """
     )
     match(cout, text)
 
     text = dedent(
         """\
-    Probability estimation complete.
+    Time estimation written to "time_estimation.json"
     """
     )
     match(cout, text)
@@ -344,11 +348,9 @@ def test_schedule_output():
     code, cout, cerr = run("schedule", "-o", "schedule2.json", "tasks.yml")
     assert code == 0
     assert 'Saving the optimized schedule to "schedule2.json".' in cout
-    assert 'Probability estimation complete.' not in cout
+    assert "Probability estimation complete." not in cout
     assert not cerr
-    assert Path("schedule2.json").read_text() == dedent(
-        """\
-    {
+    assert loads(Path("schedule2.json").read_text()) == {
         "makespan": 2484,
         "tasks": [
             {
@@ -356,11 +358,10 @@ def test_schedule_output():
                 "expected_duration": 2484,
                 "expected_start": 0,
                 "priority": 0,
-                "task": "Task"
+                "task": "Task",
             }
-        ]
-    }"""
-    )
+        ],
+    }
 
 
 def test_schedule_doc():
@@ -440,3 +441,42 @@ def test_optimization_log():
     log_text = log.read_text().splitlines()
     assert log_text[0] == "progress,makespan,current_epoch"
     assert log_text[-1] == "1,2484,1"
+
+
+def test_quantiles():
+    code, cout, cerr = run("--no-color", "tasks.yml")
+    assert code == 0
+    cout = cout.splitlines()
+    text = dedent(
+        """\
+    Estimation:
+      25% chance to complete the project in under 37m 30s.
+      50% chance to complete the project in under 41m 30s.
+      75% chance to complete the project in under 45m 30s.
+      95% chance to complete the project in under 53m 30s.
+      99% chance to complete the project in under 58m 30s."""
+    )
+    match(cout, text)
+
+
+def test_histogram():
+    code, cout, cerr = run("--no-color", "tasks.yml")
+    assert code == 0
+    p = Path("time_estimation.json")
+    assert p.exists()
+    j = loads(p.read_text())
+    assert j["makespan"] == 2484
+    assert 2100 < j["stats"]["p25"] < 2400
+    assert 3400 < j["stats"]["p99"] < 3600
+    assert j["tasks"] == [
+        {
+            "agent": "Agent",
+            "expected_duration": 2484,
+            "expected_start": 0,
+            "priority": 0,
+            "task": "Task",
+        }
+    ]
+    assert 50 < j["histogram"]["bucket_size"] < 70
+    assert 1000 < j["histogram"]["buckets"][0][0] < 1100
+    assert 4500 < j["histogram"]["buckets"][-1][0] < 5500

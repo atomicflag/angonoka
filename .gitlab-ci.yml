@@ -51,6 +51,7 @@ stages:
 test-cpp:
   extends: .cpp
   stage: test
+  coverage: '/\d+\.\d+%\s+\d+\s+\d+\s+\d+\.\d+%\s+\d+\s+\d+\s+\d+\.\d+%\s+\d+\s+\d+\s+\d+\.\d+%/'
   script:
     - make build/cov
     - make test

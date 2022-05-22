@@ -15,7 +15,7 @@ base_lib = static_library(
     'cli/terminal.cpp',
     'cli/cli.cpp',
     'cli/events.cpp',
-    'cli/json_schedule.cpp',
+    'cli/schedule.cpp',
     'configuration.cpp',
     'exceptions.cpp',
     'predict.cpp',

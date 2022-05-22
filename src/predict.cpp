@@ -97,7 +97,7 @@ predict(const Configuration& config)
         events->enqueue(
             SimpleProgressEvent::ScheduleOptimizationStart);
         const auto schedule_params = stun::to_schedule_params(config);
-        const auto opt_result
+        auto opt_result
             = optimize(schedule_params, config.opt_params, *events);
         events->enqueue(ScheduleOptimizationComplete{
             .makespan{opt_result.makespan}});
@@ -106,7 +106,11 @@ predict(const Configuration& config)
         auto hist_stats = stats(hist);
 
         events->enqueue(SimpleProgressEvent::Finished);
-        return Prediction{std::move(hist), hist_stats};
+        return Prediction{
+            .histogram{std::move(hist)},
+            .stats{hist_stats},
+            .schedule{std::move(opt_result.schedule)},
+            .makespan{opt_result.makespan}};
     });
     return {std::move(future), std::move(events)};
 }

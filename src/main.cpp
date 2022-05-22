@@ -1,5 +1,5 @@
 #include "cli/cli.h"
-#include "cli/json_schedule.h"
+#include "cli/schedule.h"
 #include "config.h"
 #include <CLI/CLI.hpp>
 #include <bit>
@@ -110,15 +110,11 @@ void common_options(CLI::App& cli, Options& options)
 
     @return The schedule subcommand
 */
-auto schedule_subcommand(
-    CLI::App& cli,
-    Options& options,
-    CLI::Option_group& default_group)
+auto schedule_subcommand(CLI::App& cli, Options& options)
 {
     auto* schedule_cmd = cli.add_subcommand(
         "schedule",
         "Output the schedule in JSON format.");
-    schedule_cmd->excludes(&default_group);
     schedule_cmd
         ->add_option("-o,--output", "Output the schedule to a file")
         ->default_str("schedule.json");
@@ -143,6 +139,8 @@ auto default_group(CLI::App& cli, Options& options)
     group->add_option("input file", options.filename)
         ->required()
         ->check(CLI::ExistingFile);
+    group->add_option("-o,--output", "Output the histogram to a file")
+        ->default_str("time_estimation.json");
     return group;
 }
 } // namespace
@@ -164,8 +162,9 @@ int main(int argc, char** argv)
     optimization_options(cli, options.opt_params);
     cli.require_subcommand(-1);
     auto* default_grp = default_group(cli, options);
-    auto* schedule_cmd
-        = schedule_subcommand(cli, options, *default_grp);
+    auto* schedule_cmd = schedule_subcommand(cli, options);
+    default_grp->excludes(schedule_cmd);
+    schedule_cmd->excludes(default_grp);
 
     try {
         CLI11_PARSE(cli, argc, argv);
@@ -176,13 +175,14 @@ int main(int argc, char** argv)
         if (schedule_cmd->parsed()) {
             options.output = (*schedule_cmd)["-o"]->as<std::string>();
             const auto json = json_schedule(config, options);
-            save_json(json, options);
+            save_schedule_json(json, options);
             return EXIT_SUCCESS;
         }
 
         // no subcommand
-        run_prediction(config, options);
-        fmt::print("Probability estimation complete.\n");
+        options.output = (*default_grp)["-o"]->as<std::string>();
+        const auto json = run_prediction(config, options);
+        save_prediction_json(json, options);
         return EXIT_SUCCESS;
     } catch (const UserError&) {
         return EXIT_FAILURE;

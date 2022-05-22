@@ -26,8 +26,8 @@ tasks:
   - name: Develop backend
     group: Backend
     duration:
-      min: 1 weeks
-      max: 3 weeks
+      min: 3 days
+      max: 12 days
   - name: Develop frontend
     group: Frontend
     duration:
@@ -37,7 +37,13 @@ tasks:
 $ angonoka tasks.yaml
 Parsing configuration... OK
 Optimizing the schedule... OK
-Optimal makespan: 14 days.
+Optimal makespan: 10 days.
+Estimation:
+  25% chance to complete the project in under 8d 16h 30m.
+  50% chance to complete the project in under 9d 22h 30m.
+  75% chance to complete the project in under 11d 7h 30m.
+  95% chance to complete the project in under 13d 7h 30m.
+  99% chance to complete the project in under 14d 19h 30m.
 Time estimation written to "time_estimation.json"
 ```
 
@@ -260,8 +266,6 @@ To get a better view of what the schedule would look like you can use the [sched
 
 ### Time estimation
 
-:warning: *Only average (expected) time estimation is available at the moment.* :warning:
-
 Time estimation side of Angonoka builds a histogram of likely completion times. It makes a statistical model and runs the simulation enough times to estimate the most likely durations, taking into account performance and task duration variations.
 
 To output a histogram:
@@ -270,10 +274,58 @@ To output a histogram:
 $ angonoka project_configuration.yml
 Parsing configuration... OK
 Optimizing the schedule... OK
-Optimal makespan: 14 days.
-Running simulations... OK
+Optimal makespan: 10 days.
+Estimation:
+  25% chance to complete the project in under 8d 16h 30m.
+  50% chance to complete the project in under 9d 22h 30m.
+  75% chance to complete the project in under 11d 7h 30m.
+  95% chance to complete the project in under 13d 7h 30m.
+  99% chance to complete the project in under 14d 19h 30m.
 Time estimation written to "time_estimation.json"
 ```
+
+This will output a histogram, stats and the optimized schedule to `time_estimation.json` in the following format:
+
+```js
+{
+    "histogram": {
+        "bucket_size": 3600,
+        "buckets": [
+            [
+                198000,
+                1
+            ],
+            // ...
+        ]
+    },
+    "makespan": 820800,
+    "stats": {
+        "p25": 750600,
+        "p50": 858600,
+        "p75": 977400,
+        "p95": 1150200,
+        "p99": 1279800
+    },
+    "tasks": [
+        {
+            "agent": "Jennifer",
+            "expected_duration": 648000,
+            "expected_start": 0,
+            "priority": 0,
+            "task": "Develop backend"
+        },
+        // ...
+    ]
+}
+```
+
+For **makespan** and **tasks** see [Schedule](#schedule).
+
+**histogram.bucket_size** is the size of each bucket in seconds.
+
+**histogram.buckets** is an array of buckets where each bucket is `[lower value, count]`. 
+
+**stats** contains some commonly used quantiles for the histogram.
 
 ## Build instructions
 

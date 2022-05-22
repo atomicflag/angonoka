@@ -2,9 +2,31 @@
 
 #include "configuration.h"
 #include "options.h"
+#include "predict.h"
 #include <CLI/App.hpp>
+#include <nlohmann/json.hpp>
 
 namespace angonoka::cli {
+namespace detail {
+    /**
+        Output histogram stats to JSON.
+
+        @param stats Histogram quantiles
+
+        @return JSON object
+    */
+    [[nodiscard]] nlohmann::json to_json(const HistogramStats& stats);
+
+    /**
+        Output a sparse histogram to JSON.
+
+        @param histogram Prediction histogram
+
+        @return JSON object
+    */
+    [[nodiscard]] nlohmann::json to_json(const Histogram& histogram);
+} // namespace detail
+
 /**
     Parse the configuration YAML.
 
@@ -19,10 +41,11 @@ Configuration parse_config(const Options& options);
 
     @param config   Agent and tasks configuration
     @param options  CLI options
+
+    @return JSON object with prediction data
 */
-void run_prediction(
-    const Configuration& config,
-    const Options& options);
+[[nodiscard]] nlohmann::json
+run_prediction(const Configuration& config, const Options& options);
 
 /**
     Parse optimization-related CLI parameters.
@@ -37,4 +60,14 @@ void run_prediction(
 void parse_opt_params(
     const OptParams& cli_params,
     OptimizationParameters& params);
+
+/**
+    Save JSON prediction to a file with formatting.
+
+    @param json     JSON to be saved
+    @param options  CLI options
+*/
+void save_prediction_json(
+    const nlohmann::json& json,
+    const Options& options);
 } // namespace angonoka::cli
