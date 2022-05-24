@@ -477,6 +477,26 @@ def test_histogram():
             "task": "Task",
         }
     ]
-    assert 50 < j["histogram"]["bucket_size"] < 70
+    assert j["histogram"]["bucket_size"] == 60
     assert 1000 < j["histogram"]["buckets"][0][0] < 1100
     assert 4500 < j["histogram"]["buckets"][-1][0] < 5500
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        ("0"),("-1")
+    ],
+)
+def test_invalid_bucket_size(value):
+    code, cout, cerr = run("--no-color", "--histogram-bucket-size",value, "tasks.yml")
+    assert code == 105
+    assert '--histogram-bucket-size' in cerr
+
+def test_bucket_size():
+    code, cout, cerr = run("--no-color", "--histogram-bucket-size","123","tasks.yml")
+
+    assert code == 0
+    p = Path("time_estimation.json")
+    j = loads(p.read_text())
+
+    assert j["histogram"]["bucket_size"] == 123
