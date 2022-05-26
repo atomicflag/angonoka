@@ -93,8 +93,10 @@ Configuration parse_config(const Options& options)
     print(options, "Parsing configuration... ");
     try {
         auto config = load_file(options.filename);
-        if(options.bucket_size)
-        config.bucket_size = std::chrono::seconds{*options.bucket_size};
+        if (options.bucket_size) {
+            config.bucket_size
+                = std::chrono::seconds{*options.bucket_size};
+        }
         print(options, "OK\n");
         return config;
     } catch (const YAML::BadFile& e) {

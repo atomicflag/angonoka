@@ -2,8 +2,8 @@
 
 #include "terminal.h"
 #include <exception>
-#include <string>
 #include <optional>
+#include <string>
 
 namespace angonoka::cli {
 /**
