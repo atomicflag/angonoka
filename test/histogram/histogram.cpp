@@ -69,7 +69,8 @@ TEST_CASE("histogram")
         REQUIRE(h.axis().bin(max_bin).center() == 7230.F);
     }
 
-    SECTION("bucket size") {
+    SECTION("bucket size")
+    {
         auto config = load_text(text);
         config.bucket_size = 123s;
         const OptimizedSchedule schedule{

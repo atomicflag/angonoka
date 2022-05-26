@@ -65,6 +65,8 @@ def test_prints_help():
       Options:
         -o,--output=time_estimation.json
                                     Output the histogram to a file
+        --histogram-bucket-size INT:POSITIVE
+                                    Histogram bucket size in seconds
 
     Subcommands:
       schedule                    Output the schedule in JSON format.
@@ -478,7 +480,7 @@ def test_histogram():
         }
     ]
     assert j["histogram"]["bucket_size"] == 60
-    assert 1000 < j["histogram"]["buckets"][0][0] < 1100
+    assert 700 < j["histogram"]["buckets"][0][0] < 1100
     assert 4500 < j["histogram"]["buckets"][-1][0] < 5500
 
 @pytest.mark.parametrize(
