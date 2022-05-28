@@ -151,18 +151,20 @@ struct OptimizationParameters {
 };
 
 /**
-    Configuration that represents Tasks and Agents.
+    Project configuration.
 
-    @var groups     Task groups
-    @var agents     Agents that perform tasks
-    @var tasks      All of the tasks
-    @var opt_params Optimization parameters
+    @var groups         Task groups
+    @var agents         Agents that perform tasks
+    @var tasks          All of the tasks
+    @var opt_params     Optimization parameters
+    @var bucket_size    Histogram bucket size
 */
 struct Configuration {
     Groups groups;
     Agents agents;
     Tasks tasks;
     OptimizationParameters opt_params;
+    std::optional<std::chrono::seconds> bucket_size;
 };
 
 /**

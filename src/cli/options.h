@@ -2,6 +2,7 @@
 
 #include "terminal.h"
 #include <exception>
+#include <optional>
 #include <string>
 
 namespace angonoka::cli {
@@ -59,5 +60,6 @@ struct Options {
     std::string output;
     OptParams opt_params;
     bool log_optimization{false};
+    std::optional<int> bucket_size;
 };
 } // namespace angonoka::cli

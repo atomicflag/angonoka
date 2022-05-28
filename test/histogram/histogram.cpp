@@ -15,11 +15,33 @@ float RandomUtils::normal(float min, float max) noexcept
 TEST_CASE("histogram")
 {
     using namespace angonoka;
+    using namespace std::chrono_literals;
+
+    // clang-format off
+    constexpr auto text = 
+        "agents:\n"
+        "  Bob:\n"
+        "    performance:\n"
+        "      min: 0.5\n"
+        "      max: 1.5\n"
+        "  Jack:\n"
+        "    performance:\n"
+        "      min: 0.5\n"
+        "      max: 1.5\n"
+        "tasks:\n"
+        "  - name: Task 1\n"
+        "    duration:\n"
+        "      min: 1h\n"
+        "      max: 3h\n"
+        "  - name: Task 2\n"
+        "    duration:\n"
+        "      min: 1h\n"
+        "      max: 3h\n";
+    // clang-format on
 
     SECTION("granularity")
     {
         using angonoka::detail::granularity;
-        using namespace std::chrono_literals;
         using std::chrono::days;
 
         REQUIRE(granularity(1h) == 60.F);
@@ -31,32 +53,10 @@ TEST_CASE("histogram")
 
     SECTION("basic histogram")
     {
-        // clang-format off
-        constexpr auto text = 
-            "agents:\n"
-            "  Bob:\n"
-            "    performance:\n"
-            "      min: 0.5\n"
-            "      max: 1.5\n"
-            "  Jack:\n"
-            "    performance:\n"
-            "      min: 0.5\n"
-            "      max: 1.5\n"
-            "tasks:\n"
-            "  - name: Task 1\n"
-            "    duration:\n"
-            "      min: 1h\n"
-            "      max: 3h\n"
-            "  - name: Task 2\n"
-            "    duration:\n"
-            "      min: 1h\n"
-            "      max: 3h\n";
-        // clang-format on
-
         const auto config = load_text(text);
         const OptimizedSchedule schedule{
             .schedule{{0, 0}, {1, 1}},
-            .makespan{std::chrono::seconds{7230}}};
+            .makespan{7230s}};
         const auto h = histogram(config, schedule);
         const int max_bin = static_cast<int>(
             std::distance(h.begin(), ranges::max_element(h)));
@@ -67,6 +67,18 @@ TEST_CASE("histogram")
         // Makespan should be 2 hours,
         // falls into 7200-7299 bin
         REQUIRE(h.axis().bin(max_bin).center() == 7230.F);
+    }
+
+    SECTION("bucket size")
+    {
+        auto config = load_text(text);
+        config.bucket_size = 123s;
+        const OptimizedSchedule schedule{
+            .schedule{{0, 0}, {1, 1}},
+            .makespan{7230s}};
+        const auto h = histogram(config, schedule);
+
+        REQUIRE(h.axis().bin(0).upper() == 123.F);
     }
 }
 

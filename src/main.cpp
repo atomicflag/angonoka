@@ -141,6 +141,12 @@ auto default_group(CLI::App& cli, Options& options)
         ->check(CLI::ExistingFile);
     group->add_option("-o,--output", "Output the histogram to a file")
         ->default_str("time_estimation.json");
+    group
+        ->add_option(
+            "--histogram-bucket-size",
+            options.bucket_size,
+            "Histogram bucket size in seconds")
+        ->check(CLI::PositiveNumber);
     return group;
 }
 } // namespace
