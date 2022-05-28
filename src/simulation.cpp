@@ -370,11 +370,22 @@ using namespace angonoka;
 using angonoka::detail::granularity;
 using angonoka::detail::Simulation;
 
-// TODO: doc, test, expects
+/**
+    Pick a bucket size for the histogram.
+
+    @param config   Project configuration
+    @param schedule Optimized schedule
+
+    @return Histogram granularity in seconds.
+*/
 [[nodiscard]] float parse_granularity(
     const Configuration& config,
     const OptimizedSchedule& schedule)
 {
+    using namespace std::chrono_literals;
+
+    Expects(schedule.makespan.count() >= 1s);
+
     if (config.bucket_size)
         return static_cast<float>(config.bucket_size->count());
     return granularity(schedule.makespan);
@@ -388,7 +399,6 @@ struct HistogramOp {
     gsl::not_null<const OptimizedSchedule*> schedule;
     stun::RandomUtils random{};
     Simulation sim{{.config{config}, .random{&random}}};
-    // TODO: pick granularity from config
     Histogram hist{{{1, 0.F, parse_granularity(*config, *schedule)}}};
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
     static constexpr Quantiles probs
