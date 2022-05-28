@@ -384,7 +384,7 @@ using angonoka::detail::Simulation;
 {
     using namespace std::chrono_literals;
 
-    Expects(schedule.makespan.count() >= 1s);
+    Expects(schedule.makespan >= 1s);
 
     if (config.bucket_size)
         return static_cast<float>(config.bucket_size->count());
