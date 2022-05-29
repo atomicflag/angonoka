@@ -480,7 +480,7 @@ def test_histogram():
         }
     ]
     assert j["histogram"]["bucket_size"] == 60
-    assert 700 < j["histogram"]["buckets"][0][0] < 1100
+    assert 700 < j["histogram"]["buckets"][0][0] < 1200
     assert 4500 < j["histogram"]["buckets"][-1][0] < 5500
 
 @pytest.mark.parametrize(
