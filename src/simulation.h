@@ -1,7 +1,7 @@
 #pragma once
 
-#include "project.h"
 #include "predict.h"
+#include "project.h"
 #include "stun/schedule.h"
 #include <chrono>
 #include <gsl/gsl-lite.hpp>
@@ -98,9 +98,8 @@ namespace angonoka {
 
     @return Makespan histogram
 */
-[[nodiscard]] Histogram histogram(
-    const Project& config,
-    const OptimizedSchedule& schedule);
+[[nodiscard]] Histogram
+histogram(const Project& config, const OptimizedSchedule& schedule);
 
 /**
     Find various percentiles of the histogram.

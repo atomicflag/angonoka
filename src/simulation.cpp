@@ -454,9 +454,8 @@ struct HistogramOp {
 } // namespace
 
 namespace angonoka {
-[[nodiscard]] Histogram histogram(
-    const Project& config,
-    const OptimizedSchedule& schedule)
+[[nodiscard]] Histogram
+histogram(const Project& config, const OptimizedSchedule& schedule)
 {
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());

@@ -8,8 +8,7 @@ TEST_CASE("Project")
     {
         using angonoka::Project;
         STATIC_REQUIRE(std::is_nothrow_destructible_v<Project>);
-        STATIC_REQUIRE(
-            std::is_default_constructible_v<Project>);
+        STATIC_REQUIRE(std::is_default_constructible_v<Project>);
         STATIC_REQUIRE(std::is_copy_constructible_v<Project>);
         STATIC_REQUIRE(std::is_copy_assignable_v<Project>);
         STATIC_REQUIRE(std::is_move_constructible_v<Project>);

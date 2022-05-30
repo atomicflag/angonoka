@@ -1,8 +1,8 @@
 #pragma once
 
-#include "project.h"
 #include "options.h"
 #include "predict.h"
+#include "project.h"
 #include <CLI/App.hpp>
 #include <nlohmann/json.hpp>
 

@@ -133,9 +133,8 @@ private:
 
 namespace angonoka::cli {
 namespace detail {
-    nlohmann::json to_json(
-        const Project& config,
-        const OptimizedSchedule& schedule)
+    nlohmann::json
+    to_json(const Project& config, const OptimizedSchedule& schedule)
     {
         Expects(!config.tasks.empty());
         Expects(!config.agents.empty());
