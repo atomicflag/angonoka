@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../configuration.h"
+#include "../project.h"
 #include <chrono>
 #include <gsl/gsl-lite.hpp>
 #include <string_view>
@@ -9,32 +9,32 @@
 
 namespace angonoka {
 /**
-    Load Configuration from a YAML string.
+    Load Project from a YAML string.
 
     @param text Null-terminated string
 
-    @return An instance of Configuration
+    @return An instance of Project
 */
-Configuration load_text(gsl::czstring text);
+Project load_text(gsl::czstring text);
 
 /**
-    Load Configuration from a YAML file.
+    Load Project from a YAML file.
 
     @param path YAML configuration location
 
-    @return An instance of Configuration
+    @return An instance of Project
 */
-Configuration load_file(std::string_view path);
+Project load_file(std::string_view path);
 } // namespace angonoka
 
 namespace angonoka::detail {
 /**
-    Finds or inserts a group into Configuration.groups.
+    Finds or inserts a group into Project.groups.
 
     @param groups   An array of Groups
     @param group    Group name
 
-    @return The index of the group in Configuration.groups
+    @return The index of the group in Project.groups
     and whether the insertion took place.
 */
 std::pair<GroupIndex, bool>
@@ -65,9 +65,9 @@ std::chrono::seconds parse_duration(std::string_view text);
       agent 2:
 
     @param node     "agents" node
-    @param config   An instance of Configuration
+    @param config   An instance of Project
 */
-void parse_agents(const YAML::Node& node, Configuration& config);
+void parse_agents(const YAML::Node& node, Project& config);
 
 /**
     Parses tasks blocks.
@@ -83,7 +83,7 @@ void parse_agents(const YAML::Node& node, Configuration& config);
         duration: 2h
 
     @param node     "tasks" node
-    @param config   An instance of Configuration
+    @param config   An instance of Project
 */
-void parse_tasks(const YAML::Node& node, Configuration& config);
+void parse_tasks(const YAML::Node& node, Project& config);
 } // namespace angonoka::detail

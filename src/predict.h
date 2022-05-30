@@ -1,6 +1,6 @@
 #pragma once
 
-#include "configuration.h"
+#include "project.h"
 #include "stun/schedule.h"
 #include <boost/histogram.hpp>
 #include <boost/variant2/variant.hpp>
@@ -130,7 +130,7 @@ using ProgressEvent = variant<
 std::tuple<
     std::future<Prediction>,
     std::shared_ptr<Queue<ProgressEvent>>>
-predict(const Configuration& config);
+predict(const Project& config);
 
 /**
     Make and optimize a schedule for a given configuration.
@@ -142,5 +142,5 @@ predict(const Configuration& config);
 std::tuple<
     std::future<OptimizedSchedule>,
     std::shared_ptr<Queue<ProgressEvent>>>
-schedule(const Configuration& config);
+schedule(const Project& config);
 } // namespace angonoka

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "configuration.h"
+#include "project.h"
 #include "predict.h"
 #include "stun/schedule.h"
 #include <chrono>
@@ -23,11 +23,11 @@ public:
     /**
       Simulation parameters.
 
-      @var config An instance of Configuration
+      @var config An instance of Project
       @var random An instance of RandomUtils
     */
     struct Params {
-        gsl::not_null<const Configuration*> config;
+        gsl::not_null<const Project*> config;
         gsl::not_null<stun::RandomUtils*> random;
     };
 
@@ -70,7 +70,7 @@ public:
 
 private:
     struct Impl;
-    gsl::not_null<const Configuration*> config;
+    gsl::not_null<const Project*> config;
     gsl::not_null<stun::RandomUtils*> random;
     std::vector<float> buffer;
     ranges::span<float> agent_performance;
@@ -99,7 +99,7 @@ namespace angonoka {
     @return Makespan histogram
 */
 [[nodiscard]] Histogram histogram(
-    const Configuration& config,
+    const Project& config,
     const OptimizedSchedule& schedule);
 
 /**

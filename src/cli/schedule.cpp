@@ -79,7 +79,7 @@ public:
 
         @param config Tasks and agents
     */
-    TaskDurations(const Configuration& config)
+    TaskDurations(const Project& config)
         : agent_work_end(config.agents.size())
         , task_done(config.tasks.size())
         , config{&config}
@@ -127,14 +127,14 @@ public:
 private:
     std::vector<float> agent_work_end;
     std::vector<float> task_done;
-    gsl::not_null<const Configuration*> config;
+    gsl::not_null<const Project*> config;
 };
 } // namespace
 
 namespace angonoka::cli {
 namespace detail {
     nlohmann::json to_json(
-        const Configuration& config,
+        const Project& config,
         const OptimizedSchedule& schedule)
     {
         Expects(!config.tasks.empty());
@@ -169,7 +169,7 @@ namespace detail {
 } // namespace detail
 
 nlohmann::json
-json_schedule(const Configuration& config, const Options& options)
+json_schedule(const Project& config, const Options& options)
 {
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());

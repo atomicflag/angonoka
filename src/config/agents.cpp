@@ -15,7 +15,7 @@ using namespace angonoka;
       - B
       - C
 
-    and inserts "A", "B", "C" into Configuration.groups.
+    and inserts "A", "B", "C" into Project.groups.
     Then places group ids into agent.groups_ids.
 
     @param group_nodes    Sequence with group names
@@ -150,12 +150,12 @@ struct AgentData : detail::OpaqueNode {
 
     @param agent_node Scalar holding the name of the agent
     @param agent_data   Map with agent data
-    @param config       An instance of Configuration
+    @param config       An instance of Project
 */
 void parse_agent(
     const AgentNode& agent_node,
     const AgentData& agent_data,
-    Configuration& config)
+    Project& config)
 {
     const auto& agent_name = agent_node->Scalar();
     Expects(!agent_name.empty());
@@ -181,7 +181,7 @@ void parse_agent(
 } // namespace
 
 namespace angonoka::detail {
-void parse_agents(const YAML::Node& node, Configuration& config)
+void parse_agents(const YAML::Node& node, Project& config)
 {
     Expects(config.agents.empty());
 

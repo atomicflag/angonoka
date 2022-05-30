@@ -5,7 +5,7 @@ histogram_test = executable(
   [
     'main.cpp',
     'histogram.cpp',
-    root_dir / 'src/configuration.cpp',
+    root_dir / 'src/project.cpp',
     root_dir / 'src/simulation.cpp',
     parse_duration_cpp,
     root_dir / 'src/config/agents.cpp',

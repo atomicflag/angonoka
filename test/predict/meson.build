@@ -5,7 +5,7 @@ predict_test = executable(
   [
     'main.cpp',
     'predict.cpp',
-    root_dir / 'src/configuration.cpp',
+    root_dir / 'src/project.cpp',
     root_dir / 'src/predict.cpp',
     root_dir / 'src/stun/schedule.cpp',
   ],

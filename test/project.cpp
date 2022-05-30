@@ -1,19 +1,19 @@
-#include "configuration.h"
+#include "project.h"
 #include <catch2/catch.hpp>
 #include <type_traits>
 
-TEST_CASE("Configuration")
+TEST_CASE("Project")
 {
-    SECTION("Configuration type traits")
+    SECTION("Project type traits")
     {
-        using angonoka::Configuration;
-        STATIC_REQUIRE(std::is_nothrow_destructible_v<Configuration>);
+        using angonoka::Project;
+        STATIC_REQUIRE(std::is_nothrow_destructible_v<Project>);
         STATIC_REQUIRE(
-            std::is_default_constructible_v<Configuration>);
-        STATIC_REQUIRE(std::is_copy_constructible_v<Configuration>);
-        STATIC_REQUIRE(std::is_copy_assignable_v<Configuration>);
-        STATIC_REQUIRE(std::is_move_constructible_v<Configuration>);
-        STATIC_REQUIRE(std::is_move_assignable_v<Configuration>);
+            std::is_default_constructible_v<Project>);
+        STATIC_REQUIRE(std::is_copy_constructible_v<Project>);
+        STATIC_REQUIRE(std::is_copy_assignable_v<Project>);
+        STATIC_REQUIRE(std::is_move_constructible_v<Project>);
+        STATIC_REQUIRE(std::is_move_assignable_v<Project>);
     }
 
     SECTION("Agent type traits")
@@ -57,7 +57,7 @@ TEST_CASE("Configuration")
 
     SECTION("configuration utility functions")
     {
-        angonoka::Configuration s;
+        angonoka::Project s;
 
         s.groups.emplace_back("Test Group");
         auto& t = s.tasks.emplace_back();

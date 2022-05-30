@@ -379,7 +379,7 @@ using angonoka::detail::Simulation;
     @return Histogram granularity in seconds.
 */
 [[nodiscard]] float parse_granularity(
-    const Configuration& config,
+    const Project& config,
     const OptimizedSchedule& schedule)
 {
     using namespace std::chrono_literals;
@@ -395,7 +395,7 @@ using angonoka::detail::Simulation;
     Function object for making a histogram of simulation results.
 */
 struct HistogramOp {
-    gsl::not_null<const Configuration*> config;
+    gsl::not_null<const Project*> config;
     gsl::not_null<const OptimizedSchedule*> schedule;
     stun::RandomUtils random{};
     Simulation sim{{.config{config}, .random{&random}}};
@@ -455,7 +455,7 @@ struct HistogramOp {
 
 namespace angonoka {
 [[nodiscard]] Histogram histogram(
-    const Configuration& config,
+    const Project& config,
     const OptimizedSchedule& schedule)
 {
     Expects(!config.tasks.empty());

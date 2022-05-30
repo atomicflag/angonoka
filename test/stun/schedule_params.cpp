@@ -277,7 +277,7 @@ TEST_CASE("ScheduleParams")
                 {.task_id = 0, .agent_id = 0}});
     }
 
-    SECTION("ScheduleParams from Configuration")
+    SECTION("ScheduleParams from Project")
     {
         using namespace angonoka::stun;
         // clang-format off

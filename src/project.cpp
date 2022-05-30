@@ -1,4 +1,4 @@
-#include "configuration.h"
+#include "project.h"
 #include "exceptions.h"
 #include <gsl/gsl-lite.hpp>
 #include <range/v3/algorithm/any_of.hpp>
@@ -28,7 +28,7 @@ can_work_on(const Agent& agent, const Task& task) noexcept
             && includes(agent.group_ids, task.group_ids));
 }
 
-bool has_universal_agents(const Configuration& config) noexcept
+bool has_universal_agents(const Project& config) noexcept
 {
     Expects(!config.agents.empty());
 

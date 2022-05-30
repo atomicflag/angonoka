@@ -4,7 +4,7 @@
 
 namespace angonoka {
 [[nodiscard]] Histogram histogram(
-    const Configuration& config,
+    const Project& config,
     const OptimizedSchedule& schedule);
 HistogramStats stats(const Histogram& histogram);
 } // namespace angonoka

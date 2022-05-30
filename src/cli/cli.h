@@ -1,6 +1,6 @@
 #pragma once
 
-#include "configuration.h"
+#include "project.h"
 #include "options.h"
 #include "predict.h"
 #include <CLI/App.hpp>
@@ -34,7 +34,7 @@ namespace detail {
 
     @return Tasks and agents.
 */
-Configuration parse_config(const Options& options);
+Project parse_config(const Options& options);
 
 /**
     Run the prediction algorithm on given configuration.
@@ -45,7 +45,7 @@ Configuration parse_config(const Options& options);
     @return JSON object with prediction data
 */
 [[nodiscard]] nlohmann::json
-run_prediction(const Configuration& config, const Options& options);
+run_prediction(const Project& config, const Options& options);
 
 /**
     Parse optimization-related CLI parameters.
