@@ -88,7 +88,7 @@ nlohmann::json to_json(const Histogram& histogram)
 } // namespace angonoka::cli::detail
 
 namespace angonoka::cli {
-Configuration parse_config(const Options& options)
+Project parse_config(const Options& options)
 {
     print(options, "Parsing configuration... ");
     try {
@@ -118,7 +118,7 @@ Configuration parse_config(const Options& options)
 }
 
 nlohmann::json
-run_prediction(const Configuration& config, const Options& options)
+run_prediction(const Project& config, const Options& options)
 {
     Expects(!config.tasks.empty());
     Expects(!config.agents.empty());

@@ -51,12 +51,12 @@ void parse_duration(const YAML::Node& duration, Task& task)
 
     @param group_node Scalar holding the name of the group
     @param task       An instance of Task
-    @param config     An instance of Configuration
+    @param config     An instance of Project
 */
 void parse_task_group(
     const YAML::Node& group_node,
     Task& task,
-    Configuration& config)
+    Project& config)
 {
     const auto& group_name = group_node.Scalar();
     Expects(!group_name.empty());
@@ -80,12 +80,12 @@ void parse_task_group(
 
     @param groups_node  YAML node of groups
     @param task         An instance of Task
-    @param confg        An instance of Configuration
+    @param confg        An instance of Project
 */
 void parse_task_groups(
     const YAML::Node& groups_node,
     Task& task,
-    Configuration& config)
+    Project& config)
 {
     for (auto&& group : groups_node)
         parse_task_group(group, task, config);
@@ -227,7 +227,7 @@ void parse_dependencies(
 // Forward decl
 void parse_task(
     const YAML::Node& task_node,
-    Configuration& config,
+    Project& config,
     Dependencies& deps);
 
 /**
@@ -239,13 +239,13 @@ void parse_task(
       - ...
 
     @param subtasks     YAML sequence of subtasks
-    @param config       An instance of Configuration
+    @param config       An instance of Project
     @param deps         Array of dependencies
     @param task_index   Current task's index
 */
 void parse_subtasks(
     const YAML::Node& subtasks,
-    Configuration& config,
+    Project& config,
     Dependencies& deps,
     int8 task_index)
 {
@@ -314,12 +314,12 @@ int count_defined(
 
     @param task_node    YAML node containing task data
     @param task         Instance of Task
-    @param config       Instance of Configuration
+    @param config       Instance of Project
 */
 void parse_groups_and_agents(
     const YAML::Node& task_node,
     Task& task,
-    Configuration& config)
+    Project& config)
 {
     Expects(!task.name.empty());
 
@@ -361,12 +361,12 @@ void parse_groups_and_agents(
       max: 2
 
     @param task_node    Scalar holding the name of the task
-    @param config       An instance of Configuration
+    @param config       An instance of Project
     @param deps         Array of dependencies
 */
 void parse_task(
     const YAML::Node& task_node,
-    Configuration& config,
+    Project& config,
     Dependencies& deps)
 {
     Expects(!task_node.IsNull());
@@ -482,7 +482,7 @@ void check_for_cycles(const Tasks& tasks)
 } // namespace
 
 namespace angonoka::detail {
-void parse_tasks(const YAML::Node& node, Configuration& config)
+void parse_tasks(const YAML::Node& node, Project& config)
 {
     Expects(config.tasks.empty());
 

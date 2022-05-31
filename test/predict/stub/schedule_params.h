@@ -3,7 +3,7 @@
 #include <vector>
 
 namespace angonoka {
-struct Configuration;
+struct Project;
 } // namespace angonoka
 
 namespace angonoka::stun {
@@ -15,5 +15,5 @@ struct ScheduleParams {
     float duration_multiplier;
 };
 
-ScheduleParams to_schedule_params(const Configuration& config);
+ScheduleParams to_schedule_params(const Project& config);
 } // namespace angonoka::stun

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "configuration.h"
 #include "options.h"
 #include "predict.h"
+#include "project.h"
 #include <nlohmann/json.hpp>
 #include <string_view>
 
@@ -31,9 +31,8 @@ namespace detail {
 
         @return JSON object
     */
-    [[nodiscard]] nlohmann::json to_json(
-        const Configuration& config,
-        const OptimizedSchedule& schedule);
+    [[nodiscard]] nlohmann::json
+    to_json(const Project& config, const OptimizedSchedule& schedule);
 } // namespace detail
 
 /**
@@ -45,7 +44,7 @@ namespace detail {
     @return JSON object
 */
 [[nodiscard]] nlohmann::json
-json_schedule(const Configuration& config, const Options& options);
+json_schedule(const Project& config, const Options& options);
 
 /**
     Save JSON schedule to a file with formatting.

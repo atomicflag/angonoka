@@ -11,7 +11,7 @@ base_test = executable(
   meson.project_name()+'_test',
   [
     'main.cpp',
-    'configuration.cpp',
+    'project.cpp',
     'parse_duration.cpp',
     'load_tasks.cpp',
     'load_agents.cpp',

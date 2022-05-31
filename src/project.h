@@ -19,7 +19,7 @@ using TaskIndices = flat_set<TaskIndex>;
     Agent that performs Tasks.
 
     Agent::group_ids refer to Group indices in the
-    Configuration::groups. The lower the performance parameter the
+    Project::groups. The lower the performance parameter the
     slower an agent will perform any given task. An agent can only
     perform tasks belonging to groups in group_ids.
 
@@ -159,7 +159,7 @@ struct OptimizationParameters {
     @var opt_params     Optimization parameters
     @var bucket_size    Histogram bucket size
 */
-struct Configuration {
+struct Project {
     Groups groups;
     Agents agents;
     Tasks tasks;
@@ -172,10 +172,10 @@ struct Configuration {
 
     A "universal" agent is an agent that can perform any task.
 
-    @param config Configuration
+    @param config Project
 
     @return True if there is at least 1 universal agent.
 */
 [[nodiscard]] bool
-has_universal_agents(const Configuration& config) noexcept;
+has_universal_agents(const Project& config) noexcept;
 } // namespace angonoka

@@ -1,5 +1,5 @@
 #include "schedule_params.h"
-#include "../configuration.h"
+#include "../project.h"
 #include <boost/container/flat_set.hpp>
 #include <range/v3/action/insert.hpp>
 #include <range/v3/range/operations.hpp>
@@ -77,13 +77,13 @@ task_duration(const Tasks& tasks, int agent_count)
 }
 
 /**
-    Construct the packed available agents map from Configuration.
+    Construct the packed available agents map from Project.
 
     @param config High-level configuration
 
     @return Available agents map
 */
-AvailableAgents available_agents(const Configuration& config)
+AvailableAgents available_agents(const Project& config)
 {
     using stun::int16;
 
@@ -272,7 +272,7 @@ initial_schedule(const ScheduleParams& params)
     return schedule;
 }
 
-ScheduleParams to_schedule_params(const Configuration& config)
+ScheduleParams to_schedule_params(const Project& config)
 {
     Expects(!config.agents.empty());
     Expects(!config.tasks.empty());

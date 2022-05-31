@@ -89,7 +89,7 @@ namespace angonoka {
 std::tuple<
     std::future<Prediction>,
     std::shared_ptr<Queue<ProgressEvent>>>
-predict(const Configuration& config)
+predict(const Project& config)
 {
     auto events
         = std::make_shared<Queue<ProgressEvent>>(event_queue_size);
@@ -118,7 +118,7 @@ predict(const Configuration& config)
 std::tuple<
     std::future<OptimizedSchedule>,
     std::shared_ptr<Queue<ProgressEvent>>>
-schedule(const Configuration& config)
+schedule(const Project& config)
 {
     auto events
         = std::make_shared<Queue<ProgressEvent>>(event_queue_size);

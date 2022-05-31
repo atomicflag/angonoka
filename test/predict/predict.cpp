@@ -1,5 +1,5 @@
 #include "predict.h"
-#include "configuration.h"
+#include "project.h"
 #include "stub/optimizer.h"
 #include "stub/schedule_params.h"
 #include "stub/simulation.h"
@@ -7,7 +7,7 @@
 #include <deque>
 
 namespace angonoka::stun {
-ScheduleParams to_schedule_params(const Configuration&)
+ScheduleParams to_schedule_params(const Project&)
 {
     return {
         .agent_performance{1.f},
@@ -46,7 +46,7 @@ template <typename T> auto pop(auto& events)
 
 namespace angonoka {
 [[nodiscard]] Histogram
-histogram(const Configuration&, const OptimizedSchedule&)
+histogram(const Project&, const OptimizedSchedule&)
 {
     return {};
 }
@@ -63,7 +63,7 @@ TEST_CASE("prediction")
         using namespace angonoka;
         using namespace std::literals::chrono_literals;
 
-        Configuration config;
+        Project config;
         auto [prediction_future, event_queue] = predict(config);
         const auto prediction_result = prediction_future.get();
 
@@ -120,7 +120,7 @@ TEST_CASE("prediction")
         using namespace angonoka;
         using namespace std::literals::chrono_literals;
 
-        Configuration config;
+        Project config;
         auto [prediction_future, event_queue] = schedule(config);
         const auto r = prediction_future.get();
 

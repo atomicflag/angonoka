@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace angonoka {
-struct Configuration;
+struct Project;
 } // namespace angonoka
 
 namespace angonoka::stun {
@@ -114,11 +114,11 @@ std::vector<ScheduleItem>
 initial_schedule(const ScheduleParams& params);
 
 /**
-    Construct ScheduleParams from Configuration.
+    Construct ScheduleParams from Project.
 
-    @param config An instance of Configuration
+    @param config An instance of Project
 
     @return ScheduleParams
 */
-ScheduleParams to_schedule_params(const Configuration& config);
+ScheduleParams to_schedule_params(const Project& config);
 } // namespace angonoka::stun
