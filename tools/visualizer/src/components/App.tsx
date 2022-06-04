@@ -2,6 +2,7 @@ import { Dispatch, useState } from "react";
 import style from "./App.module.css";
 import { Agent } from "./Agent";
 import { AgentTimeline } from "./AgentTimeline";
+import { Histogram } from "./Histogram";
 import { InfoPanel } from "./InfoPanel";
 import { OpenDialog } from "./OpenDialog";
 import { MakespanBadge } from "./MakespanBadge";
@@ -162,6 +163,7 @@ export const App = (props: Props) => {
         <div className="flex-grow"></div>
         {schedule && <MakespanBadge makespan={schedule.makespan} />}
       </div>
+      <Histogram />
       <div className="flex p-4 gap-2">
         <div className="flex flex-col gap-2">{agents}</div>
         <div className="flex flex-col gap-2 flex-grow">{timelines}</div>
