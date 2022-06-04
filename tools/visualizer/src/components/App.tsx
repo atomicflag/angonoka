@@ -8,13 +8,13 @@ import { OpenDialog } from "./OpenDialog";
 import { MakespanBadge } from "./MakespanBadge";
 import dayjs from "../dayjs";
 import lodash from "lodash";
-import { Schedule, Task } from "../types";
+import { Project, Task } from "../types";
 
 type Props = {
-  schedule?: Schedule;
+  project?: Project;
 };
 
-const defaultSchedule = `
+const defaultProject = `
 {
   "makespan": 720,
   "tasks": [
@@ -46,7 +46,17 @@ const defaultSchedule = `
       "priority": 1,
       "task": "Task 4"
     }
-  ]
+  ],
+  "histogram": {
+    "bucket_size": 60,
+    "buckets": [
+      [0, 1],
+      [60, 3],
+      [120, 5],
+      [180, 3],
+      [240, 1]
+    ]
+  }
 }
 `;
 
@@ -120,17 +130,17 @@ function showTaskInfo(task: Task, setInfoPanelState: Dispatch<InfoPanelState>) {
 
 function agentsAndTimelines(
   setInfoPanelState: Dispatch<InfoPanelState>,
-  schedule?: Schedule
+  project?: Project
 ) {
-  if (!schedule) return [[], []];
-  const names = agentNames(schedule.tasks);
-  const tasks = agentTasks(schedule.tasks);
+  if (!project) return [[], []];
+  const names = agentNames(project.tasks);
+  const tasks = agentTasks(project.tasks);
   const agents = names.map((v, i) => (
     <Agent
       name={v}
       key={i}
       onClick={() =>
-        showAgentInfo(v, tasks[v] || [], schedule.makespan, setInfoPanelState)
+        showAgentInfo(v, tasks[v] || [], project.makespan, setInfoPanelState)
       }
     />
   ));
@@ -138,7 +148,7 @@ function agentsAndTimelines(
     <AgentTimeline
       tasks={tasks[v] || []}
       key={i}
-      makespan={schedule.makespan}
+      makespan={project.makespan}
       onClick={(v) => showTaskInfo(v, setInfoPanelState)}
     />
   ));
@@ -146,24 +156,24 @@ function agentsAndTimelines(
 }
 
 export const App = (props: Props) => {
-  const [schedule, setSchedule] = useState<Schedule>(
-    props.schedule || JSON.parse(defaultSchedule)
+  const [project, setProject] = useState<Project>(
+    props.project || JSON.parse(defaultProject)
   );
   const [infoPanelState, setInfoPanelState] = useState<InfoPanelState>({
     isVisible: false,
   });
 
-  const [agents, timelines] = agentsAndTimelines(setInfoPanelState, schedule);
+  const [agents, timelines] = agentsAndTimelines(setInfoPanelState, project);
 
   return (
     <div className="flex flex-col">
       <div className={style.topBar}>
-        <span className="text-lg font-medium pr-2">Schedule Visualizer v2</span>
-        <OpenDialog onOpen={setSchedule} />
+        <span className="text-lg font-medium pr-2">Angonoka Visualizer v3</span>
+        <OpenDialog onOpen={setProject} />
         <div className="flex-grow"></div>
-        {schedule && <MakespanBadge makespan={schedule.makespan} />}
+        {project && <MakespanBadge makespan={project.makespan} />}
       </div>
-      <Histogram />
+      { project.histogram && <Histogram histogram={project.histogram} /> }
       <div className="flex p-4 gap-2">
         <div className="flex flex-col gap-2">{agents}</div>
         <div className="flex flex-col gap-2 flex-grow">{timelines}</div>

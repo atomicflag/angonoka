@@ -6,7 +6,13 @@ export type Task = {
   task: string;
 };
 
-export type Schedule = {
+export type Histogram = {
+  bucket_size: number;
+  buckets: [number, number][];
+};
+
+export type Project = {
   makespan: number;
   tasks: Task[];
+  histogram: Histogram?;
 };

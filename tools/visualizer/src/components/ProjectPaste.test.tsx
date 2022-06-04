@@ -1,8 +1,8 @@
 import { render, fireEvent } from "@testing-library/react";
-import { SchedulePaste } from "./SchedulePaste";
+import { ProjectPaste } from "./ProjectPaste";
 
 test("has text", () => {
-  const { getByText } = render(<SchedulePaste onPaste={() => {}} />);
+  const { getByText } = render(<ProjectPaste onPaste={() => {}} />);
 
   const button = getByText("Load");
   expect(button.nodeName).toEqual("BUTTON");
@@ -14,7 +14,7 @@ test("callback", (done) => {
     expect(data).toEqual({ hello: "world" });
     done();
   };
-  const { container, getByText } = render(<SchedulePaste onPaste={callback} />);
+  const { container, getByText } = render(<ProjectPaste onPaste={callback} />);
 
   const text = container.getElementsByTagName("TEXTAREA")[0];
   expect(text).toBeInTheDocument();
@@ -27,7 +27,7 @@ test("callback", (done) => {
 });
 
 test("has an error message", () => {
-  const { container, getByText } = render(<SchedulePaste onPaste={() => {}} />);
+  const { container, getByText } = render(<ProjectPaste onPaste={() => {}} />);
 
   const text = container.getElementsByTagName("TEXTAREA")[0];
 

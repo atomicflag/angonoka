@@ -1,14 +1,14 @@
 import { Button } from "./Button";
 import { RefObject, useRef } from "react";
-import { Schedule } from "../types";
+import { Project } from "../types";
 
 type Props = {
-  onUpload: (schedule: Schedule) => void;
+  onUpload: (project: Project) => void;
 };
 
-async function loadSchedule(
+async function loadProject(
   fileUpload: RefObject<HTMLInputElement>,
-  onUpload: (schedule: Schedule) => void
+  onUpload: (project: Project) => void
 ) {
   const fu = fileUpload.current;
   if (fu.files.length === 0) return;
@@ -17,7 +17,7 @@ async function loadSchedule(
   onUpload(JSON.parse(text));
 }
 
-export const ScheduleUpload = ({ onUpload }: Props) => {
+export const ProjectUpload = ({ onUpload }: Props) => {
   const fileUpload = useRef<HTMLInputElement>();
   return (
     <div>
@@ -26,7 +26,7 @@ export const ScheduleUpload = ({ onUpload }: Props) => {
         type="file"
         ref={fileUpload}
         className="hidden"
-        onInput={() => loadSchedule(fileUpload, onUpload)}
+        onInput={() => loadProject(fileUpload, onUpload)}
         accept=".json"
       />
     </div>

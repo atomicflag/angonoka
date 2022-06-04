@@ -37,7 +37,7 @@ test("clicking outside to close", () => {
   expect(queryByText("Upload")).not.toBeInTheDocument();
 });
 
-test("pasting the schedule", (done) => {
+test("pasting the project", (done) => {
   const callback = (data: any) => {
     expect(data).toEqual({ hello: "world" });
     done();

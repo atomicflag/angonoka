@@ -1,21 +1,21 @@
 import { Button } from "./Button";
-import { Schedule } from "../types";
+import { Project } from "../types";
 import { Dispatch, useState } from "react";
-import { ScheduleUpload } from "./ScheduleUpload";
-import { SchedulePaste } from "./SchedulePaste";
+import { ProjectUpload } from "./ProjectUpload";
+import { ProjectPaste } from "./ProjectPaste";
 import style from "./OpenDialog.module.css";
 
 type Props = {
-  onOpen: (schedule: Schedule) => void;
+  onOpen: (project: Project) => void;
 };
 
 function Opener(
   setIsVisible: Dispatch<boolean>,
-  onOpen: (schedule: Schedule) => void
+  onOpen: (project: Project) => void
 ) {
-  return (schedule: Schedule) => {
+  return (project: Project) => {
     setIsVisible(false);
-    onOpen(schedule);
+    onOpen(project);
   };
 }
 
@@ -44,22 +44,22 @@ function CloseButton({ setIsVisible }: ClosableProps) {
 }
 
 type OpenerProps = {
-  opener: (schedule: Schedule) => void;
+  opener: (project: Project) => void;
 };
 
 function Layout({ opener }: OpenerProps) {
   return (
     <div className={style.layout}>
       <div className={style.upload}>
-        <span className="mb-4">Upload an optimized schedule JSON</span>
-        <ScheduleUpload onUpload={opener} />
+        <span className="mb-4">Upload time_estimation.json</span>
+        <ProjectUpload onUpload={opener} />
       </div>
       <div className={style.separator}>─── or ───</div>
       <div className={style.clipboard}>
         <span className="mb-4 text-center">
-          paste the schedule from clipboard
+          paste JSON from clipboard
         </span>
-        <SchedulePaste onPaste={opener} />
+        <ProjectPaste onPaste={opener} />
       </div>
     </div>
   );
@@ -68,7 +68,7 @@ function Layout({ opener }: OpenerProps) {
 type DialogProps = {
   isVisible: boolean;
   setIsVisible: Dispatch<boolean>;
-  onOpen: (schedule: Schedule) => void;
+  onOpen: (project: Project) => void;
 };
 
 function Dialog({ isVisible, setIsVisible, onOpen }: DialogProps) {
