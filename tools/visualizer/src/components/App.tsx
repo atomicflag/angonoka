@@ -56,6 +56,9 @@ const defaultProject = `
       [180, 5],
       [300, 1]
     ]
+  },
+  "stats": {
+    "p95": 180
   }
 }
 `;
@@ -173,7 +176,7 @@ export const App = (props: Props) => {
         <div className="flex-grow"></div>
         {project && <MakespanBadge makespan={project.makespan} />}
       </div>
-      { project.histogram && <Histogram histogram={project.histogram} /> }
+      { project.histogram && <Histogram histogram={project.histogram} stats={project.stats} /> }
       <div className="flex p-4 gap-2">
         <div className="flex flex-col gap-2">{agents}</div>
         <div className="flex flex-col gap-2 flex-grow">{timelines}</div>

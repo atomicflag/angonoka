@@ -11,8 +11,17 @@ export type Histogram = {
   buckets: [number, number][];
 };
 
+export type Stats = {
+  p25: number;
+  p50: number;
+  p75: number;
+  p95: number;
+  p99: number;
+};
+
 export type Project = {
   makespan: number;
   tasks: Task[];
   histogram: Histogram?;
+  stats: Stats?;
 };

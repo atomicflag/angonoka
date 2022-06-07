@@ -3,7 +3,7 @@ import "./global.css";
 import "./styles.css";
 
 import { App } from "./components/App";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 
 if (module.hot) {
   module.hot.accept();
@@ -11,13 +11,15 @@ if (module.hot) {
 
 function getRoot() {
   const root = document.getElementById("root");
-  if (root) return root;
+  if (root) return root._reactRoot;
 
   const newRoot = document.createElement("div");
   newRoot.id = "root";
-
+  
   document.body.appendChild(newRoot);
-  return newRoot;
+  // Not sure how to do this properly
+  newRoot._reactRoot = createRoot(newRoot);
+  return newRoot._reactRoot;
 }
 
-render(<App />, getRoot());
+getRoot().render(<App />);
