@@ -5,6 +5,7 @@
     flex-row
     gap-2
     justify-between
+    items-end
     ;
 }
 

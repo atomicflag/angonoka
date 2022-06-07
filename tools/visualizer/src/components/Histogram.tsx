@@ -17,13 +17,12 @@ function buckets(histogram: Histogram) {
   const buckets = new Map(histogram.buckets);
   const start = histogram.buckets[0][0];
   const end = lodash.last(histogram.buckets)[0];
-  let items = [];
-  // TODO: use lodash.range instead
-  // TODO: use i as react's key for items
-  for(let i = start; i <= end; i += histogram.bucket_size) {
-  console.info(i);
-  }
-  return histogram.buckets.map(b=>bucket(b[1]));
+  return lodash.range(start, end+histogram.bucket_size, histogram.bucket_size).map(i=>{
+  const height = 100*(buckets.get(i) || 0)/max;
+  const heightStyle = height == 0 ? {"background": "transparent"} : {"height": height+"%"};
+
+  return <div key={i} className={style.bucket} style={heightStyle}>&nbsp;</div>;
+  })
 }
 
 export const Histogram = ({ className, histogram }: Props) => {
