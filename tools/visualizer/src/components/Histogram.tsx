@@ -11,9 +11,19 @@ type Props = {
 
 function bucket(key: number, buckets: Map<number, number>, max: number, hint: number?) {
   const height = 99*(buckets.get(key) || 0)/max + 1;
-  const heightStyle = !buckets.has(key) ? {"background": "transparent"} : {"height": height+"%"};
+  let inlineStyle = {};
+  if(buckets.has(key)){
+  inlineStyle["height"] = height+"%";
+  } else {
+inlineStyle["background"] = "transparent";
+  }
+  let bucketStyle = style.bucket;
+  if(hint) {
+  bucketStyle += " "+style.bucketThreshold;
+  }
 
-  return <div key={key} className={style.bucket} style={heightStyle}>&nbsp;{hint ? <div className={style.hint}>{hint}%</div> : null}</div>;
+  // TODO: add tooltips
+  return <div key={key} className={bucketStyle} style={inlineStyle}>&nbsp;{hint ? <div className={style.hint}>{hint}%</div> : null}</div>;
 }
 
 function buckets(histogram: Histogram, stats: Stats) {
@@ -22,7 +32,15 @@ function buckets(histogram: Histogram, stats: Stats) {
   const start = histogram.buckets[0][0];
   const end = stats.p95;
   // TODO: add p25, p50, p75, p95 hints
-  return lodash.range(start, end+histogram.bucket_size, histogram.bucket_size).map(i=> bucket(i, buckets, max));
+  return lodash.range(start, end+histogram.bucket_size, histogram.bucket_size).map(i=> {
+  for(let threshold of [95,75,50,25]) {
+  const pVal = stats["p"+threshold];
+  if(i >= pVal && i < pVal + histogram.bucket_size) {
+  return bucket(i, buckets, max, threshold);
+  }
+  }
+  return bucket(i, buckets, max)
+  });
 }
 
 export const Histogram = ({ className, histogram, stats }: Props) => {
