@@ -2,6 +2,7 @@ import React from "react";
 import style from "./Histogram.module.css";
 import { Histogram, Stats } from "../types";
 import lodash from "lodash";
+import dayjs from "../dayjs";
 
 type Props = {
   className?: string;
@@ -9,6 +10,16 @@ type Props = {
   stats: Stats;
 };
 
+// TODO: return type
+function formatDuration(duration: number) {
+  const d = dayjs.duration(duration, "seconds");
+  if(d.months() > 0) return d.format("M[mo] D[d]");
+  if(d.days() > 0) return d.format("D[d] H[h]");
+  if(d.hours() > 0) return d.format("H[h] m[m]");
+  return d.format("m [min]");
+}
+
+// TODO: return type
 function bucket(key: number, buckets: Map<number, number>, max: number, hint: number?) {
   const height = 99*(buckets.get(key) || 0)/max + 1;
   let inlineStyle = {};
@@ -22,10 +33,11 @@ inlineStyle["background"] = "transparent";
   bucketStyle += " "+style.bucketThreshold;
   }
 
-  // TODO: add tooltips
-  return <div key={key} className={bucketStyle} style={inlineStyle}>&nbsp;{hint ? <div className={style.hint}>{hint}%</div> : null}</div>;
+  // TODO: show percent in the tooltip
+  return <div key={key} className={bucketStyle} style={inlineStyle} title={formatDuration(key, )}>&nbsp;{hint ? <div className={style.hint}>{hint}%</div> : null}</div>;
 }
 
+// TODO: return type
 function buckets(histogram: Histogram, stats: Stats) {
   const max = lodash.chain(histogram.buckets).flatMap("[1]").max().value();
   const buckets = new Map(histogram.buckets);
