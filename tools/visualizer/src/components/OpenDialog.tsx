@@ -56,9 +56,7 @@ function Layout({ opener }: OpenerProps) {
       </div>
       <div className={style.separator}>─── or ───</div>
       <div className={style.clipboard}>
-        <span className="mb-4 text-center">
-          paste JSON from clipboard
-        </span>
+        <span className="mb-4 text-center">paste JSON from clipboard</span>
         <ProjectPaste onPaste={opener} />
       </div>
     </div>

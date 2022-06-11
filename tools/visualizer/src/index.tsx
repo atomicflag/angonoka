@@ -15,7 +15,7 @@ function getRoot() {
 
   const newRoot = document.createElement("div");
   newRoot.id = "root";
-  
+
   document.body.appendChild(newRoot);
   // Not sure how to do this properly
   newRoot._reactRoot = createRoot(newRoot);
