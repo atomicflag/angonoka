@@ -18,10 +18,15 @@ function formatDuration(duration: number) {
   return d.format("m [min]");
 }
 
+type HistogramParams = {
+  max: number;
+  total: number;
+  buckets: Map<number, number>;
+};
+
 function bucket(
   key: number,
-  buckets: Map<number, number>,
-  max: number,
+  {buckets, max, total}: HistogramParams,
   hint: ?number
 ) {
   const height = (99 * (buckets.get(key) || 0)) / max + 1;
@@ -34,34 +39,39 @@ function bucket(
   let bucketStyle = style.bucket;
   if (hint)
     bucketStyle += " " + style.bucketThreshold;
+  const likelihood = (100*(buckets.get(key) || 0)/total).toFixed(2);
+  const title = `${likelihood}% (${formatDuration(key)})`;
 
-  // TODO: show percent in the tooltip
   return (
     <div
       key={key}
       className={bucketStyle}
       style={inlineStyle}
-      title={`{key/max}%`+formatDuration(key)} //?
+      title={title}
     >
       &nbsp;{hint ? <div className={style.hint}>{hint}%</div> : null}
     </div>
   );
 }
 
+
 function buckets(histogram: Histogram, stats: Stats) {
-  const max = lodash.chain(histogram.buckets).flatMap("[1]").max().value();
-  const buckets = new Map(histogram.buckets);
   const start = histogram.buckets[0][0];
   const end = stats.p95;
+  const params : HistogramParams = {
+    max: lodash.chain(histogram.buckets).flatMap("[1]").max().value(),
+    total: lodash.chain(histogram.buckets).flatMap("[1]").sum().value(),
+    buckets: new Map(histogram.buckets)
+  };
   return lodash
     .range(start, end + histogram.bucket_size, histogram.bucket_size)
     .map((i) => {
       for (let threshold of [95, 75, 50, 25]) {
         const pVal = stats["p" + threshold];
         if (i >= pVal && i < pVal + histogram.bucket_size)
-          return bucket(i, buckets, max, threshold);
+          return bucket(i, params, threshold);
       }
-      return bucket(i, buckets, max);
+      return bucket(i, params);
     });
 }
 
