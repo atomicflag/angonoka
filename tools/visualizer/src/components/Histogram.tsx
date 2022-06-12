@@ -24,44 +24,46 @@ type HistogramParams = {
   buckets: Map<number, number>;
 };
 
+function inlineStyle(key: number, { buckets, max }: HistogramParams) {
+  const height = (99 * (buckets.get(key) || 0)) / max + 1;
+  if (buckets.has(key)) return { height: height + "%" };
+  return {
+    background: "transparent",
+  };
+}
+
+function title(key: number, { buckets, total }: HistogramParams) {
+  const bucketProb = ((100 * (buckets.get(key) || 0)) / total).toFixed(2);
+  return `${bucketProb}% (${formatDuration(key)})`;
+}
+
 function bucket(
   key: number,
-  {buckets, max, total}: HistogramParams,
+  { buckets, max, total }: HistogramParams,
   hint: ?number
 ) {
-  const height = (99 * (buckets.get(key) || 0)) / max + 1;
-  let inlineStyle = {};
-  if (buckets.has(key)) {
-    inlineStyle["height"] = height + "%";
-  } else {
-    inlineStyle["background"] = "transparent";
-  }
   let bucketStyle = style.bucket;
-  if (hint)
-    bucketStyle += " " + style.bucketThreshold;
-  const likelihood = (100*(buckets.get(key) || 0)/total).toFixed(2);
-  const title = `${likelihood}% (${formatDuration(key)})`;
+  if (hint) bucketStyle += " " + style.bucketThreshold;
 
   return (
     <div
       key={key}
       className={bucketStyle}
-      style={inlineStyle}
-      title={title}
+      style={inlineStyle(key, { buckets, max })}
+      title={title(key, { buckets, total })}
     >
       &nbsp;{hint ? <div className={style.hint}>{hint}%</div> : null}
     </div>
   );
 }
 
-
 function buckets(histogram: Histogram, stats: Stats) {
   const start = histogram.buckets[0][0];
   const end = stats.p95;
-  const params : HistogramParams = {
+  const params: HistogramParams = {
     max: lodash.chain(histogram.buckets).flatMap("[1]").max().value(),
     total: lodash.chain(histogram.buckets).flatMap("[1]").sum().value(),
-    buckets: new Map(histogram.buckets)
+    buckets: new Map(histogram.buckets),
   };
   return lodash
     .range(start, end + histogram.bucket_size, histogram.bucket_size)
