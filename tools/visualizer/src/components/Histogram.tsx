@@ -1,4 +1,3 @@
-import React from "react";
 import style from "./Histogram.module.css";
 import { Histogram, Stats } from "../types";
 import lodash from "lodash";
@@ -40,7 +39,7 @@ function title(key: number, { buckets, total }: HistogramParams) {
 function bucket(
   key: number,
   { buckets, max, total }: HistogramParams,
-  hint: ?number
+  hint?: number
 ) {
   let bucketStyle = style.bucket;
   if (hint) bucketStyle += " " + style.bucketThreshold;
@@ -68,7 +67,7 @@ function buckets(histogram: Histogram, stats: Stats) {
   return lodash
     .range(start, end + histogram.bucket_size, histogram.bucket_size)
     .map((i) => {
-      for (let threshold of [95, 75, 50, 25]) {
+      for (const threshold of [95, 75, 50, 25]) {
         const pVal = stats["p" + threshold];
         if (i >= pVal && i < pVal + histogram.bucket_size)
           return bucket(i, params, threshold);
