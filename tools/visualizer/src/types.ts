@@ -22,6 +22,6 @@ export type Stats = {
 export type Project = {
   makespan: number;
   tasks: Task[];
-  histogram: ?Histogram;
-  stats: ?Stats;
+  histogram?: Histogram;
+  stats?: Stats;
 };

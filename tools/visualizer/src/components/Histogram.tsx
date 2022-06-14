@@ -1,12 +1,18 @@
 import style from "./Histogram.module.css";
-import { Histogram, Stats } from "../types";
+import * as types from "../types";
 import lodash from "lodash";
 import dayjs from "../dayjs";
 
 type Props = {
   className?: string;
-  histogram: Histogram;
-  stats: Stats;
+  histogram: types.Histogram;
+  stats: types.Stats;
+};
+
+type HistogramParams = {
+  max: number;
+  total: number;
+  buckets: Map<number, number>;
 };
 
 function formatDuration(duration: number) {
@@ -17,13 +23,7 @@ function formatDuration(duration: number) {
   return d.format("m [min]");
 }
 
-type HistogramParams = {
-  max: number;
-  total: number;
-  buckets: Map<number, number>;
-};
-
-function inlineStyle(key: number, { buckets, max }: HistogramParams) {
+function inlineStyle(key: number, buckets: Map<number, number>, max: number) {
   const height = (99 * (buckets.get(key) || 0)) / max + 1;
   if (buckets.has(key)) return { height: height + "%" };
   return {
@@ -31,7 +31,7 @@ function inlineStyle(key: number, { buckets, max }: HistogramParams) {
   };
 }
 
-function title(key: number, { buckets, total }: HistogramParams) {
+function title(key: number, buckets: Map<number, number>, total: number) {
   const bucketProb = ((100 * (buckets.get(key) || 0)) / total).toFixed(2);
   return `${bucketProb}% (${formatDuration(key)})`;
 }
@@ -48,15 +48,15 @@ function bucket(
     <div
       key={key}
       className={bucketStyle}
-      style={inlineStyle(key, { buckets, max })}
-      title={title(key, { buckets, total })}
+      style={inlineStyle(key, buckets, max)}
+      title={title(key, buckets, total)}
     >
       &nbsp;{hint ? <div className={style.hint}>{hint}%</div> : null}
     </div>
   );
 }
 
-function buckets(histogram: Histogram, stats: Stats) {
+function buckets(histogram: types.Histogram, stats: types.Stats) {
   const start = histogram.buckets[0][0];
   const end = stats.p95;
   const params: HistogramParams = {
@@ -68,7 +68,7 @@ function buckets(histogram: Histogram, stats: Stats) {
     .range(start, end + histogram.bucket_size, histogram.bucket_size)
     .map((i) => {
       for (const threshold of [95, 75, 50, 25]) {
-        const pVal = stats["p" + threshold];
+        const pVal = stats[("p" + threshold) as keyof types.Stats];
         if (i >= pVal && i < pVal + histogram.bucket_size)
           return bucket(i, params, threshold);
       }
