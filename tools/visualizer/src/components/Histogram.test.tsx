@@ -28,5 +28,10 @@ test("has buckets", () => {
     <Histogram histogram={histogramData} stats={histogramStats} />
   );
 
-  expect(container.querySelector(".bucket")).toBeInTheDocument();
+  const buckets = container.querySelectorAll(".bucket");
+
+  expect(buckets).toHaveLength(9);
+  expect(buckets[0]).toHaveStyle({
+    height: "12%",
+  });
 });
