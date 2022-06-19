@@ -34,4 +34,13 @@ test("has buckets", () => {
   expect(buckets[0]).toHaveStyle({
     height: "12%",
   });
+  expect(buckets[4]).toHaveStyle({
+    background: "transparent",
+  });
+  expect(buckets[5]).toHaveStyle({
+    height: "100%",
+  });
+  expect(buckets[8]).toHaveStyle({
+    height: "23%",
+  });
 });
