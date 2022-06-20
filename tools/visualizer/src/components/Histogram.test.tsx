@@ -31,12 +31,15 @@ test("has buckets", () => {
   const buckets = container.querySelectorAll(".bucket");
 
   expect(buckets).toHaveLength(9);
+  expect(buckets[0].title).toBe("2.27% (0 min)");
   expect(buckets[0]).toHaveStyle({ height: "12%" });
   expect(buckets[3]).toHaveClass("bucketThreshold");
   expect(buckets[4]).toHaveStyle({ background: "transparent" });
   expect(buckets[5]).toHaveStyle({ height: "100%" });
   expect(buckets[5]).toHaveClass("bucketThreshold");
+  expect(buckets[5].title).toBe("20.45% (5 min)");
   expect(buckets[8]).toHaveStyle({ height: "23%" });
   expect(buckets[7]).toHaveClass("bucketThreshold");
   expect(buckets[8]).toHaveClass("bucketThreshold");
+  expect(buckets[8].title).toBe("4.55% (8 min)");
 });
