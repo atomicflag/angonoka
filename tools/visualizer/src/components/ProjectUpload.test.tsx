@@ -1,8 +1,8 @@
 import { render, fireEvent } from "@testing-library/react";
-import { ScheduleUpload } from "./ScheduleUpload";
+import { ProjectUpload } from "./ProjectUpload";
 
 test("has text", () => {
-  const { getByText } = render(<ScheduleUpload onUpload={() => {}} />);
+  const { getByText } = render(<ProjectUpload onUpload={() => {}} />);
 
   const button = getByText("Upload");
   expect(button.nodeName).toEqual("BUTTON");
@@ -15,7 +15,7 @@ test("callback", (done) => {
     done();
   };
   const { container, getByText } = render(
-    <ScheduleUpload onUpload={callback} />
+    <ProjectUpload onUpload={callback} />
   );
 
   const input = container.getElementsByTagName("INPUT")[0];

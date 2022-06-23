@@ -2,7 +2,7 @@ import { within, render, fireEvent } from "@testing-library/react";
 import { App } from "./App";
 import lodash from "lodash";
 
-const schedule = {
+const project = {
   makespan: 180,
   tasks: [
     {
@@ -23,7 +23,7 @@ const schedule = {
 };
 
 test("App startup", () => {
-  const { getByText } = render(<App schedule={schedule} />);
+  const { getByText } = render(<App project={project} />);
 
   expect(getByText("Open")).toBeInTheDocument();
 
@@ -40,7 +40,7 @@ test("App startup", () => {
 });
 
 test("agent info panel", () => {
-  const { queryByText, getByText } = render(<App schedule={schedule} />);
+  const { queryByText, getByText } = render(<App project={project} />);
 
   expect(queryByText("Total tasks")).not.toBeInTheDocument();
 
@@ -67,7 +67,7 @@ test("agent info panel", () => {
 });
 
 test("task info panel", () => {
-  const { queryByText, getByText } = render(<App schedule={schedule} />);
+  const { queryByText, getByText } = render(<App project={project} />);
 
   expect(queryByText("Priority")).not.toBeInTheDocument();
 

@@ -1,0 +1,27 @@
+.histogram {
+  @apply h-48
+    p-4
+    mb-4
+    flex
+    gap-1
+    flex-row
+    justify-between
+    items-end;
+}
+
+.bucket {
+  @apply bg-blue-400
+    grow
+    relative;
+  min-width: 1px;
+}
+
+.bucketThreshold {
+  @apply bg-blue-800;
+}
+
+.hint {
+  @apply absolute
+    left-0
+    -bottom-6;
+}

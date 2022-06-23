@@ -1,15 +1,15 @@
-import { Schedule } from "../types";
+import { Project } from "../types";
 import { Button } from "./Button";
 import { Dispatch, useState, RefObject, useRef } from "react";
-import style from "./SchedulePaste.module.css";
+import style from "./ProjectPaste.module.css";
 
 type Props = {
-  onPaste: (schedule: Schedule) => void;
+  onPaste: (project: Project) => void;
 };
 
-function loadSchedule(
+function loadProject(
   text: RefObject<HTMLTextAreaElement>,
-  onPaste: (schedule: Schedule) => void,
+  onPaste: (project: Project) => void,
   setErrorText: Dispatch<string>
 ) {
   try {
@@ -23,17 +23,17 @@ function loadSchedule(
   }
 }
 
-export const SchedulePaste = ({ onPaste }: Props) => {
+export const ProjectPaste = ({ onPaste }: Props) => {
   const text = useRef<HTMLTextAreaElement>();
   const [errorText, setErrorText] = useState<string>("");
   return (
-    <div className={style.schedulePaste}>
+    <div className={style.projectPaste}>
       <textarea className="text-black" ref={text} rows={4}></textarea>
       {errorText && <div className={style.errorText}>{errorText}</div>}
       <Button
         text="Load"
         className="mt-4"
-        onClick={() => loadSchedule(text, onPaste, setErrorText)}
+        onClick={() => loadProject(text, onPaste, setErrorText)}
       />
     </div>
   );

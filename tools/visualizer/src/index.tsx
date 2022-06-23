@@ -3,21 +3,18 @@ import "./global.css";
 import "./styles.css";
 
 import { App } from "./components/App";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 
 if (module.hot) {
   module.hot.accept();
 }
 
 function getRoot() {
-  const root = document.getElementById("root");
-  if (root) return root;
-
+  if (global.reactRoot) return global.reactRoot;
   const newRoot = document.createElement("div");
-  newRoot.id = "root";
-
   document.body.appendChild(newRoot);
-  return newRoot;
+  global.reactRoot = createRoot(newRoot);
+  return global.reactRoot;
 }
 
-render(<App />, getRoot());
+getRoot().render(<App />);
