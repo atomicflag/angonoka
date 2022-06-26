@@ -34,6 +34,16 @@ base_test = executable(
 )
 test('Unit tests', base_test)
 
+executable(
+  'histogram_test',
+  [
+    'main.cpp',
+    'histogram.cpp',
+  ],
+  dependencies : [ base, test_deps ],
+  cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
+)
+
 subdir('stun/stochastic_tunneling')
 subdir('predict')
 subdir('histogram')
