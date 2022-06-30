@@ -21,7 +21,7 @@ using HistogramData = boost::container::flat_map<int32, int32>;
 
 // TODO: doc, test, expects
 struct BucketIter {
-    Bucket operator()(HistogramData::reference v) const
+    Bucket operator()(const auto& v) const
     {
         return {
             .count{v.second},
@@ -33,13 +33,13 @@ struct BucketIter {
     int32 bucket_size;
 };
 
-class BucketIt : public boost::transform_iterator<BucketIter, HistogramData::iterator> {
-    public:
-        using transform_iterator::transform_iterator;
-        using iterator_category = std::random_access_iterator_tag;
-        // TODO: Wrong iterator category
-        using transform_iterator::operator++;
-};
+// class BucketIt : public boost::transform_iterator<BucketIter, HistogramData::iterator> {
+//     public:
+//         using transform_iterator::transform_iterator;
+//         using iterator_category = std::random_access_iterator_tag;
+//         // TODO: Wrong iterator category
+//         using transform_iterator::operator++;
+// };
 
 // TODO: doc, test, expects
 class Histogram {
@@ -61,17 +61,25 @@ public:
     void clear() { buckets.clear(); }
 
     // TODO: doc, test, expects
-    BucketIt begin() noexcept
+    auto begin() noexcept
     {
-        return BucketIt{            buckets.begin(),
-            {bucket_size}};
+        return boost::make_transform_iterator(            
+                buckets.begin(),
+BucketIter{bucket_size}
+                );
     }
 
     // TODO: doc, test, expects
-    BucketIt end() noexcept
+    auto end() noexcept
     {
-        return BucketIt{            buckets.end(),
-            {bucket_size}};
+        return boost::make_transform_iterator(            
+                buckets.end(),
+BucketIter{bucket_size}
+                );
+    }
+
+    auto operator[](int32 index) const {
+        return BucketIter{bucket_size}(*buckets.find(index));
     }
 
     auto size() const { return buckets.size(); }
@@ -82,9 +90,28 @@ private:
 };
 } // namespace angonoka::detail
 
+namespace  {
+
+using HistogramIt = decltype(std::declval<angonoka::detail::Histogram>().begin());
+} // namespace 
+
+namespace std {
+    template<>
+    struct iterator_traits<HistogramIt> {
+        using difference_type = iterator_traits<angonoka::detail::HistogramData::iterator>::difference_type;
+        using value_type = std::indirectly_readable_traits<HistogramIt>::value_type;
+        // using value_type = angonoka::detail::Bucket;
+        using pointer = void;
+        using reference = decltype(std::declval<HistogramIt&>()[0]);
+        using iterator_category = std::random_access_iterator_tag;
+        using iterator_concept = std::random_access_iterator_tag;
+    };
+} // namespace std
+
 namespace ranges {
     template<>
     constexpr bool enable_borrowed_range<angonoka::detail::Histogram> = true;
+    // constexpr bool random_access_range<angonoka::detail::Histogram> = true;
 } // namespace ranges
 
 TEST_CASE("histogram concepts")
@@ -95,13 +122,13 @@ TEST_CASE("histogram concepts")
 
 
     Histogram hist{42};
-    // ranges::begin(hist);
-    STATIC_REQUIRE(ranges::detail::_borrowed_range<Histogram>);
+    ranges::begin(hist);
+    // STATIC_REQUIRE(ranges::detail::_borrowed_range<Histogram>);
     // STATIC_REQUIRE(ranges::input_or_output_iterator<decltype(hist.begin())>);
-    // STATIC_REQUIRE(ranges::has_member_begin<Histogram>);
+    // STATIC_REQUIRE(ranges::_begin_::has_member_begin<Histogram>);
     // STATIC_REQUIRE(ranges::range<Histogram>);
     // STATIC_REQUIRE(ranges::sized_range<Histogram>);
-    // STATIC_REQUIRE(ranges::random_access_range<Histogram>);
+    STATIC_REQUIRE(ranges::random_access_range<Histogram>);
     STATIC_REQUIRE(requires(Histogram h) {
         {
             *h.begin()
@@ -110,5 +137,7 @@ TEST_CASE("histogram concepts")
     for(const auto& v : hist) {}
     hist.begin() == hist.end();
     auto i = hist.begin();
+    ranges::iter_reference_t<decltype(i)>::foo = 1; // >:(
+    // decltype(i[5])::foo = 1;
     STATIC_REQUIRE(std::same_as<decltype(i)&, decltype(++i)>);
 }
