@@ -8,20 +8,32 @@
 namespace angonoka::detail {
 namespace sn = boost::safe_numerics;
 using int32 = sn::safe<std::int_fast32_t>;
-// using int32 = std::int_fast32_t;
 
-// TODO: doc, test, expects
+/**
+    A histogram bucket.
+
+    @var count  Number of items in the bucket
+    @var low    Low threshold
+    @var middle Middle value
+    @var high   High threshold
+*/
 struct Bucket {
     int32 count, low, middle, high;
 
     operator int32() const { return count; }
 };
 
-// TODO: doc, test, expects
+/**
+    Histogram of integer values.
+*/
 class Histogram {
 public:
     using Data = boost::container::flat_map<int32, int32>;
-    // TODO: doc, test, expects
+    /**
+        Bucket iterator.
+
+        TODO: define out of class
+    */
     class Iterator {
     public:
         using difference_type = Data::const_iterator::difference_type;
