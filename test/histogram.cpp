@@ -28,19 +28,81 @@ struct Bucket {
 */
 class Histogram {
 public:
-    using Data = boost::container::flat_map<int32, int32>;
     /**
         Bucket iterator.
-
-        TODO: define out of class
     */
-    class Iterator {
+    class Iterator;
+
+    /**
+        Constructor.
+
+        TODO: expects
+
+        @param bucket_size Histogram bucket size
+    */
+    explicit Histogram(int32 bucket_size)
+        : bucket_size{bucket_size}
+    {
+    }
+
+    /**
+        Add a value to the histogram.
+
+        TODO: expects
+
+        @param value Value
+    */
+    void operator()(int32 value)
+    {
+        const int32 bucket = value / bucket_size;
+        buckets.try_emplace(bucket, 0).first->second += value;
+    }
+
+    /**
+        Reset the histogram to an empty state
+
+        TODO: expects
+    */
+    void clear() { buckets.clear(); }
+
+    /**
+        Number of non-empty buckets in the histogram.
+
+        TODO: expects
+    */
+    auto size() const { return buckets.size(); }
+
+    // TODO: doc, test, expects
+    Iterator begin() const noexcept
+    {
+        return {buckets.begin(), bucket_size};
+    }
+
+    // TODO: doc, test, expects
+    Iterator end() const noexcept
+    {
+        return {buckets.end(), bucket_size};
+    }
+
+    Bucket operator[](int32 index) const
+    {
+        return *Iterator{buckets.find(index), bucket_size};
+    }
+
+
+private:
+    using Buckets = boost::container::flat_map<int32, int32>;
+    int32 bucket_size;
+    Buckets buckets;
+};
+
+    class Histogram::Iterator {
     public:
-        using difference_type = Data::const_iterator::difference_type;
+        using difference_type = Buckets::const_iterator::difference_type;
         using value_type = Bucket;
 
         Iterator(
-            Data::const_iterator iter,
+            Buckets::const_iterator iter,
             int32 bucket_size) noexcept
             : iter{iter}
             , bucket_size{bucket_size}
@@ -133,10 +195,11 @@ public:
         }
 
     private:
-        Data::const_iterator iter;
+        Bucket::const_iterator iter;
         int32 bucket_size;
 
-        Bucket to_bucket(Data::const_reference v) const
+        // TODO: doc, test, expects
+        Bucket to_bucket(Buckets::const_reference v) const
         {
             return {
                 .count{v.second},
@@ -145,46 +208,6 @@ public:
                 .high{v.first + bucket_size}};
         }
     };
-
-    // TODO: doc, test, expects
-    explicit Histogram(int32 bucket_size)
-        : bucket_size{bucket_size}
-    {
-    }
-
-    // TODO: doc, test, expects
-    void operator()(int32 value)
-    {
-        const int32 bucket = value / bucket_size;
-        buckets.try_emplace(bucket, 0).first->second += value;
-    }
-
-    // TODO: doc, test, expects
-    void clear() { buckets.clear(); }
-
-    // TODO: doc, test, expects
-    Iterator begin() const noexcept
-    {
-        return Iterator{buckets.begin(), bucket_size};
-    }
-
-    // TODO: doc, test, expects
-    Iterator end() const noexcept
-    {
-        return Iterator{buckets.end(), bucket_size};
-    }
-
-    auto operator[](int32 index) const
-    {
-        return *Iterator{buckets.find(index), bucket_size};
-    }
-
-    auto size() const { return buckets.size(); }
-
-private:
-    int32 bucket_size;
-    Data buckets;
-};
 } // namespace angonoka::detail
 
 TEST_CASE("histogram concepts")
@@ -208,6 +231,7 @@ TEST_CASE("histogram concepts")
 
     auto it = hist.begin();
     Bucket bucket = *it;
+
     REQUIRE(bucket.low == 0);
     REQUIRE(bucket.middle == 20);
     REQUIRE(bucket.high == 40);
