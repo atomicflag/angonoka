@@ -36,56 +36,51 @@ public:
     /**
         Constructor.
 
-        TODO: expects
-
         @param bucket_size Histogram bucket size
     */
     explicit Histogram(int32 bucket_size)
         : bucket_size{bucket_size}
     {
+        Expects(bucket_size >= 1);
     }
 
     /**
         Add a value to the histogram.
 
-        TODO: expects
-
         @param value Value
     */
     void operator()(int32 value)
     {
+        Expects(bucket_size >= 1);
+        Expects(value >= 0);
+
         const int32 bucket = value / bucket_size;
         buckets.try_emplace(bucket, 0).first->second += value;
     }
 
     /**
         Reset the histogram to an empty state
-
-        TODO: expects
     */
     void clear() { buckets.clear(); }
 
     /**
         Number of non-empty buckets in the histogram.
-
-        TODO: expects
     */
     auto size() const { return buckets.size(); }
 
-    // TODO: doc, test, expects
+    bool empty() const { return buckets.empty(); }
     Iterator begin() const noexcept
     {
         return {buckets.begin(), bucket_size};
     }
-
-    // TODO: doc, test, expects
     Iterator end() const noexcept
     {
         return {buckets.end(), bucket_size};
     }
-
     Bucket operator[](int32 index) const
     {
+        Expects(!buckets.empty());
+
         return *Iterator{buckets.find(index), bucket_size};
     }
 
@@ -107,6 +102,7 @@ private:
             : iter{iter}
             , bucket_size{bucket_size}
         {
+            Expects(bucket_size >= 1);
         }
         Iterator() noexcept = default;
 
@@ -115,29 +111,24 @@ private:
         friend bool operator==(
             const Iterator& b,
             const Iterator& a) noexcept = default;
-
         Iterator& operator++() noexcept
         {
             ++iter;
             return *this;
         }
-
         Iterator operator++(int) noexcept
         {
             return {iter++, bucket_size};
         }
-
         Iterator& operator--() noexcept
         {
             --iter;
             return *this;
         }
-
         Iterator operator--(int) noexcept
         {
             return {iter--, bucket_size};
         }
-
         friend difference_type
         operator-(const Iterator& a, const Iterator& b) noexcept
         {
@@ -155,36 +146,30 @@ private:
         {
             return it + i;
         }
-
         friend Iterator
         operator-(const Iterator& it, difference_type i) noexcept
         {
             return {it.iter - i, it.bucket_size};
         }
-
         friend Iterator
         operator-(difference_type i, const Iterator& it) noexcept
         {
             return it - i;
         }
-
         Iterator& operator+=(difference_type i) noexcept
         {
             iter += i;
             return *this;
         }
-
         Iterator& operator-=(difference_type i) noexcept
         {
             iter -= i;
             return *this;
         }
-
         Bucket operator[](difference_type i) const noexcept
         {
             return to_bucket(iter[i]);
         }
-
         std::strong_ordering
         operator<=>(const Iterator& other) const noexcept
         {
@@ -198,9 +183,19 @@ private:
         Bucket::const_iterator iter;
         int32 bucket_size;
 
-        // TODO: doc, test, expects
+        /**
+            Make a bucket from Buckets key-value pair.
+
+            @param v Buckets key-value pair
+            
+            @return Histogram bucket.
+        */
         Bucket to_bucket(Buckets::const_reference v) const
         {
+            Expects(v.first >= 0);
+            Expects(v.second >= 0);
+            Expects(bucket_size >= 1);
+
             return {
                 .count{v.second},
                 .low{v.first},
