@@ -42,7 +42,7 @@ Bucket Histogram::operator[](int32 index) const
 }
 
 Histogram::Iterator::Iterator(
-    Buckets::const_iterator iter,
+    const Buckets::const_iterator& iter,
     int32 bucket_size) noexcept
     : iter{iter}
     , bucket_size{bucket_size}
@@ -128,8 +128,7 @@ auto Histogram::Iterator::operator-=(difference_type i) noexcept
     return *this;
 }
 
-Bucket
-Histogram::Iterator::operator[](difference_type i) const noexcept
+Bucket Histogram::Iterator::operator[](difference_type i) const
 {
     return to_bucket(iter[i]);
 }

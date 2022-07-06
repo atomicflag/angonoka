@@ -53,11 +53,11 @@ public:
     /**
         Number of non-empty buckets in the histogram.
     */
-    std::size_t size() const;
+    [[nodiscard]] std::size_t size() const;
 
-    bool empty() const;
-    Iterator begin() const noexcept;
-    Iterator end() const noexcept;
+    [[nodiscard]] bool empty() const;
+    [[nodiscard]] Iterator begin() const noexcept;
+    [[nodiscard]] Iterator end() const noexcept;
     Bucket operator[](int32 index) const;
 
 private:
@@ -72,7 +72,7 @@ public:
     using value_type = Bucket;
 
     Iterator(
-        Buckets::const_iterator iter,
+        const Buckets::const_iterator& iter,
         int32 bucket_size) noexcept;
     Iterator() noexcept;
 
@@ -97,7 +97,7 @@ public:
     operator-(difference_type i, const Iterator& it) noexcept;
     Iterator& operator+=(difference_type i) noexcept;
     Iterator& operator-=(difference_type i) noexcept;
-    Bucket operator[](difference_type i) const noexcept;
+    Bucket operator[](difference_type i) const;
     std::strong_ordering
     operator<=>(const Iterator& other) const noexcept;
 
@@ -112,6 +112,6 @@ private:
 
         @return Histogram bucket.
     */
-    Bucket to_bucket(Buckets::const_reference v) const;
+    [[nodiscard]] Bucket to_bucket(Buckets::const_reference v) const;
 };
 } // namespace angonoka::detail
