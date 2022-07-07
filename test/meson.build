@@ -27,22 +27,13 @@ base_test = executable(
     'cli/duration.cpp',
     'cli/schedule.cpp',
     'cli/predict.cpp',
+    'histogram.cpp',
     'stun/temperature.cpp'
   ],
   dependencies : [ base, test_deps ],
   cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
 )
 test('Unit tests', base_test)
-
-executable(
-  'histogram_test',
-  [
-    'main.cpp',
-    'histogram.cpp',
-  ],
-  dependencies : [ base, test_deps ],
-  cpp_args : ['-DCATCH_CONFIG_FAST_COMPILE'],
-)
 
 subdir('stun/stochastic_tunneling')
 subdir('predict')
