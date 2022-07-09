@@ -1,11 +1,8 @@
 #include <boost/container/flat_map.hpp>
-#include <boost/safe_numerics/safe_integer.hpp>
-#include <cstdint>
 #include <range/v3/range/concepts.hpp>
+#include "common.h"
 
 namespace angonoka::detail {
-namespace sn = boost::safe_numerics;
-using int32 = sn::safe<std::int_fast32_t>;
 
 /**
     A histogram bucket.
@@ -19,6 +16,9 @@ struct Bucket {
     int32 count, low, middle, high;
 
     operator int32() const noexcept { return count; }
+    auto operator<=>(const Bucket& other) const noexcept {
+        return count<=>other.count;
+    }
 };
 
 /**

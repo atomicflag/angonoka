@@ -29,7 +29,7 @@ using Quantiles = std::array<float, quantile_count>;
     @return Bin middle value in seconds.
 */
 std::chrono::seconds
-bin_middle_value(const Histogram& histogram, int bin)
+bin_middle_value(const detail::Histogram& histogram, int bin)
 {
     using std::chrono::seconds;
 
@@ -346,7 +346,7 @@ Simulation::operator=(Simulation&& other) noexcept = default;
 
 Simulation::~Simulation() noexcept = default;
 
-[[nodiscard]] float granularity(std::chrono::seconds makespan)
+[[nodiscard]] int32 granularity(std::chrono::seconds makespan)
 {
     using namespace std::chrono_literals;
     using std::chrono::days;
@@ -378,7 +378,7 @@ using angonoka::detail::Simulation;
 
     @return Histogram granularity in seconds.
 */
-[[nodiscard]] float parse_granularity(
+[[nodiscard]] int32 parse_granularity(
     const Project& config,
     const OptimizedSchedule& schedule)
 {
@@ -387,7 +387,7 @@ using angonoka::detail::Simulation;
     Expects(schedule.makespan >= 1s);
 
     if (config.bucket_size)
-        return static_cast<float>(config.bucket_size->count());
+        return config.bucket_size->count();
     return granularity(schedule.makespan);
 }
 
@@ -399,7 +399,7 @@ struct HistogramOp {
     gsl::not_null<const OptimizedSchedule*> schedule;
     stun::RandomUtils random{};
     Simulation sim{{.config{config}, .random{&random}}};
-    Histogram hist{{{1, 0.F, parse_granularity(*config, *schedule)}}};
+    detail::Histogram hist{parse_granularity(*config, *schedule)};
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
     static constexpr Quantiles probs
         = {0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
@@ -434,7 +434,7 @@ struct HistogramOp {
         quantile estimation accuracy improvement falls below the
         threshold.
     */
-    [[nodiscard]] Histogram operator()()
+    [[nodiscard]] detail::Histogram operator()()
     {
         Expects(quantiles.size() > 1);
 
@@ -454,7 +454,7 @@ struct HistogramOp {
 } // namespace
 
 namespace angonoka {
-[[nodiscard]] Histogram
+[[nodiscard]] detail::Histogram
 histogram(const Project& config, const OptimizedSchedule& schedule)
 {
     Expects(!config.tasks.empty());
@@ -463,7 +463,7 @@ histogram(const Project& config, const OptimizedSchedule& schedule)
     return HistogramOp{&config, &schedule}();
 }
 
-HistogramStats stats(const Histogram& histogram)
+HistogramStats stats(const detail::Histogram& histogram)
 {
     Expects(histogram.size() > 0);
 

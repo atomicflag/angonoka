@@ -86,7 +86,7 @@ private:
 
     @return Histogram bin width in seconds.
 */
-[[nodiscard]] float granularity(std::chrono::seconds makespan);
+[[nodiscard]] int32 granularity(std::chrono::seconds makespan);
 } // namespace angonoka::detail
 
 namespace angonoka {
@@ -98,7 +98,7 @@ namespace angonoka {
 
     @return Makespan histogram
 */
-[[nodiscard]] Histogram
+[[nodiscard]] detail::Histogram
 histogram(const Project& config, const OptimizedSchedule& schedule);
 
 /**
@@ -111,5 +111,5 @@ histogram(const Project& config, const OptimizedSchedule& schedule);
 
     @return A struct of percentile values.
 */
-HistogramStats stats(const Histogram& histogram);
+HistogramStats stats(const detail::Histogram& histogram);
 } // namespace angonoka

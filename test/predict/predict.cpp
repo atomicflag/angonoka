@@ -45,12 +45,12 @@ template <typename T> auto pop(auto& events)
 } // namespace
 
 namespace angonoka {
-[[nodiscard]] Histogram
+[[nodiscard]] detail::Histogram
 histogram(const Project&, const OptimizedSchedule&)
 {
-    return {};
+    return {42};
 }
-HistogramStats stats(const Histogram&)
+HistogramStats stats(const detail::Histogram&)
 {
     return {std::chrono::seconds{25}};
 }
