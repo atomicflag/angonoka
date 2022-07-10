@@ -1,5 +1,6 @@
 #include <boost/container/flat_map.hpp>
 #include <range/v3/range/concepts.hpp>
+#include <concepts>
 #include "common.h"
 
 namespace angonoka::detail {
@@ -12,11 +13,13 @@ namespace angonoka::detail {
     @var middle Middle value
     @var high   High threshold
 */
+// TODO: rename to Bucket
 struct Bucket {
     int32 count, low, middle, high;
 
-    operator int32() const noexcept { return count; }
-    auto operator<=>(const Bucket& other) const noexcept {
+    constexpr operator int32() const noexcept { return count; }
+    constexpr operator auto std::integral() const noexcept { return count; }
+    constexpr auto operator<=>(const Bucket& other) const noexcept {
         return count<=>other.count;
     }
 };

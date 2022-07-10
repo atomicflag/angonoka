@@ -9,6 +9,7 @@
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/transform.hpp>
+#include <range/v3/range/operations.hpp>
 
 namespace {
 using namespace boost::accumulators;
@@ -19,28 +20,6 @@ using RollingMeanAcc
 using namespace angonoka;
 constexpr auto quantile_count = 5;
 using Quantiles = std::array<float, quantile_count>;
-
-/**
-    Return the middle value of the histogram bin.
-
-    @param histogram Histogram of simulation makespans
-    @param bin       Index of the bin
-
-    @return Bin middle value in seconds.
-*/
-std::chrono::seconds
-bin_middle_value(const detail::Histogram& histogram, int bin)
-{
-    using std::chrono::seconds;
-
-    Expects(bin >= 0);
-    Expects(histogram.size() > 0);
-
-    if (bin >= std::ssize(histogram))
-        bin = gsl::narrow<int>(std::ssize(histogram) - 1);
-    const auto center = histogram.axis().bin(bin).center();
-    return seconds{gsl::narrow<seconds::rep>(std::round(center))};
-}
 
 /**
     Mean absolute percentage error of the histogram quantiles.
@@ -469,7 +448,7 @@ HistogramStats stats(const detail::Histogram& histogram)
 
     const float total = ranges::accumulate(histogram, 0.F);
     HistogramStats stats;
-    float count = 0;
+    float count = 0.F;
     int bin = 0;
 
     // Accumulates histogram bins until the threshold is reached
@@ -477,11 +456,12 @@ HistogramStats stats(const detail::Histogram& histogram)
         Expects(threshold >= 0.F);
 
         for (; bin < std::ssize(histogram); ++bin) {
-            count += static_cast<float>(histogram[bin]);
+            const auto bucket = histogram[bin];
+            count += bucket;
             if (count >= threshold)
-                return bin_middle_value(histogram, bin++);
+                return bucket.middle;
         }
-        return bin_middle_value(histogram, bin);
+        return ranges::back(histogram).middle;
     };
 
     stats.p25 = accumulate_until(total * 0.25F); // NOLINT
