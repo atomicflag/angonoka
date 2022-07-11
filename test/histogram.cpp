@@ -5,6 +5,7 @@
 TEST_CASE("histogram concepts")
 {
     using namespace angonoka::detail;
+    using angonoka::int32;
 
     STATIC_REQUIRE(ranges::sized_range<Histogram>);
     STATIC_REQUIRE(ranges::random_access_range<Histogram>);
@@ -23,29 +24,29 @@ TEST_CASE("histogram concepts")
 
     auto it = hist.begin();
     {
-        Bucket bucket = *it;
+        Bin bin = *it;
 
-        REQUIRE(bucket.low == 0);
-        REQUIRE(bucket.middle == 20);
-        REQUIRE(bucket.high == 40);
-        REQUIRE(static_cast<int32>(bucket) == 1);
-        REQUIRE(bucket.count == 1);
+        REQUIRE(bin.low == 0);
+        REQUIRE(bin.middle == 20);
+        REQUIRE(bin.high == 40);
+        REQUIRE(bin == 1);
+        REQUIRE(static_cast<int>(bin) == 1);
+        REQUIRE(bin.count == 1);
     }
 
     ++it;
 
     {
-        Bucket bucket = *it;
+        Bin bin = *it;
 
-        REQUIRE(bucket.low == 40);
-        REQUIRE(bucket.middle == 60);
-        REQUIRE(bucket.high == 80);
-        REQUIRE(static_cast<int32>(bucket) == 4);
-        REQUIRE(bucket.count == 4);
+        REQUIRE(bin.low == 40);
+        REQUIRE(bin.middle == 60);
+        REQUIRE(bin.high == 80);
+        REQUIRE(static_cast<int>(bin) == 4);
+        REQUIRE(bin.count == 4);
     }
 
-    // TODO: test implicit conversion to integral types
-
-    REQUIRE(
-        ranges::accumulate(hist, int32{0}, std::plus<int32>{}) == 7);
+    // REQUIRE(
+    //     ranges::accumulate(hist, int32{0}, std::plus<int32>{}) == 7);
+    REQUIRE( ranges::accumulate(hist, 0.F) == 7.F);
 }

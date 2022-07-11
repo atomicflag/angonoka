@@ -69,10 +69,10 @@ TEST_CASE("histogram")
         REQUIRE(h[max_bin].middle == 7230);
     }
 
-    SECTION("bucket size")
+    SECTION("bin size")
     {
         auto config = load_text(text);
-        config.bucket_size = 123s;
+        config.bin_size = 123s;
         const OptimizedSchedule schedule{
             .schedule{{0, 0}, {1, 1}},
             .makespan{7230s}};

@@ -37,15 +37,15 @@ TEST_CASE("JSON prediction")
         const auto json = to_json(hist);
         using j = nlohmann::json;
 
-        REQUIRE(json["bucket_size"] == 10);
-        REQUIRE(json["buckets"].size() == 4);
-        REQUIRE(json["buckets"][0] == j{50, 1});
-        REQUIRE(json["buckets"][1] == j{60, 3});
-        REQUIRE(json["buckets"][2] == j{70, 1});
-        REQUIRE(json["buckets"][3] == j{90, 2});
+        REQUIRE(json["bin_size"] == 10);
+        REQUIRE(json["bins"].size() == 4);
+        REQUIRE(json["bins"][0] == j{50, 1});
+        REQUIRE(json["bins"][1] == j{60, 3});
+        REQUIRE(json["bins"][2] == j{70, 1});
+        REQUIRE(json["bins"][3] == j{90, 2});
     }
 
-    SECTION("bucket size rounding bug")
+    SECTION("bin size rounding bug")
     {
         Histogram hist{{{1, 0.F, 3599.9F}}};
 
@@ -53,7 +53,7 @@ TEST_CASE("JSON prediction")
         hist(3700);
         const auto json = to_json(hist);
 
-        REQUIRE(json["bucket_size"] == 3600);
-        REQUIRE(json["buckets"][1][0] == 3600);
+        REQUIRE(json["bin_size"] == 3600);
+        REQUIRE(json["bins"][1][0] == 3600);
     }
 }

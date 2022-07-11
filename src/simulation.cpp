@@ -348,9 +348,10 @@ namespace {
 using namespace angonoka;
 using angonoka::detail::granularity;
 using angonoka::detail::Simulation;
+using angonoka::detail::Histogram;
 
 /**
-    Pick a bucket size for the histogram.
+    Pick a bin size for the histogram.
 
     @param config   Project configuration
     @param schedule Optimized schedule
@@ -365,8 +366,8 @@ using angonoka::detail::Simulation;
 
     Expects(schedule.makespan >= 1s);
 
-    if (config.bucket_size)
-        return config.bucket_size->count();
+    if (config.bin_size)
+        return config.bin_size->count();
     return granularity(schedule.makespan);
 }
 
@@ -378,7 +379,7 @@ struct HistogramOp {
     gsl::not_null<const OptimizedSchedule*> schedule;
     stun::RandomUtils random{};
     Simulation sim{{.config{config}, .random{&random}}};
-    detail::Histogram hist{parse_granularity(*config, *schedule)};
+    Histogram hist{parse_granularity(*config, *schedule)};
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
     static constexpr Quantiles probs
         = {0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
@@ -413,7 +414,7 @@ struct HistogramOp {
         quantile estimation accuracy improvement falls below the
         threshold.
     */
-    [[nodiscard]] detail::Histogram operator()()
+    [[nodiscard]] Histogram operator()()
     {
         Expects(quantiles.size() > 1);
 
@@ -456,10 +457,10 @@ HistogramStats stats(const detail::Histogram& histogram)
         Expects(threshold >= 0.F);
 
         for (; bin < std::ssize(histogram); ++bin) {
-            const auto bucket = histogram[bin];
-            count += bucket;
+            const auto bin = histogram[bin];
+            count += bin;
             if (count >= threshold)
-                return bucket.middle;
+                return bin.middle;
         }
         return ranges::back(histogram).middle;
     };
