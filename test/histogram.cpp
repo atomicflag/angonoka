@@ -46,7 +46,5 @@ TEST_CASE("histogram concepts")
         REQUIRE(bin.count == 4);
     }
 
-    // REQUIRE(
-    //     ranges::accumulate(hist, int32{0}, std::plus<int32>{}) == 7);
-    REQUIRE( ranges::accumulate(hist, 0.F) == 7.F);
+    REQUIRE(ranges::accumulate(hist, 0.F) == 7.F);
 }

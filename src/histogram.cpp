@@ -52,10 +52,7 @@ Histogram::Iterator::Iterator(
 
 Histogram::Iterator::Iterator() noexcept = default;
 
-Bin Histogram::Iterator::operator*() const
-{
-    return to_bin(*iter);
-}
+Bin Histogram::Iterator::operator*() const { return to_bin(*iter); }
 
 auto Histogram::Iterator::operator++() noexcept -> Iterator&
 {
@@ -141,8 +138,7 @@ Histogram::Iterator::operator<=>(const Iterator& other) const noexcept
     return std::strong_ordering::greater;
 }
 
-Bin
-Histogram::Iterator::to_bin(Bins::const_reference v) const
+Bin Histogram::Iterator::to_bin(Bins::const_reference v) const
 {
     Expects(v.first >= 0);
     Expects(v.second >= 0);

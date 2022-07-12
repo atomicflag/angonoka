@@ -1,7 +1,8 @@
-#include <boost/container/flat_map.hpp>
-#include <range/v3/range/concepts.hpp>
-#include <concepts>
 #include "common.h"
+#include <boost/container/flat_map.hpp>
+#include <concepts>
+#include <gsl/gsl-lite.hpp>
+#include <range/v3/range/concepts.hpp>
 
 namespace angonoka::detail {
 
@@ -14,26 +15,46 @@ namespace angonoka::detail {
     @var high   High threshold
 */
 struct Bin {
+    using base_value = sn::base_type<int32>::type;
+
     int32 count, low, middle, high;
 
-    // TODO: not sure which functions are actually needed
-    // constexpr operator int32() const noexcept { return count; }
-    template<std::integral T>
-    [[nodiscard]] constexpr operator T() const noexcept { return static_cast<T>(base_value(count)); }
-
-    [[nodiscard]] constexpr auto operator<=>(const Bin& other) const noexcept {
-        return base_value(count)<=>base_value(other.count);
+    constexpr operator int32() const noexcept { return count; }
+    template <std::convertible_to<base_value> T>
+    [[nodiscard]] constexpr operator T() const noexcept
+    {
+        return gsl::narrow<std::remove_cvref_t<T>>(base_value(count));
     }
 
-    template<std::integral T>
-    [[nodiscard]] constexpr bool operator==(const T& other) const noexcept { return base_value(count) == other; }
+    [[nodiscard]] constexpr auto
+    operator<=>(const Bin& other) const noexcept
+    {
+        return base_value(count) <=> base_value(other.count);
+    }
 
-    // TODO: ffs ranges thinks this isn't indirectly invokable with ranges::plus
-    template<std::integral T>
-    [[nodiscard]] friend constexpr auto operator+(const Bin&  bin, const T& i) noexcept { return base_value(bin.count) + i; }
+    template <std::convertible_to<base_value> T>
+    [[nodiscard]] constexpr bool
+    operator==(const T& other) const noexcept
+    {
+        return gsl::narrow<std::remove_cvref_t<T>>(base_value(count))
+            == other;
+    }
 
-    template<std::integral T>
-    [[nodiscard]] friend constexpr auto operator+(const T& i, const Bin&  bin) noexcept { return bin+i; }
+    template <std::convertible_to<base_value> T>
+    [[nodiscard]] friend constexpr auto
+    operator+(const Bin& bin, T&& i) noexcept
+    {
+        return gsl::narrow<std::remove_cvref_t<T>>(
+                   base_value(bin.count))
+            + std::forward<T>(i);
+    }
+
+    template <std::convertible_to<base_value> T>
+    [[nodiscard]] friend constexpr auto
+    operator+(T&& i, const Bin& bin) noexcept
+    {
+        return bin + std::forward<T>(i);
+    }
 };
 
 /**

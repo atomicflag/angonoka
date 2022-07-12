@@ -1,5 +1,6 @@
 #pragma once
 
+#include "histogram.h"
 #include "project.h"
 #include "stun/schedule.h"
 #include <boost/variant2/variant.hpp>
@@ -8,7 +9,6 @@
 #include <memory>
 #include <readerwriterqueue/readerwriterqueue.h>
 #include <tuple>
-#include "histogram.h"
 
 namespace angonoka {
 template <typename... Ts>

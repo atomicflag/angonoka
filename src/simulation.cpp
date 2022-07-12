@@ -8,8 +8,8 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/numeric/accumulate.hpp>
-#include <range/v3/view/transform.hpp>
 #include <range/v3/range/operations.hpp>
+#include <range/v3/view/transform.hpp>
 
 namespace {
 using namespace boost::accumulators;
@@ -347,8 +347,8 @@ Simulation::~Simulation() noexcept = default;
 namespace {
 using namespace angonoka;
 using angonoka::detail::granularity;
-using angonoka::detail::Simulation;
 using angonoka::detail::Histogram;
+using angonoka::detail::Simulation;
 
 /**
     Pick a bin size for the histogram.
@@ -366,8 +366,7 @@ using angonoka::detail::Histogram;
 
     Expects(schedule.makespan >= 1s);
 
-    if (config.bin_size)
-        return config.bin_size->count();
+    if (config.bin_size) return config.bin_size->count();
     return granularity(schedule.makespan);
 }
 
@@ -459,8 +458,7 @@ HistogramStats stats(const detail::Histogram& histogram)
         for (; bin < std::ssize(histogram); ++bin) {
             const auto bin = histogram[bin];
             count += bin;
-            if (count >= threshold)
-                return bin.middle;
+            if (count >= threshold) return bin.middle;
         }
         return ranges::back(histogram).middle;
     };

@@ -73,8 +73,8 @@ nlohmann::json to_json(const Histogram& histogram)
     Expects(histogram.size() >= 1);
 
     nlohmann::json bins;
-    for(auto&& bin : histogram) {
-        if(bin == 0) continue;
+    for (auto&& bin : histogram) {
+        if (bin == 0) continue;
         bins.emplace_back() = {bin.low, static_cast<int>(bin)};
     }
     // TODO: Add a proper bin_size member function
@@ -90,8 +90,7 @@ Project parse_config(const Options& options)
     try {
         auto config = load_file(options.filename);
         if (options.bin_size) {
-            config.bin_size
-                = std::chrono::seconds{*options.bin_size};
+            config.bin_size = std::chrono::seconds{*options.bin_size};
         }
         print(options, "OK\n");
         return config;
