@@ -75,8 +75,7 @@ test/functional:
 .PHONY: ninja
 ninja: build/build.ninja
 	$(BUILD_ENV)
-	# TODO: revert this before merging
-	ninja test/angonoka_test.p/histogram.cpp.o
+	ninja
 
 .PHONY: debug
 debug: MESON_ARGS=--buildtype debug \

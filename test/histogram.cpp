@@ -2,7 +2,7 @@
 #include <catch2/catch.hpp>
 #include <range/v3/numeric/accumulate.hpp>
 
-TEST_CASE("histogram concepts")
+TEST_CASE("Histogram basic operations")
 {
     using namespace angonoka::detail;
     using angonoka::int32;

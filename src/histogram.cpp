@@ -38,7 +38,7 @@ Bin Histogram::operator[](int32 index) const
 {
     Expects(!bins.empty());
 
-    return *Iterator{bins.find(index), bin_size};
+    return *Iterator{std::next(bins.begin(), index), bin_size};
 }
 
 Histogram::Iterator::Iterator(

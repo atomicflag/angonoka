@@ -38,9 +38,9 @@ using Quantiles = std::array<float, quantile_count>;
 
     @return Error value, smaller value means higher accuracy
 */
-float mean_absolute_pct_error(
+[[nodiscard]] float mean_absolute_pct_error(
     const PSquareAcc& acc,
-    Quantiles& quantiles)
+    Quantiles& quantiles) noexcept
 {
     Expects(!quantiles.empty());
 
@@ -57,6 +57,12 @@ float mean_absolute_pct_error(
     Ensures(error >= 0.F);
 
     return error / gsl::narrow<float>(quantiles.size());
+}
+
+// TODO: doc, test, expects
+[[nodiscard]] std::chrono::seconds to_seconds(int32 value) noexcept
+{
+    return std::chrono::seconds{base_value(value)};
 }
 } // namespace
 
@@ -444,23 +450,28 @@ histogram(const Project& config, const OptimizedSchedule& schedule)
 
 HistogramStats stats(const detail::Histogram& histogram)
 {
+    using ranges::back;
+
     Expects(histogram.size() > 0);
 
     const float total = ranges::accumulate(histogram, 0.F);
     HistogramStats stats;
     float count = 0.F;
-    int bin = 0;
+    int bin_index = 0;
 
     // Accumulates histogram bins until the threshold is reached
     const auto accumulate_until = [&](auto threshold) {
         Expects(threshold >= 0.F);
 
-        for (; bin < std::ssize(histogram); ++bin) {
-            const auto bin = histogram[bin];
-            count += bin;
-            if (count >= threshold) return bin.middle;
+        for (; bin_index < std::ssize(histogram); ++bin_index) {
+            const auto bin = histogram[bin_index];
+            count += static_cast<float>(bin);
+            if (count >= threshold) {
+                ++bin_index;
+                return to_seconds(bin.middle);
+            }
         }
-        return ranges::back(histogram).middle;
+        return to_seconds(back(histogram).middle);
     };
 
     stats.p25 = accumulate_until(total * 0.25F); // NOLINT

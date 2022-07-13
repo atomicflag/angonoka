@@ -12,6 +12,7 @@ histogram_test = executable(
     root_dir / 'src/config/load.cpp',
     root_dir / 'src/config/tasks.cpp',
     root_dir / 'src/exceptions.cpp',
+    root_dir / 'src/histogram.cpp',
   ],
   dependencies : [ test_deps, dependencies ],
   include_directories : ['.', include],

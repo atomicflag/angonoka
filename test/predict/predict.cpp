@@ -48,7 +48,7 @@ namespace angonoka {
 [[nodiscard]] detail::Histogram
 histogram(const Project&, const OptimizedSchedule&)
 {
-    return {42};
+    return detail::Histogram{42};
 }
 HistogramStats stats(const detail::Histogram&)
 {

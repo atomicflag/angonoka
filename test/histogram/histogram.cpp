@@ -61,9 +61,9 @@ TEST_CASE("histogram")
         const int max_bin = static_cast<int>(
             std::distance(h.begin(), ranges::max_element(h)));
 
-        REQUIRE(h.size() == 121);
-        REQUIRE(h[0].low == 0);
-        REQUIRE(h[0].high == 60);
+        REQUIRE(h.size() == 1);
+        REQUIRE(h[0].low == 7200);
+        REQUIRE(h[0].high == 7260);
         // Makespan should be 2 hours,
         // falls into 7200-7299 bin
         REQUIRE(h[max_bin].middle == 7230);
@@ -78,7 +78,7 @@ TEST_CASE("histogram")
             .makespan{7230s}};
         const auto h = histogram(config, schedule);
 
-        REQUIRE(h[0].high == 123);
+        REQUIRE(h[0].high == 7257);
     }
 }
 
@@ -89,7 +89,7 @@ TEST_CASE("histogram stats")
 
     SECTION("regular")
     {
-        Histogram hist{10};
+        detail::Histogram hist{10};
 
         hist(1);
         hist(101);
@@ -112,15 +112,15 @@ TEST_CASE("histogram stats")
 
     SECTION("rounding bug")
     {
-        Histogram hist{11};
+        detail::Histogram hist{11};
 
         hist(1);
 
         const auto s = stats(hist);
-        REQUIRE(s.p25 == 6s);
-        REQUIRE(s.p50 == 6s);
-        REQUIRE(s.p75 == 6s);
-        REQUIRE(s.p95 == 6s);
-        REQUIRE(s.p99 == 6s);
+        REQUIRE(s.p25 == 5s);
+        REQUIRE(s.p50 == 5s);
+        REQUIRE(s.p75 == 5s);
+        REQUIRE(s.p95 == 5s);
+        REQUIRE(s.p99 == 5s);
     }
 }
