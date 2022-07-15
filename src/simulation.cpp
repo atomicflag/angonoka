@@ -59,9 +59,17 @@ using Quantiles = std::array<float, quantile_count>;
     return error / gsl::narrow<float>(quantiles.size());
 }
 
-// TODO: doc, test, expects
+/**
+    Convert Boost's safe numerics to seconds.
+
+    @param value Safe numeric value
+
+    @return Value in seconds
+*/
 [[nodiscard]] std::chrono::seconds to_seconds(int32 value) noexcept
 {
+    Expects(value >= 0);
+
     return std::chrono::seconds{base_value(value)};
 }
 } // namespace
