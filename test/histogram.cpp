@@ -21,6 +21,7 @@ TEST_CASE("Histogram basic operations")
     hist(80);
 
     REQUIRE(hist.size() == 3);
+    REQUIRE(hist.bin_size() == 40);
 
     auto it = hist.begin();
     {

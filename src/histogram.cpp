@@ -4,41 +4,42 @@
 namespace angonoka::detail {
 
 Histogram::Histogram(int32 bin_size)
-    : bin_size{bin_size}
+    : bin_size_{bin_size}
 {
     Expects(bin_size >= 1);
 }
 
 void Histogram::operator()(int32 value)
 {
-    Expects(bin_size >= 1);
+    Expects(bin_size_ >= 1);
     Expects(value >= 0);
 
-    const int32 bin = value / bin_size;
+    const int32 bin = value / bin_size_;
     ++bins.try_emplace(bin, 0).first->second;
 }
 
 void Histogram::clear() { bins.clear(); }
 
 std::size_t Histogram::size() const { return bins.size(); }
+int32 Histogram::bin_size() const { return bin_size_; }
 
 bool Histogram::empty() const { return bins.empty(); }
 
 auto Histogram::begin() const noexcept -> Iterator
 {
-    return {bins.begin(), bin_size};
+    return {bins.begin(), bin_size_};
 }
 
 auto Histogram::end() const noexcept -> Iterator
 {
-    return {bins.end(), bin_size};
+    return {bins.end(), bin_size_};
 }
 
 Bin Histogram::operator[](int32 index) const
 {
     Expects(!bins.empty());
 
-    return *Iterator{std::next(bins.begin(), index), bin_size};
+    return *Iterator{std::next(bins.begin(), index), bin_size_};
 }
 
 Histogram::Iterator::Iterator(

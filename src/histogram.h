@@ -91,6 +91,13 @@ public:
     */
     [[nodiscard]] std::size_t size() const;
 
+    /**
+        Histogram bin size.
+
+        @return Bin size
+    */
+    [[nodiscard]] int32 bin_size() const;
+
     [[nodiscard]] bool empty() const;
     [[nodiscard]] Iterator begin() const noexcept;
     [[nodiscard]] Iterator end() const noexcept;
@@ -98,7 +105,7 @@ public:
 
 private:
     using Bins = boost::container::flat_map<int32, int32>;
-    int32 bin_size;
+    int32 bin_size_;
     Bins bins;
 };
 

@@ -76,11 +76,11 @@ nlohmann::json to_json(const Histogram& histogram)
     for (auto&& bin : histogram) {
         if (bin == 0) continue;
         bins.emplace_back()
-            = {base_value(bin.low), static_cast<int>(bin)};
+            = {static_cast<int>(bin.low), static_cast<int>(bin)};
     }
-    // TODO: Add a proper bin_size member function
-    const auto bin_size = histogram[0].high - histogram[0].low;
-    return {{"bin_size", base_value(bin_size)}, {"bins", bins}};
+    return {
+        {"bin_size", static_cast<int>(histogram.bin_size())},
+        {"bins", bins}};
 }
 } // namespace angonoka::cli::detail
 
