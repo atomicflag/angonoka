@@ -9,14 +9,14 @@
     items-end;
 }
 
-.bucket {
+.bin {
   @apply bg-blue-400
     grow
     relative;
   min-width: 1px;
 }
 
-.bucketThreshold {
+.binThreshold {
   @apply bg-blue-800;
 }
 
