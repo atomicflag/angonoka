@@ -21,7 +21,7 @@ struct Bin {
 
     constexpr operator int32() const noexcept { return count; }
     template <std::convertible_to<base_value> T>
-    [[nodiscard]] constexpr operator T() const noexcept
+    [[nodiscard]] constexpr operator T() const
     {
         return gsl::narrow<std::remove_cvref_t<T>>(base_value(count));
     }
@@ -33,8 +33,7 @@ struct Bin {
     }
 
     template <std::convertible_to<base_value> T>
-    [[nodiscard]] constexpr bool
-    operator==(const T& other) const noexcept
+    [[nodiscard]] constexpr bool operator==(const T& other) const
     {
         return gsl::narrow<std::remove_cvref_t<T>>(base_value(count))
             == other;
@@ -42,7 +41,7 @@ struct Bin {
 
     template <std::convertible_to<base_value> T>
     [[nodiscard]] friend constexpr auto
-    operator+(const Bin& bin, T&& i) noexcept
+    operator+(const Bin& bin, T&& i)
     {
         return gsl::narrow<std::remove_cvref_t<T>>(
                    base_value(bin.count))
@@ -51,7 +50,7 @@ struct Bin {
 
     template <std::convertible_to<base_value> T>
     [[nodiscard]] friend constexpr auto
-    operator+(T&& i, const Bin& bin) noexcept
+    operator+(T&& i, const Bin& bin)
     {
         return bin + std::forward<T>(i);
     }

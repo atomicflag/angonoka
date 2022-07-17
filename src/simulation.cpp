@@ -38,9 +38,8 @@ using Quantiles = std::array<float, quantile_count>;
 
     @return Error value, smaller value means higher accuracy
 */
-[[nodiscard]] float mean_absolute_pct_error(
-    const PSquareAcc& acc,
-    Quantiles& quantiles) noexcept
+[[nodiscard]] float
+mean_absolute_pct_error(const PSquareAcc& acc, Quantiles& quantiles)
 {
     Expects(!quantiles.empty());
 
