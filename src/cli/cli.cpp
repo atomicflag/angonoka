@@ -72,18 +72,15 @@ nlohmann::json to_json(const Histogram& histogram)
 {
     Expects(histogram.size() >= 1);
 
-    nlohmann::json buckets;
-    for (int i{0}; i < std::ssize(histogram); ++i) {
-        const auto val = static_cast<int>(histogram[i]);
-        if (val == 0) continue;
-        const auto bin = histogram.axis(0).bin(i);
-        // cursed but succinct innit?
-        buckets.emplace_back()
-            = {static_cast<int>(std::round(bin.lower())), val};
+    nlohmann::json bins;
+    for (auto&& bin : histogram) {
+        if (bin == 0) continue;
+        bins.emplace_back()
+            = {static_cast<int>(bin.low), static_cast<int>(bin)};
     }
-    const auto bucket_size = static_cast<int>(
-        std::round(histogram.axis(0).begin()->width()));
-    return {{"bucket_size", bucket_size}, {"buckets", buckets}};
+    return {
+        {"bin_size", static_cast<int>(histogram.bin_size())},
+        {"bins", bins}};
 }
 } // namespace angonoka::cli::detail
 
@@ -93,9 +90,8 @@ Project parse_config(const Options& options)
     print(options, "Parsing configuration... ");
     try {
         auto config = load_file(options.filename);
-        if (options.bucket_size) {
-            config.bucket_size
-                = std::chrono::seconds{*options.bucket_size};
+        if (options.bin_size) {
+            config.bin_size = std::chrono::seconds{*options.bin_size};
         }
         print(options, "OK\n");
         return config;

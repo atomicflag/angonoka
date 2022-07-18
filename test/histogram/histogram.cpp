@@ -44,11 +44,11 @@ TEST_CASE("histogram")
         using angonoka::detail::granularity;
         using std::chrono::days;
 
-        REQUIRE(granularity(1h) == 60.F);
-        REQUIRE(granularity(4h) == 60.F);
-        REQUIRE(granularity(5h) == 3600.F);
-        REQUIRE(granularity(days{12}) == 3600.F);
-        REQUIRE(granularity(days{13}) == 86400.F);
+        REQUIRE(granularity(1h) == 60);
+        REQUIRE(granularity(4h) == 60);
+        REQUIRE(granularity(5h) == 3600);
+        REQUIRE(granularity(days{12}) == 3600);
+        REQUIRE(granularity(days{13}) == 86400);
     }
 
     SECTION("basic histogram")
@@ -61,24 +61,24 @@ TEST_CASE("histogram")
         const int max_bin = static_cast<int>(
             std::distance(h.begin(), ranges::max_element(h)));
 
-        REQUIRE(h.size() == 121);
-        REQUIRE(h.axis().bin(0).lower() == 0.F);
-        REQUIRE(h.axis().bin(0).upper() == 60.F);
+        REQUIRE(h.size() == 1);
+        REQUIRE(h[0].low == 7200);
+        REQUIRE(h[0].high == 7260);
         // Makespan should be 2 hours,
         // falls into 7200-7299 bin
-        REQUIRE(h.axis().bin(max_bin).center() == 7230.F);
+        REQUIRE(h[max_bin].middle == 7230);
     }
 
-    SECTION("bucket size")
+    SECTION("bin size")
     {
         auto config = load_text(text);
-        config.bucket_size = 123s;
+        config.bin_size = 123s;
         const OptimizedSchedule schedule{
             .schedule{{0, 0}, {1, 1}},
             .makespan{7230s}};
         const auto h = histogram(config, schedule);
 
-        REQUIRE(h.axis().bin(0).upper() == 123.F);
+        REQUIRE(h[0].high == 7257);
     }
 }
 
@@ -89,17 +89,17 @@ TEST_CASE("histogram stats")
 
     SECTION("regular")
     {
-        Histogram hist{{{1, 0.F, 10.F}}};
+        detail::Histogram hist{10};
 
-        hist(1.F);
-        hist(101.F);
-        hist(101.F);
-        hist(201.F);
-        hist(201.F);
-        hist(201.F);
-        hist(301.F);
-        hist(301.F);
-        hist(401.F);
+        hist(1);
+        hist(101);
+        hist(101);
+        hist(201);
+        hist(201);
+        hist(201);
+        hist(301);
+        hist(301);
+        hist(401);
 
         const auto s = stats(hist);
 
@@ -112,15 +112,15 @@ TEST_CASE("histogram stats")
 
     SECTION("rounding bug")
     {
-        Histogram hist{{{1, 0.F, 11.F}}};
+        detail::Histogram hist{11};
 
-        hist(1.F);
+        hist(1);
 
         const auto s = stats(hist);
-        REQUIRE(s.p25 == 6s);
-        REQUIRE(s.p50 == 6s);
-        REQUIRE(s.p75 == 6s);
-        REQUIRE(s.p95 == 6s);
-        REQUIRE(s.p99 == 6s);
+        REQUIRE(s.p25 == 5s);
+        REQUIRE(s.p50 == 5s);
+        REQUIRE(s.p75 == 5s);
+        REQUIRE(s.p95 == 5s);
+        REQUIRE(s.p99 == 5s);
     }
 }

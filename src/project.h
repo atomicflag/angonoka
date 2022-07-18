@@ -157,14 +157,14 @@ struct OptimizationParameters {
     @var agents         Agents that perform tasks
     @var tasks          All of the tasks
     @var opt_params     Optimization parameters
-    @var bucket_size    Histogram bucket size
+    @var bin_size    Histogram bin size
 */
 struct Project {
     Groups groups;
     Agents agents;
     Tasks tasks;
     OptimizationParameters opt_params;
-    std::optional<std::chrono::seconds> bucket_size;
+    std::optional<std::chrono::seconds> bin_size;
 };
 
 /**

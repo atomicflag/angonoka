@@ -65,8 +65,8 @@ def test_prints_help():
       Options:
         -o,--output=time_estimation.json
                                     Output the histogram to a file
-        --histogram-bucket-size INT:POSITIVE
-                                    Histogram bucket size in seconds
+        --histogram-bin-size INT:POSITIVE
+                                    Histogram bin size in seconds
 
     Subcommands:
       schedule                    Output the schedule in JSON format.
@@ -78,13 +78,13 @@ def test_prints_help():
 def test_version():
     code, cout, cerr = run("--version")
     assert code == 0
-    assert cout == "angonoka version 0.13.0\n"
+    assert cout == "angonoka version 0.14.0\n"
 
 
 def test_version_with_file():
     code, cout, cerr = run("--version", "file.yaml")
     assert code == 0
-    assert cout == "angonoka version 0.13.0\n"
+    assert cout == "angonoka version 0.14.0\n"
 
 
 def test_invalid_option():
@@ -101,7 +101,7 @@ def test_invalid_option():
 def test_invalid_option_with_version():
     code, cout, cerr = run("--asdf", "--version")
     assert code == 0
-    assert cout == "angonoka version 0.13.0\n"
+    assert cout == "angonoka version 0.14.0\n"
 
 
 def test_basic_non_tty_output():
@@ -479,9 +479,9 @@ def test_histogram():
             "task": "Task",
         }
     ]
-    assert j["histogram"]["bucket_size"] == 60
-    assert 700 < j["histogram"]["buckets"][0][0] < 1200
-    assert 4500 < j["histogram"]["buckets"][-1][0] < 5500
+    assert j["histogram"]["bin_size"] == 60
+    assert 700 < j["histogram"]["bins"][0][0] < 1200
+    assert 4500 < j["histogram"]["bins"][-1][0] < 5500
 
 @pytest.mark.parametrize(
     "value",
@@ -489,16 +489,16 @@ def test_histogram():
         ("0"),("-1")
     ],
 )
-def test_invalid_bucket_size(value):
-    code, cout, cerr = run("--no-color", "--histogram-bucket-size",value, "tasks.yml")
+def test_invalid_bin_size(value):
+    code, cout, cerr = run("--no-color", "--histogram-bin-size",value, "tasks.yml")
     assert code == 105
-    assert '--histogram-bucket-size' in cerr
+    assert '--histogram-bin-size' in cerr
 
-def test_bucket_size():
-    code, cout, cerr = run("--no-color", "--histogram-bucket-size","123","tasks.yml")
+def test_bin_size():
+    code, cout, cerr = run("--no-color", "--histogram-bin-size","123","tasks.yml")
 
     assert code == 0
     p = Path("time_estimation.json")
     j = loads(p.read_text())
 
-    assert j["histogram"]["bucket_size"] == 123
+    assert j["histogram"]["bin_size"] == 123

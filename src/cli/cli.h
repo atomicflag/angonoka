@@ -8,6 +8,8 @@
 
 namespace angonoka::cli {
 namespace detail {
+    using angonoka::detail::Histogram;
+
     /**
         Output histogram stats to JSON.
 

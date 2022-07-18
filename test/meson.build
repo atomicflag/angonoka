@@ -27,6 +27,7 @@ base_test = executable(
     'cli/duration.cpp',
     'cli/schedule.cpp',
     'cli/predict.cpp',
+    'histogram.cpp',
     'stun/temperature.cpp'
   ],
   dependencies : [ base, test_deps ],

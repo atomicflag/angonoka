@@ -7,6 +7,7 @@ predict_test = executable(
     'predict.cpp',
     root_dir / 'src/project.cpp',
     root_dir / 'src/predict.cpp',
+    root_dir / 'src/histogram.cpp',
     root_dir / 'src/stun/schedule.cpp',
   ],
   dependencies : [ test_deps, dependencies ],

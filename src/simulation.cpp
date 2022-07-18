@@ -8,6 +8,7 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/numeric/accumulate.hpp>
+#include <range/v3/range/operations.hpp>
 #include <range/v3/view/transform.hpp>
 
 namespace {
@@ -19,28 +20,6 @@ using RollingMeanAcc
 using namespace angonoka;
 constexpr auto quantile_count = 5;
 using Quantiles = std::array<float, quantile_count>;
-
-/**
-    Return the middle value of the histogram bin.
-
-    @param histogram Histogram of simulation makespans
-    @param bin       Index of the bin
-
-    @return Bin middle value in seconds.
-*/
-std::chrono::seconds
-bin_middle_value(const Histogram& histogram, int bin)
-{
-    using std::chrono::seconds;
-
-    Expects(bin >= 0);
-    Expects(histogram.size() > 0);
-
-    if (bin >= std::ssize(histogram))
-        bin = gsl::narrow<int>(std::ssize(histogram) - 1);
-    const auto center = histogram.axis().bin(bin).center();
-    return seconds{gsl::narrow<seconds::rep>(std::round(center))};
-}
 
 /**
     Mean absolute percentage error of the histogram quantiles.
@@ -59,9 +38,8 @@ bin_middle_value(const Histogram& histogram, int bin)
 
     @return Error value, smaller value means higher accuracy
 */
-float mean_absolute_pct_error(
-    const PSquareAcc& acc,
-    Quantiles& quantiles)
+[[nodiscard]] float
+mean_absolute_pct_error(const PSquareAcc& acc, Quantiles& quantiles)
 {
     Expects(!quantiles.empty());
 
@@ -78,6 +56,20 @@ float mean_absolute_pct_error(
     Ensures(error >= 0.F);
 
     return error / gsl::narrow<float>(quantiles.size());
+}
+
+/**
+    Convert Boost's safe numerics to seconds.
+
+    @param value Safe numeric value
+
+    @return Value in seconds
+*/
+[[nodiscard]] std::chrono::seconds to_seconds(int32 value) noexcept
+{
+    Expects(value >= 0);
+
+    return std::chrono::seconds{base_value(value)};
 }
 } // namespace
 
@@ -346,7 +338,7 @@ Simulation::operator=(Simulation&& other) noexcept = default;
 
 Simulation::~Simulation() noexcept = default;
 
-[[nodiscard]] float granularity(std::chrono::seconds makespan)
+[[nodiscard]] int32 granularity(std::chrono::seconds makespan)
 {
     using namespace std::chrono_literals;
     using std::chrono::days;
@@ -368,17 +360,18 @@ Simulation::~Simulation() noexcept = default;
 namespace {
 using namespace angonoka;
 using angonoka::detail::granularity;
+using angonoka::detail::Histogram;
 using angonoka::detail::Simulation;
 
 /**
-    Pick a bucket size for the histogram.
+    Pick a bin size for the histogram.
 
     @param config   Project configuration
     @param schedule Optimized schedule
 
     @return Histogram granularity in seconds.
 */
-[[nodiscard]] float parse_granularity(
+[[nodiscard]] int32 parse_granularity(
     const Project& config,
     const OptimizedSchedule& schedule)
 {
@@ -386,8 +379,7 @@ using angonoka::detail::Simulation;
 
     Expects(schedule.makespan >= 1s);
 
-    if (config.bucket_size)
-        return static_cast<float>(config.bucket_size->count());
+    if (config.bin_size) return config.bin_size->count();
     return granularity(schedule.makespan);
 }
 
@@ -399,7 +391,7 @@ struct HistogramOp {
     gsl::not_null<const OptimizedSchedule*> schedule;
     stun::RandomUtils random{};
     Simulation sim{{.config{config}, .random{&random}}};
-    Histogram hist{{{1, 0.F, parse_granularity(*config, *schedule)}}};
+    Histogram hist{parse_granularity(*config, *schedule)};
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
     static constexpr Quantiles probs
         = {0.25F, 0.50F, 0.75F, 0.95F, 0.99F};
@@ -454,7 +446,7 @@ struct HistogramOp {
 } // namespace
 
 namespace angonoka {
-[[nodiscard]] Histogram
+[[nodiscard]] detail::Histogram
 histogram(const Project& config, const OptimizedSchedule& schedule)
 {
     Expects(!config.tasks.empty());
@@ -463,25 +455,30 @@ histogram(const Project& config, const OptimizedSchedule& schedule)
     return HistogramOp{&config, &schedule}();
 }
 
-HistogramStats stats(const Histogram& histogram)
+HistogramStats stats(const detail::Histogram& histogram)
 {
+    using ranges::back;
+
     Expects(histogram.size() > 0);
 
     const float total = ranges::accumulate(histogram, 0.F);
     HistogramStats stats;
-    float count = 0;
-    int bin = 0;
+    float count = 0.F;
+    int bin_index = 0;
 
     // Accumulates histogram bins until the threshold is reached
     const auto accumulate_until = [&](auto threshold) {
         Expects(threshold >= 0.F);
 
-        for (; bin < std::ssize(histogram); ++bin) {
-            count += static_cast<float>(histogram[bin]);
-            if (count >= threshold)
-                return bin_middle_value(histogram, bin++);
+        for (; bin_index < std::ssize(histogram); ++bin_index) {
+            const auto bin = histogram[bin_index];
+            count += static_cast<float>(bin);
+            if (count >= threshold) {
+                ++bin_index;
+                return to_seconds(bin.middle);
+            }
         }
-        return bin_middle_value(histogram, bin);
+        return to_seconds(back(histogram).middle);
     };
 
     stats.p25 = accumulate_until(total * 0.25F); // NOLINT

@@ -143,9 +143,9 @@ auto default_group(CLI::App& cli, Options& options)
         ->default_str("time_estimation.json");
     group
         ->add_option(
-            "--histogram-bucket-size",
-            options.bucket_size,
-            "Histogram bucket size in seconds")
+            "--histogram-bin-size",
+            options.bin_size,
+            "Histogram bin size in seconds")
         ->check(CLI::PositiveNumber);
     return group;
 }

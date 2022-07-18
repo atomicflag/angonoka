@@ -48,8 +48,8 @@ const defaultProject = `
     }
   ],
   "histogram": {
-    "bucket_size": 60,
-    "buckets": [
+    "bin_size": 60,
+    "bins": [
       [0, 1],
       [60, 3],
       [120, 7],

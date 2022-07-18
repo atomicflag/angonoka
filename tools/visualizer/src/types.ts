@@ -7,8 +7,8 @@ export type Task = {
 };
 
 export type Histogram = {
-  bucket_size: number;
-  buckets: [number, number][];
+  bin_size: number;
+  bins: [number, number][];
 };
 
 export type Stats = {

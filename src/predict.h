@@ -1,8 +1,8 @@
 #pragma once
 
+#include "histogram.h"
 #include "project.h"
 #include "stun/schedule.h"
-#include <boost/histogram.hpp>
 #include <boost/variant2/variant.hpp>
 #include <chrono>
 #include <future>
@@ -13,22 +13,6 @@
 namespace angonoka {
 template <typename... Ts>
 using variant = boost::variant2::variant<Ts...>;
-
-/**
-    Histogram type alias.
-
-    Used as a return type of the histogram function.
-
-    The size of the bins is picked dynamically according to
-    the expected makespan. Each bin contains the count of
-    simulations within the bin's makespan range.
-*/
-using Histogram = boost::histogram::histogram<
-    std::tuple<boost::histogram::axis::regular<
-        float,
-        boost::use_default,
-        boost::histogram::axis::null_type,
-        boost::histogram::axis::option::growth_t>>>;
 
 /**
     Histogram percentiles.
@@ -69,7 +53,7 @@ struct OptimizedSchedule {
     @var makespan   Makespan in seconds
 */
 struct Prediction {
-    Histogram histogram;
+    detail::Histogram histogram;
     HistogramStats stats;
     std::vector<stun::ScheduleItem> schedule;
     std::chrono::seconds makespan;

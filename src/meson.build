@@ -17,6 +17,7 @@ base_lib = static_library(
     'cli/events.cpp',
     'cli/schedule.cpp',
     'project.cpp',
+    'histogram.cpp',
     'exceptions.cpp',
     'predict.cpp',
     'simulation.cpp',

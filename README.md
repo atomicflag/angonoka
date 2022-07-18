@@ -289,8 +289,8 @@ This will output a histogram, stats and the optimized schedule to `time_estimati
 ```js
 {
     "histogram": {
-        "bucket_size": 3600,
-        "buckets": [
+        "bin_size": 3600,
+        "bins": [
             [
                 198000,
                 1
@@ -321,9 +321,9 @@ This will output a histogram, stats and the optimized schedule to `time_estimati
 
 For **makespan** and **tasks** see [Schedule](#schedule).
 
-**histogram.bucket_size** is the size of each bucket in seconds.
+**histogram.bin_size** is the size of each bucket in seconds.
 
-**histogram.buckets** is an array of buckets where each bucket is `[lower value, count]`. 
+**histogram.bins** is an array of bins where each bucket is `[lower value, count]`. 
 
 **stats** contains some commonly used quantiles for the histogram.
 
