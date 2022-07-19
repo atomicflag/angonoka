@@ -2,8 +2,6 @@
 
 Angonoka is a time estimation software based on statistical modeling.
 
-:warning: *This project is still in development.* :warning:
-
 [![pipeline status](https://gitlab.com/signal9/angonoka/badges/master/pipeline.svg)](https://gitlab.com/signal9/angonoka/commits/master)
 [![coverage report](https://gitlab.com/signal9/angonoka/badges/master/coverage.svg)](https://gitlab.com/signal9/angonoka/commits/master)
 [![license](https://img.shields.io/badge/license-MIT-green)](/LICENSE)
