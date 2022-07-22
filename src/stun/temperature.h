@@ -19,8 +19,7 @@ namespace tag = boost::accumulators::tag;
     The lower the value the slower the beta parameter
     will adjust to new stun values.
 */
-struct BetaScale : detail::OpaqueFloat {
-};
+struct BetaScale : detail::OpaqueFloat { };
 
 /**
     STUN rolling mean window.

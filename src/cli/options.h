@@ -11,8 +11,7 @@ namespace angonoka::cli {
 
     Will abort the CLI with EXIT_FAILURE code.
 */
-struct UserError : std::exception {
-};
+struct UserError : std::exception { };
 
 /**
     CLI optimization parameters.

@@ -231,7 +231,7 @@ update-deps:
 	  -e CONAN_USER \
 	  -v $$(pwd):/app \
 	  --entrypoint /bin/bash \
-	  registry.gitlab.com/signal9/cpp-env:13.0.0 <<"EOF"
+	  registry.gitlab.com/signal9/cpp-env:14.0.6 <<"EOF"
 	python3 -m pip --no-cache-dir install --upgrade conan
 	apt-get update
 	apt-get install -y --no-install-recommends jq
