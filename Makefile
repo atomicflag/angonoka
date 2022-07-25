@@ -54,7 +54,8 @@ build/build.ninja: build/conaninfo.txt
 			'-Dgsl_CONFIG_UNENFORCED_CONTRACTS_ELIDE '
 			'-DNDEBUG '
 			'-o ', 1) \
-			.replace('-DUNIT_TEST', '')
+			.replace('-DUNIT_TEST', '') \
+			.replace('-Dgsl_CONFIG_CONTRACT_VIOLATION_THROWS', '')
 		json.dump(data, open('compile_commands.json', 'w'))
 	EOF
 

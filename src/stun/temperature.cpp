@@ -77,26 +77,19 @@ void Temperature::reset()
     Ensures(value == 1.0F);
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 Temperature& Temperature::operator=(Temperature&& other) noexcept
 {
     value = other.value;
     stun_window = other.stun_window;
-    try {
-        acc = other.acc;
-    } catch (...) {
-        // 99% certain that the missing noexcept on
-        // accumulator's copy ctor is a bug in
-        // a boost lib.
-#ifdef __llvm__
-        __builtin_unreachable();
-#endif // __llvm__
-    }
+    acc = other.acc;
     beta_scale = other.beta_scale;
     restart_period_mask = other.restart_period_mask;
     return *this;
 }
 
 Temperature::Temperature(const Temperature& other) = default;
+// NOLINTNEXTLINE(bugprone-exception-escape)
 Temperature::Temperature(Temperature&& other) noexcept = default;
 Temperature& Temperature::operator=(const Temperature& other)
     = default;

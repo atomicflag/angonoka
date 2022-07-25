@@ -38,6 +38,7 @@ public:
         @param data     Array of ints
         @param sizes    Array of span sizes
     */
+    // NOLINTNEXTLINE(bugprone-exception-escape)
     Vector2D(
         std::vector<int16>&& data,
         span<const int16> sizes) noexcept;

@@ -172,6 +172,7 @@ Vector2D::Vector2D(const Vector2D& other)
     Ensures(other.size() == size());
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 Vector2D::Vector2D(
     std::vector<int16>&& data,
     span<const int16> sizes) noexcept

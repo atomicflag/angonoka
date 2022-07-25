@@ -66,6 +66,7 @@ public:
     Temperature(const Temperature& other);
     Temperature(Temperature&& other) noexcept;
     Temperature& operator=(const Temperature& other);
+    // NOLINTNEXTLINE(bugprone-exception-escape)
     Temperature& operator=(Temperature&& other) noexcept;
     ~Temperature() noexcept;
 
